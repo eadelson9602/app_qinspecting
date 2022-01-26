@@ -1,0 +1,3 @@
+color verde amarillo => 103 210 0
+color verde oscuro => 31 133 53
+color amarillo => 249 195 56
