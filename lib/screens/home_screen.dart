@@ -26,7 +26,10 @@ class HomeScreen extends StatelessWidget {
           ),
           child: const CustomDrawer()),
       body: const SafeArea(
-        child: _HomePageBody(),
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: _HomePageBody(),
+        ),
       ),
       bottomNavigationBar: const CustomNavigationBar(),
     );
