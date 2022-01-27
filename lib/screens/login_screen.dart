@@ -15,7 +15,7 @@ class LoginScreen extends StatelessWidget {
           child: Column(
             children: [
               SizedBox(
-                height: _sizeScreen.height * 0.25,
+                height: _sizeScreen.height * 0.30,
               ),
               const Text(
                 'Iniciar Sesión',
