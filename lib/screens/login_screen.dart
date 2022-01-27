@@ -1,9 +1,13 @@
-import 'package:app_qinspecting/providers/providers.dart';
-import 'package:app_qinspecting/ui/input_decorations.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'package:app_qinspecting/ui/input_decorations.dart';
+
+import 'package:app_qinspecting/providers/providers.dart';
+
+import 'package:app_qinspecting/services/services.dart';
 
 import 'package:app_qinspecting/widgets/widgets.dart';
-import 'package:provider/provider.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -86,6 +90,8 @@ class _FormLogin extends StatelessWidget {
                   if (value!.isEmpty) return 'Ingrese su usuario';
                   return null;
                 },
+                onChanged: (value) =>
+                    value.isEmpty ? '' : loginForm.usuario = int.parse(value),
                 decoration: InputDecorations.authInputDecorations(
                     hintText: '1121947539',
                     labelText: 'Usuario',
@@ -98,6 +104,7 @@ class _FormLogin extends StatelessWidget {
                 autocorrect: false,
                 obscureText: true,
                 keyboardType: TextInputType.text,
+                onChanged: (value) => loginForm.password = value,
                 validator: (value) {
                   if (value!.isEmpty) return 'Ingrese su contraseña';
                   return null;
@@ -135,7 +142,16 @@ class ButtonLogin extends StatelessWidget {
           ? null
           : () async {
               FocusScope.of(context).unfocus();
+
+              final loginService =
+                  Provider.of<LoginService>(context, listen: false);
+
               if (!loginForm.isValidForm()) return;
+              loginForm.isLoading = true;
+
+              final empresas = await loginService.login(
+                  loginForm.usuario, loginForm.password);
+
               showModalBottomSheet(
                   isScrollControlled: false,
                   shape: const RoundedRectangleBorder(
