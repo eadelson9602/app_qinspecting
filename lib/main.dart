@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'screens/screens.dart';
 
-import 'package:app_qinspecting/providers/ui_provider.dart';
+import 'package:app_qinspecting/providers/providers.dart';
 
 void main() {
   runApp(const MyApp());
