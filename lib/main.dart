@@ -5,8 +5,26 @@ import 'screens/screens.dart';
 
 import 'package:app_qinspecting/providers/providers.dart';
 
+import 'services/services.dart';
+
 void main() {
-  runApp(const MyApp());
+  runApp(const AppState());
+}
+
+class AppState extends StatelessWidget {
+  const AppState({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(providers: [
+      ChangeNotifierProvider(
+        create: (_) => UiProvider(),
+      ),
+      ChangeNotifierProvider(
+        create: (_) => EmpresasService(),
+      )
+    ], child: const MyApp());
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -15,24 +33,17 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => UiProvider(),
-        )
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Home Page',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        initialRoute: 'login',
-        routes: {
-          'login': (_) => const LoginScreen(),
-          'home': (_) => const HomeScreen(),
-        },
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Home Page',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
       ),
+      initialRoute: 'login',
+      routes: {
+        'login': (_) => const LoginScreen(),
+        'home': (_) => const HomeScreen(),
+      },
     );
   }
 }
