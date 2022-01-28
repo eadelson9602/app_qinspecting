@@ -132,10 +132,10 @@ class ButtonLogin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loginForm = Provider.of<LoginFormProvider>(context);
+
     return MaterialButton(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-      disabledColor: Colors.green,
       minWidth: 300,
       child: TextButtonLogin(loginForm: loginForm),
       onPressed: loginForm.isLoading
@@ -151,7 +151,7 @@ class ButtonLogin extends StatelessWidget {
 
               final empresas = await loginService.login(
                   loginForm.usuario, loginForm.password);
-
+              loginForm.isLoading = false;
               showModalBottomSheet(
                   isScrollControlled: false,
                   shape: const RoundedRectangleBorder(
