@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/ui/input_decorations.dart';
 
+import 'package:app_qinspecting/providers/db_provider.dart';
 import 'package:app_qinspecting/providers/providers.dart';
 
 import 'package:app_qinspecting/services/services.dart';
@@ -143,13 +144,17 @@ class ButtonLogin extends StatelessWidget {
           : () async {
               FocusScope.of(context).unfocus();
 
+              DBProvider.db.database;
+
               final loginService =
                   Provider.of<LoginService>(context, listen: false);
 
               if (!loginForm.isValidForm()) return;
               loginForm.isLoading = true;
 
-              final empresas = await loginService.login(loginForm.usuario, loginForm.password);
+              final empresas = await loginService.login(
+                  loginForm.usuario, loginForm.password);
+              // print(empresas[0].nombreBase);
               loginForm.isLoading = false;
               showModalBottomSheet(
                   isScrollControlled: false,
@@ -158,31 +163,37 @@ class ButtonLogin extends StatelessWidget {
                           BorderRadius.vertical(top: Radius.circular(20))),
                   context: context,
                   builder: (context) => Container(
-                      padding: const EdgeInsets.all(20),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            ListTile(
-                              leading: const Icon(Icons.usb_rounded),
-                              title: const Text('Empresa 1'),
-                              trailing: const Icon(Icons.arrow_right_sharp),
-                              onTap: () {
-                                Navigator.popAndPushNamed(context, 'home');
-                              },
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.usb_rounded),
-                              title: const Text('Empresa 1'),
-                              trailing: const Icon(Icons.arrow_right_sharp),
-                              onTap: () {
-                                Navigator.popAndPushNamed(context, 'home');
-                              },
-                            ),
-                          ],
+                        height: empresas.length > 2 ? 250 : 150,
+                        padding: const EdgeInsets.all(20),
+                        child: ListView.builder(
+                          itemCount: empresas.length,
+                          itemBuilder: (_, int i) => ListTile(
+                            leading: getImage(empresas[i].rutaLogo.toString()),
+                            title: Text(empresas[i].nombreQi.toString()),
+                            trailing: const Icon(Icons.houseboat_rounded),
+                            onTap: () {
+                              Navigator.popAndPushNamed(context, 'home');
+                            },
+                          ),
                         ),
-                      )));
+                      ));
             },
     );
+  }
+
+  Widget getImage(String? url) {
+    if (url == null || url.contains('svg')) {
+      return const ClipRRect(
+        borderRadius: BorderRadius.all(Radius.circular(100)),
+        child: Image(
+          image: AssetImage('assets/images/no-image.png'),
+          height: 40,
+        ),
+      );
+    }
+    return FadeInImage(
+        placeholder: const AssetImage('assets/images/loading.gif'),
+        image: NetworkImage(url));
   }
 }
 

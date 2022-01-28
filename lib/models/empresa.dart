@@ -5,25 +5,25 @@
 import 'dart:convert';
 
 class Empresa {
-  Empresa({
-    this.nombreBase,
-    this.autCreateCap,
-    this.usuarioUser,
-    this.usuarioContra,
-    this.completeName,
-    this.persApellidos,
-    this.persNombres,
-    this.persCelular,
-    this.persEmail,
-    this.cargDescripcion,
-    this.persImagen,
-    this.empId,
-    this.rolId,
-    this.cantF,
-    this.razonSocial,
-    this.nombreQi,
-    this.urlQi,
-  });
+  Empresa(
+      {this.nombreBase,
+      this.autCreateCap,
+      this.usuarioUser,
+      this.usuarioContra,
+      this.completeName,
+      this.persApellidos,
+      this.persNombres,
+      this.persCelular,
+      this.persEmail,
+      this.cargDescripcion,
+      this.persImagen,
+      this.empId,
+      this.rolId,
+      this.cantF,
+      this.razonSocial,
+      this.nombreQi,
+      this.urlQi,
+      this.rutaLogo});
 
   String? nombreBase;
   int? autCreateCap;
@@ -42,6 +42,7 @@ class Empresa {
   String? razonSocial;
   String? nombreQi;
   String? urlQi;
+  String? rutaLogo;
 
   factory Empresa.fromJson(String str) => Empresa.fromMap(json.decode(str));
 
@@ -65,6 +66,7 @@ class Empresa {
         razonSocial: json["Razon_social"],
         nombreQi: json["nombre_QI"],
         urlQi: json["url_QI"],
+        rutaLogo: json["ruta_logo"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -85,5 +87,6 @@ class Empresa {
         "Razon_social": razonSocial,
         "nombre_QI": nombreQi,
         "url_QI": urlQi,
+        "ruta_logo": rutaLogo,
       };
 }
