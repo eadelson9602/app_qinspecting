@@ -26,7 +26,9 @@ class LoginService extends ChangeNotifier {
         data: json.encode(loginData));
     for (var item in response.data) {
       final tempEmpresa = Empresa.fromMap(item);
-      empresas.add(tempEmpresa);
+      final index =
+          empresas.indexWhere((element) => element.empId == tempEmpresa.empId);
+      if (index == -1) empresas.add(tempEmpresa);
     }
     isLoading = false;
     notifyListeners();
