@@ -6,8 +6,6 @@ import 'package:app_qinspecting/models/models.dart';
 
 class LoginService extends ChangeNotifier {
   var dio = Dio();
-
-  final String _baseUrl = 'apis.qinspecting.com';
   final List<Empresa> empresas = [];
   bool isLoading = false;
   bool isSaving = false;
@@ -21,7 +19,6 @@ class LoginService extends ChangeNotifier {
     notifyListeners();
 
     Response response;
-    // final response = await http.post(url, body: json.encode(loginData));
     response = await dio.post('https://apis.qinspecting.com/pflutter/new_login',
         data: json.encode(loginData));
     for (var item in response.data) {
