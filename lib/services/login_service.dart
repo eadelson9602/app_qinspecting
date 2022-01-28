@@ -20,7 +20,6 @@ class LoginService extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    final url = Uri.https(_baseUrl, '/pflutter/new_login');
     Response response;
     // final response = await http.post(url, body: json.encode(loginData));
     response = await dio.post('https://apis.qinspecting.com/pflutter/new_login',
