@@ -22,7 +22,6 @@ class DBProvider {
   Future<Database?> initDB() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     final path = p.join(documentsDirectory.path, 'qinspecting.db');
-    print(path);
 
     // Se crea la base de datos
     return await openDatabase(path, version: 1, onOpen: (db) {},
@@ -59,27 +58,31 @@ class DBProvider {
     return res;
   }
 
-  // Future<ScanModel?> getScanById(int id) async {
-  //   final db = await database;
-  //   final res = await db?.query('Scans', where: 'id = ?', whereArgs: [id]);
+  Future<Empresa?> getEmpresaById(int id) async {
+    final db = await database;
+    final res =
+        await db?.query('Empresas', where: 'Emp_Id = ?', whereArgs: [id]);
+    return res!.isNotEmpty ? Empresa.fromMap(res.first) : null;
+  }
 
-  //   return res!.isNotEmpty ? ScanModel.fromJson(res.first) : null;
-  // }
+  Future<int?> deleteEmpresa(int id) async {
+    final db = await database;
+    final res =
+        await db?.delete('Empresas', where: 'Emp_Id= ?', whereArgs: [id]);
+
+    return res;
+  }
+
+  Future<int?> deleteAllEmpresas() async {
+    final db = await database;
+    final res = await db?.delete('Empresas');
+
+    return res;
+  }
 
   // Future<List<ScanModel>?> getAllScan() async {
   //   final db = await database;
   //   final res = await db?.query('Scans');
-
-  //   return res!.isNotEmpty
-  //       ? res.map((s) => ScanModel.fromJson(s)).toList()
-  //       : [];
-  // }
-
-  // Future<List<ScanModel>?> getScansByTipo(String tipo) async {
-  //   final db = await database;
-  //   final res = await db?.rawQuery('''
-  //     SELECT * FROM Scans WHERE tipo='$tipo'
-  //   ''');
 
   //   return res!.isNotEmpty
   //       ? res.map((s) => ScanModel.fromJson(s)).toList()
@@ -94,17 +97,4 @@ class DBProvider {
   //   return res;
   // }
 
-  Future<int?> deleteScan(int id) async {
-    final db = await database;
-    final res = await db?.delete('Scans', where: 'id= ?', whereArgs: [id]);
-
-    return res;
-  }
-
-  Future<int?> deleteAllScans() async {
-    final db = await database;
-    final res = await db?.delete('Scans');
-
-    return res;
-  }
 }
