@@ -65,6 +65,13 @@ class DBProvider {
     return res!.isNotEmpty ? Empresa.fromMap(res.first) : null;
   }
 
+  Future<List<Empresa>?> getAllScan() async {
+    final db = await database;
+    final res = await db?.query('Empresas');
+
+    return res!.isNotEmpty ? res.map((s) => Empresa.fromMap(s)).toList() : [];
+  }
+
   Future<int?> deleteEmpresa(int id) async {
     final db = await database;
     final res =
@@ -79,15 +86,6 @@ class DBProvider {
 
     return res;
   }
-
-  // Future<List<ScanModel>?> getAllScan() async {
-  //   final db = await database;
-  //   final res = await db?.query('Scans');
-
-  //   return res!.isNotEmpty
-  //       ? res.map((s) => ScanModel.fromJson(s)).toList()
-  //       : [];
-  // }
 
   // Future<int?> updateScan(ScanModel nuevoScan) async {
   //   final db = await database;
