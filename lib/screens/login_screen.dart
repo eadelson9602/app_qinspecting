@@ -144,8 +144,6 @@ class ButtonLogin extends StatelessWidget {
           : () async {
               FocusScope.of(context).unfocus();
 
-              DBProvider.db.database;
-
               final loginService =
                   Provider.of<LoginService>(context, listen: false);
 
@@ -154,29 +152,38 @@ class ButtonLogin extends StatelessWidget {
 
               final empresas = await loginService.login(
                   loginForm.usuario, loginForm.password);
-              // print(empresas[0].nombreBase);
-              loginForm.isLoading = false;
-              showModalBottomSheet(
-                  isScrollControlled: false,
-                  shape: const RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(20))),
-                  context: context,
-                  builder: (context) => Container(
-                        height: empresas.length > 2 ? 250 : 150,
-                        padding: const EdgeInsets.all(20),
-                        child: ListView.builder(
-                          itemCount: empresas.length,
-                          itemBuilder: (_, int i) => ListTile(
-                            leading: getImage(empresas[i].rutaLogo.toString()),
-                            title: Text(empresas[i].nombreQi.toString()),
-                            trailing: const Icon(Icons.houseboat_rounded),
-                            onTap: () {
-                              Navigator.popAndPushNamed(context, 'home');
-                            },
+              if (empresas.isNotEmpty) {
+                showModalBottomSheet(
+                    isScrollControlled: false,
+                    shape: const RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.vertical(top: Radius.circular(20))),
+                    context: context,
+                    builder: (context) => Container(
+                          height: empresas.length > 2 ? 250 : 150,
+                          padding: const EdgeInsets.all(20),
+                          child: ListView.builder(
+                            itemCount: empresas.length,
+                            itemBuilder: (_, int i) => ListTile(
+                              leading:
+                                  getImage(empresas[i].rutaLogo.toString()),
+                              title: Text(empresas[i].nombreQi.toString()),
+                              trailing: const Icon(Icons.houseboat_rounded),
+                              onTap: () async {
+                                final empresa = await DBProvider.db
+                                    .getEmpresaById(empresas[i].empId!.toInt());
+                                if (empresa!.empId == null) {
+                                  DBProvider.db.nuevaEmpresa(empresas[i]);
+                                }
+                                Navigator.popAndPushNamed(context, 'home');
+                              },
+                            ),
                           ),
-                        ),
-                      ));
+                        ));
+              } else {
+                // TODO => Notificamos que no existe en el sistema
+              }
+              loginForm.isLoading = false;
             },
     );
   }
