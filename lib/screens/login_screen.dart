@@ -149,8 +149,7 @@ class ButtonLogin extends StatelessWidget {
               if (!loginForm.isValidForm()) return;
               loginForm.isLoading = true;
 
-              final empresas = await loginService.login(
-                  loginForm.usuario, loginForm.password);
+              final empresas = await loginService.login(loginForm.usuario, loginForm.password);
               loginForm.isLoading = false;
               showModalBottomSheet(
                   isScrollControlled: false,
