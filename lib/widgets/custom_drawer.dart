@@ -5,22 +5,28 @@ class CustomDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-        child: ListView(
-      children: const <Widget>[
-        ListTile(
-          leading: Icon(Icons.message),
-          title: Text('Messages'),
+    return Theme(
+        data: Theme.of(context).copyWith(
+          canvasColor: Colors
+              .green, // set the Color of the drawer transparent; we'll paint above it with the shape
         ),
-        ListTile(
-          leading: Icon(Icons.account_circle),
-          title: Text('Profile'),
-        ),
-        ListTile(
-          leading: Icon(Icons.settings),
-          title: Text('Settings'),
-        ),
-      ],
-    ));
+        child: Drawer(
+            child: ListView(
+          children: <Widget>[
+            ListTile(
+              leading: const Icon(Icons.message),
+              title: const Text('Perfil'),
+              onTap: () => Navigator.popAndPushNamed(context, 'profile'),
+            ),
+            const ListTile(
+              leading: Icon(Icons.account_circle),
+              title: Text('Documentos'),
+            ),
+            const ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Configuración'),
+            ),
+          ],
+        )));
   }
 }
