@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:app_qinspecting/ui/input_decorations.dart';
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -17,10 +18,167 @@ class ProfileScreen extends StatelessWidget {
             url:
                 'https://conceptodefinicion.de/wp-content/uploads/2016/01/Perfil2.jpg',
           ),
-          _PhotoDirectionCard()
+          _PhotoDirectionCard(),
         ],
-      )
+      ),
+      const SizedBox(
+        height: 20,
+      ),
+      _FormProfile(),
+      const SizedBox(
+        height: 30,
+      ),
     ])));
+  }
+}
+
+class _FormProfile extends StatelessWidget {
+  const _FormProfile({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Container(
+            padding:
+                const EdgeInsets.only(right: 20, left: 20, top: 15, bottom: 40),
+            width: double.infinity,
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: const [
+                  BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 15,
+                      offset: Offset(0, 5))
+                ]),
+            child: Form(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  const Text('Datos personales',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.black38)),
+                  TextFormField(
+                    autocorrect: false,
+                    keyboardType: TextInputType.text,
+                    validator: (value) {
+                      if (value!.isEmpty) return 'Ingrese nombres';
+                      return null;
+                    },
+                    decoration: InputDecorations.authInputDecorations(
+                        hintText: '',
+                        labelText: 'Nombres',
+                        prefixIcon: Icons.person),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  TextFormField(
+                    autocorrect: false,
+                    keyboardType: TextInputType.text,
+                    validator: (value) {
+                      if (value!.isEmpty) return 'Ingrese apellidos';
+                      return null;
+                    },
+                    decoration: InputDecorations.authInputDecorations(
+                        hintText: '',
+                        labelText: 'Apellidos',
+                        prefixIcon: Icons.person),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  DropdownButtonFormField(
+                      decoration: InputDecorations.authInputDecorations(
+                          prefixIcon: Icons.map,
+                          hintText: '',
+                          labelText: 'Departamento de expedición'),
+                      items: const [
+                        DropdownMenuItem(value: 1, child: Text('Ciudad 1'))
+                      ],
+                      onChanged: (value) {
+                        print(value);
+                      }),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  DropdownButtonFormField(
+                      decoration: InputDecorations.authInputDecorations(
+                          prefixIcon: Icons.location_city,
+                          hintText: '',
+                          labelText: 'Ciudad de expedición'),
+                      items: const [
+                        DropdownMenuItem(value: 1, child: Text('Ciudad 1'))
+                      ],
+                      onChanged: (value) {
+                        print(value);
+                      }),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  DropdownButtonFormField(
+                      decoration: InputDecorations.authInputDecorations(
+                          prefixIcon: Icons.assignment_ind,
+                          hintText: '',
+                          labelText: 'Tipo documento'),
+                      items: const [
+                        DropdownMenuItem(value: 1, child: Text('Ciudad 1'))
+                      ],
+                      onChanged: (value) {
+                        print(value);
+                      }),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  TextFormField(
+                    autocorrect: false,
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value!.isEmpty) return 'Ingrese su usuario';
+                      return null;
+                    },
+                    decoration: InputDecorations.authInputDecorations(
+                        hintText: '',
+                        labelText: 'Número documento',
+                        prefixIcon: Icons.badge),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  TextFormField(
+                    autocorrect: false,
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value!.isEmpty) return 'Ingrese su usuario';
+                      return null;
+                    },
+                    decoration: InputDecorations.authInputDecorations(
+                        hintText: '1121947539',
+                        labelText: 'Usuario',
+                        prefixIcon: Icons.person),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  TextFormField(
+                    autocorrect: false,
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value!.isEmpty) return 'Ingrese su usuario';
+                      return null;
+                    },
+                    decoration: InputDecorations.authInputDecorations(
+                        hintText: '1121947539',
+                        labelText: 'Usuario',
+                        prefixIcon: Icons.person),
+                  ),
+                ]))));
   }
 }
 
@@ -69,7 +227,8 @@ class _PhotoDirectionCard extends StatelessWidget {
                       bottom: -1,
                       left: 45,
                       child: ClipRRect(
-                        borderRadius: BorderRadius.all(Radius.circular(100)),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(100)),
                         child: Container(
                           height: 35,
                           width: 35,
@@ -78,7 +237,7 @@ class _PhotoDirectionCard extends StatelessWidget {
                               color: Colors.white,
                               iconSize: 20,
                               onPressed: () => print('HOla'),
-                              icon: Icon(Icons.camera_alt_sharp)),
+                              icon: const Icon(Icons.camera_alt_sharp)),
                         ),
                       ),
                     )
