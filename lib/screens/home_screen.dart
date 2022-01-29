@@ -13,18 +13,8 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Qinspecting'),
-        actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.notifications))
-        ],
-      ),
-      drawer: Theme(
-          data: Theme.of(context).copyWith(
-            canvasColor: Colors
-                .green, // set the Color of the drawer transparent; we'll paint above it with the shape
-          ),
-          child: const CustomDrawer()),
+      appBar: const CustomAppBar().createAppBar(),
+      drawer: const CustomDrawer(),
       body: const SafeArea(
         child: Padding(
           padding: EdgeInsets.all(20),
