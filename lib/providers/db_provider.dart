@@ -1,9 +1,9 @@
 import 'dart:io';
-
-import 'package:app_qinspecting/models/models.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+
+import 'package:app_qinspecting/models/models.dart';
 
 class DBProvider {
   static Database? _database;
@@ -27,26 +27,10 @@ class DBProvider {
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       await db.execute('''
-        CREATE TABLE Empresas(
-          Emp_Id INTEGER PRIMARY KEY,
-          aut_create_cap INTEGER,
-          Rol_Id INTEGER,
-          CantF INTEGER,
-          nombre_QI TEXT,
-          nombre_base TEXT,
-          ruta_logo TEXT,
-          url_QI TEXT,
-          Razon_social TEXT,
-          Pers_Imagen TEXT,
-          Carg_Descripcion TEXT,
-          Pers_Email TEXT,
-          Usuario_Contra TEXT,
-          Complete_Name TEXT,
-          Pers_Apellidos TEXT,
-          Pers_Nombres TEXT,
-          Pers_Celular TEXT,
-          UsuarioUser INTEGER
-        );
+        CREATE TABLE Empresas( Emp_Id INTEGER PRIMARY KEY, aut_create_cap INTEGER, Rol_Id INTEGER, CantF INTEGER, nombre_QI TEXT, nombre_base TEXT, ruta_logo TEXT, url_QI TEXT, Razon_social TEXT, Pers_Imagen TEXT, Carg_Descripcion TEXT, Pers_Email TEXT, Usuario_Contra TEXT, Complete_Name TEXT, Pers_Apellidos TEXT, Pers_Nombres TEXT, Pers_Celular TEXT, UsuarioUser INTEGER );
+      ''');
+      await db.execute('''
+        CREATE TABLE DataUsuario( id INTEGER PRIMARY KEY, UsuarioUser INTEGER, Usuario_Contra TEXT, Pers_LugarExpDoc INTEGER, Ciu_Nombre TEXT, Dpt_Id INTEGER, Departamento TEXT, Pers_FechaNaci TEXT, Pers_Genero TEXT, Pers_Rh TEXT, Pers_Arl TEXT, Pers_Eps TEXT, Pers_Afp TEXT, Pers_Celular TEXT, Pers_Direccion TEXT, Pers_Apellidos TEXT, Pers_Nombres TEXT, Pers_Email TEXT, Pers_Imagen TEXT, Carg_id INTEGER, Carg_Descripcion TEXT, Usuario_Estado INTEGER, estado INTEGER, TipoDoc_Id INTEGER, TipoDoc_Descrip TEXT, Rol_Id INTEGER, Rol_Nombre TEXT, Rol_Descripcion TEXT, DocCond_Id INTEGER, DocCond_Lice_Cond INTEGER, DocCond_CatLiceCond TEXT);
       ''');
     });
   }
@@ -87,12 +71,17 @@ class DBProvider {
     return res;
   }
 
-  // Future<int?> updateScan(ScanModel nuevoScan) async {
-  //   final db = await database;
-  //   final res = await db?.update('Scans', nuevoScan.toJson(),
-  //       where: 'id= ?', whereArgs: [nuevoScan.id]);
+  // CONSULTAS PARA USER DATA
+  Future<int?> nuevoUser(UserData nuevoUser) async {
+    final db = await database;
+    final res = await db?.insert('DataUsuario', nuevoUser.toMap());
+    return res;
+  }
 
-  //   return res;
-  // }
-
+  Future<UserData?> getUserById(int id) async {
+    final db = await database;
+    final res =
+        await db?.query('DataUsuario', where: 'id = ?', whereArgs: [id]);
+    return res!.isNotEmpty ? UserData.fromMap(res.first) : null;
+  }
 }
