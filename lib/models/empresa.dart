@@ -89,4 +89,24 @@ class Empresa {
         "url_QI": urlQi,
         "ruta_logo": rutaLogo,
       };
+  // Crea una copia del modelo
+  Empresa copy() => Empresa(
+      nombreBase: nombreBase,
+      autCreateCap: autCreateCap,
+      usuarioUser: usuarioUser,
+      usuarioContra: usuarioContra,
+      completeName: completeName,
+      persApellidos: persApellidos,
+      persNombres: persNombres,
+      persCelular: persCelular,
+      persEmail: persEmail,
+      cargDescripcion: cargDescripcion,
+      persImagen: persImagen,
+      empId: empId,
+      rolId: rolId,
+      cantF: cantF,
+      razonSocial: razonSocial,
+      nombreQi: nombreQi,
+      urlQi: urlQi,
+      rutaLogo: rutaLogo);
 }
