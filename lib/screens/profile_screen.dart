@@ -1,7 +1,8 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:date_field/date_field.dart';
 
 import 'package:app_qinspecting/ui/input_decorations.dart';
-import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -32,6 +33,8 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
+enum GenrePerson { masculino, femenino }
+
 class _FormProfile extends StatelessWidget {
   const _FormProfile({
     Key? key,
@@ -39,6 +42,7 @@ class _FormProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    GenrePerson? _generoSelected = GenrePerson.masculino;
     return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -65,6 +69,7 @@ class _FormProfile extends StatelessWidget {
                           fontWeight: FontWeight.w400,
                           color: Colors.black38)),
                   TextFormField(
+                    textCapitalization: TextCapitalization.words,
                     autocorrect: false,
                     keyboardType: TextInputType.text,
                     validator: (value) {
@@ -80,6 +85,7 @@ class _FormProfile extends StatelessWidget {
                     height: 10,
                   ),
                   TextFormField(
+                    textCapitalization: TextCapitalization.words,
                     autocorrect: false,
                     keyboardType: TextInputType.text,
                     validator: (value) {
@@ -137,6 +143,7 @@ class _FormProfile extends StatelessWidget {
                     height: 10,
                   ),
                   TextFormField(
+                    textCapitalization: TextCapitalization.words,
                     autocorrect: false,
                     keyboardType: TextInputType.number,
                     validator: (value) {
@@ -151,32 +158,41 @@ class _FormProfile extends StatelessWidget {
                   const SizedBox(
                     height: 10,
                   ),
-                  TextFormField(
-                    autocorrect: false,
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value!.isEmpty) return 'Ingrese su usuario';
-                      return null;
-                    },
+                  DateTimeFormField(
                     decoration: InputDecorations.authInputDecorations(
-                        hintText: '1121947539',
-                        labelText: 'Usuario',
-                        prefixIcon: Icons.person),
+                        hintText: '',
+                        labelText: 'Fecha de nacimiento',
+                        prefixIcon: Icons.calendar_today),
+                    autovalidateMode: AutovalidateMode.always,
+                    mode: DateTimeFieldPickerMode.date,
+                    validator: (DateTime? e) =>
+                        (e?.day ?? 0) == 1 ? 'Seleccione una fecha' : null,
+                    onDateSelected: (DateTime value) {
+                      print(value);
+                    },
                   ),
                   const SizedBox(
                     height: 10,
                   ),
-                  TextFormField(
-                    autocorrect: false,
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value!.isEmpty) return 'Ingrese su usuario';
-                      return null;
+                  RadioListTile(
+                    title: const Text('Masculino'),
+                    tileColor: Colors.green,
+                    selectedTileColor: Colors.green,
+                    value: GenrePerson.masculino,
+                    groupValue: _generoSelected,
+                    onChanged: (GenrePerson? value) {
+                      _generoSelected = value;
                     },
-                    decoration: InputDecorations.authInputDecorations(
-                        hintText: '1121947539',
-                        labelText: 'Usuario',
-                        prefixIcon: Icons.person),
+                  ),
+                  RadioListTile(
+                    title: const Text('Femenino'),
+                    tileColor: Colors.green,
+                    selectedTileColor: Colors.green,
+                    value: GenrePerson.femenino,
+                    groupValue: _generoSelected,
+                    onChanged: (GenrePerson? value) {
+                      _generoSelected = value;
+                    },
                   ),
                 ]))));
   }
