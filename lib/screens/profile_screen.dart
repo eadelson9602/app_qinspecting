@@ -1,15 +1,19 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+
 import 'package:date_field/date_field.dart';
+import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/ui/input_decorations.dart';
+
+import 'package:app_qinspecting/services/services.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final _screenSize = MediaQuery.of(context).size;
+    final loginService = Provider.of<LoginService>(context);
     return Scaffold(
         body: SingleChildScrollView(
             child: Column(children: [
