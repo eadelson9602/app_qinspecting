@@ -94,7 +94,7 @@ class _FormLogin extends StatelessWidget {
                 onChanged: (value) =>
                     value.isEmpty ? '' : loginForm.usuario = int.parse(value),
                 decoration: InputDecorations.authInputDecorations(
-                    hintText: '1121947539',
+                    hintText: '',
                     labelText: 'Usuario',
                     prefixIcon: Icons.person),
               ),
@@ -172,9 +172,21 @@ class ButtonLogin extends StatelessWidget {
                               onTap: () async {
                                 final empresa = await DBProvider.db
                                     .getEmpresaById(empresas[i].empId!.toInt());
-                                if (empresa!.empId == null) {
+                                if (empresa?.empId == null) {
                                   DBProvider.db.nuevaEmpresa(empresas[i]);
                                 }
+                                // Asignamos al servicio la empresa seleccionada
+                                loginService.selectedEmpresa =
+                                    empresas[i].copy();
+                                // Lanzamos la petición get para obtner los datos del usuario logueado
+                                final userData =
+                                    await loginService.getUserData();
+                                final user = await DBProvider.db
+                                    .getUserById(userData.id!);
+                                if (user?.id == null) {
+                                  DBProvider.db.nuevoUser(userData);
+                                }
+                                // Guardamos los datos del usuario en la bd
                                 Navigator.popAndPushNamed(context, 'home');
                               },
                             ),
