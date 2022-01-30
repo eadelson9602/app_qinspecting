@@ -10,6 +10,8 @@ class LoginService extends ChangeNotifier {
   bool isLoading = false;
   bool isSaving = false;
 
+  Empresa? selectedEmpresa;
+
   Future<List<Empresa>> login(int user, String password) async {
     final Map<String, String> loginData = {
       'user': '$user',
@@ -31,5 +33,22 @@ class LoginService extends ChangeNotifier {
     notifyListeners();
 
     return empresas;
+  }
+
+  Future<UserData> getUserData() async {
+    isLoading = true;
+    notifyListeners();
+    final baseEmpresa = selectedEmpresa!.nombreBase;
+    final usuario = selectedEmpresa!.usuarioUser;
+
+    Response response;
+    response = await dio.get(
+        'https://apis.qinspecting.com/pflutter/list_data_user/$baseEmpresa/$usuario');
+    final tempUserData = UserData.fromJson(response.toString());
+
+    isLoading = false;
+    notifyListeners();
+
+    return tempUserData;
   }
 }
