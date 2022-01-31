@@ -24,10 +24,13 @@ class CustomDrawer extends StatelessWidget {
               ),
               onTap: () => Navigator.popAndPushNamed(context, 'profile'),
             ),
-            const ListTile(
-              leading: Icon(Icons.fact_check, color: Colors.green),
-              title: Text('Inspección', style: TextStyle(color: Colors.green)),
-            ),
+            ListTile(
+                leading: const Icon(Icons.fact_check, color: Colors.green),
+                title: const Text(
+                  'Inspección',
+                  style: TextStyle(color: Colors.green),
+                ),
+                onTap: () => Navigator.popAndPushNamed(context, 'inspeccion')),
             const ListTile(
               leading: Icon(Icons.send, color: Colors.green),
               title: Text('Enviar inspecciones',
