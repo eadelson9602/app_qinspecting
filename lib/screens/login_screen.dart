@@ -185,7 +185,10 @@ class ButtonLogin extends StatelessWidget {
                                     .getUserById(userData.id!);
                                 if (user?.id == null) {
                                   DBProvider.db.nuevoUser(userData);
+                                } else {
+                                  DBProvider.db.updateScan(userData);
                                 }
+                                loginService.userDataLogged = user;
                                 // Guardamos los datos del usuario en la bd
                                 Navigator.popAndPushNamed(context, 'home');
                               },
