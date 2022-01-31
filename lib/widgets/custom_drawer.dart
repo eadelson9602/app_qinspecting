@@ -14,17 +14,29 @@ class CustomDrawer extends StatelessWidget {
             child: ListView(
           children: <Widget>[
             ListTile(
-              leading: const Icon(Icons.message),
-              title: const Text('Perfil'),
+              leading: const Icon(
+                Icons.account_box,
+                color: Colors.green,
+              ),
+              title: const Text(
+                'Perfil',
+                style: TextStyle(color: Colors.green),
+              ),
               onTap: () => Navigator.popAndPushNamed(context, 'profile'),
             ),
             const ListTile(
-              leading: Icon(Icons.account_circle),
-              title: Text('Documentos'),
+              leading: Icon(Icons.fact_check, color: Colors.green),
+              title: Text('Inspección', style: TextStyle(color: Colors.green)),
             ),
             const ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Configuración'),
+              leading: Icon(Icons.send, color: Colors.green),
+              title: Text('Enviar inspecciones',
+                  style: TextStyle(color: Colors.green)),
+            ),
+            const ListTile(
+              leading: Icon(Icons.settings, color: Colors.green),
+              title:
+                  Text('Configuración', style: TextStyle(color: Colors.green)),
             ),
           ],
         )));
