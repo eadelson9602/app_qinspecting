@@ -22,7 +22,10 @@ class AppState extends StatelessWidget {
       ),
       ChangeNotifierProvider(
         create: (_) => LoginService(),
-      )
+      ),
+      ChangeNotifierProvider(
+        create: (_) => InspeccionProvider(),
+      ),
     ], child: const MyApp());
   }
 }
