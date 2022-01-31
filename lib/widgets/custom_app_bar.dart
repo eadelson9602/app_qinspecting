@@ -10,10 +10,11 @@ class CustomAppBar extends StatelessWidget {
 
   AppBar createAppBar() {
     return AppBar(
-    title: const Text('Qinspecting'),
-    actions: [
-      IconButton(onPressed: () {}, icon: const Icon(Icons.notifications))
-    ],
-  );
+      title: const Text('Qinspecting'),
+      backgroundColor: Colors.green,
+      actions: [
+        IconButton(onPressed: () {}, icon: const Icon(Icons.notifications))
+      ],
+    );
   }
 }
