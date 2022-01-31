@@ -8,7 +8,7 @@ class CustomDrawer extends StatelessWidget {
     return Theme(
         data: Theme.of(context).copyWith(
           canvasColor: Colors
-              .green, // set the Color of the drawer transparent; we'll paint above it with the shape
+              .white, // set the Color of the drawer transparent; we'll paint above it with the shape
         ),
         child: Drawer(
             child: ListView(
