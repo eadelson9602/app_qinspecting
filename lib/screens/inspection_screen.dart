@@ -35,8 +35,9 @@ class InspectionScreen extends StatelessWidget {
                     autocorrect: false,
                     keyboardType: TextInputType.text,
                     validator: (value) {
-                      if (value!.isEmpty)
+                      if (value!.isEmpty) {
                         return 'Ingrese foto de la guía transporte';
+                      }
                       return null;
                     },
                     decoration: InputDecorations.authInputDecorations(
