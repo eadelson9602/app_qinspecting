@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
         'login': (_) => const LoginScreen(),
         'home': (_) => const HomeScreen(),
         'profile': (_) => const ProfileScreen(),
-        'inspeccion': (_) => const InspeccionScreen()
+        'inspeccion': (_) => const ScaffoldInspeccionScreen()
       },
     );
   }
