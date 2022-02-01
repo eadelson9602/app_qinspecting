@@ -84,4 +84,12 @@ class DBProvider {
         await db?.query('DataUsuario', where: 'id = ?', whereArgs: [id]);
     return res!.isNotEmpty ? UserData.fromMap(res.first) : null;
   }
+
+  Future<int?> updateScan(UserData nuevoDatosUsuario) async {
+    final db = await database;
+    final res = await db?.update('DataUsuario', nuevoDatosUsuario.toMap(),
+        where: 'id= ?', whereArgs: [nuevoDatosUsuario.id]);
+
+    return res;
+  }
 }
