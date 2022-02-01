@@ -41,7 +41,7 @@ dependencies:
   dio: ^4.0.4
   sqflite: ^2.0.2
   path_provider: ^2.0.8
-  date_field: ^2.1.2
+  date_time_picker: ^2.1.0
 
 dev_dependencies:
   flutter_test:
