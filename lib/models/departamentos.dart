@@ -34,12 +34,10 @@ class Ciudade {
   Ciudade({
     required this.value,
     required this.label,
-    required this.dptValue,
   });
 
   int value;
   String label;
-  int dptValue;
 
   factory Ciudade.fromJson(String str) => Ciudade.fromMap(json.decode(str));
 
@@ -48,12 +46,10 @@ class Ciudade {
   factory Ciudade.fromMap(Map<String, dynamic> json) => Ciudade(
         value: json["value"],
         label: json["label"],
-        dptValue: json["dpt_value"],
       );
 
   Map<String, dynamic> toMap() => {
         "value": value,
         "label": label,
-        "dpt_value": dptValue,
       };
 }
