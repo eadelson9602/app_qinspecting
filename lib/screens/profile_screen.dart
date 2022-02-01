@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:app_qinspecting/providers/perfil_form_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -14,13 +15,28 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loginService = Provider.of<LoginService>(context);
+    return ChangeNotifierProvider(
+      create: (_) => PerfilFormProvider(loginService.userDataLogged!),
+      child: const _BodyPerfilForm(),
+    );
+  }
+}
+
+class _BodyPerfilForm extends StatelessWidget {
+  const _BodyPerfilForm({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final perfilForm = Provider.of<PerfilFormProvider>(context);
     return Scaffold(
         body: SingleChildScrollView(
             child: Column(children: [
       Stack(
         children: [
           _PortadaProfile(
-            url: loginService.userDataLogged?.persImagen,
+            url: perfilForm.userDataLogged.persImagen,
           ),
           const _PhotoDirectionCard(),
         ],
@@ -28,7 +44,7 @@ class ProfileScreen extends StatelessWidget {
       const SizedBox(
         height: 20,
       ),
-      _FormProfile(),
+      const _FormProfile(),
       const SizedBox(
         height: 30,
       ),
@@ -45,7 +61,7 @@ class _FormProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loginService = Provider.of<LoginService>(context);
+    final perfilForm = Provider.of<PerfilFormProvider>(context);
     return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -74,7 +90,7 @@ class _FormProfile extends StatelessWidget {
                   TextFormField(
                     textCapitalization: TextCapitalization.words,
                     autocorrect: false,
-                    initialValue: loginService.userDataLogged!.persNombres,
+                    initialValue: perfilForm.userDataLogged.persNombres,
                     keyboardType: TextInputType.text,
                     validator: (value) {
                       if (value!.isEmpty) return 'Ingrese nombres';
@@ -91,7 +107,7 @@ class _FormProfile extends StatelessWidget {
                   TextFormField(
                     textCapitalization: TextCapitalization.words,
                     autocorrect: false,
-                    initialValue: loginService.userDataLogged!.persApellidos,
+                    initialValue: perfilForm.userDataLogged.persApellidos,
                     keyboardType: TextInputType.text,
                     validator: (value) {
                       if (value!.isEmpty) return 'Ingrese apellidos';
@@ -154,7 +170,7 @@ class _FormProfile extends StatelessWidget {
                       FilteringTextInputFormatter.allow(
                           RegExp(r'^(\d+)?\.?\d{0}'))
                     ],
-                    initialValue: loginService.userDataLogged!.id.toString(),
+                    initialValue: perfilForm.userDataLogged.id.toString(),
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value!.isEmpty) return 'Ingrese número de documento';
@@ -172,7 +188,7 @@ class _FormProfile extends StatelessWidget {
                     type: DateTimePickerType.date,
                     dateMask: 'd MMM, yyyy',
                     initialValue:
-                        loginService.userDataLogged!.persFechaNaci.toString(),
+                        perfilForm.userDataLogged.persFechaNaci.toString(),
                     firstDate: DateTime(1900),
                     decoration: InputDecorations.authInputDecorations(
                         hintText: '',
@@ -197,12 +213,11 @@ class _FormProfile extends StatelessWidget {
                             child: RadioListTile<String>(
                               title: const Text('Masculino'),
                               activeColor: Colors.green,
-                              value: loginService.userDataLogged!.persGenero
+                              value: 'MASCULINO',
+                              groupValue: perfilForm.userDataLogged.persGenero
                                   .toString(),
-                              groupValue: 'MASCULINO',
                               onChanged: (value) {
-                                loginService.userDataLogged!.persGenero =
-                                    value.toString();
+                                perfilForm.updateGenero(value.toString());
                               },
                             ),
                           ),
@@ -210,12 +225,12 @@ class _FormProfile extends StatelessWidget {
                             child: RadioListTile<String>(
                               title: const Text('Femenino'),
                               activeColor: Colors.green,
-                              value: loginService.userDataLogged!.persGenero
+                              value: 'FEMENINO',
+                              groupValue: perfilForm.userDataLogged.persGenero
                                   .toString(),
-                              groupValue: 'FEMENINO',
                               onChanged: (value) {
-                                loginService.userDataLogged!.persGenero =
-                                    value.toString();
+                                print(value);
+                                perfilForm.updateGenero(value.toString());
                               },
                             ),
                           ),
@@ -232,7 +247,7 @@ class _PhotoDirectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loginService = Provider.of<LoginService>(context);
+    final perfilForm = Provider.of<PerfilFormProvider>(context);
     return Container(
       height: 300,
       width: double.infinity,
@@ -263,7 +278,7 @@ class _PhotoDirectionCard extends StatelessWidget {
                         width: 80,
                         height: 80,
                         child: _PortadaProfile(
-                          url: loginService.userDataLogged?.persImagen,
+                          url: perfilForm.userDataLogged.persImagen,
                         ),
                       ),
                     ),
@@ -289,10 +304,9 @@ class _PhotoDirectionCard extends StatelessWidget {
                 ),
                 Expanded(
                     child: ListTile(
-                  title:
-                      Text(loginService.userDataLogged!.persNombres.toString()),
+                  title: Text(perfilForm.userDataLogged.persNombres.toString()),
                   subtitle: Text(
-                    loginService.userDataLogged!.persApellidos.toString(),
+                    perfilForm.userDataLogged.persApellidos.toString(),
                     style: const TextStyle(fontSize: 12),
                   ),
                 ))
@@ -306,18 +320,18 @@ class _PhotoDirectionCard extends StatelessWidget {
           ListTile(
             dense: true,
             leading: const Icon(Icons.map_sharp),
-            title: Text(loginService.userDataLogged!.departamento.toString()),
+            title: Text(perfilForm.userDataLogged.departamento.toString()),
             subtitle: Text(
-              loginService.userDataLogged!.ciuNombre.toString(),
+              perfilForm.userDataLogged.ciuNombre.toString(),
               style: const TextStyle(fontSize: 12),
             ),
           ),
           ListTile(
             dense: true,
             leading: const Icon(Icons.business),
-            title: Text(loginService.userDataLogged!.persDireccion.toString()),
+            title: Text(perfilForm.userDataLogged.persDireccion.toString()),
             subtitle: Text(
-              loginService.userDataLogged!.ciuNombre.toString(),
+              perfilForm.userDataLogged.ciuNombre.toString(),
               style: const TextStyle(fontSize: 12),
             ),
           )
