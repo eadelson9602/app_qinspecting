@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-
-import 'package:date_field/date_field.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import 'package:date_time_picker/date_time_picker.dart';
 import 'package:app_qinspecting/ui/input_decorations.dart';
 
 import 'package:app_qinspecting/services/services.dart';
@@ -18,12 +18,11 @@ class ProfileScreen extends StatelessWidget {
         body: SingleChildScrollView(
             child: Column(children: [
       Stack(
-        children: const [
+        children: [
           _PortadaProfile(
-            url:
-                'https://conceptodefinicion.de/wp-content/uploads/2016/01/Perfil2.jpg',
+            url: loginService.userDataLogged?.persImagen,
           ),
-          _PhotoDirectionCard(),
+          const _PhotoDirectionCard(),
         ],
       ),
       const SizedBox(
@@ -46,7 +45,7 @@ class _FormProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    GenrePerson? _generoSelected = GenrePerson.masculino;
+    final loginService = Provider.of<LoginService>(context);
     return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -75,6 +74,7 @@ class _FormProfile extends StatelessWidget {
                   TextFormField(
                     textCapitalization: TextCapitalization.words,
                     autocorrect: false,
+                    initialValue: loginService.userDataLogged!.persNombres,
                     keyboardType: TextInputType.text,
                     validator: (value) {
                       if (value!.isEmpty) return 'Ingrese nombres';
@@ -91,6 +91,7 @@ class _FormProfile extends StatelessWidget {
                   TextFormField(
                     textCapitalization: TextCapitalization.words,
                     autocorrect: false,
+                    initialValue: loginService.userDataLogged!.persApellidos,
                     keyboardType: TextInputType.text,
                     validator: (value) {
                       if (value!.isEmpty) return 'Ingrese apellidos';
@@ -149,66 +150,89 @@ class _FormProfile extends StatelessWidget {
                   TextFormField(
                     textCapitalization: TextCapitalization.words,
                     autocorrect: false,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^(\d+)?\.?\d{0}'))
+                    ],
+                    initialValue: loginService.userDataLogged!.id.toString(),
                     keyboardType: TextInputType.number,
                     validator: (value) {
-                      if (value!.isEmpty) return 'Ingrese su usuario';
+                      if (value!.isEmpty) return 'Ingrese número de documento';
                       return null;
                     },
                     decoration: InputDecorations.authInputDecorations(
                         hintText: '',
-                        labelText: 'Número documento',
+                        labelText: 'Número de documento',
                         prefixIcon: Icons.badge),
                   ),
                   const SizedBox(
                     height: 10,
                   ),
-                  DateTimeFormField(
+                  DateTimePicker(
+                    type: DateTimePickerType.date,
+                    dateMask: 'd MMM, yyyy',
+                    initialValue:
+                        loginService.userDataLogged!.persFechaNaci.toString(),
+                    firstDate: DateTime(1900),
                     decoration: InputDecorations.authInputDecorations(
                         hintText: '',
                         labelText: 'Fecha de nacimiento',
                         prefixIcon: Icons.calendar_today),
-                    autovalidateMode: AutovalidateMode.always,
-                    mode: DateTimeFieldPickerMode.date,
-                    validator: (DateTime? e) =>
-                        (e?.day ?? 0) == 1 ? 'Seleccione una fecha' : null,
-                    onDateSelected: (DateTime value) {
-                      print(value);
-                    },
+                    lastDate: DateTime(2030),
+                    icon: const Icon(Icons.event),
+                    onChanged: (val) => print(val),
+                    onSaved: (val) => print(val),
                   ),
                   const SizedBox(
                     height: 10,
                   ),
-                  RadioListTile(
-                    title: const Text('Masculino'),
-                    tileColor: Colors.green,
-                    selectedTileColor: Colors.green,
-                    value: GenrePerson.masculino,
-                    groupValue: _generoSelected,
-                    onChanged: (GenrePerson? value) {
-                      _generoSelected = value;
-                    },
-                  ),
-                  RadioListTile(
-                    title: const Text('Femenino'),
-                    tileColor: Colors.green,
-                    selectedTileColor: Colors.green,
-                    value: GenrePerson.femenino,
-                    groupValue: _generoSelected,
-                    onChanged: (GenrePerson? value) {
-                      _generoSelected = value;
-                    },
-                  ),
+                  ListTile(
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                    title: const Text('¿Género?'),
+                    subtitle: Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: RadioListTile<String>(
+                              title: const Text('Masculino'),
+                              activeColor: Colors.green,
+                              value: loginService.userDataLogged!.persGenero
+                                  .toString(),
+                              groupValue: 'MASCULINO',
+                              onChanged: (value) {
+                                loginService.userDataLogged!.persGenero =
+                                    value.toString();
+                              },
+                            ),
+                          ),
+                          Expanded(
+                            child: RadioListTile<String>(
+                              title: const Text('Femenino'),
+                              activeColor: Colors.green,
+                              value: loginService.userDataLogged!.persGenero
+                                  .toString(),
+                              groupValue: 'FEMENINO',
+                              onChanged: (value) {
+                                loginService.userDataLogged!.persGenero =
+                                    value.toString();
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
                 ]))));
   }
 }
 
 class _PhotoDirectionCard extends StatelessWidget {
-  const _PhotoDirectionCard({
-    Key? key,
-  }) : super(key: key);
+  const _PhotoDirectionCard({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final loginService = Provider.of<LoginService>(context);
     return Container(
       height: 300,
       width: double.infinity,
@@ -232,14 +256,14 @@ class _PhotoDirectionCard extends StatelessWidget {
               children: [
                 Stack(
                   children: [
-                    const ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(100)),
+                    ClipRRect(
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(100)),
                       child: SizedBox(
                         width: 80,
                         height: 80,
                         child: _PortadaProfile(
-                          url:
-                              'https://conceptodefinicion.de/wp-content/uploads/2016/01/Perfil2.jpg',
+                          url: loginService.userDataLogged?.persImagen,
                         ),
                       ),
                     ),
@@ -263,12 +287,13 @@ class _PhotoDirectionCard extends StatelessWidget {
                     )
                   ],
                 ),
-                const Expanded(
+                Expanded(
                     child: ListTile(
-                  title: Text('HOlA mundo'),
+                  title:
+                      Text(loginService.userDataLogged!.persNombres.toString()),
                   subtitle: Text(
-                    'HOlA mundo',
-                    style: TextStyle(fontSize: 12),
+                    loginService.userDataLogged!.persApellidos.toString(),
+                    style: const TextStyle(fontSize: 12),
                   ),
                 ))
               ],
@@ -278,22 +303,22 @@ class _PhotoDirectionCard extends StatelessWidget {
             height: 2,
             color: Colors.black26,
           ),
-          const ListTile(
+          ListTile(
             dense: true,
-            leading: Icon(Icons.maps_ugc),
-            title: Text('HOlA mundo'),
+            leading: const Icon(Icons.map_sharp),
+            title: Text(loginService.userDataLogged!.departamento.toString()),
             subtitle: Text(
-              'HOlA mundo',
-              style: TextStyle(fontSize: 12),
+              loginService.userDataLogged!.ciuNombre.toString(),
+              style: const TextStyle(fontSize: 12),
             ),
           ),
-          const ListTile(
+          ListTile(
             dense: true,
-            leading: Icon(Icons.business),
-            title: Text('HOlA mundo'),
+            leading: const Icon(Icons.business),
+            title: Text(loginService.userDataLogged!.persDireccion.toString()),
             subtitle: Text(
-              'HOlA mundo',
-              style: TextStyle(fontSize: 12),
+              loginService.userDataLogged!.ciuNombre.toString(),
+              style: const TextStyle(fontSize: 12),
             ),
           )
         ]),
