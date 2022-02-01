@@ -38,7 +38,7 @@ class _HomePageBody extends StatelessWidget {
       case 0:
         return const DesktopScreen();
       case 1:
-        return const InspectionScreen();
+        return const InspeccionScreen();
       default:
         return const DesktopScreen();
     }

@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:app_qinspecting/ui/input_decorations.dart';
 import 'package:app_qinspecting/providers/providers.dart';
 
-class InspectionScreen extends StatelessWidget {
-  const InspectionScreen({Key? key}) : super(key: key);
+class InspeccionScreen extends StatelessWidget {
+  const InspeccionScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
