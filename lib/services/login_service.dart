@@ -11,7 +11,6 @@ class LoginService extends ChangeNotifier {
   bool isSaving = false;
 
   Empresa? selectedEmpresa;
-  UserData? userDataLogged;
 
   Future<List<Empresa>> login(int user, String password) async {
     final Map<String, String> loginData = {
