@@ -52,8 +52,18 @@ class _HomePageBody extends StatelessWidget {
     final currentIndex = uiProvider.selectedMenuOpt;
 
     final inspeccionService = Provider.of<InspeccionService>(context);
-    // print(inspeccionService.getDepartamentos());
-    // final empresa = DBProvider.db.nuevoDepartamento(nuevoDepartamento);
+
+    for (var departamento in inspeccionService.departamentos) {
+      DBProvider.db
+          .getDepartamentoById(departamento.value)
+          .then((resultFindDepartamento) => {
+                print(resultFindDepartamento?.value),
+                print(resultFindDepartamento?.label),
+                print('========='),
+                // if (resultFindDepartamento?.value == null)
+                //   {DBProvider.db.nuevoDepartamento(departamento)}
+              });
+    }
 
     switch (currentIndex) {
       case 0:
