@@ -102,4 +102,11 @@ class DBProvider {
     final res = await db?.insert('Departamentos', nuevoDepartamento.toMap());
     return res;
   }
+
+  Future<Departamentos?> getDepartamentoById(int id) async {
+    final db = await database;
+    final res =
+        await db?.query('Departamentos', where: 'value = ?', whereArgs: [id]);
+    return res!.isNotEmpty ? Departamentos.fromMap(res.first) : null;
+  }
 }
