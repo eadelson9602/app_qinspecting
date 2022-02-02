@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/screens/screens.dart';
 import 'package:app_qinspecting/services/services.dart';
-import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -42,6 +42,8 @@ class _HomePageBody extends StatelessWidget {
     final currentIndex = uiProvider.selectedMenuOpt;
 
     final inspeccionService = Provider.of<InspeccionService>(context);
+    // print(inspeccionService.getDepartamentos());
+    // final empresa = DBProvider.db.nuevoDepartamento(nuevoDepartamento);
 
     switch (currentIndex) {
       case 0:
