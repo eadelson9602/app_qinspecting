@@ -2,23 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/screens/screens.dart';
-
-import 'package:app_qinspecting/widgets/widgets.dart';
-
+import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/providers/providers.dart';
+import 'package:app_qinspecting/widgets/widgets.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final loginService = Provider.of<LoginService>(context, listen: false);
     return Scaffold(
       appBar: const CustomAppBar().createAppBar(),
       drawer: const CustomDrawer(),
-      body: const SafeArea(
+      body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(20),
-          child: _HomePageBody(),
+          padding: const EdgeInsets.all(20),
+          child: MultiProvider(
+            providers: [
+              ChangeNotifierProvider(
+                  create: (_) =>
+                      InspeccionService(loginService.selectedEmpresa!)),
+            ],
+            child: const _HomePageBody(),
+          ),
         ),
       ),
       bottomNavigationBar: const CustomNavigationBar(),
@@ -33,6 +40,8 @@ class _HomePageBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final uiProvider = Provider.of<UiProvider>(context);
     final currentIndex = uiProvider.selectedMenuOpt;
+
+    final inspeccionService = Provider.of<InspeccionService>(context);
 
     switch (currentIndex) {
       case 0:
