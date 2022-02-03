@@ -112,6 +112,15 @@ class DBProvider {
     return res!.isNotEmpty ? Departamentos.fromMap(res.first) : null;
   }
 
+  Future<List<Departamentos>?> getAllDepartamentos() async {
+    final db = await database;
+    final res = await db?.query('Departamentos');
+
+    return res!.isNotEmpty
+        ? res.map((s) => Departamentos.fromMap(s)).toList()
+        : [];
+  }
+
   Future<int?> nuevaCiudad(Ciudades nuevaCiudad) async {
     final db = await database;
     final res = await db?.insert('Ciudades', nuevaCiudad.toMap());
