@@ -48,7 +48,6 @@ class InspeccionService extends ChangeNotifier {
           ciudades.indexWhere((element) => element.value == tempCiudad.value);
       if (index == -1) ciudades.add(tempCiudad);
     }
-    print(ciudades[0].label);
     isLoading = false;
     notifyListeners();
     return ciudades;
