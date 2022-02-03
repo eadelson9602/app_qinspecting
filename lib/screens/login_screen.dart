@@ -186,7 +186,7 @@ class ButtonLogin extends StatelessWidget {
                                 if (user?.id == null) {
                                   DBProvider.db.nuevoUser(userData);
                                 } else {
-                                  DBProvider.db.updateScan(userData);
+                                  DBProvider.db.updateUser(userData);
                                 }
                                 loginService.userDataLogged = user;
                                 // Guardamos los datos del usuario en la bd
