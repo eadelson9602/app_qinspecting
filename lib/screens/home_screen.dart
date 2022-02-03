@@ -27,6 +27,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Al instanciar el servicio, hace la petición al servidor
     final inspeccionService = Provider.of<InspeccionService>(context);
     if (inspeccionService.isLoading) return const LoadingScreen();
     return Scaffold(
@@ -51,18 +52,23 @@ class _HomePageBody extends StatelessWidget {
     final uiProvider = Provider.of<UiProvider>(context);
     final currentIndex = uiProvider.selectedMenuOpt;
 
-    final inspeccionService = Provider.of<InspeccionService>(context);
-
+    final inspeccionService =
+        Provider.of<InspeccionService>(context, listen: false);
+    // Guarda los departamentos en SQLITE
     for (var departamento in inspeccionService.departamentos) {
       DBProvider.db
           .getDepartamentoById(departamento.value)
           .then((resultFindDepartamento) => {
-                print(resultFindDepartamento?.value),
-                print(resultFindDepartamento?.label),
-                print('========='),
-                // if (resultFindDepartamento?.value == null)
-                //   {DBProvider.db.nuevoDepartamento(departamento)}
+                if (resultFindDepartamento?.value == null)
+                  {DBProvider.db.nuevoDepartamento(departamento)}
               });
+    }
+    // Guarda las ciudades en SQLITE
+    for (var ciudad in inspeccionService.ciudades) {
+      DBProvider.db.getCiudadById(ciudad.value).then((resultFindCiudad) => {
+            if (resultFindCiudad?.value == null)
+              {DBProvider.db.nuevaCiudad(ciudad)}
+          });
     }
 
     switch (currentIndex) {

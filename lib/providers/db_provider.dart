@@ -117,4 +117,11 @@ class DBProvider {
     final res = await db?.insert('Ciudades', nuevaCiudad.toMap());
     return res;
   }
+
+  Future<Ciudades?> getCiudadById(int id) async {
+    final db = await database;
+    final res =
+        await db?.query('Ciudades', where: 'value = ?', whereArgs: [id]);
+    return res!.isNotEmpty ? Ciudades.fromMap(res.first) : null;
+  }
 }
