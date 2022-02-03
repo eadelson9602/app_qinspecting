@@ -35,6 +35,9 @@ class DBProvider {
       await db.execute('''
         CREATE TABLE Departamentos(value INTEGER PRIMARY KEY, label TEXT);
       ''');
+      await db.execute('''
+        CREATE TABLE Ciudades(value INTEGER PRIMARY KEY, label TEXT, id_departamento INTEGER, CONSTRAINT fk_departamento FOREIGN KEY (id_departamento) REFERENCES Departamentos(Dpt_Id));
+      ''');
     });
   }
 
@@ -88,11 +91,10 @@ class DBProvider {
     return res!.isNotEmpty ? UserData.fromMap(res.first) : null;
   }
 
-  Future<int?> updateScan(UserData nuevoDatosUsuario) async {
+  Future<int?> updateUser(UserData nuevoDatosUsuario) async {
     final db = await database;
     final res = await db?.update('DataUsuario', nuevoDatosUsuario.toMap(),
         where: 'id= ?', whereArgs: [nuevoDatosUsuario.id]);
-
     return res;
   }
 
@@ -108,5 +110,11 @@ class DBProvider {
     final res =
         await db?.query('Departamentos', where: 'value = ?', whereArgs: [id]);
     return res!.isNotEmpty ? Departamentos.fromMap(res.first) : null;
+  }
+
+  Future<int?> nuevaCiudad(Ciudades nuevaCiudad) async {
+    final db = await database;
+    final res = await db?.insert('Ciudades', nuevaCiudad.toMap());
+    return res;
   }
 }
