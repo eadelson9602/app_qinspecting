@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:app_qinspecting/models/models.dart';
+import 'package:app_qinspecting/providers/db_provider.dart';
 import 'package:app_qinspecting/providers/perfil_form_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,7 +31,7 @@ class _BodyPerfilForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final perfilForm = Provider.of<PerfilFormProvider>(context);
+    final perfilForm = Provider.of<PerfilFormProvider>(context, listen: true);
     return Scaffold(
         body: SingleChildScrollView(
             child: Column(children: [
@@ -61,7 +63,16 @@ class _FormProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final perfilForm = Provider.of<PerfilFormProvider>(context);
+    final perfilForm = Provider.of<PerfilFormProvider>(context, listen: true);
+    List<DropdownMenuItem<int>> departamentos = [];
+
+    DBProvider.db.getAllDepartamentos().then((resultDepartamentos) {
+      for (var departamento in resultDepartamentos!) {
+        departamentos.add(DropdownMenuItem(
+            value: departamento.value, child: Text(departamento.label)));
+      }
+    });
+    // print(departamentos);
     return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -121,14 +132,12 @@ class _FormProfile extends StatelessWidget {
                   const SizedBox(
                     height: 10,
                   ),
-                  DropdownButtonFormField(
+                  DropdownButtonFormField<int>(
                       decoration: InputDecorations.authInputDecorations(
                           prefixIcon: Icons.map,
                           hintText: '',
                           labelText: 'Departamento de expedición'),
-                      items: const [
-                        DropdownMenuItem(value: 1, child: Text('Ciudad 1'))
-                      ],
+                      items: departamentos,
                       onChanged: (value) {
                         print(value);
                       }),
@@ -247,7 +256,7 @@ class _PhotoDirectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final perfilForm = Provider.of<PerfilFormProvider>(context);
+    final perfilForm = Provider.of<PerfilFormProvider>(context, listen: true);
     return Container(
       height: 300,
       width: double.infinity,
