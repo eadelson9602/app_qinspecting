@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 
+import 'package:app_qinspecting/models/models.dart';
+import 'package:app_qinspecting/providers/providers.dart';
+
 class InspeccionProvider extends ChangeNotifier {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   bool realizoTanqueo = false;
   bool tieneRemolque = false;
   bool tieneGuia = false;
+
+  List<Departamentos> departamentos = [];
+  List<Ciudades> ciudades = [];
 
   updateRealizoTanqueo(bool value) {
     realizoTanqueo = value;
@@ -18,6 +24,19 @@ class InspeccionProvider extends ChangeNotifier {
 
   updateTieneGuia(bool value) {
     tieneGuia = value;
+    notifyListeners();
+  }
+
+  listarDepartamentos() async {
+    final resDepartamentos = await DBProvider.db.getAllDepartamentos();
+    departamentos = [...resDepartamentos!];
+    notifyListeners();
+  }
+
+  listarCiudades(int idDepartamento) async {
+    final resCiudades =
+        await DBProvider.db.getCiudadesByIdDepartamento(idDepartamento);
+    ciudades = [...resCiudades!];
     notifyListeners();
   }
 }
