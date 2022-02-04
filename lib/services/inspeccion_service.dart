@@ -9,12 +9,14 @@ class InspeccionService extends ChangeNotifier {
   bool isSaving = false;
   final List<Departamentos> departamentos = [];
   final List<Ciudades> ciudades = [];
+  final List<Vehiculos> vehiculos = [];
 
   Empresa empresaSelected;
 
   InspeccionService(this.empresaSelected) {
     getDepartamentos();
     getCiudades();
+    getVehiculos();
   }
 
   Future<List<Departamentos>> getDepartamentos() async {
@@ -51,5 +53,23 @@ class InspeccionService extends ChangeNotifier {
     isLoading = false;
     notifyListeners();
     return ciudades;
+  }
+
+  Future<List<Vehiculos>> getVehiculos() async {
+    isLoading = true;
+    notifyListeners();
+    final baseEmpresa = empresaSelected.nombreBase;
+
+    Response response = await dio.get(
+        'https://apis.qinspecting.com/pflutter/show_vehicles/$baseEmpresa');
+    for (var item in response.data) {
+      final tempVehiculo = Vehiculos.fromMap(item);
+      final index = vehiculos
+          .indexWhere((element) => element.vehPlaca == tempVehiculo.vehPlaca);
+      if (index == -1) vehiculos.add(tempVehiculo);
+    }
+    isLoading = false;
+    notifyListeners();
+    return vehiculos;
   }
 }
