@@ -97,15 +97,15 @@ class Vehiculos {
   DateTime? docVehCltFecha;
   int? docVehLicTranNumero;
   DateTime? docVehLicTranFecha;
-  String? docVehSoatNumero;
+  int? docVehSoatNumero;
   DateTime? docVehSoatFecha;
-  String? docVehReTecNumero;
+  int? docVehReTecNumero;
   DateTime? docVehReTecFecha;
   String? docVehPoExtraNumero;
   DateTime? docVehPoExtraFecha;
-  String? docVehRcHidroNumero;
+  int? docVehRcHidroNumero;
   DateTime? docVehRcHidroFecha;
-  String? docVehCertQrNumero;
+  int? docVehCertQrNumero;
   DateTime? docVehCertQrFecha;
   String? remolId;
   String? notaClt;
@@ -174,19 +174,33 @@ class Vehiculos {
         docVehCertQrFecha: DateTime.parse(json["DocVeh_CertQRFecha"]),
         remolId: json["Remol_Id"],
         notaClt: json["notaClt"],
-        docVehCltFechaFin: DateTime.parse(json["DocVeh_CltFechaFin"]),
+        docVehCltFechaFin: json["DocVeh_CltFechaFin"] == null
+            ? null
+            : DateTime.parse(json["DocVeh_CltFechaFin"]),
         notaLictran: json["notaLictran"],
-        docVehLicTranFechaFin: DateTime.parse(json["DocVeh_LicTranFechaFin"]),
+        docVehLicTranFechaFin: json["DocVeh_LicTranFechaFin"] == null
+            ? null
+            : DateTime.parse(json["DocVeh_LicTranFechaFin"]),
         notaSoat: json["notaSoat"],
-        docVehSoatFechaFin: DateTime.parse(json["DocVeh_SoatFechaFin"]),
+        docVehSoatFechaFin: json["DocVeh_SoatFechaFin"] == null
+            ? null
+            : DateTime.parse(json["DocVeh_SoatFechaFin"]),
         notaRetec: json["notaRetec"],
-        docVehReTecFechaFin: DateTime.parse(json["DocVeh_ReTecFechaFin"]),
+        docVehReTecFechaFin: json["DocVeh_ReTecFechaFin"] == null
+            ? null
+            : DateTime.parse(json["DocVeh_ReTecFechaFin"]),
         notaPoextra: json["notaPoextra"],
-        docVehPoExtraFechaFin: DateTime.parse(json["DocVeh_PoExtraFechaFin"]),
+        docVehPoExtraFechaFin: json["DocVeh_PoExtraFechaFin"] == null
+            ? null
+            : DateTime.parse(json["DocVeh_PoExtraFechaFin"]),
         notaRchidro: json["notaRchidro"],
-        docVehRcHidroFechaFin: DateTime.parse(json["DocVeh_RCHidroFechaFin"]),
+        docVehRcHidroFechaFin: json["DocVeh_RCHidroFechaFin"] == null
+            ? null
+            : DateTime.parse(json["DocVeh_RCHidroFechaFin"]),
         notaCertqr: json["notaCertqr"],
-        docVehCertQrFechaFin: DateTime.parse(json["DocVeh_CertQRFechaFin"]),
+        docVehCertQrFechaFin: json["DocVeh_CertQRFechaFin"] == null
+            ? null
+            : DateTime.parse(json["DocVeh_CertQRFechaFin"]),
       );
 
   Map<String, dynamic> toMap() => {
