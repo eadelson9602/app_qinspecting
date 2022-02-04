@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-class Ciudades {
-  Ciudades({
+class Vehiculos {
+  Vehiculos({
     this.kilometraje,
     this.aplicaRemolque,
     this.docVehId,
@@ -123,11 +123,11 @@ class Ciudades {
   String? notaCertqr;
   DateTime? docVehCertQrFechaFin;
 
-  factory Ciudades.fromJson(String str) => Ciudades.fromMap(json.decode(str));
+  factory Vehiculos.fromJson(String str) => Vehiculos.fromMap(json.decode(str));
 
   String toJson() => json.encode(toMap());
 
-  factory Ciudades.fromMap(Map<String, dynamic> json) => Ciudades(
+  factory Vehiculos.fromMap(Map<String, dynamic> json) => Vehiculos(
         kilometraje: json["kilometraje"],
         aplicaRemolque: json["aplica_remolque"],
         docVehId: json["DocVeh_Id"],
