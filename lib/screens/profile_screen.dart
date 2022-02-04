@@ -1,15 +1,12 @@
 import 'dart:io';
-import 'package:app_qinspecting/models/models.dart';
-import 'package:app_qinspecting/providers/db_provider.dart';
-import 'package:app_qinspecting/providers/perfil_form_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import 'package:date_time_picker/date_time_picker.dart';
-import 'package:app_qinspecting/ui/input_decorations.dart';
-
+import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/services/services.dart';
+import 'package:app_qinspecting/ui/input_decorations.dart';
+import 'package:date_time_picker/date_time_picker.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -64,15 +61,11 @@ class _FormProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final perfilForm = Provider.of<PerfilFormProvider>(context, listen: true);
-    List<DropdownMenuItem<int>> departamentos = [];
+    final inspeccionProvider =
+        Provider.of<InspeccionProvider>(context, listen: true);
+    // Obtenemos los departamentos almacenados en SQLITE
+    inspeccionProvider.listarDepartamentos();
 
-    DBProvider.db.getAllDepartamentos().then((resultDepartamentos) {
-      for (var departamento in resultDepartamentos!) {
-        departamentos.add(DropdownMenuItem(
-            value: departamento.value, child: Text(departamento.label)));
-      }
-    });
-    // print(departamentos);
     return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -137,10 +130,14 @@ class _FormProfile extends StatelessWidget {
                           prefixIcon: Icons.map,
                           hintText: '',
                           labelText: 'Departamento de expedición'),
-                      items: departamentos,
-                      onChanged: (value) {
-                        print(value);
-                      }),
+                      value: perfilForm.userDataLogged.dptId,
+                      items: inspeccionProvider.departamentos.map((e) {
+                        return DropdownMenuItem(
+                          child: Text(e.label),
+                          value: e.value,
+                        );
+                      }).toList(),
+                      onChanged: (value) {}),
                   const SizedBox(
                     height: 10,
                   ),
