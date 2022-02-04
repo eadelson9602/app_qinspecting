@@ -127,6 +127,13 @@ class DBProvider {
     return res;
   }
 
+  Future<Ciudades?> getCiudadById(int id) async {
+    final db = await database;
+    final res =
+        await db?.query('Ciudades', where: 'value = ?', whereArgs: [id]);
+    return res!.isNotEmpty ? Ciudades.fromMap(res.first) : null;
+  }
+
   Future<List<Ciudades>?> getCiudadesByIdDepartamento(int id) async {
     final db = await database;
     final res = await db
