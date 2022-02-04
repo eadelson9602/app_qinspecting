@@ -28,7 +28,11 @@ class _BodyPerfilForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final perfilForm = Provider.of<PerfilFormProvider>(context, listen: true);
+    final perfilForm = Provider.of<PerfilFormProvider>(context);
+    final inspeccionProvider =
+        Provider.of<InspeccionProvider>(context, listen: false);
+    inspeccionProvider.listarDepartamentos();
+    inspeccionProvider.listarCiudades(perfilForm.userDataLogged.dptId!);
     return Scaffold(
         body: SingleChildScrollView(
             child: Column(children: [
@@ -60,12 +64,8 @@ class _FormProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final perfilForm = Provider.of<PerfilFormProvider>(context, listen: true);
-    final inspeccionProvider =
-        Provider.of<InspeccionProvider>(context, listen: true);
-    // Obtenemos los departamentos almacenados en SQLITE
-    inspeccionProvider.listarDepartamentos();
-
+    final perfilForm = Provider.of<PerfilFormProvider>(context);
+    final inspeccionProvider = Provider.of<InspeccionProvider>(context);
     return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -137,21 +137,26 @@ class _FormProfile extends StatelessWidget {
                           value: e.value,
                         );
                       }).toList(),
-                      onChanged: (value) {}),
+                      onChanged: (value) {
+                        perfilForm.userDataLogged.persLugarExpDoc = null;
+                        inspeccionProvider.listarCiudades(value!);
+                      }),
                   const SizedBox(
                     height: 10,
                   ),
-                  DropdownButtonFormField(
+                  DropdownButtonFormField<int>(
                       decoration: InputDecorations.authInputDecorations(
                           prefixIcon: Icons.location_city,
                           hintText: '',
                           labelText: 'Ciudad de expedición'),
-                      items: const [
-                        DropdownMenuItem(value: 1, child: Text('Ciudad 1'))
-                      ],
-                      onChanged: (value) {
-                        print(value);
-                      }),
+                      value: perfilForm.userDataLogged.persLugarExpDoc,
+                      items: inspeccionProvider.ciudades.map((e) {
+                        return DropdownMenuItem(
+                          child: Text(e.label),
+                          value: e.value,
+                        );
+                      }).toList(),
+                      onChanged: (value) {}),
                   const SizedBox(
                     height: 10,
                   ),
@@ -163,9 +168,7 @@ class _FormProfile extends StatelessWidget {
                       items: const [
                         DropdownMenuItem(value: 1, child: Text('Ciudad 1'))
                       ],
-                      onChanged: (value) {
-                        print(value);
-                      }),
+                      onChanged: (value) {}),
                   const SizedBox(
                     height: 10,
                   ),
@@ -202,8 +205,8 @@ class _FormProfile extends StatelessWidget {
                         prefixIcon: Icons.calendar_today),
                     lastDate: DateTime(2030),
                     icon: const Icon(Icons.event),
-                    onChanged: (val) => print(val),
-                    onSaved: (val) => print(val),
+                    onChanged: (val) => {},
+                    onSaved: (val) => {},
                   ),
                   const SizedBox(
                     height: 10,
@@ -235,7 +238,6 @@ class _FormProfile extends StatelessWidget {
                               groupValue: perfilForm.userDataLogged.persGenero
                                   .toString(),
                               onChanged: (value) {
-                                print(value);
                                 perfilForm.updateGenero(value.toString());
                               },
                             ),
@@ -301,7 +303,7 @@ class _PhotoDirectionCard extends StatelessWidget {
                           child: IconButton(
                               color: Colors.white,
                               iconSize: 20,
-                              onPressed: () => print('HOla'),
+                              onPressed: () {},
                               icon: const Icon(Icons.camera_alt_sharp)),
                         ),
                       ),
