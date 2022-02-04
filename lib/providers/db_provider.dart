@@ -127,10 +127,10 @@ class DBProvider {
     return res;
   }
 
-  Future<Ciudades?> getCiudadById(int id) async {
+  Future<Ciudades?> getCiudadesById(int id) async {
     final db = await database;
-    final res =
-        await db?.query('Ciudades', where: 'value = ?', whereArgs: [id]);
+    final res = await db
+        ?.query('Ciudades', where: 'id_departamento = ?', whereArgs: [id]);
     return res!.isNotEmpty ? Ciudades.fromMap(res.first) : null;
   }
 }
