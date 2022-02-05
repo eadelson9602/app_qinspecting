@@ -46,7 +46,7 @@ class DBProvider {
           DocVeh_Id INTEGER,
           id_integracion INTEGER,
           nombre_client INTEGER,
-          Veh_Placa INTEGER,
+          Veh_Placa TEXT,
           Ciu_Nombre INTEGER,
           Ciu_Id INTEGER,
           Dpt_Id INTEGER,
@@ -213,6 +213,13 @@ class DBProvider {
     final db = await database;
     final res =
         await db?.query('Vehiculos', where: 'Veh_Id = ?', whereArgs: [id]);
+    return res!.isNotEmpty ? Vehiculos.fromMap(res.first) : null;
+  }
+
+  Future<Vehiculos?> getVehiculoByPlate(String placa) async {
+    final db = await database;
+    final res = await db
+        ?.query('Vehiculos', where: 'Veh_Placa = ?', whereArgs: [placa]);
     return res!.isNotEmpty ? Vehiculos.fromMap(res.first) : null;
   }
 
