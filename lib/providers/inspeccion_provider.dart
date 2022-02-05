@@ -11,6 +11,7 @@ class InspeccionProvider extends ChangeNotifier {
 
   List<Departamentos> departamentos = [];
   List<Ciudades> ciudades = [];
+  List<Vehiculos> vehiculos = [];
 
   updateRealizoTanqueo(bool value) {
     realizoTanqueo = value;
@@ -37,6 +38,12 @@ class InspeccionProvider extends ChangeNotifier {
     final resCiudades =
         await DBProvider.db.getCiudadesByIdDepartamento(idDepartamento);
     ciudades = [...resCiudades!];
+    notifyListeners();
+  }
+
+  listarVehiculos() async {
+    final resVehiculos = await DBProvider.db.getAllVehiculos();
+    vehiculos = [...resVehiculos!];
     notifyListeners();
   }
 }

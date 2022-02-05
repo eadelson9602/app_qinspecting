@@ -215,4 +215,11 @@ class DBProvider {
         await db?.query('Vehiculos', where: 'Veh_Id = ?', whereArgs: [id]);
     return res!.isNotEmpty ? Vehiculos.fromMap(res.first) : null;
   }
+
+  Future<List<Vehiculos>?> getAllVehiculos() async {
+    final db = await database;
+    final res = await db?.query('Vehiculos');
+
+    return res!.isNotEmpty ? res.map((s) => Vehiculos.fromMap(s)).toList() : [];
+  }
 }
