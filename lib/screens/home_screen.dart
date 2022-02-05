@@ -53,7 +53,7 @@ class _HomePageBody extends StatelessWidget {
     final currentIndex = uiProvider.selectedMenuOpt;
 
     final inspeccionService =
-        Provider.of<InspeccionService>(context, listen: false);
+        Provider.of<InspeccionService>(context, listen: true);
     // Guarda los departamentos en SQLITE
     for (var departamento in inspeccionService.departamentos) {
       DBProvider.db
@@ -68,6 +68,13 @@ class _HomePageBody extends StatelessWidget {
       DBProvider.db.getCiudadById(ciudad.value).then((resultFindCiudad) => {
             if (resultFindCiudad?.value == null)
               {DBProvider.db.nuevaCiudad(ciudad)}
+          });
+    }
+
+    for (var vehiculo in inspeccionService.vehiculos) {
+      DBProvider.db.getVehiculoById(vehiculo.vehId!).then((resultVehiculo) => {
+            if (resultVehiculo?.vehId == null)
+              DBProvider.db.nuevoVehiculo(vehiculo)
           });
     }
 
