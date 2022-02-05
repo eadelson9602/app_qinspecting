@@ -13,6 +13,7 @@ class InspeccionProvider extends ChangeNotifier {
   List<Departamentos> departamentos = [];
   List<Ciudades> ciudades = [];
   List<Vehiculos> vehiculos = [];
+  bool isLoading = false;
 
   updateRealizoTanqueo(bool value) {
     realizoTanqueo = value;
@@ -30,7 +31,9 @@ class InspeccionProvider extends ChangeNotifier {
   }
 
   updateVehiculoSelected(Vehiculos vehiculo) {
+    isLoading = true;
     vehiculoSelected = vehiculo;
+    isLoading = false;
     notifyListeners();
   }
 
