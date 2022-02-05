@@ -9,8 +9,7 @@ class InspeccionForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final inspeccionProvider =
-        Provider.of<InspeccionProvider>(context, listen: true);
+    final inspeccionProvider = Provider.of<InspeccionProvider>(context);
     inspeccionProvider.listarVehiculos();
 
     Widget guiaTransporte() {
@@ -134,13 +133,12 @@ class InspeccionForm extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
-            Text(inspeccionProvider.vehiculoSelected!.ciuNombre!),
             TextFormField(
               textCapitalization: TextCapitalization.words,
               autocorrect: false,
               readOnly: true,
               keyboardType: TextInputType.text,
-              initialValue: inspeccionProvider.vehiculoSelected!.vehMarca,
+              initialValue: inspeccionProvider.vehiculoSelected?.vehMarca,
               decoration: InputDecorations.authInputDecorations(
                   hintText: '', labelText: 'Marca de cabezote'),
             ),
