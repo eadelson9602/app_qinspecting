@@ -30,13 +30,6 @@ class InspeccionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  updateVehiculoSelected(Vehiculos vehiculo) {
-    isLoading = true;
-    vehiculoSelected = vehiculo;
-    isLoading = false;
-    notifyListeners();
-  }
-
   listarDepartamentos() async {
     final resDepartamentos = await DBProvider.db.getAllDepartamentos();
     departamentos = [...resDepartamentos!];
