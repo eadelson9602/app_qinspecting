@@ -14,21 +14,9 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loginService = Provider.of<LoginService>(context);
-    return ChangeNotifierProvider(
-      create: (_) => PerfilFormProvider(loginService.userDataLogged!),
-      child: const _BodyPerfilForm(),
-    );
-  }
-}
-
-class _BodyPerfilForm extends StatelessWidget {
-  const _BodyPerfilForm({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
     final perfilForm = Provider.of<PerfilFormProvider>(context);
+    perfilForm.userDataLogged = loginService.userDataLogged!;
+
     final inspeccionProvider =
         Provider.of<InspeccionProvider>(context, listen: false);
     inspeccionProvider.listarDepartamentos();
