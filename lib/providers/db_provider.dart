@@ -38,6 +38,68 @@ class DBProvider {
       await db.execute('''
         CREATE TABLE Ciudades(value INTEGER PRIMARY KEY, label TEXT, id_departamento INTEGER, CONSTRAINT fk_departamento FOREIGN KEY (id_departamento) REFERENCES Departamentos(Dpt_Id));
       ''');
+      await db.execute('''
+        CREATE TABLE Vehiculos(
+          Veh_Id INTEGER PRIMARY KEY,
+          kilometraje INTEGER,
+          aplica_remolque INTEGER,
+          DocVeh_Id INTEGER,
+          id_integracion INTEGER,
+          nombre_client INTEGER,
+          Veh_Placa INTEGER,
+          Ciu_Nombre INTEGER,
+          Ciu_Id INTEGER,
+          Dpt_Id INTEGER,
+          Dpt_Nombre TEXT,
+          Veh_Fech_Matricula TEXT,
+          Veh_Color_Placa TEXT,
+          Veh_LugarPlaca INTEGER,
+          Veh_Marca TEXT,
+          Veh_Marca_Id INTEGER,
+          Veh_Linea TEXT,
+          Veh_Modelo INTEGER,
+          Veh_Cilindraje INTEGER,
+          Veh_Color TEXT,
+          Veh_Combustible TEXT,
+          Veh_Motor TEXT,
+          Veh_Serie TEXT,
+          Veh_Estado INTEGER,
+          State INTEGER,
+          Prov_Id INTEGER,
+          Tv_Id INTEGER,
+          Prov_Nombre TEXT,
+          Tv_descripcion TEXT,
+          DocVeh_CltNumero TEXT,
+          DocVeh_CltFecha TEXT,
+          DocVeh_LicTranNumero INTEGER,
+          DocVeh_LicTranFecha TEXT,
+          DocVeh_SoatNumero INTEGER,
+          DocVeh_SoatFecha TEXT,
+          DocVeh_ReTecNumero INTEGER,
+          DocVeh_ReTecFecha TEXT,
+          DocVeh_PoExtraNumero TEXT,
+          DocVeh_PoExtraFecha TEXT,
+          DocVeh_RCHidroNumero INTEGER,
+          DocVeh_RCHidroFecha TEXT,
+          DocVeh_CertQRNumero INTEGER,
+          DocVeh_CertQRFecha TEXT,
+          Remol_Id TEXT,
+          notaClt TEXT,
+          DocVeh_CltFechaFin TEXT,
+          notaLictran TEXT,
+          DocVeh_LicTranFechaFin TEXT,
+          notaSoat TEXT,
+          DocVeh_SoatFechaFin TEXT,
+          notaRetec TEXT,
+          DocVeh_ReTecFechaFin TEXT,
+          notaPoextra TEXT,
+          DocVeh_PoExtraFechaFin TEXT,
+          notaRchidro TEXT,
+          DocVeh_RCHidroFechaFin TEXT,
+          notaCertqr TEXT,
+          DocVeh_CertQRFechaFin TEXT
+        );
+      ''');
     });
   }
 
@@ -139,5 +201,18 @@ class DBProvider {
     final res = await db
         ?.query('Ciudades', where: 'id_departamento = ?', whereArgs: [id]);
     return res!.isNotEmpty ? res.map((s) => Ciudades.fromMap(s)).toList() : [];
+  }
+
+  Future<int?> nuevoVehiculo(Vehiculos nuevoVehiculo) async {
+    final db = await database;
+    final res = await db?.insert('Vehiculos', nuevoVehiculo.toMap());
+    return res;
+  }
+
+  Future<Vehiculos?> getVehiculoById(int id) async {
+    final db = await database;
+    final res =
+        await db?.query('Vehiculos', where: 'Veh_Id = ?', whereArgs: [id]);
+    return res!.isNotEmpty ? Vehiculos.fromMap(res.first) : null;
   }
 }
