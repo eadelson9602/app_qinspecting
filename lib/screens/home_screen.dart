@@ -29,6 +29,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Al instanciar el servicio, hace la petición al servidor
     final inspeccionService = Provider.of<InspeccionService>(context);
+
     if (inspeccionService.isLoading) return const LoadingScreen();
     return Scaffold(
       appBar: const CustomAppBar().createAppBar(),
@@ -51,32 +52,6 @@ class _HomePageBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final uiProvider = Provider.of<UiProvider>(context);
     final currentIndex = uiProvider.selectedMenuOpt;
-
-    final inspeccionService =
-        Provider.of<InspeccionService>(context, listen: false);
-    // Guarda los departamentos en SQLITE
-    for (var departamento in inspeccionService.departamentos) {
-      DBProvider.db
-          .getDepartamentoById(departamento.value)
-          .then((resultFindDepartamento) => {
-                if (resultFindDepartamento?.value == null)
-                  {DBProvider.db.nuevoDepartamento(departamento)}
-              });
-    }
-    // Guarda las ciudades en SQLITE
-    for (var ciudad in inspeccionService.ciudades) {
-      DBProvider.db.getCiudadById(ciudad.value).then((resultFindCiudad) => {
-            if (resultFindCiudad?.value == null)
-              {DBProvider.db.nuevaCiudad(ciudad)}
-          });
-    }
-
-    for (var vehiculo in inspeccionService.vehiculos) {
-      DBProvider.db.getVehiculoById(vehiculo.vehId!).then((resultVehiculo) => {
-            if (resultVehiculo?.vehId == null)
-              DBProvider.db.nuevoVehiculo(vehiculo)
-          });
-    }
 
     switch (currentIndex) {
       case 0:
