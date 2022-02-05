@@ -20,7 +20,6 @@ class ProfileScreen extends StatelessWidget {
     final inspeccionProvider =
         Provider.of<InspeccionProvider>(context, listen: false);
     inspeccionProvider.listarDepartamentos();
-    inspeccionProvider.listarCiudades(perfilForm.userDataLogged.dptId!);
     return Scaffold(
         body: SingleChildScrollView(
             child: Column(children: [
@@ -54,6 +53,7 @@ class _FormProfile extends StatelessWidget {
   Widget build(BuildContext context) {
     final perfilForm = Provider.of<PerfilFormProvider>(context);
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
+    inspeccionProvider.listarCiudades(perfilForm.userDataLogged.dptId!);
     return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 10),
