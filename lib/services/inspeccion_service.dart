@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import 'package:app_qinspecting/models/models.dart';
+import 'package:app_qinspecting/providers/providers.dart';
 
 class InspeccionService extends ChangeNotifier {
   var dio = Dio();
@@ -30,7 +31,16 @@ class InspeccionService extends ChangeNotifier {
       final tempDepartamento = Departamentos.fromMap(item);
       final index = departamentos
           .indexWhere((element) => element.value == tempDepartamento.value);
-      if (index == -1) departamentos.add(tempDepartamento);
+      if (index == -1) {
+        departamentos.add(tempDepartamento);
+        DBProvider.db
+            .getDepartamentoById(tempDepartamento.value)
+            .then((resultFindDepartamento) => {
+                  if (resultFindDepartamento?.value == null)
+                    {DBProvider.db.nuevoDepartamento(tempDepartamento)}
+                });
+      }
+      ;
     }
     isLoading = false;
     notifyListeners();
@@ -48,7 +58,16 @@ class InspeccionService extends ChangeNotifier {
       final tempCiudad = Ciudades.fromMap(item);
       final index =
           ciudades.indexWhere((element) => element.value == tempCiudad.value);
-      if (index == -1) ciudades.add(tempCiudad);
+      if (index == -1) {
+        ciudades.add(tempCiudad);
+        DBProvider.db
+            .getCiudadById(tempCiudad.value)
+            .then((resultFindCiudad) => {
+                  if (resultFindCiudad?.value == null)
+                    {DBProvider.db.nuevaCiudad(tempCiudad)}
+                });
+      }
+      ;
     }
     isLoading = false;
     notifyListeners();
@@ -66,7 +85,15 @@ class InspeccionService extends ChangeNotifier {
       final tempVehiculo = Vehiculos.fromMap(item);
       final index = vehiculos
           .indexWhere((element) => element.vehPlaca == tempVehiculo.vehPlaca);
-      if (index == -1) vehiculos.add(tempVehiculo);
+      if (index == -1) {
+        vehiculos.add(tempVehiculo);
+        DBProvider.db.getVehiculoById(tempVehiculo.vehId!).then(
+            (resultVehiculo) => {
+                  if (resultVehiculo?.vehId == null)
+                    DBProvider.db.nuevoVehiculo(tempVehiculo)
+                });
+      }
+      ;
     }
     isLoading = false;
     notifyListeners();
