@@ -9,10 +9,12 @@ class InspeccionForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final inspeccionForm = Provider.of<InspeccionProvider>(context);
+    final inspeccionProvider =
+        Provider.of<InspeccionProvider>(context, listen: true);
+    inspeccionProvider.listarVehiculos();
 
     Widget guiaTransporte() {
-      return inspeccionForm.tieneGuia
+      return inspeccionProvider.tieneGuia
           ? Column(
               children: [
                 TextFormField(
@@ -30,7 +32,7 @@ class InspeccionForm extends StatelessWidget {
                 const SizedBox(
                   height: 10,
                 ),
-                if (inspeccionForm.tieneGuia)
+                if (inspeccionProvider.tieneGuia)
                   TextFormField(
                     autocorrect: false,
                     keyboardType: TextInputType.text,
@@ -110,28 +112,35 @@ class InspeccionForm extends StatelessWidget {
 
     return SingleChildScrollView(
       child: Form(
-        key: inspeccionForm.formKey,
+        key: inspeccionProvider.formKey,
         child: Column(
           children: [
-            DropdownButtonFormField(
+            DropdownButtonFormField<String>(
                 decoration: InputDecorations.authInputDecorations(
                     prefixIcon: Icons.local_shipping,
                     hintText: '',
                     labelText: 'Placa del vehículo'),
-                items: const [
-                  DropdownMenuItem(value: 1, child: Text('Placa 1'))
-                ],
-                onChanged: (value) {
-                  print(value);
+                items: inspeccionProvider.vehiculos.map((e) {
+                  return DropdownMenuItem(
+                    child: Text(e.vehPlaca!),
+                    value: e.vehPlaca,
+                  );
+                }).toList(),
+                onChanged: (value) async {
+                  final resultVehiculo =
+                      await DBProvider.db.getVehiculoByPlate(value!);
+                  inspeccionProvider.updateVehiculoSelected(resultVehiculo!);
                 }),
             const SizedBox(
               height: 10,
             ),
+            Text(inspeccionProvider.vehiculoSelected!.ciuNombre!),
             TextFormField(
               textCapitalization: TextCapitalization.words,
               autocorrect: false,
               readOnly: true,
               keyboardType: TextInputType.text,
+              initialValue: inspeccionProvider.vehiculoSelected!.vehMarca,
               decoration: InputDecorations.authInputDecorations(
                   hintText: '', labelText: 'Marca de cabezote'),
             ),
@@ -143,6 +152,8 @@ class InspeccionForm extends StatelessWidget {
               autocorrect: false,
               readOnly: true,
               keyboardType: TextInputType.text,
+              initialValue:
+                  inspeccionProvider.vehiculoSelected?.vehModelo.toString(),
               decoration: InputDecorations.authInputDecorations(
                   hintText: '', labelText: 'Modelo de cabezote'),
             ),
@@ -154,6 +165,9 @@ class InspeccionForm extends StatelessWidget {
               autocorrect: false,
               readOnly: true,
               keyboardType: TextInputType.text,
+              initialValue: inspeccionProvider
+                  .vehiculoSelected?.docVehLicTranNumero
+                  .toString(),
               decoration: InputDecorations.authInputDecorations(
                   hintText: '', labelText: 'Licencia tránsito'),
             ),
@@ -165,19 +179,23 @@ class InspeccionForm extends StatelessWidget {
               autocorrect: false,
               readOnly: true,
               keyboardType: TextInputType.text,
+              initialValue: inspeccionProvider.vehiculoSelected?.vehColor,
               decoration: InputDecorations.authInputDecorations(
                   hintText: '', labelText: 'Color de cabezote'),
             ),
-            DropdownButtonFormField(
+            DropdownButtonFormField<int>(
                 decoration: InputDecorations.authInputDecorations(
                     prefixIcon: Icons.place,
                     hintText: '',
                     labelText: 'Departamento de inspección'),
-                items: const [
-                  DropdownMenuItem(value: 1, child: Text('Departamento 1'))
-                ],
+                items: inspeccionProvider.departamentos.map((e) {
+                  return DropdownMenuItem(
+                    child: Text(e.label),
+                    value: e.value,
+                  );
+                }).toList(),
                 onChanged: (value) {
-                  print(value);
+                  inspeccionProvider.listarCiudades(value!);
                 }),
             const SizedBox(
               height: 10,
@@ -187,9 +205,12 @@ class InspeccionForm extends StatelessWidget {
                     prefixIcon: Icons.location_city,
                     hintText: '',
                     labelText: 'Ciudad de inspección'),
-                items: const [
-                  DropdownMenuItem(value: 1, child: Text('Ciudad 1'))
-                ],
+                items: inspeccionProvider.ciudades.map((e) {
+                  return DropdownMenuItem(
+                    child: Text(e.label),
+                    value: e.value,
+                  );
+                }).toList(),
                 onChanged: (value) {
                   print(value);
                 }),
@@ -227,26 +248,27 @@ class InspeccionForm extends StatelessWidget {
               height: 10,
             ),
             SwitchListTile.adaptive(
-                value: inspeccionForm.realizoTanqueo,
+                value: inspeccionProvider.realizoTanqueo,
                 title: const Text('¿Realizó tanqueo?'),
                 activeColor: Colors.green,
                 onChanged: (value) =>
-                    inspeccionForm.updateRealizoTanqueo(value)),
+                    inspeccionProvider.updateRealizoTanqueo(value)),
             SwitchListTile.adaptive(
-                value: inspeccionForm.tieneRemolque,
+                value: inspeccionProvider.tieneRemolque,
                 title: const Text('¿Tiene remolque?'),
                 activeColor: Colors.green,
                 onChanged: (value) =>
-                    inspeccionForm.updateTieneRemolque(value)),
+                    inspeccionProvider.updateTieneRemolque(value)),
             SwitchListTile.adaptive(
-                value: inspeccionForm.tieneGuia,
+                value: inspeccionProvider.tieneGuia,
                 title: const Text('Tiene guía transporte?'),
                 activeColor: Colors.green,
-                onChanged: (value) => inspeccionForm.updateTieneGuia(value)),
+                onChanged: (value) =>
+                    inspeccionProvider.updateTieneGuia(value)),
             const SizedBox(
               height: 10,
             ),
-            if (inspeccionForm.realizoTanqueo)
+            if (inspeccionProvider.realizoTanqueo)
               TextFormField(
                 autocorrect: false,
                 keyboardType: TextInputType.number,
@@ -262,11 +284,11 @@ class InspeccionForm extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
-            if (inspeccionForm.tieneRemolque) infoRemolque(),
+            if (inspeccionProvider.tieneRemolque) infoRemolque(),
             const SizedBox(
               height: 10,
             ),
-            if (inspeccionForm.tieneGuia) guiaTransporte()
+            if (inspeccionProvider.tieneGuia) guiaTransporte()
           ],
         ),
       ),
