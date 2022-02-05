@@ -5,9 +5,12 @@ import 'package:app_qinspecting/models/models.dart';
 class PerfilFormProvider extends ChangeNotifier {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  UserData userDataLogged;
+  late UserData userDataLogged;
 
-  PerfilFormProvider(this.userDataLogged);
+  updateTieneGuia(UserData value) {
+    userDataLogged = value;
+    notifyListeners();
+  }
 
   updateGenero(String value) {
     userDataLogged.persGenero = value;
