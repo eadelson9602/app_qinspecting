@@ -5,7 +5,6 @@ class Vehiculos {
     this.kilometraje,
     this.aplicaRemolque,
     this.docVehId,
-    this.id,
     this.vehId,
     this.idIntegracion,
     this.nombreClient,
@@ -66,7 +65,6 @@ class Vehiculos {
   int? kilometraje;
   int? aplicaRemolque;
   int? docVehId;
-  int? id;
   int? vehId;
   int? idIntegracion;
   String? nombreClient;
@@ -131,7 +129,6 @@ class Vehiculos {
         kilometraje: json["kilometraje"],
         aplicaRemolque: json["aplica_remolque"],
         docVehId: json["DocVeh_Id"],
-        id: json["id"],
         vehId: json["Veh_Id"],
         idIntegracion: json["id_integracion"],
         nombreClient: json["nombre_client"],
@@ -207,7 +204,6 @@ class Vehiculos {
         "kilometraje": kilometraje,
         "aplica_remolque": aplicaRemolque,
         "DocVeh_Id": docVehId,
-        "id": id,
         "Veh_Id": vehId,
         "id_integracion": idIntegracion,
         "nombre_client": nombreClient,
