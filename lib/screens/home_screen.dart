@@ -53,7 +53,7 @@ class _HomePageBody extends StatelessWidget {
     final currentIndex = uiProvider.selectedMenuOpt;
 
     final inspeccionService =
-        Provider.of<InspeccionService>(context, listen: true);
+        Provider.of<InspeccionService>(context, listen: false);
     // Guarda los departamentos en SQLITE
     for (var departamento in inspeccionService.departamentos) {
       DBProvider.db
