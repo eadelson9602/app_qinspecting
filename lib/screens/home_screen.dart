@@ -50,13 +50,18 @@ class _HomePageBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final inspeccionProvider =
+        Provider.of<InspeccionProvider>(context, listen: false);
     final uiProvider = Provider.of<UiProvider>(context);
     final currentIndex = uiProvider.selectedMenuOpt;
 
     switch (currentIndex) {
       case 0:
+        inspeccionProvider.vehiculoSelected = null;
         return const DesktopScreen();
       case 1:
+        inspeccionProvider.listarDepartamentos();
+        inspeccionProvider.listarVehiculos();
         return const InspeccionForm();
       default:
         return const DesktopScreen();
