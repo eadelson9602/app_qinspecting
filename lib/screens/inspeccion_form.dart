@@ -10,9 +10,7 @@ class InspeccionForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
-    inspeccionProvider.listarVehiculos();
-
-    Widget guiaTransporte() {
+    Widget _guiaTransporte() {
       return inspeccionProvider.tieneGuia
           ? Column(
               children: [
@@ -51,7 +49,7 @@ class InspeccionForm extends StatelessWidget {
           : Container();
     }
 
-    Widget infoRemolque() {
+    Widget _infoRemolque() {
       return Column(children: [
         DropdownButtonFormField(
             decoration: InputDecorations.authInputDecorations(
@@ -109,6 +107,52 @@ class InspeccionForm extends StatelessWidget {
       ]);
     }
 
+    Widget _infoVehiculo() {
+      return inspeccionProvider.vehiculoSelected == null
+          ? Container()
+          : Column(
+              children: [
+                ListTile(
+                  dense: true,
+                  shape: Border(bottom: BorderSide(color: Colors.green)),
+                  title: Text('Marca del cabezote',
+                      style: TextStyle(fontSize: 15)),
+                  subtitle: Text(
+                      inspeccionProvider.vehiculoSelected!.vehMarca.toString(),
+                      style: TextStyle(fontSize: 15)),
+                ),
+                ListTile(
+                  dense: true,
+                  shape: Border(bottom: BorderSide(color: Colors.green)),
+                  title: Text('Modelo del cabezote',
+                      style: TextStyle(fontSize: 15)),
+                  subtitle: Text(
+                      inspeccionProvider.vehiculoSelected!.vehModelo.toString(),
+                      style: TextStyle(fontSize: 15)),
+                ),
+                ListTile(
+                  dense: true,
+                  shape: Border(bottom: BorderSide(color: Colors.green)),
+                  title:
+                      Text('Licencia tránsito', style: TextStyle(fontSize: 15)),
+                  subtitle: Text(
+                      inspeccionProvider.vehiculoSelected!.docVehLicTranNumero
+                          .toString(),
+                      style: TextStyle(fontSize: 15)),
+                ),
+                ListTile(
+                  dense: true,
+                  shape: Border(bottom: BorderSide(color: Colors.green)),
+                  title:
+                      Text('Color de cabezote', style: TextStyle(fontSize: 15)),
+                  subtitle: Text(
+                      inspeccionProvider.vehiculoSelected!.vehColor.toString(),
+                      style: TextStyle(fontSize: 15)),
+                ),
+              ],
+            );
+    }
+
     return SingleChildScrollView(
       child: Form(
         key: inspeccionProvider.formKey,
@@ -130,57 +174,7 @@ class InspeccionForm extends StatelessWidget {
                       await DBProvider.db.getVehiculoByPlate(value!);
                   inspeccionProvider.updateVehiculoSelected(resultVehiculo!);
                 }),
-            const SizedBox(
-              height: 10,
-            ),
-            TextFormField(
-              textCapitalization: TextCapitalization.words,
-              autocorrect: false,
-              readOnly: true,
-              keyboardType: TextInputType.text,
-              initialValue: inspeccionProvider.vehiculoSelected?.vehMarca,
-              decoration: InputDecorations.authInputDecorations(
-                  hintText: '', labelText: 'Marca de cabezote'),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            TextFormField(
-              textCapitalization: TextCapitalization.words,
-              autocorrect: false,
-              readOnly: true,
-              keyboardType: TextInputType.text,
-              initialValue:
-                  inspeccionProvider.vehiculoSelected?.vehModelo.toString(),
-              decoration: InputDecorations.authInputDecorations(
-                  hintText: '', labelText: 'Modelo de cabezote'),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            TextFormField(
-              textCapitalization: TextCapitalization.words,
-              autocorrect: false,
-              readOnly: true,
-              keyboardType: TextInputType.text,
-              initialValue: inspeccionProvider
-                  .vehiculoSelected?.docVehLicTranNumero
-                  .toString(),
-              decoration: InputDecorations.authInputDecorations(
-                  hintText: '', labelText: 'Licencia tránsito'),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            TextFormField(
-              textCapitalization: TextCapitalization.words,
-              autocorrect: false,
-              readOnly: true,
-              keyboardType: TextInputType.text,
-              initialValue: inspeccionProvider.vehiculoSelected?.vehColor,
-              decoration: InputDecorations.authInputDecorations(
-                  hintText: '', labelText: 'Color de cabezote'),
-            ),
+            _infoVehiculo(),
             DropdownButtonFormField<int>(
                 decoration: InputDecorations.authInputDecorations(
                     prefixIcon: Icons.place,
@@ -282,11 +276,11 @@ class InspeccionForm extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
-            if (inspeccionProvider.tieneRemolque) infoRemolque(),
+            if (inspeccionProvider.tieneRemolque) _infoRemolque(),
             const SizedBox(
               height: 10,
             ),
-            if (inspeccionProvider.tieneGuia) guiaTransporte()
+            if (inspeccionProvider.tieneGuia) _guiaTransporte()
           ],
         ),
       ),
