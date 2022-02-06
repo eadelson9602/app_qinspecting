@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.app_qinspecting">
    <application
-        android:label="app_qinspecting"
+        android:label="Qinspecting"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity
