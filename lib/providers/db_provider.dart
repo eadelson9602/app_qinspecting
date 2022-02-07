@@ -65,7 +65,7 @@ class DBProvider {
     return res!.isNotEmpty ? Empresa.fromMap(res.first) : null;
   }
 
-  Future<List<Empresa>?> getAllScan() async {
+  Future<List<Empresa>?> getAllEmpresas() async {
     final db = await database;
     final res = await db?.query('Empresas');
 
