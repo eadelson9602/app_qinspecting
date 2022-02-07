@@ -106,7 +106,7 @@ class InspeccionService extends ChangeNotifier {
     final baseEmpresa = empresaSelected.nombreBase;
 
     Response response = await dio.get(
-        'https://apis.qinspecting.com/pflutter/list_items_inspections/$baseEmpresa');
+        'https://apis.qinspecting.com/pflutter/list_items_x_placa/$baseEmpresa');
     for (var item in response.data) {
       final tempItem = ItemInspeccion.fromMap(item);
       final index = itemsInspeccion
