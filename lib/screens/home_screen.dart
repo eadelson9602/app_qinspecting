@@ -62,6 +62,7 @@ class _HomePageBody extends StatelessWidget {
       case 1:
         inspeccionProvider.listarDepartamentos();
         inspeccionProvider.listarVehiculos();
+        inspeccionProvider.listarItemsInspeccion();
         return const InspeccionForm();
       default:
         return const DesktopScreen();

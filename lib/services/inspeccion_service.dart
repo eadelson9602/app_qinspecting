@@ -19,6 +19,7 @@ class InspeccionService extends ChangeNotifier {
     getDepartamentos();
     getCiudades();
     getVehiculos();
+    getItemsInspeccion();
   }
 
   Future<List<Departamentos>> getDepartamentos() async {
@@ -119,7 +120,7 @@ class InspeccionService extends ChangeNotifier {
       }
     }
     isLoading = false;
-    notifyListeners();
+    // notifyListeners();
     return itemsInspeccion;
   }
 }

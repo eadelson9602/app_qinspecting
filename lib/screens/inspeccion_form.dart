@@ -10,6 +10,7 @@ class InspeccionForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
+    print(inspeccionProvider.vehiculoSelected);
     Widget _guiaTransporte() {
       return inspeccionProvider.tieneGuia
           ? Column(
