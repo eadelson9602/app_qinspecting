@@ -121,7 +121,7 @@ class InspeccionService extends ChangeNotifier {
       }
     }
     isLoading = false;
-    // notifyListeners();
+    notifyListeners();
     return itemsInspeccion;
   }
 }
