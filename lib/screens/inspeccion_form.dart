@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import "package:collection/collection.dart";
 
 import 'package:app_qinspecting/ui/input_decorations.dart';
+import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/providers/providers.dart';
 
 class InspeccionForm extends StatelessWidget {
@@ -11,6 +12,14 @@ class InspeccionForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
+
+    List<ItemsVehiculo> itemsInspeccion = [
+      ItemsVehiculo(
+          idCategoria: 1,
+          categoria: 'Example',
+          items: [Item(idItem: 1, item: 'Item example')])
+    ];
+
     Widget _guiaTransporte() {
       return inspeccionProvider.tieneGuia
           ? Column(
@@ -152,6 +161,17 @@ class InspeccionForm extends StatelessWidget {
                 ),
               ],
             );
+    }
+
+    Widget _itemInspeccion() {
+      return ListView.builder(
+        itemBuilder: (_, int index) {
+          return ListTile(
+            leading: Icon(Icons.car_repair),
+            title: Text(itemsInspeccion[index].categoria),
+          );
+        },
+      );
     }
 
     return SingleChildScrollView(
@@ -296,7 +316,51 @@ class InspeccionForm extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
-            if (inspeccionProvider.tieneGuia) _guiaTransporte()
+            if (inspeccionProvider.tieneGuia) _guiaTransporte(),
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(vertical: 10),
+              title: const Text('Documentos?'),
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: RadioListTile<String>(
+                        dense: true,
+                        title: const Text('B'),
+                        activeColor: Colors.green,
+                        value: 'B',
+                        groupValue: null,
+                        onChanged: (value) {},
+                      ),
+                    ),
+                    Expanded(
+                      child: RadioListTile<String>(
+                        dense: true,
+                        title: const Text('Malo'),
+                        activeColor: Colors.green,
+                        value: 'M',
+                        groupValue: null,
+                        onChanged: (value) {},
+                      ),
+                    ),
+                    Expanded(
+                      child: RadioListTile<String>(
+                        dense: true,
+                        title: const Text('N/A'),
+                        activeColor: Colors.green,
+                        value: 'NA',
+                        groupValue: null,
+                        onChanged: (value) {},
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
           ],
         ),
       ),
