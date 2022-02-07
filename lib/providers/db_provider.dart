@@ -151,31 +151,31 @@ class DBProvider {
     return res!.isNotEmpty ? res.map((s) => Ciudades.fromMap(s)).toList() : [];
   }
 
-  Future<int?> nuevoVehiculo(Vehiculos nuevoVehiculo) async {
+  Future<int?> nuevoVehiculo(Vehiculo nuevoVehiculo) async {
     final db = await database;
     final res = await db?.insert('Vehiculos', nuevoVehiculo.toMap());
     return res;
   }
 
-  Future<Vehiculos?> getVehiculoById(int id) async {
+  Future<Vehiculo?> getVehiculoById(int id) async {
     final db = await database;
     final res =
         await db?.query('Vehiculos', where: 'Veh_Id = ?', whereArgs: [id]);
-    return res!.isNotEmpty ? Vehiculos.fromMap(res.first) : null;
+    return res!.isNotEmpty ? Vehiculo.fromMap(res.first) : null;
   }
 
-  Future<Vehiculos?> getVehiculoByPlate(String placa) async {
+  Future<Vehiculo?> getVehiculoByPlate(String placa) async {
     final db = await database;
     final res = await db
         ?.query('Vehiculos', where: 'Veh_Placa = ?', whereArgs: [placa]);
-    return res!.isNotEmpty ? Vehiculos.fromMap(res.first) : null;
+    return res!.isNotEmpty ? Vehiculo.fromMap(res.first) : null;
   }
 
-  Future<List<Vehiculos>?> getAllVehiculos() async {
+  Future<List<Vehiculo>?> getAllVehiculos() async {
     final db = await database;
     final res = await db?.query('Vehiculos');
 
-    return res!.isNotEmpty ? res.map((s) => Vehiculos.fromMap(s)).toList() : [];
+    return res!.isNotEmpty ? res.map((s) => Vehiculo.fromMap(s)).toList() : [];
   }
 
   Future<int?> nuevoItem(ItemInspeccion nuevoVehiculo) async {

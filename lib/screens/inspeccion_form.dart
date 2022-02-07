@@ -119,7 +119,7 @@ class InspeccionForm extends StatelessWidget {
                   title: Text('Marca del cabezote',
                       style: TextStyle(fontSize: 15)),
                   subtitle: Text(
-                      inspeccionProvider.vehiculoSelected!.vehMarca.toString(),
+                      inspeccionProvider.vehiculoSelected!.marca.toString(),
                       style: TextStyle(fontSize: 15)),
                 ),
                 ListTile(
@@ -128,7 +128,7 @@ class InspeccionForm extends StatelessWidget {
                   title: Text('Modelo del cabezote',
                       style: TextStyle(fontSize: 15)),
                   subtitle: Text(
-                      inspeccionProvider.vehiculoSelected!.vehModelo.toString(),
+                      inspeccionProvider.vehiculoSelected!.modelo.toString(),
                       style: TextStyle(fontSize: 15)),
                 ),
                 ListTile(
@@ -137,7 +137,7 @@ class InspeccionForm extends StatelessWidget {
                   title:
                       Text('Licencia tránsito', style: TextStyle(fontSize: 15)),
                   subtitle: Text(
-                      inspeccionProvider.vehiculoSelected!.docVehLicTranNumero
+                      inspeccionProvider.vehiculoSelected!.licenciaTransito
                           .toString(),
                       style: TextStyle(fontSize: 15)),
                 ),
@@ -147,7 +147,7 @@ class InspeccionForm extends StatelessWidget {
                   title:
                       Text('Color de cabezote', style: TextStyle(fontSize: 15)),
                   subtitle: Text(
-                      inspeccionProvider.vehiculoSelected!.vehColor.toString(),
+                      inspeccionProvider.vehiculoSelected!.color.toString(),
                       style: TextStyle(fontSize: 15)),
                 ),
               ],
@@ -166,8 +166,8 @@ class InspeccionForm extends StatelessWidget {
                     labelText: 'Placa del vehículo'),
                 items: inspeccionProvider.vehiculos.map((e) {
                   return DropdownMenuItem(
-                    child: Text(e.vehPlaca!),
-                    value: e.vehPlaca,
+                    child: Text(e.placa),
+                    value: e.placa,
                   );
                 }).toList(),
                 onChanged: (value) async {

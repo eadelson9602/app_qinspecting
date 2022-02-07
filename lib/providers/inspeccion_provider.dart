@@ -8,11 +8,11 @@ class InspeccionProvider extends ChangeNotifier {
   bool realizoTanqueo = false;
   bool tieneRemolque = false;
   bool tieneGuia = false;
-  Vehiculos? vehiculoSelected;
+  Vehiculo? vehiculoSelected;
 
   List<Departamentos> departamentos = [];
   List<Ciudades> ciudades = [];
-  List<Vehiculos> vehiculos = [];
+  List<Vehiculo> vehiculos = [];
   List<ItemInspeccion> itemsInspeccion = [];
 
   updateRealizoTanqueo(bool value) {
@@ -30,7 +30,7 @@ class InspeccionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  updateVehiculoSelected(Vehiculos vehiculo) {
+  updateVehiculoSelected(Vehiculo vehiculo) {
     vehiculoSelected = vehiculo;
     notifyListeners();
   }

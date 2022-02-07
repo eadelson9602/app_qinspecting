@@ -10,7 +10,7 @@ class InspeccionService extends ChangeNotifier {
   bool isSaving = false;
   final List<Departamentos> departamentos = [];
   final List<Ciudades> ciudades = [];
-  final List<Vehiculos> vehiculos = [];
+  final List<Vehiculo> vehiculos = [];
   final List<ItemInspeccion> itemsInspeccion = [];
 
   Empresa empresaSelected;
@@ -75,22 +75,23 @@ class InspeccionService extends ChangeNotifier {
     return ciudades;
   }
 
-  Future<List<Vehiculos>> getVehiculos() async {
+  Future<List<Vehiculo>> getVehiculos() async {
     isLoading = true;
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
 
     Response response = await dio.get(
-        'https://apis.qinspecting.com/pflutter/show_vehicles/$baseEmpresa');
+        'https://apis.qinspecting.com/pflutter/show_placas_cabezote/$baseEmpresa');
     for (var item in response.data) {
-      final tempVehiculo = Vehiculos.fromMap(item);
+      final tempVehiculo = Vehiculo.fromMap(item);
       final index = vehiculos
-          .indexWhere((element) => element.vehPlaca == tempVehiculo.vehPlaca);
+          .indexWhere((element) => element.placa == tempVehiculo.placa);
       if (index == -1) {
         vehiculos.add(tempVehiculo);
-        DBProvider.db.getVehiculoById(tempVehiculo.vehId!).then(
-            (resultVehiculo) => {
-                  if (resultVehiculo?.vehId == null)
+        DBProvider.db
+            .getVehiculoById(tempVehiculo.idVehiculo!)
+            .then((resultVehiculo) => {
+                  if (resultVehiculo?.idVehiculo == null)
                     DBProvider.db.nuevoVehiculo(tempVehiculo)
                 });
       }
