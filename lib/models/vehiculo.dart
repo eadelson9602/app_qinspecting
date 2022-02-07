@@ -42,6 +42,6 @@ class Vehiculo {
         "modelo": modelo,
         "marca": marca,
         "color": color,
-        "licencia_transito": licenciaTransito == null ? null : licenciaTransito,
+        "licencia_transito": licenciaTransito,
       };
 }
