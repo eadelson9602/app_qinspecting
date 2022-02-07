@@ -39,3 +39,56 @@ class ItemInspeccion {
         "item": item,
       };
 }
+
+class ItemsVehiculo {
+  ItemsVehiculo({
+    required this.idCategoria,
+    required this.categoria,
+    required this.items,
+  });
+
+  int idCategoria;
+  String categoria;
+  List<Item> items;
+
+  factory ItemsVehiculo.fromJson(String str) =>
+      ItemsVehiculo.fromMap(json.decode(str));
+
+  String toJson() => json.encode(toMap());
+
+  factory ItemsVehiculo.fromMap(Map<String, dynamic> json) => ItemsVehiculo(
+        idCategoria: json["id_categoria"],
+        categoria: json["categoria"],
+        items: List<Item>.from(json["items"].map((x) => Item.fromMap(x))),
+      );
+
+  Map<String, dynamic> toMap() => {
+        "id_categoria": idCategoria,
+        "categoria": categoria,
+        "items": List<dynamic>.from(items.map((x) => x.toMap())),
+      };
+}
+
+class Item {
+  Item({
+    required this.idItem,
+    required this.item,
+  });
+
+  int idItem;
+  String item;
+
+  factory Item.fromJson(String str) => Item.fromMap(json.decode(str));
+
+  String toJson() => json.encode(toMap());
+
+  factory Item.fromMap(Map<String, dynamic> json) => Item(
+        idItem: json["id_item"],
+        item: json["item"],
+      );
+
+  Map<String, dynamic> toMap() => {
+        "id_item": idItem,
+        "item": item,
+      };
+}
