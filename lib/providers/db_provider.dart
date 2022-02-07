@@ -45,7 +45,7 @@ class DBProvider {
       ''');
       await db.execute('''
         CREATE TABLE ItemsInspeccion(
-          id INTEGER PRIMARY KEY AUTOINCREMENT, id_categoria INTEGER, categoria TEXT, id_item INTEGER, item TEXT
+          id_categoria INTEGER, categoria TEXT, id_item PRIMARY KEY AUTOINCREMENT, item TEXT
         );
       ''');
     });
