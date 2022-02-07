@@ -199,4 +199,13 @@ class DBProvider {
         ? res.map((s) => ItemInspeccion.fromMap(s)).toList()
         : [];
   }
+
+  Future<List<ItemInspeccion>?> getItemsByPlacaCategoria() async {
+    final db = await database;
+    final res = await db?.query('ItemsInspeccion');
+
+    return res!.isNotEmpty
+        ? res.map((s) => ItemInspeccion.fromMap(s)).toList()
+        : [];
+  }
 }
