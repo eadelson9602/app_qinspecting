@@ -11,6 +11,7 @@ class InspeccionService extends ChangeNotifier {
   final List<Departamentos> departamentos = [];
   final List<Ciudades> ciudades = [];
   final List<Vehiculos> vehiculos = [];
+  final List<ItemInspeccion> itemsInspeccion = [];
 
   Empresa empresaSelected;
 
@@ -40,7 +41,6 @@ class InspeccionService extends ChangeNotifier {
                     {DBProvider.db.nuevoDepartamento(tempDepartamento)}
                 });
       }
-      ;
     }
     isLoading = false;
     notifyListeners();
@@ -93,10 +93,33 @@ class InspeccionService extends ChangeNotifier {
                     DBProvider.db.nuevoVehiculo(tempVehiculo)
                 });
       }
-      ;
     }
     isLoading = false;
     notifyListeners();
     return vehiculos;
+  }
+
+  Future<List<ItemInspeccion>> getItemsInspeccion() async {
+    isLoading = true;
+    notifyListeners();
+    final baseEmpresa = empresaSelected.nombreBase;
+
+    Response response = await dio.get(
+        'https://apis.qinspecting.com/pflutter/list_items_inspections/$baseEmpresa');
+    for (var item in response.data) {
+      final tempItem = ItemInspeccion.fromMap(item);
+      final index = itemsInspeccion
+          .indexWhere((element) => element.idItem == tempItem.idItem);
+      if (index == -1) {
+        itemsInspeccion.add(tempItem);
+        DBProvider.db.getItemById(tempItem.idItem).then((resultVehiculo) => {
+              if (resultVehiculo?.idItem == null)
+                DBProvider.db.nuevoItem(tempItem)
+            });
+      }
+    }
+    isLoading = false;
+    notifyListeners();
+    return itemsInspeccion;
   }
 }
