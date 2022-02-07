@@ -39,20 +39,10 @@ class DBProvider {
         CREATE TABLE Ciudades(value INTEGER PRIMARY KEY, label TEXT, id_departamento INTEGER, CONSTRAINT fk_departamento FOREIGN KEY (id_departamento) REFERENCES Departamentos(Dpt_Id));
       ''');
       await db.execute('''
-        CREATE TABLE Vehiculos(
-          id_vehiculo INTEGER PRIMARY KEY,
-          placa TEXT,
-          id_tipo_vehiculo INTEGER,
-          modelo INTEGER,
-          marca TEXT,
-          color TEXT,
-          licencia_transito INTEGER
-        );
+        CREATE TABLE Vehiculos(id_vehiculo INTEGER PRIMARY KEY, placa TEXT, id_tipo_vehiculo INTEGER, modelo INTEGER, marca TEXT, color TEXT, licencia_transito INTEGER);
       ''');
       await db.execute('''
-        CREATE TABLE ItemsInspeccion(
-          placa TEXT, tipo_vehiculo INTEGER, id_categoria INTEGER, categoria TEXT, id_item INTEGER PRIMARY KEY, item TEXT
-        );
+        CREATE TABLE ItemsInspeccion(placa TEXT, tipo_vehiculo INTEGER, id_categoria INTEGER, categoria TEXT, id_item INTEGER PRIMARY KEY, item TEXT);
       ''');
     });
   }
@@ -166,14 +156,14 @@ class DBProvider {
   Future<Vehiculo?> getVehiculoById(int id) async {
     final db = await database;
     final res =
-        await db?.query('Vehiculos', where: 'Veh_Id = ?', whereArgs: [id]);
+        await db?.query('Vehiculos', where: 'id_vehiculo = ?', whereArgs: [id]);
     return res!.isNotEmpty ? Vehiculo.fromMap(res.first) : null;
   }
 
   Future<Vehiculo?> getVehiculoByPlate(String placa) async {
     final db = await database;
-    final res = await db
-        ?.query('Vehiculos', where: 'Veh_Placa = ?', whereArgs: [placa]);
+    final res =
+        await db?.query('Vehiculos', where: 'placa = ?', whereArgs: [placa]);
     return res!.isNotEmpty ? Vehiculo.fromMap(res.first) : null;
   }
 
