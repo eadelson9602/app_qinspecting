@@ -8,16 +8,16 @@ class Vehiculo {
     required this.modelo,
     required this.marca,
     required this.color,
-    required this.licenciaTransito,
+    this.licenciaTransito,
   });
 
   int idVehiculo;
   String placa;
   int idTipoVehiculo;
   int modelo;
-  int marca;
+  String marca;
   String color;
-  int licenciaTransito;
+  int? licenciaTransito;
 
   factory Vehiculo.fromJson(String str) => Vehiculo.fromMap(json.decode(str));
 
@@ -30,9 +30,7 @@ class Vehiculo {
         modelo: json["modelo"],
         marca: json["marca"],
         color: json["color"],
-        licenciaTransito: json["licencia_transito"] == null
-            ? null
-            : json["licencia_transito"],
+        licenciaTransito: json["licencia_transito"],
       );
 
   Map<String, dynamic> toMap() => {
