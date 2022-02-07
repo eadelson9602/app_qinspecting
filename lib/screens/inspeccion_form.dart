@@ -4,7 +4,6 @@ import "package:collection/collection.dart";
 
 import 'package:app_qinspecting/ui/input_decorations.dart';
 import 'package:app_qinspecting/providers/providers.dart';
-import 'package:app_qinspecting/models/models.dart';
 
 class InspeccionForm extends StatelessWidget {
   const InspeccionForm({Key? key}) : super(key: key);
