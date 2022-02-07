@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import "package:collection/collection.dart";
 
 import 'package:app_qinspecting/ui/input_decorations.dart';
 import 'package:app_qinspecting/providers/providers.dart';
+import 'package:app_qinspecting/models/models.dart';
 
 class InspeccionForm extends StatelessWidget {
   const InspeccionForm({Key? key}) : super(key: key);
@@ -10,7 +12,6 @@ class InspeccionForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
-    print(inspeccionProvider.vehiculoSelected);
     Widget _guiaTransporte() {
       return inspeccionProvider.tieneGuia
           ? Column(
@@ -174,6 +175,21 @@ class InspeccionForm extends StatelessWidget {
                   final resultVehiculo =
                       await DBProvider.db.getVehiculoByPlate(value!);
                   inspeccionProvider.updateVehiculoSelected(resultVehiculo!);
+
+                  List<Map<String, dynamic>> tempItems = [];
+
+                  for (var item in inspeccionProvider.itemsInspeccion) {
+                    tempItems.add({
+                      "idCategoria": item.idCategoria.toString(),
+                      "categoria": item.categoria,
+                      "idItem": item.idItem.toString(),
+                      "item": item.item
+                    });
+                  }
+                  var newMap =
+                      groupBy(tempItems, (Map obj) => obj['categoria']);
+
+                  print(newMap);
                 }),
             _infoVehiculo(),
             DropdownButtonFormField<int>(
