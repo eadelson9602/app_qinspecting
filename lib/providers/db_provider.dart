@@ -45,7 +45,7 @@ class DBProvider {
       ''');
       await db.execute('''
         CREATE TABLE ItemsInspeccion(
-          id_categoria INTEGER, categoria TEXT, id_item INTEGER PRIMARY KEY, item TEXT
+          placa TEXT, tipo_vehiculo INTEGER, id_categoria INTEGER, categoria TEXT, id_item INTEGER PRIMARY KEY, item TEXT
         );
       ''');
     });
