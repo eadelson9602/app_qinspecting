@@ -55,10 +55,13 @@ class InspeccionProvider extends ChangeNotifier {
   }
 
   listarCategoriaItems() async {
-    final resItems =
+    final resCategorias =
         await DBProvider.db.getCategoriaItemsByPlaca(vehiculoSelected!.placa);
-    itemsInspeccion = [...resItems!];
-    // print(itemsInspeccion);
+    // itemsInspeccion = [...resCategorias!];
+    resCategorias?.forEach((element) {
+      // final resCategorias = await DBProvider.db.getCategoriaItemsByPlaca(vehiculoSelected!.placa);
+    });
+    print(resCategorias);
     notifyListeners();
   }
 }
