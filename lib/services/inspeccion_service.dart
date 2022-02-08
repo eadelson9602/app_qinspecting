@@ -89,7 +89,7 @@ class InspeccionService extends ChangeNotifier {
       if (index == -1) {
         vehiculos.add(tempVehiculo);
         DBProvider.db
-            .getVehiculoById(tempVehiculo.idVehiculo!)
+            .getVehiculoById(tempVehiculo.idVehiculo)
             .then((resultVehiculo) => {
                   if (resultVehiculo?.idVehiculo == null)
                     DBProvider.db.nuevoVehiculo(tempVehiculo)
