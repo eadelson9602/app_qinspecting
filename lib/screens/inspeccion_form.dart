@@ -13,12 +13,12 @@ class InspeccionForm extends StatelessWidget {
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
 
-    List<ItemsVehiculo> itemsInspeccion = [
-      ItemsVehiculo(
-          idCategoria: 1,
-          categoria: 'Example',
-          items: [Item(idItem: 1, item: 'Item example')])
-    ];
+    // List<ItemsVehiculo> itemsInspeccion = [
+    //   ItemsVehiculo(
+    //       idCategoria: 1,
+    //       categoria: 'Example',
+    //       items: [Item(idItem: 1, item: 'Item example')])
+    // ];
 
     Widget _guiaTransporte() {
       return inspeccionProvider.tieneGuia
@@ -163,17 +163,6 @@ class InspeccionForm extends StatelessWidget {
             );
     }
 
-    Widget _itemInspeccion() {
-      return ListView.builder(
-        itemBuilder: (_, int index) {
-          return ListTile(
-            leading: Icon(Icons.car_repair),
-            title: Text(itemsInspeccion[index].categoria),
-          );
-        },
-      );
-    }
-
     return SingleChildScrollView(
       child: Form(
         key: inspeccionProvider.formKey,
@@ -194,21 +183,8 @@ class InspeccionForm extends StatelessWidget {
                   final resultVehiculo =
                       await DBProvider.db.getVehiculoByPlate(value!);
                   inspeccionProvider.updateVehiculoSelected(resultVehiculo!);
-
-                  List<Map<String, dynamic>> tempItems = [];
-
-                  for (var item in inspeccionProvider.itemsInspeccion) {
-                    tempItems.add({
-                      "idCategoria": item.idCategoria.toString(),
-                      "categoria": item.categoria,
-                      "idItem": item.idItem.toString(),
-                      "item": item.item
-                    });
-                  }
-                  var newMap =
-                      groupBy(tempItems, (Map obj) => obj['categoria']);
-
-                  print(newMap);
+                  await inspeccionProvider.listarCategoriaItems();
+                  // print(inspeccionProvider.itemsInspeccion);
                 }),
             _infoVehiculo(),
             DropdownButtonFormField<int>(

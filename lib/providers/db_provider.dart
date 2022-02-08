@@ -204,4 +204,34 @@ class DBProvider {
         ? res.map((s) => ItemInspeccion.fromMap(s)).toList()
         : [];
   }
+
+  Future<List<ItemsVehiculo>?> getCategoriaItemsByPlaca(String placa) async {
+    final db = await database;
+    final resCategoria = await db?.query('ItemsInspeccion',
+        columns: ['id_categoria, categoria'],
+        where: 'placa = ?',
+        whereArgs: [placa]);
+
+    List<Map<String, dynamic>> tempArrayData = [];
+
+    if (resCategoria!.isNotEmpty) {
+      resCategoria.forEach((element) {
+        Map<String, dynamic> tempData = {
+          "id_categoria": element['id_categoria'],
+          "categoria": element['categoria'],
+          "items": []
+        };
+
+        db
+            ?.query('ItemsInspeccion',
+                columns: ['id_item, item'],
+                where: 'placa = ? AND id_categoria=?',
+                whereArgs: [placa, element['id_categoria']])
+            .then((resItems) =>
+                {tempData['items'] = resItems, tempArrayData.add(tempData)});
+      });
+      print(tempArrayData);
+      return tempArrayData.map((s) => ItemsVehiculo.fromMap(s)).toList();
+    }
+  }
 }
