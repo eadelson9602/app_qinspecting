@@ -215,20 +215,18 @@ class DBProvider {
     List<Map<String, dynamic>> tempArrayData = [];
 
     if (resCategoria!.isNotEmpty) {
-      resCategoria.forEach((element) {
+      resCategoria.forEach((element) async {
         Map<String, dynamic> tempData = {
           "id_categoria": element['id_categoria'],
           "categoria": element['categoria'],
           "items": []
         };
 
-        db
-            ?.query('ItemsInspeccion',
-                columns: ['id_item, item'],
-                where: 'placa = ? AND id_categoria=?',
-                whereArgs: [placa, element['id_categoria']])
-            .then((resItems) =>
-                {tempData['items'] = resItems, tempArrayData.add(tempData)});
+        tempData['items'] = await db?.query('ItemsInspeccion',
+            columns: ['id_item, item'],
+            where: 'placa = ? AND id_categoria=?',
+            whereArgs: [placa, element['id_categoria']]);
+        tempArrayData.add(tempData['items']);
       });
       print(tempArrayData);
       return tempArrayData.map((s) => ItemsVehiculo.fromMap(s)).toList();
