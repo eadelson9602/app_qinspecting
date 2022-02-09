@@ -1,6 +1,7 @@
 import 'package:app_qinspecting/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:app_qinspecting/ui/input_decorations.dart';
 import 'package:app_qinspecting/providers/providers.dart';
@@ -237,12 +238,23 @@ class InspeccionForm extends StatelessWidget {
             ),
             Stack(
               children: [
-                BoardImage(),
+                BoardImage(
+                  url: inspeccionProvider.pathFile,
+                ),
                 Positioned(
                     right: 15,
                     bottom: 10,
                     child: IconButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        final _picker = ImagePicker();
+                        final XFile? photo =
+                            await _picker.pickImage(source: ImageSource.camera);
+
+                        if (photo == null) {
+                          return;
+                        }
+                        inspeccionProvider.updateSelectedImage(photo.path);
+                      },
                       icon: Icon(
                         Icons.camera_alt,
                         color: Colors.white,
