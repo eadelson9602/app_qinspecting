@@ -228,25 +228,4 @@ class DBProvider {
     }
     return [];
   }
-
-  Future<List<Map<String, dynamic>>?> getItemsByPlacaAndIdCategoria(
-      String placa, int idCategoria) async {
-    final db = await database;
-    final resItems = await db?.query('ItemsInspeccion',
-        columns: ['id_item, item'],
-        where: 'placa = ? AND id_categoria=?',
-        whereArgs: [placa, idCategoria]);
-    if (resItems!.isNotEmpty) {
-      List<Map<String, dynamic>> arrayData = [];
-      resItems.forEach((element) {
-        Map<String, dynamic> tempData = {
-          "id_item": element['id_item'],
-          "item": element['item'],
-        };
-        arrayData.add(tempData);
-      });
-      return arrayData;
-    }
-    return [];
-  }
 }
