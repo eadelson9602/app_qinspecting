@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import "package:collection/collection.dart";
 
 import 'package:app_qinspecting/ui/input_decorations.dart';
-import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/providers/providers.dart';
 
 class InspeccionForm extends StatelessWidget {
