@@ -36,6 +36,10 @@ class CustomDrawer extends StatelessWidget {
               title: Text('Enviar inspecciones',
                   style: TextStyle(color: Colors.green)),
             ),
+            ListTile(
+                leading: Icon(Icons.gesture, color: Colors.green),
+                title: Text('Firma', style: TextStyle(color: Colors.green)),
+                onTap: () => Navigator.popAndPushNamed(context, 'signature')),
             const ListTile(
               leading: Icon(Icons.settings, color: Colors.green),
               title:

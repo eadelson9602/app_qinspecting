@@ -53,7 +53,8 @@ class MyApp extends StatelessWidget {
         'login': (_) => const LoginScreen(),
         'home': (_) => const LoadHomeScreen(),
         'profile': (_) => const ProfileScreen(),
-        'inspeccion': (_) => const ScaffoldInspeccionScreen()
+        'inspeccion': (_) => const ScaffoldInspeccionScreen(),
+        'signature': (_) => const SignatureScreen(),
       },
     );
   }
