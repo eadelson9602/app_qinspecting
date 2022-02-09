@@ -235,7 +235,22 @@ class InspeccionForm extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
-            BoardImage(),
+            Stack(
+              children: [
+                BoardImage(),
+                Positioned(
+                    right: 15,
+                    bottom: 10,
+                    child: IconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.camera_alt,
+                        color: Colors.white,
+                        size: 45,
+                      ),
+                    ))
+              ],
+            ),
             const SizedBox(
               height: 10,
             ),
