@@ -10,7 +10,7 @@ class BoardImage extends StatelessWidget {
       height: 250,
       width: double.infinity,
       child: ClipRRect(
-        borderRadius: BorderRadius.all(Radius.circular(10)),
+        borderRadius: BorderRadius.all(Radius.circular(15)),
         child: FadeInImage(
           image: NetworkImage('https://via.placeholder.com/400x300/green'),
           placeholder: AssetImage('assets/images/loading-2.gif'),
@@ -22,7 +22,7 @@ class BoardImage extends StatelessWidget {
 
   BoxDecoration _buildBoxDecoration() => BoxDecoration(
           color: Colors.red,
-          borderRadius: BorderRadius.all(Radius.circular(45)),
+          borderRadius: BorderRadius.all(Radius.circular(15)),
           boxShadow: [
             BoxShadow(
                 color: Colors.black.withOpacity(0.05),
