@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:app_qinspecting/models/models.dart';
@@ -14,6 +15,14 @@ class InspeccionProvider extends ChangeNotifier {
   List<Ciudades> ciudades = [];
   List<Vehiculo> vehiculos = [];
   List<ItemsVehiculo> itemsInspeccion = [];
+  File? newPictureFile;
+  String? pathFile;
+
+  void updateSelectedImage(String path) {
+    pathFile = path;
+    newPictureFile = File.fromUri(Uri(path: path));
+    notifyListeners();
+  }
 
   updateRealizoTanqueo(bool value) {
     realizoTanqueo = value;
