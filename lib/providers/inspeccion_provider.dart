@@ -58,10 +58,20 @@ class InspeccionProvider extends ChangeNotifier {
     final resCategorias =
         await DBProvider.db.getCategoriaItemsByPlaca(vehiculoSelected!.placa);
     // itemsInspeccion = [...resCategorias!];
+    List<Future<List<Item>>> promesas = [];
     resCategorias?.forEach((element) {
-      // final resCategorias = await DBProvider.db.getCategoriaItemsByPlaca(vehiculoSelected!.placa);
+      Future<List<Item>> getItems() async {
+        final resItems = await DBProvider.db.getItemsByPlacaAndIdCategoria(
+            vehiculoSelected!.placa, element['id_categoria']);
+        return resItems!.isNotEmpty
+            ? resItems.map((e) => Item.fromMap(e)).toList()
+            : [];
+      }
+
+      promesas.add(getItems());
     });
-    print(resCategorias);
-    notifyListeners();
+    await Future.wait(promesas).then((items) {
+      print(items);
+    });
   }
 }
