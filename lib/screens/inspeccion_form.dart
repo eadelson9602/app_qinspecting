@@ -1,3 +1,4 @@
+import 'package:app_qinspecting/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -234,18 +235,7 @@ class InspeccionForm extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
-            TextFormField(
-              autocorrect: false,
-              keyboardType: TextInputType.text,
-              validator: (value) {
-                if (value!.isEmpty) return 'Foto del tacometro';
-                return null;
-              },
-              decoration: InputDecorations.authInputDecorations(
-                  hintText: '',
-                  labelText: 'Foto tacometro',
-                  prefixIcon: Icons.speed),
-            ),
+            BoardImage(),
             const SizedBox(
               height: 10,
             ),
