@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 
 class BoardImage extends StatelessWidget {
-  const BoardImage({Key? key}) : super(key: key);
+  const BoardImage({Key? key, this.url}) : super(key: key);
+  final String? url;
 
   @override
   Widget build(BuildContext context) {
@@ -11,17 +13,12 @@ class BoardImage extends StatelessWidget {
       width: double.infinity,
       child: ClipRRect(
         borderRadius: BorderRadius.all(Radius.circular(15)),
-        child: FadeInImage(
-          image: NetworkImage('https://via.placeholder.com/400x300/green'),
-          placeholder: AssetImage('assets/images/loading-2.gif'),
-          fit: BoxFit.cover,
-        ),
+        child: getImage(url),
       ),
     );
   }
 
   BoxDecoration _buildBoxDecoration() => BoxDecoration(
-          color: Colors.red,
           borderRadius: BorderRadius.all(Radius.circular(15)),
           boxShadow: [
             BoxShadow(
@@ -29,4 +26,16 @@ class BoardImage extends StatelessWidget {
                 blurRadius: 10,
                 offset: Offset(0, 5))
           ]);
+  Widget getImage(String? picture) {
+    if (picture == null) {
+      return Image(
+        image: AssetImage('assets/images/no-image.png'),
+        // fit: BoxFit.cover,
+      );
+    }
+    return Image.file(
+      File(picture),
+      fit: BoxFit.cover,
+    );
+  }
 }
