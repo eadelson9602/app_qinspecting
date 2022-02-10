@@ -31,10 +31,11 @@ class CustomDrawer extends StatelessWidget {
                   style: TextStyle(color: Colors.green),
                 ),
                 onTap: () => Navigator.popAndPushNamed(context, 'inspeccion')),
-            const ListTile(
+            ListTile(
               leading: Icon(Icons.send, color: Colors.green),
               title: Text('Enviar inspecciones',
                   style: TextStyle(color: Colors.green)),
+              onTap: () => Navigator.popAndPushNamed(context, 'send_pending'),
             ),
             ListTile(
                 leading: Icon(Icons.gesture, color: Colors.green),
