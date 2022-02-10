@@ -18,10 +18,16 @@ class InspeccionProvider extends ChangeNotifier {
   File? newPictureFile;
   String? pathFile;
   String aceptaTerminos = 'NO';
+  int stepStepper = 0;
 
   void updateSelectedImage(String path) {
     pathFile = path;
     newPictureFile = File.fromUri(Uri(path: path));
+    notifyListeners();
+  }
+
+  updateStep(int value) {
+    stepStepper = value;
     notifyListeners();
   }
 
