@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -196,36 +197,25 @@ class DBProvider {
         : [];
   }
 
-  Future<List<ItemInspeccion>?> getItemsByPlacaCategoria() async {
+  Future<List<ItemsVehiculo>?> getItemsInspectionByPlaca(String placa) async {
     final db = await database;
-    final res = await db?.query('ItemsInspeccion');
+    final res = await db?.rawQuery('''
+      SELECT  id_categoria,categoria,('['|| GROUP_CONCAT( ( '{"id_item":"'|| id_item || '"'|| ',"item":"'|| item|| '"}' ) )|| ']' ) as items  from ItemsInspeccion  WHERE placa='GHU168' GROUP BY id_categoria
+    ''');
+    List<Map<String, dynamic>> lsitItems = [];
 
+    res?.forEach((categoria) {
+      var json = jsonDecode(categoria['items'].toString());
+
+      Map<String, dynamic> tempData = {
+        "id_categoria": categoria['id_categoria'],
+        "categoria": categoria['categoria'],
+        "items": json,
+      };
+      lsitItems.add(tempData);
+    });
     return res!.isNotEmpty
-        ? res.map((s) => ItemInspeccion.fromMap(s)).toList()
+        ? lsitItems.map((s) => ItemsVehiculo.fromMap(s)).toList()
         : [];
-  }
-
-  Future<List<Map<String, dynamic>>?> getCategoriaItemsByPlaca(
-      String placa) async {
-    final db = await database;
-    final resCategoria = await db?.query('ItemsInspeccion',
-        columns: ['id_categoria, categoria'],
-        where: 'placa = ?',
-        whereArgs: [placa]);
-
-    if (resCategoria!.isNotEmpty) {
-      List<Map<String, dynamic>> arrayData = [];
-      resCategoria.forEach((element) {
-        Map<String, dynamic> tempData = {
-          "id_categoria": element['id_categoria'],
-          "categoria": element['categoria'],
-          "items": []
-        };
-
-        arrayData.add(tempData);
-      });
-      return arrayData;
-    }
-    return [];
   }
 }
