@@ -25,6 +25,13 @@ class CustomDrawer extends StatelessWidget {
               onTap: () => Navigator.popAndPushNamed(context, 'profile'),
             ),
             ListTile(
+                leading: const Icon(Icons.home, color: Colors.green),
+                title: const Text(
+                  'Inicio',
+                  style: TextStyle(color: Colors.green),
+                ),
+                onTap: () => Navigator.popAndPushNamed(context, 'home')),
+            ListTile(
                 leading: const Icon(Icons.fact_check, color: Colors.green),
                 title: const Text(
                   'Inspección',
@@ -41,11 +48,11 @@ class CustomDrawer extends StatelessWidget {
                 leading: Icon(Icons.gesture, color: Colors.green),
                 title: Text('Firma', style: TextStyle(color: Colors.green)),
                 onTap: () => Navigator.popAndPushNamed(context, 'signature')),
-            const ListTile(
-              leading: Icon(Icons.settings, color: Colors.green),
-              title:
-                  Text('Configuración', style: TextStyle(color: Colors.green)),
-            ),
+            ListTile(
+                leading: Icon(Icons.settings, color: Colors.green),
+                title: Text('Configuración',
+                    style: TextStyle(color: Colors.green)),
+                onTap: () => Navigator.popAndPushNamed(context, 'settings')),
           ],
         )));
   }
