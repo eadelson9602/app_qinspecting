@@ -17,10 +17,16 @@ class InspeccionProvider extends ChangeNotifier {
   List<ItemsVehiculo> itemsInspeccion = [];
   File? newPictureFile;
   String? pathFile;
+  String aceptaTerminos = 'NO';
 
   void updateSelectedImage(String path) {
     pathFile = path;
     newPictureFile = File.fromUri(Uri(path: path));
+    notifyListeners();
+  }
+
+  updateTerminos(String value) {
+    aceptaTerminos = value;
     notifyListeners();
   }
 
