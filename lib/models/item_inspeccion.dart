@@ -75,7 +75,7 @@ class Item {
     required this.item,
   });
 
-  int idItem;
+  String idItem;
   String item;
 
   factory Item.fromJson(String str) => Item.fromMap(json.decode(str));
