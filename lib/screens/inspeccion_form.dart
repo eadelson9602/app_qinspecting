@@ -12,6 +12,8 @@ class InspeccionForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
+    final ButtonStyle style =
+        ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
 
     Widget _guiaTransporte() {
       return inspeccionProvider.tieneGuia
@@ -177,7 +179,69 @@ class InspeccionForm extends StatelessWidget {
                       await DBProvider.db.getVehiculoByPlate(value!);
                   inspeccionProvider.updateVehiculoSelected(resultVehiculo!);
                   await inspeccionProvider.listarCategoriaItems();
-                  // print(inspeccionProvider.itemsInspeccion);
+
+                  List<Step> tempSteps = [];
+                  inspeccionProvider.itemsInspeccion.forEach((element) {
+                    tempSteps.add(Step(
+                      title: Text(element.categoria),
+                      content: Container(
+                          height: 450,
+                          child: ListView.builder(
+                              itemCount: element.items.length,
+                              itemBuilder: (_, int i) => ListTile(
+                                    title: Text(element.items[i].item),
+                                    subtitle: Expanded(
+                                      child: SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: Row(
+                                          children: [
+                                            Radio(
+                                              activeColor: Colors.green,
+                                              groupValue: '',
+                                              value: value,
+                                              onChanged: (value) {
+                                                print(value);
+                                              },
+                                            ),
+                                            Text(
+                                              'Cumple',
+                                              style: TextStyle(
+                                                  color: Colors.green),
+                                            ),
+                                            Radio(
+                                              activeColor: Colors.red,
+                                              groupValue: '',
+                                              value: value,
+                                              onChanged: (value) {
+                                                print(value);
+                                              },
+                                            ),
+                                            Text(
+                                              'No cumple',
+                                              style:
+                                                  TextStyle(color: Colors.red),
+                                            ),
+                                            Radio(
+                                              activeColor: Colors.orange,
+                                              groupValue: '',
+                                              value: value,
+                                              onChanged: (value) {
+                                                print(value);
+                                              },
+                                            ),
+                                            Text(
+                                              'N/A',
+                                              style: TextStyle(
+                                                  color: Colors.orange),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ))),
+                    ));
+                  });
+                  inspeccionProvider.steps = [...tempSteps];
                 }),
             _infoVehiculo(),
             DropdownButtonFormField<int>(
@@ -301,6 +365,25 @@ class InspeccionForm extends StatelessWidget {
               height: 10,
             ),
             if (inspeccionProvider.tieneGuia) _guiaTransporte(),
+            const SizedBox(
+              height: 10,
+            ),
+            ElevatedButton(
+              style: style,
+              onPressed: () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) {
+                      return Scaffold(
+                        appBar: AppBar(),
+                        body: ItemsInspeccionar(),
+                      );
+                    },
+                  ),
+                );
+              },
+              child: const Text('Realizar inspección'),
+            ),
             const SizedBox(
               height: 10,
             ),
