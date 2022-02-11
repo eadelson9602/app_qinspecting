@@ -56,6 +56,7 @@ class MyApp extends StatelessWidget {
         'inspeccion': (_) => const ScaffoldInspeccionScreen(),
         'signature': (_) => const SignatureScreen(),
         'send_pending': (_) => const SendPendingInspectionScree(),
+        'settings': (_) => const SettingScreen(),
       },
     );
   }
