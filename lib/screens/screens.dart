@@ -6,3 +6,4 @@ export 'package:app_qinspecting/screens/signature_screen.dart';
 export 'package:app_qinspecting/screens/profile_screen.dart';
 export 'package:app_qinspecting/screens/inspeccion_screen.dart';
 export 'package:app_qinspecting/screens/send_pending_inspection_screen.dart';
+export 'package:app_qinspecting/screens/settings_screen.dart';
