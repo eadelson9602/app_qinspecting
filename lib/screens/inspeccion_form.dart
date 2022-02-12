@@ -179,69 +179,6 @@ class InspeccionForm extends StatelessWidget {
                       await DBProvider.db.getVehiculoByPlate(value!);
                   inspeccionProvider.updateVehiculoSelected(resultVehiculo!);
                   await inspeccionProvider.listarCategoriaItems();
-
-                  List<Step> tempSteps = [];
-                  inspeccionProvider.itemsInspeccion.forEach((element) {
-                    tempSteps.add(Step(
-                      title: Text(element.categoria),
-                      content: Container(
-                          height: 450,
-                          child: ListView.builder(
-                              itemCount: element.items.length,
-                              itemBuilder: (_, int i) => ListTile(
-                                    title: Text(element.items[i].item),
-                                    subtitle: Expanded(
-                                      child: SingleChildScrollView(
-                                        scrollDirection: Axis.horizontal,
-                                        child: Row(
-                                          children: [
-                                            Radio(
-                                              activeColor: Colors.green,
-                                              groupValue: '',
-                                              value: value,
-                                              onChanged: (value) {
-                                                print(value);
-                                              },
-                                            ),
-                                            Text(
-                                              'Cumple',
-                                              style: TextStyle(
-                                                  color: Colors.green),
-                                            ),
-                                            Radio(
-                                              activeColor: Colors.red,
-                                              groupValue: '',
-                                              value: value,
-                                              onChanged: (value) {
-                                                print(value);
-                                              },
-                                            ),
-                                            Text(
-                                              'No cumple',
-                                              style:
-                                                  TextStyle(color: Colors.red),
-                                            ),
-                                            Radio(
-                                              activeColor: Colors.orange,
-                                              groupValue: '',
-                                              value: value,
-                                              onChanged: (value) {
-                                                print(value);
-                                              },
-                                            ),
-                                            Text(
-                                              'N/A',
-                                              style: TextStyle(
-                                                  color: Colors.orange),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ))),
-                    ));
-                  });
-                  inspeccionProvider.steps = [...tempSteps];
                 }),
             _infoVehiculo(),
             DropdownButtonFormField<int>(
