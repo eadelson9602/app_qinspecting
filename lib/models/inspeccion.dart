@@ -1,7 +1,3 @@
-// To parse this JSON data, do
-//
-//     final resumePreoperacional = resumePreoperacionalFromMap(jsonString);
-
 import 'dart:convert';
 
 class ResumePreoperacional {
