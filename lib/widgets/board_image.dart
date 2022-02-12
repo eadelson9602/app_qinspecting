@@ -23,7 +23,7 @@ class BoardImage extends StatelessWidget {
           boxShadow: [
             BoxShadow(
                 color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
+                blurRadius: 2,
                 offset: Offset(0, 5))
           ]);
   Widget getImage(String? picture) {
