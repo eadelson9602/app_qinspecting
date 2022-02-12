@@ -90,7 +90,7 @@ class ItemsInspeccionar extends StatelessWidget {
                         child: Stack(
                           children: [
                             BoardImage(
-                              url: inspeccionProvider.pathFile,
+                              url: inspeccionProvider.pathFileKilometraje,
                             ),
                             Positioned(
                                 right: 15,
