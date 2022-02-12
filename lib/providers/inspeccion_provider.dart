@@ -19,7 +19,6 @@ class InspeccionProvider extends ChangeNotifier {
   String? pathFile;
   String aceptaTerminos = 'NO';
   int stepStepper = 0;
-  List<Step> steps = [];
 
   void updateSelectedImage(String path) {
     pathFile = path;
