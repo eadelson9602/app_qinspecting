@@ -72,5 +72,3 @@ class ResumePreoperacional {
         "Respuestas": respuestas,
       };
 }
-
-enum Respuestas { RESPUESTAS_ID_ITEM_1_RTA_C, EMPTY }
