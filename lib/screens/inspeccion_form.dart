@@ -34,21 +34,34 @@ class InspeccionForm extends StatelessWidget {
                 const SizedBox(
                   height: 10,
                 ),
-                if (inspeccionProvider.tieneGuia)
-                  TextFormField(
-                    autocorrect: false,
-                    keyboardType: TextInputType.text,
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'Ingrese foto de la guía transporte';
-                      }
-                      return null;
-                    },
-                    decoration: InputDecorations.authInputDecorations(
-                        hintText: '',
-                        labelText: 'Foto de la guía transporte',
-                        prefixIcon: Icons.speed),
-                  ),
+                Text('Foto guía de transporte'),
+                Stack(
+                  children: [
+                    BoardImage(
+                      url: inspeccionProvider.pathFile,
+                    ),
+                    Positioned(
+                        right: 15,
+                        bottom: 10,
+                        child: IconButton(
+                          onPressed: () async {
+                            final _picker = ImagePicker();
+                            final XFile? photo = await _picker.pickImage(
+                                source: ImageSource.camera);
+
+                            if (photo == null) {
+                              return;
+                            }
+                            inspeccionProvider.updateSelectedImage(photo.path);
+                          },
+                          icon: Icon(
+                            Icons.camera_alt,
+                            color: Colors.white,
+                            size: 45,
+                          ),
+                        ))
+                  ],
+                ),
               ],
             )
           : Container();
@@ -230,6 +243,7 @@ class InspeccionForm extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
+            Text('Foto kilometraje'),
             Stack(
               children: [
                 BoardImage(
