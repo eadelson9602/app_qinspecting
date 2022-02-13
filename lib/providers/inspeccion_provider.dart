@@ -15,14 +15,27 @@ class InspeccionProvider extends ChangeNotifier {
   List<Ciudades> ciudades = [];
   List<Vehiculo> vehiculos = [];
   List<ItemsVehiculo> itemsInspeccion = [];
-  File? newPictureFile;
-  String? pathFile;
+  File? pictureKilometraje; //Archivo que se sube al server
+  File? pictureGuia; //Archivo que se sube al server
+  String? pathFileKilometraje;
+  String? pathFileGuia;
   String aceptaTerminos = 'NO';
   int stepStepper = 0;
+  ResumePreoperacional? resumePreoperacional;
+
+  bool isValidForm() {
+    return formKey.currentState?.validate() ?? false;
+  }
 
   void updateSelectedImage(String path) {
-    pathFile = path;
-    newPictureFile = File.fromUri(Uri(path: path));
+    pathFileKilometraje = path;
+    pictureKilometraje = File.fromUri(Uri(path: path));
+    notifyListeners();
+  }
+
+  void updateImageGuia(String path) {
+    pathFileGuia = path;
+    pictureGuia = File.fromUri(Uri(path: path));
     notifyListeners();
   }
 
