@@ -1,4 +1,5 @@
 import 'package:app_qinspecting/widgets/widgets.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
@@ -12,8 +13,6 @@ class InspeccionForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
-    final ButtonStyle style =
-        ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
 
     Widget _guiaTransporte() {
       return inspeccionProvider.tieneGuia
@@ -22,6 +21,10 @@ class InspeccionForm extends StatelessWidget {
                 TextFormField(
                   autocorrect: false,
                   keyboardType: TextInputType.text,
+                  onChanged: (value) {
+                    inspeccionProvider.resumePreoperacional?.resuPreGuia =
+                        value;
+                  },
                   validator: (value) {
                     if (value!.isEmpty) return 'Ingrese guía transporte';
                     return null;
@@ -38,7 +41,7 @@ class InspeccionForm extends StatelessWidget {
                 Stack(
                   children: [
                     BoardImage(
-                      url: inspeccionProvider.pathFile,
+                      url: inspeccionProvider.pathFileGuia,
                     ),
                     Positioned(
                         right: 15,
@@ -52,7 +55,7 @@ class InspeccionForm extends StatelessWidget {
                             if (photo == null) {
                               return;
                             }
-                            inspeccionProvider.updateSelectedImage(photo.path);
+                            inspeccionProvider.updateImageGuia(photo.path);
                           },
                           icon: Icon(
                             Icons.camera_alt,
@@ -174,6 +177,7 @@ class InspeccionForm extends StatelessWidget {
     return SingleChildScrollView(
       child: Form(
         key: inspeccionProvider.formKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Column(
           children: [
             DropdownButtonFormField<String>(
@@ -181,6 +185,10 @@ class InspeccionForm extends StatelessWidget {
                     prefixIcon: Icons.local_shipping,
                     hintText: '',
                     labelText: 'Placa del vehículo'),
+                validator: (value) {
+                  if (value == null) return 'Seleccione una placa';
+                  return null;
+                },
                 items: inspeccionProvider.vehiculos.map((e) {
                   return DropdownMenuItem(
                     child: Text(e.placa),
@@ -190,7 +198,12 @@ class InspeccionForm extends StatelessWidget {
                 onChanged: (value) async {
                   final resultVehiculo =
                       await DBProvider.db.getVehiculoByPlate(value!);
+
+                  inspeccionProvider.resumePreoperacional?.vehId =
+                      resultVehiculo!.idVehiculo;
+
                   inspeccionProvider.updateVehiculoSelected(resultVehiculo!);
+
                   await inspeccionProvider.listarCategoriaItems();
                 }),
             _infoVehiculo(),
@@ -199,6 +212,10 @@ class InspeccionForm extends StatelessWidget {
                     prefixIcon: Icons.place,
                     hintText: '',
                     labelText: 'Departamento de inspección'),
+                validator: (value) {
+                  if (value == null) return 'Seleccione un departamento';
+                  return null;
+                },
                 items: inspeccionProvider.departamentos.map((e) {
                   return DropdownMenuItem(
                     child: Text(e.label),
@@ -216,6 +233,10 @@ class InspeccionForm extends StatelessWidget {
                     prefixIcon: Icons.location_city,
                     hintText: '',
                     labelText: 'Ciudad de inspección'),
+                validator: (value) {
+                  if (value == null) return 'Seleccione una ciudad';
+                  return null;
+                },
                 items: inspeccionProvider.ciudades.map((e) {
                   return DropdownMenuItem(
                     child: Text(e.label),
@@ -223,7 +244,8 @@ class InspeccionForm extends StatelessWidget {
                   );
                 }).toList(),
                 onChanged: (value) {
-                  print(value);
+                  inspeccionProvider.resumePreoperacional?.vehId =
+                      int.parse(value.toString());
                 }),
             const SizedBox(
               height: 10,
@@ -247,7 +269,7 @@ class InspeccionForm extends StatelessWidget {
             Stack(
               children: [
                 BoardImage(
-                  url: inspeccionProvider.pathFile,
+                  url: inspeccionProvider.pathFileKilometraje,
                 ),
                 Positioned(
                     right: 15,
@@ -300,7 +322,7 @@ class InspeccionForm extends StatelessWidget {
                 autocorrect: false,
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value!.isEmpty) return 'Cantidad de galones';
+                  if (value == null) return 'Cantidad de galones';
                   return null;
                 },
                 decoration: InputDecorations.authInputDecorations(
@@ -319,9 +341,18 @@ class InspeccionForm extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
+            // MaterialStateProperty.all<Color>(Colors.green)
             ElevatedButton(
-              style: style,
+              style: ButtonStyle(
+                  elevation: MaterialStateProperty.all<double>(10),
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                      EdgeInsets.symmetric(horizontal: 20)),
+                  minimumSize: MaterialStateProperty.all<Size>(Size.square(50)),
+                  textStyle: MaterialStateProperty.all<TextStyle>(
+                      TextStyle(fontSize: 16))),
               onPressed: () async {
+                if (!inspeccionProvider.isValidForm()) return;
+
                 await Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     builder: (BuildContext context) {
