@@ -2,7 +2,7 @@ import 'dart:convert';
 
 class ResumePreoperacional {
   ResumePreoperacional({
-    required this.resuPreId,
+    this.Id,
     required this.resuPreFecha,
     required this.resuPreUbicExpPre,
     required this.resuPreKilometraje,
@@ -17,8 +17,8 @@ class ResumePreoperacional {
     required this.respuestas,
   });
 
-  int resuPreId;
-  DateTime resuPreFecha;
+  int? Id;
+  String resuPreFecha;
   String resuPreUbicExpPre;
   int resuPreKilometraje;
   int? tanqueGalones;
@@ -38,8 +38,8 @@ class ResumePreoperacional {
 
   factory ResumePreoperacional.fromMap(Map<String, dynamic> json) =>
       ResumePreoperacional(
-        resuPreId: json["ResuPre_Id"],
-        resuPreFecha: DateTime.parse(json["ResuPre_Fecha"]),
+        Id: json["Id"],
+        resuPreFecha: json["ResuPre_Fecha"],
         resuPreUbicExpPre: json["ResuPre_UbicExpPre"],
         resuPreKilometraje: json["ResuPre_Kilometraje"],
         tanqueGalones:
@@ -57,7 +57,7 @@ class ResumePreoperacional {
       );
 
   Map<String, dynamic> toMap() => {
-        "ResuPre_Id": resuPreId,
+        "Id": Id,
         "ResuPre_Fecha": resuPreFecha,
         "ResuPre_UbicExpPre": resuPreUbicExpPre,
         "ResuPre_Kilometraje": resuPreKilometraje,
