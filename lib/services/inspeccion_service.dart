@@ -13,6 +13,21 @@ class InspeccionService extends ChangeNotifier {
   final List<Vehiculo> vehiculos = [];
   final List<ItemInspeccion> itemsInspeccion = [];
 
+  final resumePreoperacional = ResumePreoperacional(
+    resuPreFecha: '',
+    resuPreUbicExpPre: '',
+    resuPreKilometraje: 0,
+    tanqueGalones: 0,
+    resuPreFotokm: '',
+    persNumeroDoc: 0,
+    resuPreGuia: '',
+    resuPreFotoguia: '',
+    vehId: 0,
+    remolId: 0,
+    ciuId: 0,
+    respuestas: '',
+  );
+
   Empresa empresaSelected;
 
   InspeccionService(this.empresaSelected) {
