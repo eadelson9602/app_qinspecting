@@ -21,7 +21,6 @@ class InspeccionProvider extends ChangeNotifier {
   String? pathFileGuia;
   String aceptaTerminos = 'NO';
   int stepStepper = 0;
-  ResumePreoperacional? resumePreoperacional;
 
   bool isValidForm() {
     return formKey.currentState?.validate() ?? false;
@@ -92,6 +91,11 @@ class InspeccionProvider extends ChangeNotifier {
     final resCategorias =
         await DBProvider.db.getItemsInspectionByPlaca(vehiculoSelected!.placa);
     itemsInspeccion = [...resCategorias!];
+    notifyListeners();
+  }
+
+  saveInspecicon(ResumePreoperacional nuevoInspeccion) async {
+    await DBProvider.db.nuevoInspeccion(nuevoInspeccion);
     notifyListeners();
   }
 }
