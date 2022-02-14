@@ -1,11 +1,15 @@
-import 'package:app_qinspecting/widgets/widgets.dart';
+import 'package:app_qinspecting/services/login_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
-import 'package:app_qinspecting/ui/input_decorations.dart';
 import 'package:app_qinspecting/providers/providers.dart';
+import 'package:app_qinspecting/screens/screens.dart';
+import 'package:app_qinspecting/services/inspeccion_service.dart';
+import 'package:app_qinspecting/ui/input_decorations.dart';
+import 'package:app_qinspecting/widgets/widgets.dart';
 
 class InspeccionForm extends StatelessWidget {
   const InspeccionForm({Key? key}) : super(key: key);
@@ -13,6 +17,8 @@ class InspeccionForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
+    final inspeccionService = Provider.of<InspeccionService>(context);
+    final loginService = Provider.of<LoginService>(context);
 
     Widget _guiaTransporte() {
       return inspeccionProvider.tieneGuia
@@ -22,11 +28,10 @@ class InspeccionForm extends StatelessWidget {
                   autocorrect: false,
                   keyboardType: TextInputType.text,
                   onChanged: (value) {
-                    inspeccionProvider.resumePreoperacional?.resuPreGuia =
-                        value;
+                    inspeccionService.resumePreoperacional.resuPreGuia = value;
                   },
                   validator: (value) {
-                    if (value!.isEmpty) return 'Ingrese guía transporte';
+                    if (value!.isEmpty) return 'Ingrese la guía de transporte';
                     return null;
                   },
                   decoration: InputDecorations.authInputDecorations(
@@ -55,6 +60,8 @@ class InspeccionForm extends StatelessWidget {
                             if (photo == null) {
                               return;
                             }
+                            inspeccionService.resumePreoperacional
+                                .resuPreFotoguia = photo.path;
                             inspeccionProvider.updateImageGuia(photo.path);
                           },
                           icon: Icon(
@@ -174,6 +181,8 @@ class InspeccionForm extends StatelessWidget {
             );
     }
 
+    if (inspeccionProvider.vehiculos.isEmpty) return const LoadingScreen();
+
     return SingleChildScrollView(
       child: Form(
         key: inspeccionProvider.formKey,
@@ -199,10 +208,9 @@ class InspeccionForm extends StatelessWidget {
                   final resultVehiculo =
                       await DBProvider.db.getVehiculoByPlate(value!);
 
-                  inspeccionProvider.resumePreoperacional?.vehId =
+                  inspeccionService.resumePreoperacional.vehId =
                       resultVehiculo!.idVehiculo;
-
-                  inspeccionProvider.updateVehiculoSelected(resultVehiculo!);
+                  inspeccionProvider.updateVehiculoSelected(resultVehiculo);
 
                   await inspeccionProvider.listarCategoriaItems();
                 }),
@@ -244,7 +252,7 @@ class InspeccionForm extends StatelessWidget {
                   );
                 }).toList(),
                 onChanged: (value) {
-                  inspeccionProvider.resumePreoperacional?.vehId =
+                  inspeccionService.resumePreoperacional.ciuId =
                       int.parse(value.toString());
                 }),
             const SizedBox(
@@ -256,6 +264,10 @@ class InspeccionForm extends StatelessWidget {
               validator: (value) {
                 if (value!.isEmpty) return 'Ingrese kilometraje';
                 return null;
+              },
+              onChanged: (value) {
+                inspeccionService.resumePreoperacional.resuPreKilometraje =
+                    value.isEmpty ? 0 : int.parse(value);
               },
               decoration: InputDecorations.authInputDecorations(
                   hintText: '',
@@ -283,6 +295,8 @@ class InspeccionForm extends StatelessWidget {
                         if (photo == null) {
                           return;
                         }
+                        inspeccionService.resumePreoperacional.resuPreFotokm =
+                            photo.path;
                         inspeccionProvider.updateSelectedImage(photo.path);
                       },
                       icon: Icon(
@@ -322,8 +336,12 @@ class InspeccionForm extends StatelessWidget {
                 autocorrect: false,
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value == null) return 'Cantidad de galones';
+                  if (value!.isEmpty) return 'Ingrese galones tanqueados';
                   return null;
+                },
+                onChanged: (value) {
+                  inspeccionService.resumePreoperacional.tanqueGalones =
+                      value.isEmpty ? 0 : int.parse(value);
                 },
                 decoration: InputDecorations.authInputDecorations(
                     hintText: '',
@@ -352,17 +370,26 @@ class InspeccionForm extends StatelessWidget {
                       TextStyle(fontSize: 16))),
               onPressed: () async {
                 if (!inspeccionProvider.isValidForm()) return;
+                var now = DateTime.now();
+                var formatter = DateFormat('yyyy-MM-dd hh:mm a');
+                String formattedDate = formatter.format(now);
+                inspeccionService.resumePreoperacional.resuPreFecha =
+                    formattedDate;
+                inspeccionService.resumePreoperacional.persNumeroDoc =
+                    loginService.userDataLogged!.usuarioUser!;
+                inspeccionProvider
+                    .saveInspecicon(inspeccionService.resumePreoperacional);
 
-                await Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (BuildContext context) {
-                      return Scaffold(
-                        appBar: AppBar(),
-                        body: ItemsInspeccionar(),
-                      );
-                    },
-                  ),
-                );
+                // await Navigator.of(context).push(
+                //   MaterialPageRoute<void>(
+                //     builder: (BuildContext context) {
+                //       return Scaffold(
+                //         appBar: AppBar(),
+                //         body: ItemsInspeccionar(),
+                //       );
+                //     },
+                //   ),
+                // );
               },
               child: const Text('Realizar inspección'),
             ),
