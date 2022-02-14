@@ -28,7 +28,7 @@ class DBProvider {
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       await db.execute('''
-        CREATE TABLE ResumenPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, ResuPre_Fecha DATETIME, ResuPre_UbicExpPre TEXT, ResuPre_Kilometraje TEXT, tanque_galones TEXT, ResuPre_Fotokm TEXT, Pers_NumeroDoc TEXT, ResuPre_guia TEXT, ResuPre_Fotoguia TEXT, Veh_Id INTEGER, Remol_Id INTEGER, Ciu_Id INTEGER, Respuestas TEXT);
+        CREATE TABLE ResumenPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, ResuPre_Fecha TEXT, ResuPre_UbicExpPre TEXT, ResuPre_Kilometraje TEXT, tanque_galones TEXT, ResuPre_Fotokm TEXT, Pers_NumeroDoc TEXT, ResuPre_guia TEXT, ResuPre_Fotoguia TEXT, Veh_Id INTEGER, Remol_Id INTEGER, Ciu_Id INTEGER, Respuestas TEXT);
       ''');
       await db.execute('''
         CREATE TABLE Empresas( Emp_Id INTEGER PRIMARY KEY, aut_create_cap INTEGER, Rol_Id INTEGER, CantF INTEGER, nombre_QI TEXT, nombre_base TEXT, ruta_logo TEXT, url_QI TEXT, Razon_social TEXT, Pers_Imagen TEXT, Carg_Descripcion TEXT, Pers_Email TEXT, Usuario_Contra TEXT, Complete_Name TEXT, Pers_Apellidos TEXT, Pers_Nombres TEXT, Pers_Celular TEXT, UsuarioUser INTEGER );
@@ -220,5 +220,12 @@ class DBProvider {
     return res!.isNotEmpty
         ? lsitItems.map((s) => ItemsVehiculo.fromMap(s)).toList()
         : [];
+  }
+
+  Future<int?> nuevoInspeccion(ResumePreoperacional nuevoInspeccion) async {
+    final db = await database;
+    final res =
+        await db?.insert('ResumenPreoperacional', nuevoInspeccion.toMap());
+    return res;
   }
 }
