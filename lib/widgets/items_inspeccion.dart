@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/providers/providers.dart';
+import 'package:app_qinspecting/screens/screens.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 
 class ItemsInspeccionar extends StatelessWidget {
@@ -126,6 +127,7 @@ class ItemsInspeccionar extends StatelessWidget {
       return stepsInspeccion;
     }
 
+    if (itemsInspeccionar.isEmpty) return const LoadingScreen();
     return Stepper(
       margin: EdgeInsets.only(left: 55),
       currentStep: inspeccionProvider.stepStepper,
