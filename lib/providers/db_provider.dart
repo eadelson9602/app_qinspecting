@@ -203,7 +203,7 @@ class DBProvider {
   Future<List<ItemsVehiculo>?> getItemsInspectionByPlaca(String placa) async {
     final db = await database;
     final res = await db?.rawQuery('''
-      SELECT  id_categoria,categoria,('['|| GROUP_CONCAT( ( '{"id_item":"'|| id_item || '"'|| ',"item":"'|| item|| '"}' ) )|| ']' ) as items  from ItemsInspeccion  WHERE placa='GHU168' GROUP BY id_categoria
+      SELECT  id_categoria,categoria,('['|| GROUP_CONCAT( ( '{"id_item":"'|| id_item || '"'|| ',"item":"'|| item|| '"}' ) )|| ']' ) as items  from ItemsInspeccion  WHERE placa='${placa}' GROUP BY id_categoria
     ''');
     List<Map<String, dynamic>> lsitItems = [];
 
