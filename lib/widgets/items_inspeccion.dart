@@ -6,9 +6,14 @@ import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/screens/screens.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 
-class ItemsInspeccionar extends StatelessWidget {
-  const ItemsInspeccionar({Key? key}) : super(key: key);
+class ItemsInspeccionar extends StatefulWidget {
+  ItemsInspeccionar({Key? key}) : super(key: key);
 
+  @override
+  State<ItemsInspeccionar> createState() => _ItemsInspeccionarState();
+}
+
+class _ItemsInspeccionarState extends State<ItemsInspeccionar> {
   @override
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
@@ -35,10 +40,12 @@ class ItemsInspeccionar extends StatelessWidget {
                         children: [
                           Radio(
                             activeColor: Colors.green,
-                            groupValue: '',
-                            value: 'value',
+                            groupValue: item.respuesta,
+                            value: 'B',
                             onChanged: (value) {
-                              print(value);
+                              setState(() {
+                                item.respuesta = value.toString();
+                              });
                             },
                           ),
                           Text(
@@ -47,10 +54,12 @@ class ItemsInspeccionar extends StatelessWidget {
                           ),
                           Radio(
                             activeColor: Colors.red,
-                            groupValue: '',
-                            value: 'value',
+                            groupValue: item.respuesta,
+                            value: 'M',
                             onChanged: (value) {
-                              print(value);
+                              setState(() {
+                                item.respuesta = value.toString();
+                              });
                             },
                           ),
                           Text(
@@ -59,10 +68,12 @@ class ItemsInspeccionar extends StatelessWidget {
                           ),
                           Radio(
                             activeColor: Colors.orange,
-                            groupValue: '',
-                            value: 'value',
+                            groupValue: item.respuesta,
+                            value: 'N/A',
                             onChanged: (value) {
-                              print(value);
+                              setState(() {
+                                item.respuesta = value.toString();
+                              });
                             },
                           ),
                           Text(
@@ -83,6 +94,9 @@ class ItemsInspeccionar extends StatelessWidget {
                               contentPadding: EdgeInsets.all(10.0),
                               floatingLabelBehavior:
                                   FloatingLabelBehavior.always),
+                          onChanged: (value) {
+                            item.observaciones = value;
+                          },
                         ),
                       ),
                       SizedBox(height: 11),
@@ -91,7 +105,7 @@ class ItemsInspeccionar extends StatelessWidget {
                         child: Stack(
                           children: [
                             BoardImage(
-                              url: inspeccionProvider.pathFileKilometraje,
+                              url: item.adjunto,
                             ),
                             Positioned(
                                 right: 15,
@@ -105,9 +119,10 @@ class ItemsInspeccionar extends StatelessWidget {
                                     if (photo == null) {
                                       return;
                                     }
-                                    // Se asigna la imagen en un provider para esta sección
-                                    inspeccionProvider
-                                        .updateSelectedImage(photo.path);
+                                    setState(() {
+                                      // Se asigna la imagen en un provider para esta sección
+                                      item.adjunto = photo.path;
+                                    });
                                   },
                                   icon: Icon(
                                     Icons.camera_alt,
