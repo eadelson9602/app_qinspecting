@@ -377,19 +377,20 @@ class InspeccionForm extends StatelessWidget {
                     formattedDate;
                 inspeccionService.resumePreoperacional.persNumeroDoc =
                     loginService.userDataLogged!.usuarioUser!;
-                inspeccionProvider
-                    .saveInspecicon(inspeccionService.resumePreoperacional);
 
-                // await Navigator.of(context).push(
-                //   MaterialPageRoute<void>(
-                //     builder: (BuildContext context) {
-                //       return Scaffold(
-                //         appBar: AppBar(),
-                //         body: ItemsInspeccionar(),
-                //       );
-                //     },
-                //   ),
-                // );
+                // inspeccionProvider
+                //     .saveInspecicon(inspeccionService.resumePreoperacional);
+
+                await Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) {
+                      return Scaffold(
+                        appBar: AppBar(),
+                        body: ItemsInspeccionar(),
+                      );
+                    },
+                  ),
+                );
               },
               child: const Text('Realizar inspección'),
             ),
