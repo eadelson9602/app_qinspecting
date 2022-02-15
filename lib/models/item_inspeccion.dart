@@ -70,13 +70,12 @@ class ItemsVehiculo {
 }
 
 class Item {
-  Item({
-    required this.idItem,
-    required this.item,
-  });
+  Item({required this.idItem, required this.item, respuesta, adjunto});
 
   String idItem;
   String item;
+  String? respuesta;
+  String? adjunto;
 
   factory Item.fromJson(String str) => Item.fromMap(json.decode(str));
 
@@ -85,10 +84,14 @@ class Item {
   factory Item.fromMap(Map<String, dynamic> json) => Item(
         idItem: json["id_item"],
         item: json["item"],
+        respuesta: json["respuesta"],
+        adjunto: json["adjunto"],
       );
 
   Map<String, dynamic> toMap() => {
         "id_item": idItem,
         "item": item,
+        "respuesta": respuesta,
+        "adjunto": adjunto
       };
 }
