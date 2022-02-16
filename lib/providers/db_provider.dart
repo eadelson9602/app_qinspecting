@@ -187,6 +187,13 @@ class DBProvider {
     return res!.isNotEmpty ? res.map((s) => Vehiculo.fromMap(s)).toList() : [];
   }
 
+  Future<List<Remolque>?> getAllRemolques() async {
+    final db = await database;
+    final res = await db?.query('Remolques');
+
+    return res!.isNotEmpty ? res.map((s) => Remolque.fromMap(s)).toList() : [];
+  }
+
   Future<int?> nuevoItem(ItemInspeccion nuevoVehiculo) async {
     final db = await database;
     final res = await db?.insert('ItemsInspeccion', nuevoVehiculo.toMap());
