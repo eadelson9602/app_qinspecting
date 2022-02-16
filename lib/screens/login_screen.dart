@@ -184,7 +184,7 @@ class ButtonLogin extends StatelessWidget {
                                 } else {
                                   DBProvider.db.updateUser(userData);
                                 }
-                                loginService.userDataLogged = user;
+                                loginService.userDataLogged = userData;
                                 // Guardamos los datos del usuario en la bd
                                 Navigator.popAndPushNamed(context, 'home');
                               },

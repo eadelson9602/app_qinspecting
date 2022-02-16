@@ -1,5 +1,4 @@
 import 'package:app_qinspecting/services/login_service.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
@@ -381,7 +380,7 @@ class InspeccionForm extends StatelessWidget {
                 inspeccionService.resumePreoperacional.resuPreFecha =
                     formattedDate;
                 inspeccionService.resumePreoperacional.persNumeroDoc =
-                    loginService.userDataLogged!.usuarioUser!;
+                    loginService.userDataLogged.usuarioUser!;
 
                 await Navigator.of(context).push(
                   MaterialPageRoute<void>(
