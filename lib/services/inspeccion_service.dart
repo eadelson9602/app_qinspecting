@@ -36,6 +36,7 @@ class InspeccionService extends ChangeNotifier {
     getCiudades();
     getVehiculos();
     getItemsInspeccion();
+    getTrailers();
   }
 
   Future<List<Departamentos>> getDepartamentos() async {
