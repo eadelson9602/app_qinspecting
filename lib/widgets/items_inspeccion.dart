@@ -100,39 +100,41 @@ class _ItemsInspeccionarState extends State<ItemsInspeccionar> {
                         ),
                       ),
                       SizedBox(height: 11),
-                      Container(
-                        width: 270,
-                        child: Stack(
-                          children: [
-                            BoardImage(
-                              url: item.adjunto,
-                            ),
-                            Positioned(
-                                right: 15,
-                                bottom: 10,
-                                child: IconButton(
-                                  onPressed: () async {
-                                    final _picker = ImagePicker();
-                                    final XFile? photo = await _picker
-                                        .pickImage(source: ImageSource.camera);
+                      if (item.respuesta == 'M')
+                        Container(
+                          width: 270,
+                          child: Stack(
+                            children: [
+                              BoardImage(
+                                url: item.adjunto,
+                              ),
+                              Positioned(
+                                  right: 15,
+                                  bottom: 10,
+                                  child: IconButton(
+                                    onPressed: () async {
+                                      final _picker = ImagePicker();
+                                      final XFile? photo =
+                                          await _picker.pickImage(
+                                              source: ImageSource.camera);
 
-                                    if (photo == null) {
-                                      return;
-                                    }
-                                    setState(() {
-                                      // Se asigna la imagen en un provider para esta sección
-                                      item.adjunto = photo.path;
-                                    });
-                                  },
-                                  icon: Icon(
-                                    Icons.camera_alt,
-                                    color: Colors.white,
-                                    size: 45,
-                                  ),
-                                ))
-                          ],
+                                      if (photo == null) {
+                                        return;
+                                      }
+                                      setState(() {
+                                        // Se asigna la imagen en un provider para esta sección
+                                        item.adjunto = photo.path;
+                                      });
+                                    },
+                                    icon: Icon(
+                                      Icons.camera_alt,
+                                      color: Colors.white,
+                                      size: 45,
+                                    ),
+                                  ))
+                            ],
+                          ),
                         ),
-                      ),
                       SizedBox(height: 11),
                     ],
                   ),
