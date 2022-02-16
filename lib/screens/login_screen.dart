@@ -78,6 +78,7 @@ class _FormLogin extends StatelessWidget {
       child: Form(
           key: loginForm.formKey,
           autovalidateMode: AutovalidateMode.onUserInteraction,
+          onChanged: () => loginForm.existUser = true,
           child: Column(
             children: [
               TextFormField(
@@ -112,7 +113,26 @@ class _FormLogin extends StatelessWidget {
                     prefixIcon: Icons.lock_outline_sharp),
               ),
               const SizedBox(
-                height: 50,
+                height: 30,
+              ),
+              if (!loginForm.existUser)
+                Container(
+                    width: double.infinity,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.warning,
+                          color: Colors.red,
+                        ),
+                        Text(
+                          'Usuario o contraseña inválida',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ],
+                    )),
+              const SizedBox(
+                height: 30,
               ),
               const ButtonLogin()
             ],
@@ -192,6 +212,7 @@ class ButtonLogin extends StatelessWidget {
                           ),
                         ));
               } else {
+                loginForm.existUser = false;
                 // TODO => Notificamos que no existe en el sistema
               }
               loginForm.isLoading = false;
