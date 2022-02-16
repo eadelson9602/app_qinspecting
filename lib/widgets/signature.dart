@@ -48,7 +48,7 @@ class _SignaturePadState extends State<SignaturePad> {
             textAlign: TextAlign.start,
           ),
           Text(
-            loginService.userDataLogged!.persNombres!,
+            loginService.userDataLogged.persNombres!,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 18,

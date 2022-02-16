@@ -15,7 +15,7 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final loginService = Provider.of<LoginService>(context);
     final perfilForm = Provider.of<PerfilFormProvider>(context);
-    perfilForm.userDataLogged = loginService.userDataLogged!;
+    perfilForm.userDataLogged = loginService.userDataLogged;
 
     final inspeccionProvider =
         Provider.of<InspeccionProvider>(context, listen: false);
