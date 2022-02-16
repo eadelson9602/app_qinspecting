@@ -4,8 +4,8 @@
 
 import 'dart:convert';
 
-class Remolques {
-  Remolques({
+class Remolque {
+  Remolque({
     required this.idRemolque,
     required this.placa,
     required this.color,
@@ -25,11 +25,11 @@ class Remolques {
   String? matricula;
   int numeroEjes;
 
-  factory Remolques.fromJson(String str) => Remolques.fromMap(json.decode(str));
+  factory Remolque.fromJson(String str) => Remolque.fromMap(json.decode(str));
 
   String toJson() => json.encode(toMap());
 
-  factory Remolques.fromMap(Map<String, dynamic> json) => Remolques(
+  factory Remolque.fromMap(Map<String, dynamic> json) => Remolque(
         idRemolque: json["id_remolque"],
         placa: json["placa"],
         color: json["color"],
