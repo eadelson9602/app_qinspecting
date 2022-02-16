@@ -11,6 +11,7 @@ class InspeccionService extends ChangeNotifier {
   final List<Departamentos> departamentos = [];
   final List<Ciudades> ciudades = [];
   final List<Vehiculo> vehiculos = [];
+  final List<Remolque> remolques = [];
   final List<ItemInspeccion> itemsInspeccion = [];
 
   final resumePreoperacional = ResumePreoperacional(
@@ -114,6 +115,32 @@ class InspeccionService extends ChangeNotifier {
     isLoading = false;
     notifyListeners();
     return vehiculos;
+  }
+
+  Future<List<Remolque>> getTrailers() async {
+    isLoading = true;
+    notifyListeners();
+    final baseEmpresa = empresaSelected.nombreBase;
+
+    Response response = await dio.get(
+        'https://apis.qinspecting.com/pflutter/show_placas_trailer/$baseEmpresa');
+    for (var item in response.data) {
+      final tempRemolque = Remolque.fromMap(item);
+      final index = vehiculos
+          .indexWhere((element) => element.placa == tempRemolque.placa);
+      if (index == -1) {
+        remolques.add(tempRemolque);
+        DBProvider.db
+            .getVehiculoById(tempRemolque.idRemolque)
+            .then((resultVehiculo) => {
+                  if (resultVehiculo?.idVehiculo == null)
+                    DBProvider.db.nuevoRemolque(tempRemolque)
+                });
+      }
+    }
+    isLoading = false;
+    notifyListeners();
+    return remolques;
   }
 
   Future<List<ItemInspeccion>> getItemsInspeccion() async {
