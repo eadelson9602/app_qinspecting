@@ -84,7 +84,12 @@ class InspeccionForm extends StatelessWidget {
                 prefixIcon: Icons.local_shipping,
                 hintText: '',
                 labelText: 'Placa del remolque'),
-            items: const [DropdownMenuItem(value: 1, child: Text('Placa 1'))],
+            items: inspeccionProvider.remolques.map((e) {
+              return DropdownMenuItem(
+                child: Text(e.placa),
+                value: e.placa,
+              );
+            }).toList(),
             onChanged: (value) {
               print(value);
             }),
