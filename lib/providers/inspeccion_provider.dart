@@ -14,6 +14,7 @@ class InspeccionProvider extends ChangeNotifier {
   List<Departamentos> departamentos = [];
   List<Ciudades> ciudades = [];
   List<Vehiculo> vehiculos = [];
+  List<Remolque> remolques = [];
   List<ItemsVehiculo> itemsInspeccion = [];
   File? pictureKilometraje; //Archivo que se sube al server
   File? pictureGuia; //Archivo que se sube al server
@@ -84,6 +85,12 @@ class InspeccionProvider extends ChangeNotifier {
   listarVehiculos() async {
     final resVehiculos = await DBProvider.db.getAllVehiculos();
     vehiculos = [...resVehiculos!];
+    notifyListeners();
+  }
+
+  listarRemolques() async {
+    final resRemolques = await DBProvider.db.getAllRemolques();
+    remolques = [...resRemolques!];
     notifyListeners();
   }
 
