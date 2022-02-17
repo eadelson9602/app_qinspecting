@@ -100,7 +100,7 @@ class InspeccionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  listarCategoriaItems() async {
+  listarCategoriaItemsVehiculo() async {
     final resCategorias =
         await DBProvider.db.getItemsInspectionByPlaca(vehiculoSelected!.placa);
     itemsInspeccion = [...resCategorias!];

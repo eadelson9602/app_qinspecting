@@ -228,7 +228,7 @@ class InspeccionForm extends StatelessWidget {
                       resultVehiculo!.idVehiculo;
                   inspeccionProvider.updateVehiculoSelected(resultVehiculo);
 
-                  await inspeccionProvider.listarCategoriaItems();
+                  await inspeccionProvider.listarCategoriaItemsVehiculo();
                 }),
             _infoVehiculo(),
             DropdownButtonFormField<int>(
