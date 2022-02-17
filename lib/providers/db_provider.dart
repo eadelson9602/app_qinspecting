@@ -46,7 +46,7 @@ class DBProvider {
         CREATE TABLE Vehiculos(id_vehiculo INTEGER PRIMARY KEY, placa TEXT, id_tipo_vehiculo INTEGER, modelo INTEGER, marca TEXT, color TEXT, licencia_transito INTEGER);
       ''');
       await db.execute('''
-        CREATE TABLE Remolques(id_remolque INTEGER PRIMARY KEY, placa TEXT, id_tipo_vehiculo INTEGER, modelo INTEGER, marca TEXT, color TEXT, matricula INTEGER);
+        CREATE TABLE Remolques(id_remolque INTEGER PRIMARY KEY, placa TEXT, id_tipo_vehiculo INTEGER, modelo INTEGER, marca TEXT, color TEXT, matricula INTEGER, numero_ejes INTEGER);
       ''');
       await db.execute('''
         CREATE TABLE ItemsInspeccion(placa TEXT, tipo_vehiculo INTEGER, id_categoria INTEGER, categoria TEXT, id_item INTEGER PRIMARY KEY, item TEXT);
