@@ -36,7 +36,7 @@ class Remolque {
         marca: json["marca"],
         modelo: json["modelo"],
         idTipoVehiculo: json["id_tipo_vehiculo"],
-        matricula: json["matricula"],
+        matricula: json["matricula"].toString(),
         numeroEjes: json["numero_ejes"],
       );
 
