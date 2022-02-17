@@ -132,9 +132,9 @@ class InspeccionService extends ChangeNotifier {
       if (index == -1) {
         remolques.add(tempRemolque);
         DBProvider.db
-            .getVehiculoById(tempRemolque.idRemolque)
+            .getRemolqueById(tempRemolque.idRemolque)
             .then((resultVehiculo) => {
-                  if (resultVehiculo?.idVehiculo == null)
+                  if (resultVehiculo?.idRemolque == null)
                     DBProvider.db.nuevoRemolque(tempRemolque)
                 });
       }
