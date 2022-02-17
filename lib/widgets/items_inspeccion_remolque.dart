@@ -27,6 +27,23 @@ class _ItemsInspeccionarStateRemolque extends State<ItemsInspeccionarRemolque> {
             title: Text(itemsInspeccionar[i].categoria),
             content: Column(
               children: [
+                MaterialButton(
+                    elevation: 3,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(100)),
+                    child: TextButtonAllok(),
+                    onPressed: () {
+                      setState(() {
+                        for (var item in itemsInspeccionar[i].items) {
+                          item.respuesta = 'B';
+                        }
+                        if (inspeccionProvider.stepStepper <
+                            itemsInspeccionar.length) {
+                          inspeccionProvider
+                              .updateStep(inspeccionProvider.stepStepper += 1);
+                        }
+                      });
+                    }),
                 for (var item in itemsInspeccionar[i].items)
                   Column(
                     children: [
