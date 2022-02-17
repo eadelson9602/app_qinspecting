@@ -10,6 +10,7 @@ class InspeccionProvider extends ChangeNotifier {
   bool tieneRemolque = false;
   bool tieneGuia = false;
   Vehiculo? vehiculoSelected;
+  Remolque? remolqueSelected;
 
   List<Departamentos> departamentos = [];
   List<Ciudades> ciudades = [];
@@ -66,6 +67,11 @@ class InspeccionProvider extends ChangeNotifier {
 
   updateVehiculoSelected(Vehiculo vehiculo) {
     vehiculoSelected = vehiculo;
+    notifyListeners();
+  }
+
+  updateRemolqueSelected(Remolque remolque) {
+    remolqueSelected = remolque;
     notifyListeners();
   }
 
