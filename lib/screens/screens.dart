@@ -1,6 +1,6 @@
 export 'package:app_qinspecting/screens/desktop_screen.dart';
 export 'package:app_qinspecting/screens/home_screen.dart';
-export 'package:app_qinspecting/screens/inspeccion_form.dart';
+export 'package:app_qinspecting/screens/inspeccion_form_screen.dart';
 export 'package:app_qinspecting/screens/inspeccion_screen.dart';
 export 'package:app_qinspecting/screens/loading_screen.dart';
 export 'package:app_qinspecting/screens/login_screen.dart';
