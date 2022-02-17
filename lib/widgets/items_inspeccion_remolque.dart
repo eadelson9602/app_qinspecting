@@ -84,22 +84,23 @@ class _ItemsInspeccionarStateRemolque extends State<ItemsInspeccionarRemolque> {
                         ],
                       ),
                       SizedBox(height: 11),
-                      Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.only(right: 20, left: 15),
-                        child: TextField(
-                          maxLines: 8,
-                          decoration: InputDecoration(
-                              hintText: "Observaciones",
-                              filled: true,
-                              contentPadding: EdgeInsets.all(10.0),
-                              floatingLabelBehavior:
-                                  FloatingLabelBehavior.always),
-                          onChanged: (value) {
-                            item.observaciones = value;
-                          },
+                      if (item.respuesta == 'M')
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.only(right: 20, left: 15),
+                          child: TextField(
+                            maxLines: 8,
+                            decoration: InputDecoration(
+                                hintText: "Observaciones",
+                                filled: true,
+                                contentPadding: EdgeInsets.all(10.0),
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.always),
+                            onChanged: (value) {
+                              item.observaciones = value;
+                            },
+                          ),
                         ),
-                      ),
                       SizedBox(height: 11),
                       if (item.respuesta == 'M')
                         Container(
