@@ -78,7 +78,7 @@ class InspeccionForm extends StatelessWidget {
 
     Widget _infoRemolque() {
       return Column(children: [
-        DropdownButtonFormField(
+        DropdownButtonFormField<String>(
             decoration: InputDecorations.authInputDecorations(
                 prefixIcon: Icons.local_shipping,
                 hintText: '',
@@ -89,53 +89,65 @@ class InspeccionForm extends StatelessWidget {
                 value: e.placa,
               );
             }).toList(),
-            onChanged: (value) {
-              print(value);
+            onChanged: (value) async {
+              final resultRemolque =
+                  await DBProvider.db.getRemolqueByPlate(value!);
+              inspeccionService.resumePreoperacional.remolId =
+                  resultRemolque!.idRemolque;
+              inspeccionProvider.updateRemolqueSelected(resultRemolque);
             }),
-        const SizedBox(
-          height: 10,
-        ),
-        TextFormField(
-          textCapitalization: TextCapitalization.words,
-          autocorrect: false,
-          readOnly: true,
-          keyboardType: TextInputType.text,
-          decoration: InputDecorations.authInputDecorations(
-              hintText: '', labelText: 'Marca del remolque'),
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        TextFormField(
-          textCapitalization: TextCapitalization.words,
-          autocorrect: false,
-          readOnly: true,
-          keyboardType: TextInputType.text,
-          decoration: InputDecorations.authInputDecorations(
-              hintText: '', labelText: 'Modelo del remolque'),
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        TextFormField(
-          textCapitalization: TextCapitalization.words,
-          autocorrect: false,
-          readOnly: true,
-          keyboardType: TextInputType.text,
-          decoration: InputDecorations.authInputDecorations(
-              hintText: '', labelText: 'Licencia de tránsito del remolque'),
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        TextFormField(
-          textCapitalization: TextCapitalization.words,
-          autocorrect: false,
-          readOnly: true,
-          keyboardType: TextInputType.text,
-          decoration: InputDecorations.authInputDecorations(
-              hintText: '', labelText: 'Número de ejes del remolque'),
-        ),
+        inspeccionProvider.remolqueSelected == null
+            ? Container()
+            : Column(
+                children: [
+                  ListTile(
+                    dense: true,
+                    shape: Border(bottom: BorderSide(color: Colors.green)),
+                    title: Text('Color', style: TextStyle(fontSize: 15)),
+                    subtitle: Text(
+                        inspeccionProvider.remolqueSelected!.color.toString(),
+                        style: TextStyle(fontSize: 15)),
+                  ),
+                  ListTile(
+                    dense: true,
+                    shape: Border(bottom: BorderSide(color: Colors.green)),
+                    title: Text('Marca del remolque',
+                        style: TextStyle(fontSize: 15)),
+                    subtitle: Text(
+                        inspeccionProvider.remolqueSelected!.marca.toString(),
+                        style: TextStyle(fontSize: 15)),
+                  ),
+                  ListTile(
+                    dense: true,
+                    shape: Border(bottom: BorderSide(color: Colors.green)),
+                    title: Text('Modelo del remolque',
+                        style: TextStyle(fontSize: 15)),
+                    subtitle: Text(
+                        inspeccionProvider.remolqueSelected!.modelo.toString(),
+                        style: TextStyle(fontSize: 15)),
+                  ),
+                  ListTile(
+                    dense: true,
+                    shape: Border(bottom: BorderSide(color: Colors.green)),
+                    title: Text('Matrícula del remolque',
+                        style: TextStyle(fontSize: 15)),
+                    subtitle: Text(
+                        inspeccionProvider.remolqueSelected!.matricula
+                            .toString(),
+                        style: TextStyle(fontSize: 15)),
+                  ),
+                  ListTile(
+                    dense: true,
+                    shape: Border(bottom: BorderSide(color: Colors.green)),
+                    title: Text('Número de ejes del remolque',
+                        style: TextStyle(fontSize: 15)),
+                    subtitle: Text(
+                        inspeccionProvider.remolqueSelected!.numeroEjes
+                            .toString(),
+                        style: TextStyle(fontSize: 15)),
+                  )
+                ],
+              )
       ]);
     }
 
@@ -324,8 +336,10 @@ class InspeccionForm extends StatelessWidget {
                 value: inspeccionProvider.tieneRemolque,
                 title: const Text('¿Tiene remolque?'),
                 activeColor: Colors.green,
-                onChanged: (value) =>
-                    inspeccionProvider.updateTieneRemolque(value)),
+                onChanged: (value) {
+                  inspeccionProvider.updateTieneRemolque(value);
+                  inspeccionProvider.listarRemolques();
+                }),
             SwitchListTile.adaptive(
                 value: inspeccionProvider.tieneGuia,
                 title: const Text('Tiene guía transporte?'),
