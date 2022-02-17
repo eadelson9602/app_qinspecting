@@ -26,7 +26,26 @@ class _ItemsInspeccionarStateVehiculo extends State<ItemsInspeccionarVehiculo> {
             isActive: inspeccionProvider.stepStepper >= i ? true : false,
             title: Text(itemsInspeccionar[i].categoria),
             content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                MaterialButton(
+                    elevation: 3,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(100)),
+                    child: TextButtonLogin(),
+                    onPressed: () {
+                      setState(() {
+                        for (var item in itemsInspeccionar[i].items) {
+                          item.respuesta = 'B';
+                        }
+                        if (inspeccionProvider.stepStepper <
+                            itemsInspeccionar.length) {
+                          inspeccionProvider
+                              .updateStep(inspeccionProvider.stepStepper += 1);
+                        }
+                      });
+                    }),
+                SizedBox(height: 20),
                 for (var item in itemsInspeccionar[i].items)
                   Column(
                     children: [
@@ -84,22 +103,23 @@ class _ItemsInspeccionarStateVehiculo extends State<ItemsInspeccionarVehiculo> {
                         ],
                       ),
                       SizedBox(height: 11),
-                      Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.only(right: 20, left: 15),
-                        child: TextField(
-                          maxLines: 8,
-                          decoration: InputDecoration(
-                              hintText: "Observaciones",
-                              filled: true,
-                              contentPadding: EdgeInsets.all(10.0),
-                              floatingLabelBehavior:
-                                  FloatingLabelBehavior.always),
-                          onChanged: (value) {
-                            item.observaciones = value;
-                          },
+                      if (item.respuesta == 'M')
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.only(right: 20, left: 15),
+                          child: TextField(
+                            maxLines: 8,
+                            decoration: InputDecoration(
+                                hintText: "Observaciones",
+                                filled: true,
+                                contentPadding: EdgeInsets.all(10.0),
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.always),
+                            onChanged: (value) {
+                              item.observaciones = value;
+                            },
+                          ),
                         ),
-                      ),
                       SizedBox(height: 11),
                       if (item.respuesta == 'M')
                         Container(
@@ -163,6 +183,40 @@ class _ItemsInspeccionarStateVehiculo extends State<ItemsInspeccionarVehiculo> {
         inspeccionProvider.updateStep(index);
       },
       steps: _renderSteps(),
+    );
+  }
+}
+
+class TextButtonLogin extends StatelessWidget {
+  const TextButtonLogin({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 150,
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.check,
+            color: Colors.white,
+          ),
+          SizedBox(
+            width: 10,
+          ),
+          Text(
+            'Todo ok',
+            style: const TextStyle(color: Colors.white, fontSize: 18),
+          )
+        ],
+      ),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(100),
+          gradient: const LinearGradient(colors: [
+            Color.fromRGBO(31, 133, 53, 1),
+            Color.fromRGBO(103, 210, 0, 1)
+          ])),
     );
   }
 }
