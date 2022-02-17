@@ -187,6 +187,13 @@ class DBProvider {
     return res!.isNotEmpty ? Vehiculo.fromMap(res.first) : null;
   }
 
+  Future<Vehiculo?> getRemolqueByPlate(String placa) async {
+    final db = await database;
+    final res =
+        await db?.query('Remolques', where: 'placa = ?', whereArgs: [placa]);
+    return res!.isNotEmpty ? Vehiculo.fromMap(res.first) : null;
+  }
+
   Future<List<Vehiculo>?> getAllVehiculos() async {
     final db = await database;
     final res = await db?.query('Vehiculos');
