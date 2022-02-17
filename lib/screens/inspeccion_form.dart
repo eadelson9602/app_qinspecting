@@ -95,6 +95,8 @@ class InspeccionForm extends StatelessWidget {
               inspeccionService.resumePreoperacional.remolId =
                   resultRemolque!.idRemolque;
               inspeccionProvider.updateRemolqueSelected(resultRemolque);
+
+              await inspeccionProvider.listarCategoriaItemsRemolque();
             }),
         inspeccionProvider.remolqueSelected == null
             ? Container()
@@ -407,9 +409,47 @@ class InspeccionForm extends StatelessWidget {
                           child: inspeccionProvider.tieneRemolque
                               ? Icon(Icons.arrow_forward_ios_sharp)
                               : Icon(Icons.save),
-                          onPressed: () {
+                          onPressed: () async {
                             if (inspeccionProvider.tieneRemolque) {
-                              // Aqui se continua a la pagina de remolque
+                              await Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder: (BuildContext context) {
+                                    return Scaffold(
+                                      appBar: AppBar(),
+                                      body: ItemsInspeccionarRemolque(),
+                                      floatingActionButton:
+                                          FloatingActionButton(
+                                        child: inspeccionProvider.tieneRemolque
+                                            ? Icon(
+                                                Icons.arrow_forward_ios_sharp)
+                                            : Icon(Icons.save),
+                                        onPressed: () {
+                                          if (inspeccionProvider
+                                              .tieneRemolque) {
+                                            // Aqui se continua a la pagina de remolque
+                                            return;
+                                          }
+                                          List respuestas = [];
+                                          inspeccionProvider.itemsInspeccion
+                                              .forEach((categoria) {
+                                            categoria.items.forEach((item) {
+                                              if (item.respuesta != null) {
+                                                respuestas.add(item.toMap());
+                                              }
+                                            });
+                                          });
+                                          inspeccionService.resumePreoperacional
+                                                  .respuestas =
+                                              respuestas.toString();
+                                          inspeccionProvider.saveInspecicon(
+                                              inspeccionService
+                                                  .resumePreoperacional);
+                                        },
+                                      ),
+                                    );
+                                  },
+                                ),
+                              );
                               return;
                             }
                             List respuestas = [];
