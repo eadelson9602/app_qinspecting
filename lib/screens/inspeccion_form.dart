@@ -386,6 +386,7 @@ class InspeccionForm extends StatelessWidget {
                   minimumSize: MaterialStateProperty.all<Size>(Size.square(50)),
                   textStyle: MaterialStateProperty.all<TextStyle>(
                       TextStyle(fontSize: 16))),
+              child: const Text('Realizar inspección'),
               onPressed: () async {
                 if (!inspeccionProvider.isValidForm()) return;
                 var now = DateTime.now();
@@ -401,7 +402,7 @@ class InspeccionForm extends StatelessWidget {
                     builder: (BuildContext context) {
                       return Scaffold(
                         appBar: AppBar(),
-                        body: ItemsInspeccionar(),
+                        body: ItemsInspeccionarVehiculo(),
                         floatingActionButton: FloatingActionButton(
                           child: inspeccionProvider.tieneRemolque
                               ? Icon(Icons.arrow_forward_ios_sharp)
@@ -431,7 +432,6 @@ class InspeccionForm extends StatelessWidget {
                   ),
                 );
               },
-              child: const Text('Realizar inspección'),
             ),
             const SizedBox(
               height: 10,

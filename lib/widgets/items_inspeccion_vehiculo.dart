@@ -6,14 +6,15 @@ import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/screens/screens.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 
-class ItemsInspeccionar extends StatefulWidget {
-  ItemsInspeccionar({Key? key}) : super(key: key);
+class ItemsInspeccionarVehiculo extends StatefulWidget {
+  ItemsInspeccionarVehiculo({Key? key}) : super(key: key);
 
   @override
-  State<ItemsInspeccionar> createState() => _ItemsInspeccionarState();
+  State<ItemsInspeccionarVehiculo> createState() =>
+      _ItemsInspeccionarStateVehiculo();
 }
 
-class _ItemsInspeccionarState extends State<ItemsInspeccionar> {
+class _ItemsInspeccionarStateVehiculo extends State<ItemsInspeccionarVehiculo> {
   @override
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
