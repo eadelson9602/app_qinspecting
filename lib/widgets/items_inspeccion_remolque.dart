@@ -26,6 +26,7 @@ class _ItemsInspeccionarStateRemolque extends State<ItemsInspeccionarRemolque> {
             isActive: inspeccionProvider.stepStepper >= i ? true : false,
             title: Text(itemsInspeccionar[i].categoria),
             content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 MaterialButton(
                     elevation: 3,
@@ -47,6 +48,7 @@ class _ItemsInspeccionarStateRemolque extends State<ItemsInspeccionarRemolque> {
                         }
                       });
                     }),
+                SizedBox(height: 20),
                 for (var item in itemsInspeccionar[i].items)
                   Column(
                     children: [
