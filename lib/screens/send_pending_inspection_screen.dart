@@ -1,5 +1,8 @@
+import 'package:app_qinspecting/screens/loading_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 
 class SendPendingInspectionScree extends StatelessWidget {
@@ -7,6 +10,10 @@ class SendPendingInspectionScree extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final inspeccionProvider = Provider.of<InspeccionProvider>(context);
+    inspeccionProvider.cargarTodosInspecciones();
+
+    if (inspeccionProvider.allInspecciones.length == 0) return LoadingScreen();
     return Scaffold(
       appBar: const CustomAppBar().createAppBar(),
       drawer: const CustomDrawer(),
@@ -14,7 +21,7 @@ class SendPendingInspectionScree extends StatelessWidget {
         height: double.infinity,
         padding: EdgeInsets.only(top: 5, left: 10, right: 10, bottom: 50),
         child: ListView.builder(
-            itemCount: 15,
+            itemCount: inspeccionProvider.allInspecciones.length,
             itemBuilder: (_, int i) => ListTile(
                   iconColor: Colors.green,
                   shape: Border.all(
@@ -24,8 +31,10 @@ class SendPendingInspectionScree extends StatelessWidget {
                   leading: Icon(
                     Icons.find_in_page,
                   ),
-                  title: Text('Hola'),
-                  subtitle: Text('10/02/2022'),
+                  title: Text(
+                      'Inspección ${inspeccionProvider.allInspecciones[i].Id}'),
+                  subtitle: Text(
+                      'Realizado el ${inspeccionProvider.allInspecciones[i].resuPreFecha}'),
                   trailing: Icon(
                     Icons.upload,
                   ),
