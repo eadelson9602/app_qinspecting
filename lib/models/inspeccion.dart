@@ -41,12 +41,13 @@ class ResumenPreoperacional {
         Id: json["Id"],
         resuPreFecha: json["ResuPre_Fecha"],
         resuPreUbicExpPre: json["ResuPre_UbicExpPre"],
-        resuPreKilometraje: json["ResuPre_Kilometraje"],
-        tanqueGalones:
-            json["tanque_galones"] == null ? null : json["tanque_galones"],
+        resuPreKilometraje: int.parse(json["ResuPre_Kilometraje"]),
+        tanqueGalones: json["tanque_galones"] == null
+            ? null
+            : int.parse(json["tanque_galones"]),
         resuPreFotokm:
             json["ResuPre_Fotokm"] == null ? null : json["ResuPre_Fotokm"],
-        persNumeroDoc: json["Pers_NumeroDoc"],
+        persNumeroDoc: int.parse(json["Pers_NumeroDoc"]),
         resuPreGuia: json["ResuPre_guia"] == null ? null : json["ResuPre_guia"],
         resuPreFotoguia:
             json["ResuPre_Fotoguia"] == null ? null : json["ResuPre_Fotoguia"],
