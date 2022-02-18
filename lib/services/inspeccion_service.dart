@@ -14,7 +14,7 @@ class InspeccionService extends ChangeNotifier {
   final List<Remolque> remolques = [];
   final List<ItemInspeccion> itemsInspeccion = [];
 
-  final resumePreoperacional = ResumePreoperacional(
+  final resumePreoperacional = ResumenPreoperacional(
     resuPreFecha: '',
     resuPreUbicExpPre: '',
     resuPreKilometraje: 0,
