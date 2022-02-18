@@ -32,6 +32,7 @@ class AppState extends StatelessWidget {
       ChangeNotifierProvider(
         create: (_) => PerfilFormProvider(),
       ),
+      ChangeNotifierProvider(create: (_) => InspeccionService()),
     ], child: const MyApp());
   }
 }
