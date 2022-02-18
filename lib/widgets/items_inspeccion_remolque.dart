@@ -37,10 +37,13 @@ class _ItemsInspeccionarStateRemolque extends State<ItemsInspeccionarRemolque> {
                         for (var item in itemsInspeccionar[i].items) {
                           item.respuesta = 'B';
                         }
-                        if (inspeccionProvider.stepStepper <
-                            itemsInspeccionar.length) {
-                          inspeccionProvider
-                              .updateStep(inspeccionProvider.stepStepper += 1);
+                        if (inspeccionProvider.stepStepperRemolque <
+                                itemsInspeccionar.length &&
+                            itemsInspeccionar.length -
+                                    inspeccionProvider.stepStepperRemolque !=
+                                1) {
+                          inspeccionProvider.updateStepRemolque(
+                              inspeccionProvider.stepStepperRemolque += 1);
                         }
                       });
                     }),
@@ -165,16 +168,18 @@ class _ItemsInspeccionarStateRemolque extends State<ItemsInspeccionarRemolque> {
 
     if (itemsInspeccionar.isEmpty) return const LoadingScreen();
     return Stepper(
-      margin: EdgeInsets.only(left: 55),
-      currentStep: inspeccionProvider.stepStepper,
+      margin: EdgeInsets.only(left: 55, bottom: 40),
+      currentStep: inspeccionProvider.stepStepperRemolque,
       onStepCancel: () {
-        if (inspeccionProvider.stepStepper > 0) {
-          inspeccionProvider.updateStep(inspeccionProvider.stepStepper -= 1);
+        if (inspeccionProvider.stepStepperRemolque > 0) {
+          inspeccionProvider
+              .updateStep(inspeccionProvider.stepStepperRemolque -= 1);
         }
       },
       onStepContinue: () {
-        if (inspeccionProvider.stepStepper < itemsInspeccionar.length) {
-          inspeccionProvider.updateStep(inspeccionProvider.stepStepper += 1);
+        if (inspeccionProvider.stepStepperRemolque < itemsInspeccionar.length) {
+          inspeccionProvider
+              .updateStep(inspeccionProvider.stepStepperRemolque += 1);
         }
       },
       onStepTapped: (int index) {
