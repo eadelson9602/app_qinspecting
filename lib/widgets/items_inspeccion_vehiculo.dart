@@ -39,7 +39,10 @@ class _ItemsInspeccionarStateVehiculo extends State<ItemsInspeccionarVehiculo> {
                           item.respuesta = 'B';
                         }
                         if (inspeccionProvider.stepStepper <
-                            itemsInspeccionar.length) {
+                                itemsInspeccionar.length &&
+                            itemsInspeccionar.length -
+                                    inspeccionProvider.stepStepper !=
+                                1) {
                           inspeccionProvider
                               .updateStep(inspeccionProvider.stepStepper += 1);
                         }
@@ -167,7 +170,7 @@ class _ItemsInspeccionarStateVehiculo extends State<ItemsInspeccionarVehiculo> {
 
     if (itemsInspeccionar.isEmpty) return const LoadingScreen();
     return Stepper(
-      margin: EdgeInsets.only(left: 55),
+      margin: EdgeInsets.only(left: 55, bottom: 40),
       currentStep: inspeccionProvider.stepStepper,
       onStepCancel: () {
         if (inspeccionProvider.stepStepper > 0) {
