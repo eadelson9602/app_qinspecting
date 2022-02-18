@@ -258,4 +258,13 @@ class DBProvider {
         await db?.insert('ResumenPreoperacional', nuevoInspeccion.toMap());
     return res;
   }
+
+  Future<List<ResumePreoperacional>?> getAllInspections() async {
+    final db = await database;
+    final res = await db?.query('ResumenPreoperacional');
+
+    return res!.isNotEmpty
+        ? res.map((s) => ResumePreoperacional.fromMap(s)).toList()
+        : [];
+  }
 }
