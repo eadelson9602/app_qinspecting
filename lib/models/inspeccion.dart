@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-class ResumePreoperacional {
-  ResumePreoperacional({
+class ResumenPreoperacional {
+  ResumenPreoperacional({
     this.Id,
     required this.resuPreFecha,
     required this.resuPreUbicExpPre,
@@ -31,13 +31,13 @@ class ResumePreoperacional {
   int ciuId;
   String respuestas;
 
-  factory ResumePreoperacional.fromJson(String str) =>
-      ResumePreoperacional.fromMap(json.decode(str));
+  factory ResumenPreoperacional.fromJson(String str) =>
+      ResumenPreoperacional.fromMap(json.decode(str));
 
   String toJson() => json.encode(toMap());
 
-  factory ResumePreoperacional.fromMap(Map<String, dynamic> json) =>
-      ResumePreoperacional(
+  factory ResumenPreoperacional.fromMap(Map<String, dynamic> json) =>
+      ResumenPreoperacional(
         Id: json["Id"],
         resuPreFecha: json["ResuPre_Fecha"],
         resuPreUbicExpPre: json["ResuPre_UbicExpPre"],
