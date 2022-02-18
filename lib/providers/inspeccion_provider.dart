@@ -24,6 +24,7 @@ class InspeccionProvider extends ChangeNotifier {
   String? pathFileGuia;
   String aceptaTerminos = 'NO';
   int stepStepper = 0;
+  int stepStepperRemolque = 0;
 
   bool isValidForm() {
     return formKey.currentState?.validate() ?? false;
@@ -43,6 +44,11 @@ class InspeccionProvider extends ChangeNotifier {
 
   updateStep(int value) {
     stepStepper = value;
+    notifyListeners();
+  }
+
+  updateStepRemolque(int value) {
+    stepStepperRemolque = value;
     notifyListeners();
   }
 
