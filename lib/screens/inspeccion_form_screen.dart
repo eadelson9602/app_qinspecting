@@ -420,16 +420,8 @@ class InspeccionForm extends StatelessWidget {
                                       body: ItemsInspeccionarRemolque(),
                                       floatingActionButton:
                                           FloatingActionButton(
-                                        child: inspeccionProvider.tieneRemolque
-                                            ? Icon(
-                                                Icons.arrow_forward_ios_sharp)
-                                            : Icon(Icons.save),
+                                        child: Icon(Icons.save),
                                         onPressed: () {
-                                          if (inspeccionProvider
-                                              .tieneRemolque) {
-                                            // Aqui se continua a la pagina de remolque
-                                            return;
-                                          }
                                           List respuestas = [];
                                           inspeccionProvider.itemsInspeccion
                                               .forEach((categoria) {
