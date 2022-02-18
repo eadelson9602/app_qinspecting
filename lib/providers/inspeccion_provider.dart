@@ -127,7 +127,7 @@ class InspeccionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  cargarTodosInspecciones(String tipo) async {
+  cargarTodosInspecciones() async {
     final inspecciones = await DBProvider.db.getAllInspections();
     allInspecciones = [...?inspecciones];
     notifyListeners();
