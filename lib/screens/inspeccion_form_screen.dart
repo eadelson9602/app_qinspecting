@@ -18,6 +18,8 @@ class InspeccionForm extends StatelessWidget {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
     final inspeccionService = Provider.of<InspeccionService>(context);
     final loginService = Provider.of<LoginService>(context);
+    inspeccionService.resumePreoperacional.base =
+        loginService.selectedEmpresa!.nombreBase!;
 
     Widget _guiaTransporte() {
       return inspeccionProvider.tieneGuia
