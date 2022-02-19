@@ -23,7 +23,8 @@ class _ItemsInspeccionarStateRemolque extends State<ItemsInspeccionarRemolque> {
       List<Step> stepsInspeccion = [];
       for (int i = 0; i < itemsInspeccionar.length; i++) {
         stepsInspeccion.add(Step(
-            isActive: inspeccionProvider.stepStepper >= i ? true : false,
+            isActive:
+                inspeccionProvider.stepStepperRemolque >= i ? true : false,
             title: Text(itemsInspeccionar[i].categoria),
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
