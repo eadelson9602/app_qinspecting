@@ -15,6 +15,7 @@ class ResumenPreoperacional {
     this.remolId,
     required this.ciuId,
     required this.respuestas,
+    required this.base,
   });
 
   int? Id;
@@ -30,6 +31,7 @@ class ResumenPreoperacional {
   int? remolId;
   int ciuId;
   String respuestas;
+  String base;
 
   factory ResumenPreoperacional.fromJson(String str) =>
       ResumenPreoperacional.fromMap(json.decode(str));
@@ -55,6 +57,7 @@ class ResumenPreoperacional {
         remolId: json["Remol_Id"] == null ? null : json["Remol_Id"],
         ciuId: json["Ciu_Id"],
         respuestas: json["Respuestas"],
+        base: json["base"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -71,5 +74,6 @@ class ResumenPreoperacional {
         "Remol_Id": remolId,
         "Ciu_Id": ciuId,
         "Respuestas": respuestas,
+        "base": base
       };
 }
