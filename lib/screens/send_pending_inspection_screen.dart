@@ -1,4 +1,5 @@
 import 'package:app_qinspecting/screens/loading_screen.dart';
+import 'package:app_qinspecting/services/inspeccion_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,6 +12,7 @@ class SendPendingInspectionScree extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
+    final inspeccionService = Provider.of<InspeccionService>(context);
     inspeccionProvider.cargarTodosInspecciones();
 
     if (inspeccionProvider.allInspecciones.length == 0) return LoadingScreen();
@@ -38,6 +40,10 @@ class SendPendingInspectionScree extends StatelessWidget {
                   trailing: Icon(
                     Icons.upload,
                   ),
+                  onTap: () {
+                    inspeccionService.insertPreoperacional(
+                        inspeccionProvider.allInspecciones[i]);
+                  },
                 )),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
