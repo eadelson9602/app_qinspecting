@@ -10,14 +10,7 @@ class LoadHomeScreen extends StatelessWidget {
   const LoadHomeScreen({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    final loginService = Provider.of<LoginService>(context, listen: false);
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-            create: (_) => InspeccionService(loginService.selectedEmpresa!)),
-      ],
-      child: const HomeScreen(),
-    );
+    return const HomeScreen();
   }
 }
 
