@@ -149,6 +149,8 @@ class ButtonLogin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loginForm = Provider.of<LoginFormProvider>(context);
+    final inspeccionService =
+        Provider.of<InspeccionService>(context, listen: false);
 
     return MaterialButton(
       elevation: 3,
@@ -194,11 +196,23 @@ class ButtonLogin extends StatelessWidget {
                                 // Asignamos al servicio la empresa seleccionada
                                 loginService.selectedEmpresa =
                                     empresas[i].copy();
+
+                                await inspeccionService.getVehiculos(
+                                    loginService.selectedEmpresa!);
+                                await inspeccionService
+                                    .getTrailers(loginService.selectedEmpresa!);
+                                await inspeccionService.getDepartamentos(
+                                    loginService.selectedEmpresa!);
+                                await inspeccionService
+                                    .getCiudades(loginService.selectedEmpresa!);
+                                await inspeccionService.getItemsInspeccion(
+                                    loginService.selectedEmpresa!);
                                 // Lanzamos la petición get para obtner los datos del usuario logueado
                                 final userData =
                                     await loginService.getUserData();
                                 final user = await DBProvider.db
                                     .getUserById(userData.id!);
+
                                 if (user?.id == null) {
                                   DBProvider.db.nuevoUser(userData);
                                 } else {
