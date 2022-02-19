@@ -15,31 +15,21 @@ class InspeccionService extends ChangeNotifier {
   final List<ItemInspeccion> itemsInspeccion = [];
 
   final resumePreoperacional = ResumenPreoperacional(
-    resuPreFecha: '',
-    resuPreUbicExpPre: '',
-    resuPreKilometraje: 0,
-    tanqueGalones: 0,
-    resuPreFotokm: '',
-    persNumeroDoc: 0,
-    resuPreGuia: '',
-    resuPreFotoguia: '',
-    vehId: 0,
-    remolId: 0,
-    ciuId: 0,
-    respuestas: '',
-  );
+      resuPreFecha: '',
+      resuPreUbicExpPre: '',
+      resuPreKilometraje: 0,
+      tanqueGalones: 0,
+      resuPreFotokm: '',
+      persNumeroDoc: 0,
+      resuPreGuia: '',
+      resuPreFotoguia: '',
+      vehId: 0,
+      remolId: 0,
+      ciuId: 0,
+      respuestas: '',
+      base: '');
 
-  Empresa empresaSelected;
-
-  InspeccionService(this.empresaSelected) {
-    getDepartamentos();
-    getCiudades();
-    getVehiculos();
-    getItemsInspeccion();
-    getTrailers();
-  }
-
-  Future<List<Departamentos>> getDepartamentos() async {
+  Future<List<Departamentos>> getDepartamentos(Empresa empresaSelected) async {
     isLoading = true;
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
@@ -65,7 +55,7 @@ class InspeccionService extends ChangeNotifier {
     return departamentos;
   }
 
-  Future<List<Ciudades>> getCiudades() async {
+  Future<List<Ciudades>> getCiudades(Empresa empresaSelected) async {
     isLoading = true;
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
@@ -92,7 +82,7 @@ class InspeccionService extends ChangeNotifier {
     return ciudades;
   }
 
-  Future<List<Vehiculo>> getVehiculos() async {
+  Future<List<Vehiculo>> getVehiculos(Empresa empresaSelected) async {
     isLoading = true;
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
@@ -118,7 +108,7 @@ class InspeccionService extends ChangeNotifier {
     return vehiculos;
   }
 
-  Future<List<Remolque>> getTrailers() async {
+  Future<List<Remolque>> getTrailers(Empresa empresaSelected) async {
     isLoading = true;
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
@@ -144,7 +134,8 @@ class InspeccionService extends ChangeNotifier {
     return remolques;
   }
 
-  Future<List<ItemInspeccion>> getItemsInspeccion() async {
+  Future<List<ItemInspeccion>> getItemsInspeccion(
+      Empresa empresaSelected) async {
     isLoading = true;
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
@@ -166,5 +157,28 @@ class InspeccionService extends ChangeNotifier {
     isLoading = false;
     notifyListeners();
     return itemsInspeccion;
+  }
+
+  Future<int> insertPreoperacional(ResumenPreoperacional inspeccion) async {
+    print('Hola');
+    // isLoading = true;
+    // notifyListeners();
+    print(inspeccion.toJson());
+    // Response response = await dio.post('https://apis.qinspecting.com/pflutter/list_items_x_placa');
+    // for (var item in response.data) {
+    //   final tempItem = ItemInspeccion.fromMap(item);
+    //   final index = itemsInspeccion
+    //       .indexWhere((element) => element.idItem == tempItem.idItem);
+    //   if (index == -1) {
+    //     itemsInspeccion.add(tempItem);
+    //     DBProvider.db.getItemById(tempItem.idItem).then((resultVehiculo) => {
+    //           if (resultVehiculo?.idItem == null)
+    //             DBProvider.db.nuevoItem(tempItem)
+    //         });
+    //   }
+    // }
+    // isLoading = false;
+    // notifyListeners();
+    return 1;
   }
 }
