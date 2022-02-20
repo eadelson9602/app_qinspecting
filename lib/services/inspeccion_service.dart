@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -160,25 +162,15 @@ class InspeccionService extends ChangeNotifier {
   }
 
   Future<int> insertPreoperacional(ResumenPreoperacional inspeccion) async {
-    print('Hola');
-    // isLoading = true;
-    // notifyListeners();
-    print(inspeccion.toJson());
-    // Response response = await dio.post('https://apis.qinspecting.com/pflutter/list_items_x_placa');
-    // for (var item in response.data) {
-    //   final tempItem = ItemInspeccion.fromMap(item);
-    //   final index = itemsInspeccion
-    //       .indexWhere((element) => element.idItem == tempItem.idItem);
-    //   if (index == -1) {
-    //     itemsInspeccion.add(tempItem);
-    //     DBProvider.db.getItemById(tempItem.idItem).then((resultVehiculo) => {
-    //           if (resultVehiculo?.idItem == null)
-    //             DBProvider.db.nuevoItem(tempItem)
-    //         });
-    //   }
-    // }
-    // isLoading = false;
-    // notifyListeners();
+    isLoading = true;
+    notifyListeners();
+    Response response = await dio.post(
+        'https://apis.qinspecting.com/pflutter/insert_preoperacional',
+        data: inspeccion.toJson());
+    print(response.data);
+    print(response.data['idInspeccion']);
+    isLoading = false;
+    notifyListeners();
     return 1;
   }
 }
