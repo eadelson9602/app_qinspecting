@@ -24,28 +24,55 @@ class SendPendingInspectionScree extends StatelessWidget {
         height: double.infinity,
         padding: EdgeInsets.only(top: 5, left: 10, right: 10, bottom: 50),
         child: ListView.builder(
-          itemCount: allInspecciones.length,
-          itemBuilder: (_, int i) => Dismissible(
-              key: UniqueKey(),
-              background: Container(
-                color: Colors.red,
-              ),
-              onDismissed: (DismissDirection direction) => print('Borrar'),
-              child: ListTile(
-                leading: Icon(
-                  Icons.find_in_page,
+            itemCount: allInspecciones.length,
+            itemBuilder: (_, int i) {
+              if (inspeccionService.isLoading)
+                return CircularProgressIndicator(
                   color: Colors.green,
+                );
+              return Card(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      leading: Icon(
+                        Icons.search,
+                        color: Colors.green,
+                      ),
+                      title: Text('Inspección No. ${allInspecciones[i].Id}'),
+                      subtitle: Text(
+                          'Realizado el ${allInspecciones[i].resuPreFecha}'),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          child: const Text(
+                            'Eliminar',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                          onPressed: inspeccionService.isLoading
+                              ? null
+                              : () {/* ... */},
+                        ),
+                        const SizedBox(width: 8),
+                        TextButton(
+                          child: const Text('Guardar'),
+                          onPressed: inspeccionService.isLoading
+                              ? null
+                              : () async {
+                                  final response = await inspeccionService
+                                      .insertPreoperacional(allInspecciones[i]);
+                                  print(response);
+                                },
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                    ),
+                  ],
                 ),
-                title: Text('Inspección ${allInspecciones[i].Id}'),
-                subtitle:
-                    Text('Realizado el ${allInspecciones[i].resuPreFecha}'),
-                trailing:
-                    const Icon(Icons.keyboard_arrow_right, color: Colors.grey),
-                onTap: () {
-                  inspeccionService.insertPreoperacional(allInspecciones[i]);
-                },
-              )),
-        ),
+              );
+            }),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
