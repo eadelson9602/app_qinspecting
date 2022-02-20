@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/providers/providers.dart';
@@ -63,7 +64,14 @@ class SendPendingInspectionScree extends StatelessWidget {
                               : () async {
                                   final response = await inspeccionService
                                       .insertPreoperacional(allInspecciones[i]);
-                                  print(response);
+
+                                  // show a notification at top of screen.
+                                  showSimpleNotification(
+                                      Text(response.message!),
+                                      leading: Icon(Icons.check),
+                                      autoDismiss: true,
+                                      background: Colors.green,
+                                      position: NotificationPosition.bottom);
                                 },
                         ),
                         const SizedBox(width: 8),

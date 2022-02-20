@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 
 import 'screens/screens.dart';
@@ -43,7 +44,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return OverlaySupport.global(
+        child: MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Home Page',
       theme: ThemeData(
@@ -59,6 +61,6 @@ class MyApp extends StatelessWidget {
         'send_pending': (_) => const SendPendingInspectionScree(),
         'settings': (_) => const SettingScreen(),
       },
-    );
+    ));
   }
 }
