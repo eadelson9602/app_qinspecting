@@ -61,6 +61,10 @@ class MyApp extends StatelessWidget {
         'send_pending': (_) => const SendPendingInspectionScree(),
         'settings': (_) => const SettingScreen(),
       },
+      // Se usa para controlar pagina que no existes 404
+      onGenerateRoute: (settings) {
+        return MaterialPageRoute(builder: (context) => const HomeScreen());
+      },
     ));
   }
 }
