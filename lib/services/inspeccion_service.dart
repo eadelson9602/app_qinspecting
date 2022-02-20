@@ -161,16 +161,17 @@ class InspeccionService extends ChangeNotifier {
     return itemsInspeccion;
   }
 
-  Future<int> insertPreoperacional(ResumenPreoperacional inspeccion) async {
+  Future<Respuesta> insertPreoperacional(
+      ResumenPreoperacional inspeccion) async {
     isLoading = true;
     notifyListeners();
     Response response = await dio.post(
         'https://apis.qinspecting.com/pflutter/insert_preoperacional',
         data: inspeccion.toJson());
-    print(response.data);
-    print(response.data['idInspeccion']);
+    final resp = Respuesta.fromMap(response.data);
+
     isLoading = false;
     notifyListeners();
-    return 1;
+    return resp;
   }
 }
