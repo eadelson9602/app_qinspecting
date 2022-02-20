@@ -77,3 +77,31 @@ class ResumenPreoperacional {
         "base": base
       };
 }
+
+class Respuesta {
+  Respuesta({
+    this.message,
+    this.ok,
+    this.idIsnpeccion,
+  });
+
+  String? message;
+  bool? ok;
+  int? idIsnpeccion;
+
+  factory Respuesta.fromJson(String str) => Respuesta.fromMap(json.decode(str));
+
+  String toJson() => json.encode(toMap());
+
+  factory Respuesta.fromMap(Map<String, dynamic> json) => Respuesta(
+        message: json["message"],
+        ok: json["ok"],
+        idIsnpeccion: json["idIsnpeccion"],
+      );
+
+  Map<String, dynamic> toMap() => {
+        "message": message,
+        "ok": ok,
+        "idIsnpeccion": idIsnpeccion,
+      };
+}
