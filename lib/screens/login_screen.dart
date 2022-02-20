@@ -1,3 +1,4 @@
+import 'package:app_qinspecting/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,6 +13,8 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _sizeScreen = MediaQuery.of(context).size;
+    final inspeccionService = Provider.of<InspeccionService>(context);
+    if (inspeccionService.isLoading) return LoadHomeScreen();
     return Scaffold(
       body: AuthBackground(
         child: SingleChildScrollView(
@@ -188,6 +191,7 @@ class ButtonLogin extends StatelessWidget {
                               title: Text(empresas[i].nombreQi.toString()),
                               trailing: const Icon(Icons.houseboat_rounded),
                               onTap: () async {
+                                Navigator.popAndPushNamed(context, 'home');
                                 final empresa = await DBProvider.db
                                     .getEmpresaById(empresas[i].empId!.toInt());
                                 if (empresa?.empId == null) {
@@ -220,7 +224,6 @@ class ButtonLogin extends StatelessWidget {
                                 }
                                 loginService.userDataLogged = userData;
                                 // Guardamos los datos del usuario en la bd
-                                Navigator.popAndPushNamed(context, 'home');
                               },
                             ),
                           ),
