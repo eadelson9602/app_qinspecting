@@ -429,7 +429,7 @@ class InspeccionForm extends StatelessWidget {
                                               .forEach((categoria) {
                                             categoria.items.forEach((item) {
                                               if (item.respuesta != null) {
-                                                respuestas.add(item.toMap());
+                                                respuestas.add(item.toJson());
                                               }
                                             });
                                           });
@@ -438,7 +438,7 @@ class InspeccionForm extends StatelessWidget {
                                               .forEach((categoria) {
                                             categoria.items.forEach((item) {
                                               if (item.respuesta != null) {
-                                                respuestas.add(item.toMap());
+                                                respuestas.add(item.toJson());
                                               }
                                             });
                                           });
@@ -463,7 +463,7 @@ class InspeccionForm extends StatelessWidget {
                                 .forEach((categoria) {
                               categoria.items.forEach((item) {
                                 if (item.respuesta != null) {
-                                  respuestas.add(item.toMap());
+                                  respuestas.add(item.toJson());
                                 }
                               });
                             });
