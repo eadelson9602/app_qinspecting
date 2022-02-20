@@ -201,16 +201,6 @@ class ButtonLogin extends StatelessWidget {
                                 loginService.selectedEmpresa =
                                     empresas[i].copy();
 
-                                await inspeccionService.getVehiculos(
-                                    loginService.selectedEmpresa!);
-                                await inspeccionService
-                                    .getTrailers(loginService.selectedEmpresa!);
-                                await inspeccionService.getDepartamentos(
-                                    loginService.selectedEmpresa!);
-                                await inspeccionService
-                                    .getCiudades(loginService.selectedEmpresa!);
-                                await inspeccionService.getItemsInspeccion(
-                                    loginService.selectedEmpresa!);
                                 // Lanzamos la petición get para obtner los datos del usuario logueado
                                 final userData =
                                     await loginService.getUserData();
@@ -223,6 +213,17 @@ class ButtonLogin extends StatelessWidget {
                                   DBProvider.db.updateUser(userData);
                                 }
                                 loginService.userDataLogged = userData;
+
+                                await inspeccionService.getVehiculos(
+                                    loginService.selectedEmpresa!);
+                                await inspeccionService
+                                    .getTrailers(loginService.selectedEmpresa!);
+                                await inspeccionService.getDepartamentos(
+                                    loginService.selectedEmpresa!);
+                                await inspeccionService
+                                    .getCiudades(loginService.selectedEmpresa!);
+                                await inspeccionService.getItemsInspeccion(
+                                    loginService.selectedEmpresa!);
                                 // Guardamos los datos del usuario en la bd
                               },
                             ),
