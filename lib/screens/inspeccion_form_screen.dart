@@ -458,19 +458,20 @@ class InspeccionForm extends StatelessWidget {
                             }
 
                             // Si no tiene remolque
-                            List respuestas = [];
+                            final idEncabezado =
+                                await inspeccionProvider.saveInspecicon(
+                                    inspeccionService.resumePreoperacional);
+
                             inspeccionProvider.itemsInspeccion
                                 .forEach((categoria) {
                               categoria.items.forEach((item) {
                                 if (item.respuesta != null) {
-                                  respuestas.add(item.toJson());
+                                  item.fkPreoperacional = idEncabezado;
+                                  inspeccionProvider
+                                      .saveRespuestaInspeccion(item);
                                 }
                               });
                             });
-                            inspeccionService.resumePreoperacional.respuestas =
-                                respuestas.toString();
-                            inspeccionProvider.saveInspecicon(
-                                inspeccionService.resumePreoperacional);
                           },
                         ),
                       );
