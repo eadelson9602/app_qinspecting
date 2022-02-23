@@ -65,15 +65,9 @@ class InspeccionForm extends StatelessWidget {
                             if (photo == null) {
                               return;
                             }
-                            File imagefile =
-                                File(photo.path); //convert Path to File
-                            Uint8List imagebytes = await imagefile
-                                .readAsBytesSync(); //convert to bytes
-                            String base64string = base64.encode(imagebytes);
-                            print(base64string);
 
                             inspeccionService.resumePreoperacional
-                                .resuPreFotoguia = base64string;
+                                .resuPreFotoguia = photo.path;
                             inspeccionProvider.updateImageGuia(photo.path);
                           },
                           icon: Icon(
