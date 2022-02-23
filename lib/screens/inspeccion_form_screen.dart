@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:app_qinspecting/services/login_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -61,8 +65,15 @@ class InspeccionForm extends StatelessWidget {
                             if (photo == null) {
                               return;
                             }
+                            File imagefile =
+                                File(photo.path); //convert Path to File
+                            Uint8List imagebytes = await imagefile
+                                .readAsBytesSync(); //convert to bytes
+                            String base64string = base64.encode(imagebytes);
+                            print(base64string);
+
                             inspeccionService.resumePreoperacional
-                                .resuPreFotoguia = photo.path;
+                                .resuPreFotoguia = base64string;
                             inspeccionProvider.updateImageGuia(photo.path);
                           },
                           icon: Icon(
