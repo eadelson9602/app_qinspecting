@@ -73,33 +73,36 @@ class Item {
   Item(
       {required this.idItem,
       required this.item,
-      respuesta,
-      adjunto,
-      observaciones});
+      this.respuesta,
+      this.adjunto,
+      this.observaciones,
+      this.fkPreoperacional});
 
   String idItem;
   String item;
   String? respuesta;
   String? adjunto;
   String? observaciones;
+  int? fkPreoperacional;
 
   factory Item.fromJson(String str) => Item.fromMap(json.decode(str));
 
   String toJson() => json.encode(toMap());
 
   factory Item.fromMap(Map<String, dynamic> json) => Item(
-        idItem: json["id_item"],
-        item: json["item"],
-        respuesta: json["respuesta"],
-        adjunto: json["adjunto"],
-        observaciones: json["observaciones"],
-      );
+      idItem: json["id_item"],
+      item: json["item"],
+      respuesta: json["respuesta"],
+      adjunto: json["adjunto"],
+      observaciones: json["observaciones"],
+      fkPreoperacional: json["Id"]);
 
   Map<String, dynamic> toMap() => {
         "id_item": idItem,
         "item": item,
         "respuesta": respuesta,
         "adjunto": adjunto,
-        "observaciones": observaciones
+        "observaciones": observaciones,
+        "fk_preoperacional": fkPreoperacional
       };
 }
