@@ -140,4 +140,11 @@ class InspeccionProvider extends ChangeNotifier {
     allInspecciones = [...?inspecciones];
     notifyListeners();
   }
+
+  cargarTodasRespuestas(int idResumen) async {
+    final respuestas =
+        await DBProvider.db.getAllRespuestasByIdResumen(idResumen);
+    notifyListeners();
+    return respuestas;
+  }
 }
