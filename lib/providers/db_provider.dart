@@ -277,4 +277,12 @@ class DBProvider {
         ? res.map((s) => ResumenPreoperacional.fromMap(s)).toList()
         : [];
   }
+
+  Future<List<Item>?> getAllRespuestasByIdResumen(int fk_preoperacional) async {
+    final db = await database;
+    final res = await db?.query('RespuestasPreoperacional',
+        where: 'fk_preoperacional = ?', whereArgs: [fk_preoperacional]);
+
+    return res!.isNotEmpty ? res.map((s) => Item.fromMap(s)).toList() : [];
+  }
 }
