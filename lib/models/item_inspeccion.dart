@@ -90,7 +90,7 @@ class Item {
   String toJson() => json.encode(toMap());
 
   factory Item.fromMap(Map<String, dynamic> json) => Item(
-      idItem: json["id_item"],
+      idItem: json["id_item"].toString(),
       item: json["item"],
       respuesta: json["respuesta"],
       adjunto: json["adjunto"],
