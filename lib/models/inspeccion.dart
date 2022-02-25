@@ -105,3 +105,29 @@ class Respuesta {
         "idIsnpeccion": idIsnpeccion,
       };
 }
+
+class ResponseUploadFile {
+  ResponseUploadFile({this.saved, this.fileName, this.path});
+
+  bool? saved;
+  String? fileName;
+  String? path;
+
+  factory ResponseUploadFile.fromJson(String str) =>
+      ResponseUploadFile.fromMap(json.decode(str));
+
+  String toJson() => json.encode(toMap());
+
+  factory ResponseUploadFile.fromMap(Map<String, dynamic> json) =>
+      ResponseUploadFile(
+        saved: json["saved"],
+        fileName: json["fileName"],
+        path: json["path"],
+      );
+
+  Map<String, dynamic> toMap() => {
+        "saved": saved,
+        "fileName": fileName,
+        "path": path,
+      };
+}
