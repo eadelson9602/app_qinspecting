@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/screens/loading_screen.dart';
+import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 
@@ -14,6 +14,7 @@ class SendPendingInspectionScree extends StatelessWidget {
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
     final inspeccionService = Provider.of<InspeccionService>(context);
+    // final loginService = Provider.of<LoginService>(context);
     final allInspecciones = inspeccionProvider.allInspecciones;
     inspeccionProvider.cargarTodosInspecciones();
 
@@ -28,8 +29,20 @@ class SendPendingInspectionScree extends StatelessWidget {
             itemCount: allInspecciones.length,
             itemBuilder: (_, int i) {
               if (inspeccionService.isLoading)
-                return CircularProgressIndicator(
-                  color: Colors.green,
+                return Container(
+                  padding: EdgeInsets.all(20),
+                  child: Row(children: [
+                    Text(
+                      'Enviando al servidor...',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    SizedBox(
+                      width: 30,
+                    ),
+                    CircularProgressIndicator(
+                      color: Colors.green,
+                    )
+                  ]),
                 );
               return Card(
                 child: Column(
@@ -62,16 +75,46 @@ class SendPendingInspectionScree extends StatelessWidget {
                           onPressed: inspeccionService.isLoading
                               ? null
                               : () async {
-                                  final response = await inspeccionService
-                                      .insertPreoperacional(allInspecciones[i]);
+                                  // Map<String, dynamic>? response =
+                                  //     await inspeccionService.uploadImage(
+                                  //         path:
+                                  //             allInspecciones[i].resuPreFotokm!,
+                                  //         company: 'qinspecting',
+                                  //         folder: 'inspecciones');
+                                  // allInspecciones[i].resuPreFotokm =
+                                  //     response!['path'];
+
+                                  List<Item> respuestas =
+                                      await inspeccionProvider
+                                          .cargarTodasRespuestas(
+                                              allInspecciones[i].Id!);
+
+                                  List<Future> Promesas = [];
+                                  respuestas.forEach((element) {
+                                    // loginService.selectedEmpresa!.nombreQi
+
+                                    if (element.adjunto != null) {
+                                      Promesas.add(
+                                          inspeccionService.uploadImage(
+                                              path: element.adjunto!,
+                                              company: 'qinspecting',
+                                              folder: 'inspecciones'));
+                                    }
+                                  });
+
+                                  await Future.wait(Promesas).then((value) {
+                                    print(value);
+                                  });
+                                  // final response = await inspeccionService
+                                  //     .insertPreoperacional(allInspecciones[i]);
 
                                   // show a notification at top of screen.
-                                  showSimpleNotification(
-                                      Text(response.message!),
-                                      leading: Icon(Icons.check),
-                                      autoDismiss: true,
-                                      background: Colors.green,
-                                      position: NotificationPosition.bottom);
+                                  // showSimpleNotification(
+                                  //     Text(response.message!),
+                                  //     leading: Icon(Icons.check),
+                                  //     autoDismiss: true,
+                                  //     background: Colors.green,
+                                  //     position: NotificationPosition.bottom);
                                 },
                         ),
                         const SizedBox(width: 8),
