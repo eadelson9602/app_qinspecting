@@ -186,4 +186,26 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
     return resp;
   }
+
+  Future<Map<String, dynamic>?> uploadImage(
+      {required String path,
+      required String company,
+      required String folder}) async {
+    isLoading = true;
+    notifyListeners();
+
+    final fileName = path.split('/')[6];
+    // File file = File.fromUri(Uri(path: path));
+    print(path);
+    var formData = FormData.fromMap(
+        {'files': await MultipartFile.fromFile(path, filename: fileName)});
+    Response response = await dio.post(
+        'https://apis.qinspecting.com/pflutter/upload_file/${company}/${folder}',
+        data: formData);
+    final resp = ResponseUploadFile.fromMap(response.data);
+
+    isLoading = false;
+    notifyListeners();
+    return resp.toMap();
+  }
 }
