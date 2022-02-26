@@ -31,7 +31,7 @@ class DBProvider {
         CREATE TABLE ResumenPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, ResuPre_Fecha TEXT, ResuPre_UbicExpPre TEXT, ResuPre_Kilometraje TEXT, tanque_galones TEXT, ResuPre_Fotokm TEXT, Pers_NumeroDoc TEXT, ResuPre_guia TEXT, ResuPre_Fotoguia TEXT, Veh_Id INTEGER, Remol_Id INTEGER, Ciu_Id INTEGER, Respuestas TEXT, base TEXT);
       ''');
       await db.execute('''
-        CREATE TABLE RespuestasPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, id_item INTEGER, item TEXT, respuesta TEXT, adjunto TEXT, observaciones TEXT, fk_preoperacional INTEGER, CONSTRAINT fk_preoperacional FOREIGN KEY (Id) REFERENCES ResumenPreoperacional(Id), base TEXT);
+        CREATE TABLE RespuestasPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, id_item INTEGER, item TEXT, respuesta TEXT, adjunto TEXT, observaciones TEXT, base TEXT, fk_preoperacional INTEGER, CONSTRAINT fk_preoperacional FOREIGN KEY (Id) REFERENCES ResumenPreoperacional(Id));
       ''');
       await db.execute('''
         CREATE TABLE Empresas( Emp_Id INTEGER PRIMARY KEY, aut_create_cap INTEGER, Rol_Id INTEGER, CantF INTEGER, nombre_QI TEXT, nombre_base TEXT, ruta_logo TEXT, url_QI TEXT, Razon_social TEXT, Pers_Imagen TEXT, Carg_Descripcion TEXT, Pers_Email TEXT, Usuario_Contra TEXT, Complete_Name TEXT, Pers_Apellidos TEXT, Pers_Nombres TEXT, Pers_Celular TEXT, UsuarioUser INTEGER );
