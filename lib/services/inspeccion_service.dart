@@ -173,17 +173,18 @@ class InspeccionService extends ChangeNotifier {
     return resp;
   }
 
-  Future<Respuesta> insertRespuestasPreoperacional(Item respuesta) async {
+  Future<String> insertRespuestasPreoperacional(Item respuesta) async {
     isLoading = true;
     notifyListeners();
-    Response response = await dio.post(
-        'https://apis.qinspecting.com/pflutter/insert_respuestas_preoperacional',
-        data: respuesta.toJson());
-    final resp = Respuesta.fromMap(response.data);
+    print(respuesta.toJson());
+    // Response response = await dio.post(
+    //     'https://apis.qinspecting.com/pflutter/insert_respuestas_preoperacional',
+    //     data: respuesta.toJson());
+    // final resp = Respuesta.fromMap(response.data);
 
     isLoading = false;
     notifyListeners();
-    return resp;
+    return 'Guardado';
   }
 
   Future<Map<String, dynamic>?> uploadImage(
@@ -194,8 +195,6 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
 
     final fileName = path.split('/')[6];
-    // File file = File.fromUri(Uri(path: path));
-    print(path);
     var formData = FormData.fromMap(
         {'files': await MultipartFile.fromFile(path, filename: fileName)});
     Response response = await dio.post(
