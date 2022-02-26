@@ -29,7 +29,7 @@ class SendPendingInspectionScree extends StatelessWidget {
         child: ListView.builder(
             itemCount: allInspecciones.length,
             itemBuilder: (_, int i) {
-              if (inspeccionService.isLoading)
+              if (inspeccionService.isSaving)
                 return Container(
                   padding: EdgeInsets.all(20),
                   child: Row(children: [
@@ -76,6 +76,7 @@ class SendPendingInspectionScree extends StatelessWidget {
                           onPressed: inspeccionService.isLoading
                               ? null
                               : () async {
+                                  inspeccionService.isSaving = true;
                                   Map<String, dynamic>?
                                       responseUploadKilometraje =
                                       await inspeccionService.uploadImage(
@@ -139,6 +140,7 @@ class SendPendingInspectionScree extends StatelessWidget {
                                       autoDismiss: true,
                                       background: Colors.green,
                                       position: NotificationPosition.bottom);
+                                  inspeccionService.isSaving = false;
                                 },
                         ),
                         const SizedBox(width: 8),
