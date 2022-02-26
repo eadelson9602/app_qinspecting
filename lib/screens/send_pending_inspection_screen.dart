@@ -32,17 +32,16 @@ class SendPendingInspectionScree extends StatelessWidget {
               if (inspeccionService.isSaving)
                 return Container(
                   padding: EdgeInsets.all(20),
-                  child: Row(children: [
-                    Text(
-                      'Enviando al servidor...',
-                      style: TextStyle(fontSize: 18),
+                  child: Column(children: [
+                    Image(
+                      image: AssetImage('assets/images/loading_3.gif'),
+                      // fit: BoxFit.cover,
+                      height: 50,
                     ),
                     SizedBox(
                       width: 30,
                     ),
-                    CircularProgressIndicator(
-                      color: Colors.green,
-                    )
+                    LinearProgressIndicator(),
                   ]),
                 );
               return Card(
