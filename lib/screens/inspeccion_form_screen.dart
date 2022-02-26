@@ -430,6 +430,9 @@ class InspeccionForm extends StatelessWidget {
                                               .forEach((categoria) {
                                             categoria.items.forEach((item) {
                                               if (item.respuesta != null) {
+                                                item.base = loginService
+                                                    .selectedEmpresa!
+                                                    .nombreBase;
                                                 respuestas.add(item.toJson());
                                               }
                                             });
@@ -439,6 +442,9 @@ class InspeccionForm extends StatelessWidget {
                                               .forEach((categoria) {
                                             categoria.items.forEach((item) {
                                               if (item.respuesta != null) {
+                                                item.base = loginService
+                                                    .selectedEmpresa!
+                                                    .nombreBase;
                                                 respuestas.add(item.toJson());
                                               }
                                             });
@@ -468,6 +474,8 @@ class InspeccionForm extends StatelessWidget {
                               categoria.items.forEach((item) {
                                 if (item.respuesta != null) {
                                   item.fkPreoperacional = idEncabezado;
+                                  item.base =
+                                      loginService.selectedEmpresa!.nombreBase;
                                   inspeccionProvider
                                       .saveRespuestaInspeccion(item);
                                 }
