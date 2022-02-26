@@ -73,7 +73,7 @@ class Item {
   Item(
       {required this.idItem,
       required this.item,
-      required this.respuesta,
+      this.respuesta,
       this.adjunto,
       this.observaciones,
       required this.fkPreoperacional,
@@ -81,7 +81,7 @@ class Item {
 
   String idItem;
   String item;
-  String respuesta;
+  String? respuesta;
   String? adjunto;
   String? observaciones;
   int fkPreoperacional;
