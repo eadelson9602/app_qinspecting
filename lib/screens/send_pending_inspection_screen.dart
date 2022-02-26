@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/providers/providers.dart';
@@ -75,14 +76,24 @@ class SendPendingInspectionScree extends StatelessWidget {
                           onPressed: inspeccionService.isLoading
                               ? null
                               : () async {
-                                  // Map<String, dynamic>? response =
-                                  //     await inspeccionService.uploadImage(
-                                  //         path:
-                                  //             allInspecciones[i].resuPreFotokm!,
-                                  //         company: 'qinspecting',
-                                  //         folder: 'inspecciones');
-                                  // allInspecciones[i].resuPreFotokm =
-                                  //     response!['path'];
+                                  Map<String, dynamic>?
+                                      responseUploadKilometraje =
+                                      await inspeccionService.uploadImage(
+                                          path:
+                                              allInspecciones[i].resuPreFotokm!,
+                                          company: 'qinspecting',
+                                          folder: 'inspecciones');
+                                  allInspecciones[i].resuPreFotokm =
+                                      responseUploadKilometraje!['path'];
+
+                                  allInspecciones[i].remolId =
+                                      inspeccionProvider.tieneRemolque
+                                          ? allInspecciones[i].remolId
+                                          : null;
+                                  final responseResumen =
+                                      await inspeccionService
+                                          .insertPreoperacional(
+                                              allInspecciones[i]);
 
                                   List<Item> respuestas =
                                       await inspeccionProvider
@@ -92,29 +103,42 @@ class SendPendingInspectionScree extends StatelessWidget {
                                   List<Future> Promesas = [];
                                   respuestas.forEach((element) {
                                     // loginService.selectedEmpresa!.nombreQi
-
+                                    element.fkPreoperacional =
+                                        responseResumen.idInspeccion;
                                     if (element.adjunto != null) {
-                                      Promesas.add(
-                                          inspeccionService.uploadImage(
+                                      Promesas.add(inspeccionService
+                                          .uploadImage(
                                               path: element.adjunto!,
                                               company: 'qinspecting',
-                                              folder: 'inspecciones'));
+                                              folder: 'inspecciones')
+                                          .then((response) {
+                                        final responseUpload =
+                                            ResponseUploadFile.fromMap(
+                                                response!);
+                                        element.adjunto = responseUpload.path;
+
+                                        inspeccionService
+                                            .insertRespuestasPreoperacional(
+                                                element);
+                                      }));
+                                    } else {
+                                      Promesas.add(inspeccionService
+                                          .insertRespuestasPreoperacional(
+                                              element));
                                     }
                                   });
 
                                   await Future.wait(Promesas).then((value) {
-                                    print(value);
+                                    // print(value);
                                   });
-                                  // final response = await inspeccionService
-                                  //     .insertPreoperacional(allInspecciones[i]);
 
                                   // show a notification at top of screen.
-                                  // showSimpleNotification(
-                                  //     Text(response.message!),
-                                  //     leading: Icon(Icons.check),
-                                  //     autoDismiss: true,
-                                  //     background: Colors.green,
-                                  //     position: NotificationPosition.bottom);
+                                  showSimpleNotification(
+                                      Text(responseResumen.message!),
+                                      leading: Icon(Icons.check),
+                                      autoDismiss: true,
+                                      background: Colors.green,
+                                      position: NotificationPosition.bottom);
                                 },
                         ),
                         const SizedBox(width: 8),
