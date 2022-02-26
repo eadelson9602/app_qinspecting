@@ -82,12 +82,12 @@ class Respuesta {
   Respuesta({
     this.message,
     this.ok,
-    this.idIsnpeccion,
+    this.idInspeccion,
   });
 
   String? message;
   bool? ok;
-  int? idIsnpeccion;
+  int? idInspeccion;
 
   factory Respuesta.fromJson(String str) => Respuesta.fromMap(json.decode(str));
 
@@ -96,13 +96,13 @@ class Respuesta {
   factory Respuesta.fromMap(Map<String, dynamic> json) => Respuesta(
         message: json["message"],
         ok: json["ok"],
-        idIsnpeccion: json["idIsnpeccion"],
+        idInspeccion: json["idInspeccion"],
       );
 
   Map<String, dynamic> toMap() => {
         "message": message,
         "ok": ok,
-        "idIsnpeccion": idIsnpeccion,
+        "idInspeccion": idInspeccion,
       };
 }
 
