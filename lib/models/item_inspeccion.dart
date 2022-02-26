@@ -76,16 +76,16 @@ class Item {
       this.respuesta,
       this.adjunto,
       this.observaciones,
-      required this.fkPreoperacional,
-      required this.base});
+      this.fkPreoperacional,
+      this.base});
 
   String idItem;
   String item;
   String? respuesta;
   String? adjunto;
   String? observaciones;
-  int fkPreoperacional;
-  String base;
+  int? fkPreoperacional;
+  String? base;
 
   factory Item.fromJson(String str) => Item.fromMap(json.decode(str));
 
