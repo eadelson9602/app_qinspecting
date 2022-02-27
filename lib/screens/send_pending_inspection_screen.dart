@@ -67,7 +67,24 @@ class SendPendingInspectionScree extends StatelessWidget {
                           ),
                           onPressed: inspeccionService.isLoading
                               ? null
-                              : () {/* ... */},
+                              : () async {
+                                  final responseDelete =
+                                      await inspeccionProvider
+                                          .eliminarResumenPreoperacional(
+                                              allInspecciones[i].Id!);
+
+                                  await inspeccionProvider
+                                      .eliminarRespuestaPreoperacional(
+                                          allInspecciones[i].Id!);
+
+                                  showSimpleNotification(
+                                      Text(
+                                          'Inspección ${responseDelete} eliminada'),
+                                      leading: Icon(Icons.check),
+                                      autoDismiss: true,
+                                      background: Colors.green,
+                                      position: NotificationPosition.bottom);
+                                },
                         ),
                         const SizedBox(width: 8),
                         TextButton(
