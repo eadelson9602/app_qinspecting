@@ -56,10 +56,11 @@ class MyApp extends StatelessWidget {
         'login': (_) => const LoginScreen(),
         'home': (_) => const LoadHomeScreen(),
         'profile': (_) => const ProfileScreen(),
-        'inspeccion': (_) => const ScaffoldInspeccionScreen(),
+        'inspeccion': (_) => const InspeccionScreen(),
         'signature': (_) => const SignatureScreen(),
         'send_pending': (_) => const SendPendingInspectionScree(),
         'settings': (_) => const SettingScreen(),
+        'inspeccion_vehiculo': (_) => const InspeccionVehiculoScreen(),
       },
       // Se usa para controlar pagina que no existes 404
       onGenerateRoute: (settings) {
