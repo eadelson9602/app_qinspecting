@@ -5,8 +5,8 @@ import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/screens/screens.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 
-class ScaffoldInspeccionScreen extends StatelessWidget {
-  const ScaffoldInspeccionScreen({Key? key}) : super(key: key);
+class InspeccionScreen extends StatelessWidget {
+  const InspeccionScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
