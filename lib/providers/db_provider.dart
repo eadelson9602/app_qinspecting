@@ -271,7 +271,7 @@ class DBProvider {
 
   Future<int?> deleteResumenPreoperacional(int idResumen) async {
     final db = await database;
-    final res = await db?.delete('RespuestasPreoperacional',
+    final res = await db?.delete('ResumenPreoperacional',
         where: 'Id = ?', whereArgs: [idResumen]);
     return res;
   }
