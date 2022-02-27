@@ -50,13 +50,16 @@ class _HomePageBody extends StatelessWidget {
 
     switch (currentIndex) {
       case 0:
-        inspeccionProvider.vehiculoSelected = null;
-        inspeccionProvider.vehiculoSelected = null;
         inspeccionService.resumePreoperacional.ciuId = 0;
         inspeccionService.resumePreoperacional.resuPreKilometraje = 0;
+        inspeccionService.resumePreoperacional.vehId = 0;
+        inspeccionProvider.vehiculoSelected = null;
+        inspeccionProvider.vehiculoSelected = null;
         inspeccionProvider.pathFileKilometraje = null;
         inspeccionProvider.pathFileGuia = null;
-        inspeccionService.resumePreoperacional.vehId = 0;
+        inspeccionProvider.realizoTanqueo = false;
+        inspeccionProvider.tieneRemolque = false;
+        inspeccionProvider.tieneGuia = false;
         inspeccionProvider.itemsInspeccion.clear();
         inspeccionProvider.itemsInspeccionRemolque.clear();
         return const DesktopScreen();
