@@ -1,6 +1,5 @@
 import 'package:app_qinspecting/services/login_service.dart';
 import 'package:flutter/material.dart';
-import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -19,7 +18,7 @@ class InspeccionForm extends StatelessWidget {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
     final inspeccionService = Provider.of<InspeccionService>(context);
     final loginService = Provider.of<LoginService>(context);
-    final uiProvider = Provider.of<UiProvider>(context);
+
     inspeccionService.resumePreoperacional.base =
         loginService.selectedEmpresa!.nombreBase!;
 
@@ -403,101 +402,7 @@ class InspeccionForm extends StatelessWidget {
                     formattedDate;
                 inspeccionService.resumePreoperacional.persNumeroDoc =
                     loginService.userDataLogged.usuarioUser!;
-
-                await Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (BuildContext context) {
-                      return Scaffold(
-                        appBar: AppBar(),
-                        body: ItemsInspeccionarVehiculo(),
-                        floatingActionButton: FloatingActionButton(
-                          child: inspeccionProvider.tieneRemolque
-                              ? Icon(Icons.arrow_forward_ios_sharp)
-                              : Icon(Icons.save),
-                          onPressed: () async {
-                            // Si tiene remolque
-                            if (inspeccionProvider.tieneRemolque) {
-                              await Navigator.of(context).push(
-                                MaterialPageRoute<void>(
-                                  builder: (BuildContext context) {
-                                    return Scaffold(
-                                      appBar: AppBar(),
-                                      body: ItemsInspeccionarRemolque(),
-                                      floatingActionButton:
-                                          FloatingActionButton(
-                                        child: Icon(Icons.save),
-                                        onPressed: () {
-                                          List respuestas = [];
-                                          inspeccionProvider.itemsInspeccion
-                                              .forEach((categoria) {
-                                            categoria.items.forEach((item) {
-                                              if (item.respuesta != null) {
-                                                item.base = loginService
-                                                    .selectedEmpresa!
-                                                    .nombreBase;
-                                                respuestas.add(item.toJson());
-                                              }
-                                            });
-                                          });
-                                          inspeccionProvider
-                                              .itemsInspeccionRemolque
-                                              .forEach((categoria) {
-                                            categoria.items.forEach((item) {
-                                              if (item.respuesta != null) {
-                                                item.base = loginService
-                                                    .selectedEmpresa!
-                                                    .nombreBase;
-                                                respuestas.add(item.toJson());
-                                              }
-                                            });
-                                          });
-                                          inspeccionService.resumePreoperacional
-                                                  .respuestas =
-                                              respuestas.toString();
-                                          inspeccionProvider.saveInspecicon(
-                                              inspeccionService
-                                                  .resumePreoperacional);
-                                        },
-                                      ),
-                                    );
-                                  },
-                                ),
-                              );
-                              return;
-                            }
-
-                            // Si no tiene remolque
-                            final idEncabezado =
-                                await inspeccionProvider.saveInspecicon(
-                                    inspeccionService.resumePreoperacional);
-
-                            inspeccionProvider.itemsInspeccion
-                                .forEach((categoria) {
-                              categoria.items.forEach((item) {
-                                if (item.respuesta != null) {
-                                  item.fkPreoperacional = idEncabezado;
-                                  item.base =
-                                      loginService.selectedEmpresa!.nombreBase;
-                                  inspeccionProvider
-                                      .saveRespuestaInspeccion(item);
-                                }
-                              });
-                            });
-
-                            uiProvider.selectedMenuOpt = 0;
-                            // show a notification at top of screen.
-                            showSimpleNotification(Text('Inspección realizada'),
-                                leading: Icon(Icons.check),
-                                autoDismiss: true,
-                                background: Colors.green,
-                                position: NotificationPosition.bottom);
-                            Navigator.pop(context);
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                );
+                Navigator.pushReplacementNamed(context, 'inspeccion_vehiculo');
               },
             ),
             const SizedBox(
