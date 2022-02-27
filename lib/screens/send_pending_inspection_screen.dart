@@ -76,6 +76,7 @@ class SendPendingInspectionScree extends StatelessWidget {
                               ? null
                               : () async {
                                   inspeccionService.isSaving = true;
+                                  // Se envia la foto del kilometraje al servidor
                                   Map<String, dynamic>?
                                       responseUploadKilometraje =
                                       await inspeccionService.uploadImage(
@@ -86,15 +87,30 @@ class SendPendingInspectionScree extends StatelessWidget {
                                   allInspecciones[i].resuPreFotokm =
                                       responseUploadKilometraje!['path'];
 
+                                  // Se envia la foto de la guia si tiene
+                                  if (allInspecciones[i].resuPreGuia != null) {
+                                    Map<String, dynamic>? responseUploadGuia =
+                                        await inspeccionService.uploadImage(
+                                            path: allInspecciones[i]
+                                                .resuPreFotoguia!,
+                                            company: 'qinspecting',
+                                            folder: 'inspecciones');
+                                    allInspecciones[i].resuPreFotoguia =
+                                        responseUploadGuia!['path'];
+                                  }
+
+                                  // Asignamos el id del remolque si tiene
                                   allInspecciones[i].remolId =
                                       inspeccionProvider.tieneRemolque
                                           ? allInspecciones[i].remolId
                                           : null;
+
+                                  // Guardamos el resumen del preoperacional en el server
                                   final responseResumen =
                                       await inspeccionService
                                           .insertPreoperacional(
                                               allInspecciones[i]);
-
+                                  // Consultamos en sqlite las respuestas
                                   List<Item> respuestas =
                                       await inspeccionProvider
                                           .cargarTodasRespuestas(
@@ -128,6 +144,7 @@ class SendPendingInspectionScree extends StatelessWidget {
                                     }
                                   });
 
+                                  // Ejecutamos todas las peticiones
                                   await Future.wait(Promesas).then((value) {
                                     // print(value);
                                   });
