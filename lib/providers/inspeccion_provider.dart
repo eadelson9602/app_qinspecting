@@ -147,4 +147,18 @@ class InspeccionProvider extends ChangeNotifier {
     notifyListeners();
     return respuestas;
   }
+
+  eliminarResumenPreoperacional(int idResumen) async {
+    final respuestas =
+        await DBProvider.db.deleteResumenPreoperacional(idResumen);
+    notifyListeners();
+    return respuestas;
+  }
+
+  eliminarRespuestaPreoperacional(int idResumen) async {
+    final respuestas =
+        await DBProvider.db.deleteRespuestaPreoperacional(idResumen);
+    notifyListeners();
+    return respuestas;
+  }
 }
