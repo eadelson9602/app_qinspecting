@@ -1,5 +1,6 @@
 import 'package:app_qinspecting/services/login_service.dart';
 import 'package:flutter/material.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -18,6 +19,7 @@ class InspeccionForm extends StatelessWidget {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
     final inspeccionService = Provider.of<InspeccionService>(context);
     final loginService = Provider.of<LoginService>(context);
+    final uiProvider = Provider.of<UiProvider>(context);
     inspeccionService.resumePreoperacional.base =
         loginService.selectedEmpresa!.nombreBase!;
 
@@ -481,6 +483,25 @@ class InspeccionForm extends StatelessWidget {
                                 }
                               });
                             });
+
+                            inspeccionProvider.vehiculoSelected = null;
+                            inspeccionService.resumePreoperacional.ciuId = 0;
+                            inspeccionService
+                                .resumePreoperacional.resuPreKilometraje = 0;
+                            inspeccionProvider.pathFileKilometraje = null;
+                            inspeccionProvider.pathFileGuia = null;
+                            inspeccionService.resumePreoperacional.vehId = 0;
+                            inspeccionProvider.itemsInspeccion.clear();
+                            inspeccionProvider.itemsInspeccionRemolque.clear();
+                            final uiProvider = Provider.of<UiProvider>(context);
+                            uiProvider.selectedMenuOpt = 0;
+                            // show a notification at top of screen.
+                            showSimpleNotification(Text('Inspección realizada'),
+                                leading: Icon(Icons.check),
+                                autoDismiss: true,
+                                background: Colors.green,
+                                position: NotificationPosition.bottom);
+                            Navigator.pop(context);
                           },
                         ),
                       );
