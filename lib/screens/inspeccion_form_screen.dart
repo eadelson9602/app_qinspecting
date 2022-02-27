@@ -484,16 +484,6 @@ class InspeccionForm extends StatelessWidget {
                               });
                             });
 
-                            inspeccionProvider.vehiculoSelected = null;
-                            inspeccionService.resumePreoperacional.ciuId = 0;
-                            inspeccionService
-                                .resumePreoperacional.resuPreKilometraje = 0;
-                            inspeccionProvider.pathFileKilometraje = null;
-                            inspeccionProvider.pathFileGuia = null;
-                            inspeccionService.resumePreoperacional.vehId = 0;
-                            inspeccionProvider.itemsInspeccion.clear();
-                            inspeccionProvider.itemsInspeccionRemolque.clear();
-                            final uiProvider = Provider.of<UiProvider>(context);
                             uiProvider.selectedMenuOpt = 0;
                             // show a notification at top of screen.
                             showSimpleNotification(Text('Inspección realizada'),
