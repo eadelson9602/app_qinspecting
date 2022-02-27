@@ -44,12 +44,21 @@ class _HomePageBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final inspeccionProvider =
         Provider.of<InspeccionProvider>(context, listen: false);
+    final inspeccionService = Provider.of<InspeccionService>(context);
     final uiProvider = Provider.of<UiProvider>(context);
     final currentIndex = uiProvider.selectedMenuOpt;
 
     switch (currentIndex) {
       case 0:
         inspeccionProvider.vehiculoSelected = null;
+        inspeccionProvider.vehiculoSelected = null;
+        inspeccionService.resumePreoperacional.ciuId = 0;
+        inspeccionService.resumePreoperacional.resuPreKilometraje = 0;
+        inspeccionProvider.pathFileKilometraje = null;
+        inspeccionProvider.pathFileGuia = null;
+        inspeccionService.resumePreoperacional.vehId = 0;
+        inspeccionProvider.itemsInspeccion.clear();
+        inspeccionProvider.itemsInspeccionRemolque.clear();
         return const DesktopScreen();
       case 1:
         inspeccionProvider.listarDepartamentos();
