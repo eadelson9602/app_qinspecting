@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:app_qinspecting/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -164,74 +165,121 @@ class ButtonLogin extends StatelessWidget {
           ? null
           : () async {
               FocusScope.of(context).unfocus();
-
-              final loginService =
-                  Provider.of<LoginService>(context, listen: false);
-
               if (!loginForm.isValidForm()) return;
               loginForm.isLoading = true;
 
-              final empresas = await loginService.login(
-                  loginForm.usuario, loginForm.password);
-              if (empresas.isNotEmpty) {
-                showModalBottomSheet(
-                    isScrollControlled: false,
-                    shape: const RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(20))),
-                    context: context,
-                    builder: (context) => Container(
-                          height: empresas.length > 2 ? 250 : 150,
-                          padding: const EdgeInsets.all(20),
-                          child: ListView.builder(
-                            itemCount: empresas.length,
-                            itemBuilder: (_, int i) => ListTile(
-                              leading:
-                                  getImage(empresas[i].rutaLogo.toString()),
-                              title: Text(empresas[i].nombreQi.toString()),
-                              trailing: const Icon(Icons.houseboat_rounded),
-                              onTap: () async {
-                                Navigator.pushReplacementNamed(context, 'home');
-                                final empresa = await DBProvider.db
-                                    .getEmpresaById(empresas[i].empId!.toInt());
-                                if (empresa?.empId == null) {
-                                  DBProvider.db.nuevaEmpresa(empresas[i]);
-                                }
-                                // Asignamos al servicio la empresa seleccionada
-                                loginService.selectedEmpresa =
-                                    empresas[i].copy();
+              var connectivityResult =
+                  await (Connectivity().checkConnectivity());
+              final loginService =
+                  Provider.of<LoginService>(context, listen: false);
+              if (connectivityResult == ConnectivityResult.mobile ||
+                  connectivityResult == ConnectivityResult.wifi) {
+                final empresas = await loginService.login(
+                    loginForm.usuario, loginForm.password);
+                if (empresas.isNotEmpty) {
+                  showModalBottomSheet(
+                      isScrollControlled: false,
+                      shape: const RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(20))),
+                      context: context,
+                      builder: (context) => Container(
+                            height: empresas.length > 2 ? 250 : 150,
+                            padding: const EdgeInsets.all(20),
+                            child: ListView.builder(
+                              itemCount: empresas.length,
+                              itemBuilder: (_, int i) => ListTile(
+                                leading:
+                                    getImage(empresas[i].rutaLogo.toString()),
+                                title: Text(empresas[i].nombreQi.toString()),
+                                trailing: const Icon(Icons.houseboat_rounded),
+                                onTap: () async {
+                                  Navigator.pushReplacementNamed(
+                                      context, 'home');
+                                  final empresa = await DBProvider.db
+                                      .getEmpresaById(
+                                          empresas[i].empId!.toInt());
+                                  if (empresa?.empId == null) {
+                                    DBProvider.db.nuevaEmpresa(empresas[i]);
+                                  }
+                                  // Asignamos al servicio la empresa seleccionada
+                                  loginService.selectedEmpresa =
+                                      empresas[i].copy();
 
-                                // Lanzamos la petición get para obtner los datos del usuario logueado
-                                final userData =
-                                    await loginService.getUserData();
-                                final user = await DBProvider.db
-                                    .getUserById(userData.id!);
+                                  // Lanzamos la petición get para obtner los datos del usuario logueado
+                                  final userData =
+                                      await loginService.getUserData();
+                                  final user = await DBProvider.db
+                                      .getUserById(userData.id!);
 
-                                if (user?.id == null) {
-                                  DBProvider.db.nuevoUser(userData);
-                                } else {
-                                  DBProvider.db.updateUser(userData);
-                                }
-                                loginService.userDataLogged = userData;
+                                  if (user?.id == null) {
+                                    DBProvider.db.nuevoUser(userData);
+                                  } else {
+                                    DBProvider.db.updateUser(userData);
+                                  }
+                                  loginService.userDataLogged = userData;
 
-                                await inspeccionService.getVehiculos(
-                                    loginService.selectedEmpresa!);
-                                await inspeccionService
-                                    .getTrailers(loginService.selectedEmpresa!);
-                                await inspeccionService.getDepartamentos(
-                                    loginService.selectedEmpresa!);
-                                await inspeccionService
-                                    .getCiudades(loginService.selectedEmpresa!);
-                                await inspeccionService.getItemsInspeccion(
-                                    loginService.selectedEmpresa!);
-                                // Guardamos los datos del usuario en la bd
-                              },
+                                  await inspeccionService.getVehiculos(
+                                      loginService.selectedEmpresa!);
+                                  await inspeccionService.getTrailers(
+                                      loginService.selectedEmpresa!);
+                                  await inspeccionService.getDepartamentos(
+                                      loginService.selectedEmpresa!);
+                                  await inspeccionService.getCiudades(
+                                      loginService.selectedEmpresa!);
+                                  await inspeccionService.getItemsInspeccion(
+                                      loginService.selectedEmpresa!);
+                                  // Guardamos los datos del usuario en la bd
+                                },
+                              ),
                             ),
-                          ),
-                        ));
+                          ));
+                } else {
+                  loginForm.existUser = false;
+                  loginForm.isLoading = false;
+                  // TODO => Notificamos que no existe en el sistema
+                }
               } else {
-                loginForm.existUser = false;
-                // TODO => Notificamos que no existe en el sistema
+                loginForm.isLoading = true;
+                print('Sin conexión a red');
+                final userData =
+                    await DBProvider.db.getUserById(loginForm.usuario);
+                if (userData != null &&
+                    userData.usuarioContra == loginForm.password) {
+                  final empresas = await DBProvider.db
+                      .getAllEmpresasByUsuario(loginForm.usuario);
+                  if (empresas != null) {
+                    showModalBottomSheet(
+                        isScrollControlled: false,
+                        shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(20))),
+                        context: context,
+                        builder: (context) => Container(
+                              height: empresas.length > 2 ? 250 : 150,
+                              padding: const EdgeInsets.all(20),
+                              child: ListView.builder(
+                                itemCount: empresas.length,
+                                itemBuilder: (_, int i) => ListTile(
+                                  leading:
+                                      getImage(empresas[i].rutaLogo.toString()),
+                                  title: Text(empresas[i].nombreQi.toString()),
+                                  trailing: const Icon(Icons.houseboat_rounded),
+                                  onTap: () async {
+                                    // Asignamos al servicio la empresa seleccionada y los datos del usuario
+                                    loginService.selectedEmpresa =
+                                        empresas[i].copy();
+                                    loginService.userDataLogged = userData;
+                                    Navigator.pushReplacementNamed(
+                                        context, 'home');
+                                  },
+                                ),
+                              ),
+                            ));
+                  } else {
+                    loginForm.existUser = false;
+                  }
+                }
               }
               loginForm.isLoading = false;
             },
