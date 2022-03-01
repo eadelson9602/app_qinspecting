@@ -78,7 +78,7 @@ class DBProvider {
     return res!.isNotEmpty ? res.map((s) => Empresa.fromMap(s)).toList() : [];
   }
 
-  Future<List<Empresa>?> getAllEmpresasByUsuario(String usuario) async {
+  Future<List<Empresa>?> getAllEmpresasByUsuario(int usuario) async {
     final db = await database;
     final res = await db
         ?.query('Empresas', where: 'UsuarioUser = ?', whereArgs: [usuario]);
