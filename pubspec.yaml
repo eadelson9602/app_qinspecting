@@ -44,6 +44,7 @@ dependencies:
   date_time_picker: ^2.1.0
   signature: ^5.0.0
   overlay_support: ^1.2.1
+  connectivity_plus: ^2.2.1
 
 dev_dependencies:
   flutter_test:
