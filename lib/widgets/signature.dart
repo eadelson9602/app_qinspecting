@@ -75,6 +75,113 @@ class _SignaturePadState extends State<SignaturePad> {
                       groupValue: inspeccionProvider.aceptaTerminos.toString(),
                       onChanged: (value) async {
                         inspeccionProvider.updateTerminos(value.toString());
+                        await Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (BuildContext context) {
+                              final screenSize = MediaQuery.of(context).size;
+                              return Scaffold(
+                                appBar: AppBar(),
+                                body: Center(
+                                  child: Column(
+                                    children: [
+                                      //SIGNATURE CANVAS
+                                      Signature(
+                                        controller: _controller,
+                                        height: screenSize.height * 0.83,
+                                        backgroundColor: Colors.grey[200]!,
+                                      ),
+                                      //OK AND CLEAR BUTTONS
+                                      Container(
+                                        decoration: const BoxDecoration(
+                                            color: Colors.grey),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          mainAxisSize: MainAxisSize.max,
+                                          children: <Widget>[
+                                            //SHOW EXPORTED IMAGE IN NEW ROUTE
+                                            IconButton(
+                                              icon: const Icon(Icons.check),
+                                              color: Colors.black,
+                                              onPressed: () async {
+                                                if (_controller.isNotEmpty) {
+                                                  final Uint8List? data =
+                                                      await _controller
+                                                          .toPngBytes();
+                                                  if (data != null) {
+                                                    // File('my_firma.png').writeAsBytes(data);
+
+                                                    final dir =
+                                                        await getExternalStorageDirectory();
+                                                    final myImagePath =
+                                                        '${dir!.path}/my_firma.png';
+                                                    File imageFile =
+                                                        File(myImagePath);
+                                                    if (!await imageFile
+                                                        .exists()) {
+                                                      imageFile.create(
+                                                          recursive: true);
+                                                    }
+                                                    imageFile
+                                                        .writeAsBytes(data);
+                                                    // Aca se genera la pantalla con la imagen de la firm,a
+                                                    await Navigator.of(context)
+                                                        .push(
+                                                      MaterialPageRoute<void>(
+                                                        builder: (BuildContext
+                                                            context) {
+                                                          return Scaffold(
+                                                            appBar: AppBar(),
+                                                            body: Center(
+                                                              child: Container(
+                                                                child: Image
+                                                                    .memory(
+                                                                        data),
+                                                              ),
+                                                            ),
+                                                          );
+                                                        },
+                                                      ),
+                                                    );
+                                                  }
+                                                }
+                                              },
+                                            ),
+                                            IconButton(
+                                              icon: const Icon(Icons.undo),
+                                              color: Colors.black,
+                                              onPressed: () {
+                                                setState(
+                                                    () => _controller.undo());
+                                              },
+                                            ),
+                                            IconButton(
+                                              icon: const Icon(Icons.redo),
+                                              color: Colors.black,
+                                              onPressed: () {
+                                                setState(
+                                                    () => _controller.redo());
+                                              },
+                                            ),
+                                            //CLEAR CANVAS
+                                            IconButton(
+                                              icon: const Icon(Icons.clear),
+                                              color: Colors.black,
+                                              onPressed: () {
+                                                setState(
+                                                    () => _controller.clear());
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        );
                       },
                     ),
                   ),
@@ -93,82 +200,6 @@ class _SignaturePadState extends State<SignaturePad> {
               ),
             ),
           ),
-          if (inspeccionProvider.aceptaTerminos == 'SI')
-            //SIGNATURE CANVAS
-            Signature(
-              controller: _controller,
-              height: 300,
-              backgroundColor: Colors.grey[200]!,
-            ),
-          if (inspeccionProvider.aceptaTerminos == 'SI')
-            //OK AND CLEAR BUTTONS
-            Container(
-              decoration: const BoxDecoration(color: Colors.grey),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                mainAxisSize: MainAxisSize.max,
-                children: <Widget>[
-                  //SHOW EXPORTED IMAGE IN NEW ROUTE
-                  IconButton(
-                    icon: const Icon(Icons.check),
-                    color: Colors.black,
-                    onPressed: () async {
-                      if (_controller.isNotEmpty) {
-                        final Uint8List? data = await _controller.toPngBytes();
-                        if (data != null) {
-                          // File('my_firma.png').writeAsBytes(data);
-
-                          final dir = await getExternalStorageDirectory();
-                          final myImagePath = dir!.path + "/my_firma.png";
-                          File imageFile = File(myImagePath);
-                          if (!await imageFile.exists()) {
-                            imageFile.create(recursive: true);
-                          }
-                          imageFile.writeAsBytes(data);
-                          // Aca se genera la pantalla con la imagen de la firm,a
-                          await Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                              builder: (BuildContext context) {
-                                return Scaffold(
-                                  appBar: AppBar(),
-                                  body: Center(
-                                    child: Container(
-                                      child: Image.memory(data),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          );
-                        }
-                      }
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.undo),
-                    color: Colors.black,
-                    onPressed: () {
-                      setState(() => _controller.undo());
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.redo),
-                    color: Colors.black,
-                    onPressed: () {
-                      setState(() => _controller.redo());
-                    },
-                  ),
-                  //CLEAR CANVAS
-                  IconButton(
-                    icon: const Icon(Icons.clear),
-                    color: Colors.black,
-                    onPressed: () {
-                      setState(() => _controller.clear());
-                    },
-                  ),
-                ],
-              ),
-            ),
         ],
       )),
     );
