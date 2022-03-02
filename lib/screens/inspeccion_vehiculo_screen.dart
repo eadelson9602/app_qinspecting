@@ -51,10 +51,9 @@ class InspeccionVehiculoScreen extends StatelessWidget {
               autoDismiss: true,
               background: Colors.green,
               position: NotificationPosition.bottom);
-          Navigator.pushReplacementNamed(context, 'inspeccion_vehiculo');
+          Navigator.pushReplacementNamed(context, 'home');
         },
       ),
     );
-    ;
   }
 }
