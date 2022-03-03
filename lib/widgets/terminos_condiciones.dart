@@ -52,8 +52,7 @@ class TerminosCondiciones extends StatelessWidget {
                       groupValue: inspeccionProvider.aceptaTerminos.toString(),
                       onChanged: (value) async {
                         inspeccionProvider.updateTerminos(value.toString());
-                        Navigator.pushReplacementNamed(
-                            context, 'create_signature');
+                        Navigator.pushNamed(context, 'create_signature');
                       },
                     ),
                   ),
