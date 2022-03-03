@@ -6,11 +6,17 @@ class LoginFormProvider extends ChangeNotifier {
   int usuario = 0;
   String password = '';
   bool existUser = true;
+  bool obscureText = true;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
   set isLoading(bool value) {
     _isLoading = value;
+    notifyListeners();
+  }
+
+  updateObscureText(bool value) {
+    obscureText = value;
     notifyListeners();
   }
 
