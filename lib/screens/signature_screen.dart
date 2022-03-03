@@ -56,11 +56,12 @@ class MyStatelessWidget extends StatelessWidget {
               Container(
                 width: double.infinity,
                 height: 500,
+                child: Text('Aqui se vera la firma realizada'),
               ),
               Container(
                 width: double.infinity,
                 height: 500,
-                child: SignaturePad(),
+                child: TerminosCondiciones(),
               ),
             ],
           ),
