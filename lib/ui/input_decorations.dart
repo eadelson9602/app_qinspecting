@@ -4,7 +4,8 @@ class InputDecorations {
   static InputDecoration authInputDecorations(
       {required String hintText,
       required String labelText,
-      IconData? prefixIcon}) {
+      IconData? prefixIcon,
+      Widget? suffixIcon}) {
     return InputDecoration(
         enabledBorder: const UnderlineInputBorder(
             borderSide: BorderSide(color: Colors.green)),
@@ -17,6 +18,7 @@ class InputDecorations {
                 prefixIcon,
                 color: Colors.green,
               )
-            : null);
+            : null,
+        suffixIcon: suffixIcon != null ? suffixIcon : null);
   }
 }
