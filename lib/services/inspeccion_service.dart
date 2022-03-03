@@ -191,8 +191,12 @@ class InspeccionService extends ChangeNotifier {
       required String folder}) async {
     isLoading = true;
     notifyListeners();
-
-    final fileName = path.split('/')[6];
+    var fileName = '';
+    if (path.contains('/storage/emulated/0/Android/data/')) {
+      fileName = path.split('/')[8];
+    } else {
+      fileName = path.split('/')[6];
+    }
     var formData = FormData.fromMap(
         {'files': await MultipartFile.fromFile(path, filename: fileName)});
     Response response = await dio.post(
