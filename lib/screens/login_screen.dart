@@ -104,7 +104,7 @@ class _FormLogin extends StatelessWidget {
               ),
               TextFormField(
                 autocorrect: false,
-                obscureText: true,
+                obscureText: loginForm.obscureText,
                 keyboardType: TextInputType.text,
                 onChanged: (value) => loginForm.password = value,
                 validator: (value) {
@@ -114,7 +114,18 @@ class _FormLogin extends StatelessWidget {
                 decoration: InputDecorations.authInputDecorations(
                     hintText: '******',
                     labelText: 'Contraseña',
-                    prefixIcon: Icons.lock_outline_sharp),
+                    prefixIcon: Icons.lock_outline_sharp,
+                    suffixIcon: IconButton(
+                        onPressed: () {
+                          loginForm.updateObscureText(
+                              loginForm.obscureText ? false : true);
+                        },
+                        icon: Icon(
+                          loginForm.obscureText
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Colors.green,
+                        ))),
               ),
               const SizedBox(
                 height: 30,
