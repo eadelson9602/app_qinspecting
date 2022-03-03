@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:app_qinspecting/services/login_service.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:signature/signature.dart';
 
+import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/providers/providers.dart';
 
 class SignaturePad extends StatefulWidget {
@@ -79,6 +79,8 @@ class _SignaturePadState extends State<SignaturePad> {
                           MaterialPageRoute<void>(
                             builder: (BuildContext context) {
                               final screenSize = MediaQuery.of(context).size;
+                              final inspeccionService =
+                                  Provider.of<InspeccionService>(context);
                               return Scaffold(
                                 appBar: AppBar(),
                                 body: Center(
@@ -113,8 +115,10 @@ class _SignaturePadState extends State<SignaturePad> {
 
                                                     final dir =
                                                         await getExternalStorageDirectory();
+                                                    final nameFile =
+                                                        DateTime.now();
                                                     final myImagePath =
-                                                        '${dir!.path}/my_firma.png';
+                                                        '${dir!.path}/${nameFile}.png';
                                                     File imageFile =
                                                         File(myImagePath);
                                                     if (!await imageFile
@@ -123,26 +127,20 @@ class _SignaturePadState extends State<SignaturePad> {
                                                           recursive: true);
                                                     }
                                                     imageFile
-                                                        .writeAsBytes(data);
-                                                    // Aca se genera la pantalla con la imagen de la firm,a
-                                                    await Navigator.of(context)
-                                                        .push(
-                                                      MaterialPageRoute<void>(
-                                                        builder: (BuildContext
-                                                            context) {
-                                                          return Scaffold(
-                                                            appBar: AppBar(),
-                                                            body: Center(
-                                                              child: Container(
-                                                                child: Image
-                                                                    .memory(
-                                                                        data),
-                                                              ),
-                                                            ),
-                                                          );
-                                                        },
-                                                      ),
-                                                    );
+                                                        .writeAsBytesSync(data);
+                                                    // Se envia la foto de la firma al servidor
+                                                    Map<String, dynamic>?
+                                                        responseUploadFirma =
+                                                        await inspeccionService
+                                                            .uploadImage(
+                                                                path:
+                                                                    myImagePath,
+                                                                company:
+                                                                    'qinspecting',
+                                                                folder:
+                                                                    'firmas');
+
+                                                    print(responseUploadFirma);
                                                   }
                                                 }
                                               },
