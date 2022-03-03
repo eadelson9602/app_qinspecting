@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -175,7 +176,6 @@ class InspeccionService extends ChangeNotifier {
   Future<Respuesta> insertRespuestasPreoperacional(Item respuesta) async {
     isLoading = true;
     notifyListeners();
-    print(respuesta.toJson());
     Response response = await dio.post(
         'https://apis.qinspecting.com/pflutter/insert_respuestas_preoperacional',
         data: respuesta.toJson());
@@ -183,6 +183,18 @@ class InspeccionService extends ChangeNotifier {
     isLoading = false;
     notifyListeners();
     return resp;
+  }
+
+  Future<Map<dynamic, dynamic>> insertSignature(Map firma) async {
+    isLoading = true;
+    notifyListeners();
+    print(firma);
+    Response response = await dio.post(
+        'https://apis.qinspecting.com/pflutter/insert_signature',
+        data: jsonEncode(firma));
+    isLoading = false;
+    notifyListeners();
+    return response.data;
   }
 
   Future<Map<String, dynamic>?> uploadImage(
