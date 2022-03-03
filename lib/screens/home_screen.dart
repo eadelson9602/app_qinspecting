@@ -54,7 +54,7 @@ class _HomePageBody extends StatelessWidget {
         inspeccionService.resumePreoperacional.resuPreKilometraje = 0;
         inspeccionService.resumePreoperacional.vehId = 0;
         inspeccionProvider.vehiculoSelected = null;
-        inspeccionProvider.vehiculoSelected = null;
+        inspeccionProvider.remolqueSelected = null;
         inspeccionProvider.pathFileKilometraje = null;
         inspeccionProvider.pathFileGuia = null;
         inspeccionProvider.realizoTanqueo = false;
