@@ -1,6 +1,9 @@
+import 'package:app_qinspecting/providers/inspeccion_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/widgets/widgets.dart';
+import 'package:app_qinspecting/services/inspeccion_service.dart';
 
 class SignatureScreen extends StatelessWidget {
   const SignatureScreen({Key? key}) : super(key: key);
@@ -26,18 +29,13 @@ class MyStatelessWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final inspeccionService = Provider.of<InspeccionService>(context);
     return DefaultTabController(
       length: tabs.length,
-      // The Builder widget is used to have a different BuildContext to access
-      // closest DefaultTabController.
+      initialIndex: inspeccionService.indexTabaCreateSignature,
       child: Builder(builder: (BuildContext context) {
         final TabController tabController = DefaultTabController.of(context)!;
-        tabController.addListener(() {
-          if (!tabController.indexIsChanging) {
-            // Your code goes here.
-            // To get index of current tab use tabController.index
-          }
-        });
+        tabController.index = inspeccionService.indexTabaCreateSignature;
         return Scaffold(
           appBar: AppBar(
             title: const Text('Qinspecting'),
