@@ -9,6 +9,7 @@ class InspeccionProvider extends ChangeNotifier {
   bool realizoTanqueo = false;
   bool tieneRemolque = false;
   bool tieneGuia = false;
+  bool isValidPassword = true;
   Vehiculo? vehiculoSelected;
   Remolque? remolqueSelected;
 
@@ -45,6 +46,11 @@ class InspeccionProvider extends ChangeNotifier {
 
   updateStep(int value) {
     stepStepper = value;
+    notifyListeners();
+  }
+
+  updateIsValidPassword(bool value) {
+    isValidPassword = value;
     notifyListeners();
   }
 
