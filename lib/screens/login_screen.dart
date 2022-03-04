@@ -209,8 +209,7 @@ class ButtonLogin extends StatelessWidget {
                                 title: Text(empresas[i].nombreQi.toString()),
                                 trailing: const Icon(Icons.houseboat_rounded),
                                 onTap: () async {
-                                  Navigator.pushReplacementNamed(
-                                      context, 'home');
+                                  Navigator.pushNamed(context, 'home');
                                   final empresa = await DBProvider.db
                                       .getEmpresaById(
                                           empresas[i].empId!.toInt());
