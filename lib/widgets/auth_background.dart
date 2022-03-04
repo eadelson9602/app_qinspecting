@@ -10,7 +10,7 @@ class AuthBackground extends StatelessWidget {
       width: double.infinity,
       height: double.infinity,
       child: Stack(
-        children: [const _HeaderLogo(), const _BubleBox(), child],
+        children: [const _BubleBox(), child],
       ),
     );
   }
@@ -79,8 +79,8 @@ class _Bubble extends StatelessWidget {
   }
 }
 
-class _HeaderLogo extends StatelessWidget {
-  const _HeaderLogo({Key? key}) : super(key: key);
+class HeaderLogo extends StatelessWidget {
+  const HeaderLogo({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

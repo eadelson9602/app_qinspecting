@@ -22,7 +22,11 @@ class LoginScreen extends StatelessWidget {
           child: Column(
             children: [
               SizedBox(
-                height: _sizeScreen.height * 0.30,
+                height: _sizeScreen.height * 0.01,
+              ),
+              const HeaderLogo(),
+              SizedBox(
+                height: _sizeScreen.height * 0.10,
               ),
               const Text(
                 'Iniciar Sesión',
@@ -281,8 +285,7 @@ class ButtonLogin extends StatelessWidget {
                                     loginService.selectedEmpresa =
                                         empresas[i].copy();
                                     loginService.userDataLogged = userData;
-                                    Navigator.pushReplacementNamed(
-                                        context, 'home');
+                                    Navigator.pushNamed(context, 'home');
                                   },
                                 ),
                               ),
