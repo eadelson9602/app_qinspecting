@@ -11,3 +11,4 @@ export 'package:app_qinspecting/screens/signature_screen.dart';
 export 'package:app_qinspecting/screens/inspeccion_vehiculo_screen.dart';
 export 'package:app_qinspecting/screens/inspeccion_remolque_screen.dart';
 export 'package:app_qinspecting/screens/create_signature_screen.dart';
+export 'package:app_qinspecting/widgets/alert_dialog.dart';
