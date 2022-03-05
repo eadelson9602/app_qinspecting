@@ -63,6 +63,7 @@ class MyApp extends StatelessWidget {
         'inspeccion_vehiculo': (_) => const InspeccionVehiculoScreen(),
         'inspeccion_remolque': (_) => const InspeccionRemolqueScreen(),
         'create_signature': (_) => const CreateSignatureScreen(),
+        'validate_identity': (_) => AlertDialogValidate(),
       },
       // Se usa para controlar pagina que no existes 404
       onGenerateRoute: (settings) {
