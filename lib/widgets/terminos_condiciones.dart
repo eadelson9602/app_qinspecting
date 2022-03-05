@@ -12,10 +12,13 @@ class TerminosCondiciones extends StatelessWidget {
     final loginService = Provider.of<LoginService>(context);
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
     return Container(
-      padding: EdgeInsets.all(10),
+      padding: EdgeInsets.symmetric(horizontal: 15),
       child: SingleChildScrollView(
           child: Column(
         children: [
+          SizedBox(
+            height: 10,
+          ),
           Text(
             'Responsable',
             style: TextStyle(
@@ -39,7 +42,10 @@ class TerminosCondiciones extends StatelessWidget {
           ListTile(
             minVerticalPadding: 0,
             minLeadingWidth: 0,
-            title: const Text('¿Acepta términos y condiciones?'),
+            title: const Text(
+              '¿Acepta términos y condiciones?',
+              textAlign: TextAlign.center,
+            ),
             subtitle: Padding(
               padding: const EdgeInsets.only(top: 0),
               child: Row(
@@ -70,6 +76,9 @@ class TerminosCondiciones extends StatelessWidget {
                 ],
               ),
             ),
+          ),
+          SizedBox(
+            height: 30,
           ),
         ],
       )),
