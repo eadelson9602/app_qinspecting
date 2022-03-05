@@ -205,210 +205,215 @@ class InspeccionForm extends StatelessWidget {
 
     if (inspeccionProvider.vehiculos.isEmpty) return const LoadingScreen();
 
-    return SingleChildScrollView(
-      child: Form(
-        key: inspeccionProvider.formKey,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        child: Column(
-          children: [
-            DropdownButtonFormField<String>(
-                decoration: InputDecorations.authInputDecorations(
-                    prefixIcon: Icons.local_shipping,
-                    hintText: '',
-                    labelText: 'Placa del vehículo'),
-                validator: (value) {
-                  if (value == null) return 'Seleccione una placa';
-                  return null;
-                },
-                items: inspeccionProvider.vehiculos.map((e) {
-                  return DropdownMenuItem(
-                    child: Text(e.placa),
-                    value: e.placa,
-                  );
-                }).toList(),
-                onChanged: (value) async {
-                  final resultVehiculo =
-                      await DBProvider.db.getVehiculoByPlate(value!);
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 15),
+      child: SingleChildScrollView(
+        child: Form(
+          key: inspeccionProvider.formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          child: Column(
+            children: [
+              DropdownButtonFormField<String>(
+                  decoration: InputDecorations.authInputDecorations(
+                      prefixIcon: Icons.local_shipping,
+                      hintText: '',
+                      labelText: 'Placa del vehículo'),
+                  validator: (value) {
+                    if (value == null) return 'Seleccione una placa';
+                    return null;
+                  },
+                  items: inspeccionProvider.vehiculos.map((e) {
+                    return DropdownMenuItem(
+                      child: Text(e.placa),
+                      value: e.placa,
+                    );
+                  }).toList(),
+                  onChanged: (value) async {
+                    final resultVehiculo =
+                        await DBProvider.db.getVehiculoByPlate(value!);
 
-                  inspeccionService.resumePreoperacional.vehId =
-                      resultVehiculo!.idVehiculo;
-                  inspeccionProvider.updateVehiculoSelected(resultVehiculo);
+                    inspeccionService.resumePreoperacional.vehId =
+                        resultVehiculo!.idVehiculo;
+                    inspeccionProvider.updateVehiculoSelected(resultVehiculo);
 
-                  await inspeccionProvider.listarCategoriaItemsVehiculo();
-                }),
-            _infoVehiculo(),
-            DropdownButtonFormField<int>(
-                decoration: InputDecorations.authInputDecorations(
-                    prefixIcon: Icons.place,
-                    hintText: '',
-                    labelText: 'Departamento de inspección'),
-                validator: (value) {
-                  if (value == null) return 'Seleccione un departamento';
-                  return null;
-                },
-                items: inspeccionProvider.departamentos.map((e) {
-                  return DropdownMenuItem(
-                    child: Text(e.label),
-                    value: e.value,
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  inspeccionProvider.listarCiudades(value!);
-                }),
-            const SizedBox(
-              height: 10,
-            ),
-            DropdownButtonFormField(
-                decoration: InputDecorations.authInputDecorations(
-                    prefixIcon: Icons.location_city,
-                    hintText: '',
-                    labelText: 'Ciudad de inspección'),
-                validator: (value) {
-                  if (value == null) return 'Seleccione una ciudad';
-                  return null;
-                },
-                items: inspeccionProvider.ciudades.map((e) {
-                  return DropdownMenuItem(
-                    child: Text(e.label),
-                    value: e.value,
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  inspeccionService.resumePreoperacional.ciuId =
-                      int.parse(value.toString());
-                }),
-            const SizedBox(
-              height: 10,
-            ),
-            TextFormField(
-              autocorrect: false,
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value!.isEmpty) return 'Ingrese kilometraje';
-                return null;
-              },
-              onChanged: (value) {
-                inspeccionService.resumePreoperacional.resuPreKilometraje =
-                    value.isEmpty ? 0 : int.parse(value);
-              },
-              decoration: InputDecorations.authInputDecorations(
-                  hintText: '',
-                  labelText: 'Kilometraje',
-                  prefixIcon: Icons.speed),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Text('Foto kilometraje'),
-            Stack(
-              children: [
-                BoardImage(
-                  url: inspeccionProvider.pathFileKilometraje,
-                ),
-                Positioned(
-                    right: 15,
-                    bottom: 10,
-                    child: IconButton(
-                      onPressed: () async {
-                        final _picker = ImagePicker();
-                        final XFile? photo =
-                            await _picker.pickImage(source: ImageSource.camera);
-
-                        if (photo == null) {
-                          return;
-                        }
-                        inspeccionService.resumePreoperacional.resuPreFotokm =
-                            photo.path;
-                        inspeccionProvider.updateSelectedImage(photo.path);
-                      },
-                      icon: Icon(
-                        Icons.camera_alt,
-                        color: Colors.white,
-                        size: 45,
-                      ),
-                    ))
-              ],
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            SwitchListTile.adaptive(
-                value: inspeccionProvider.realizoTanqueo,
-                title: const Text('¿Realizó tanqueo?'),
-                activeColor: Colors.green,
-                onChanged: (value) =>
-                    inspeccionProvider.updateRealizoTanqueo(value)),
-            SwitchListTile.adaptive(
-                value: inspeccionProvider.tieneRemolque,
-                title: const Text('¿Tiene remolque?'),
-                activeColor: Colors.green,
-                onChanged: (value) {
-                  inspeccionProvider.updateTieneRemolque(value);
-                  inspeccionProvider.listarRemolques();
-                }),
-            SwitchListTile.adaptive(
-                value: inspeccionProvider.tieneGuia,
-                title: const Text('Tiene guía transporte?'),
-                activeColor: Colors.green,
-                onChanged: (value) =>
-                    inspeccionProvider.updateTieneGuia(value)),
-            const SizedBox(
-              height: 10,
-            ),
-            if (inspeccionProvider.realizoTanqueo)
+                    await inspeccionProvider.listarCategoriaItemsVehiculo();
+                  }),
+              _infoVehiculo(),
+              DropdownButtonFormField<int>(
+                  decoration: InputDecorations.authInputDecorations(
+                      prefixIcon: Icons.place,
+                      hintText: '',
+                      labelText: 'Departamento de inspección'),
+                  validator: (value) {
+                    if (value == null) return 'Seleccione un departamento';
+                    return null;
+                  },
+                  items: inspeccionProvider.departamentos.map((e) {
+                    return DropdownMenuItem(
+                      child: Text(e.label),
+                      value: e.value,
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    inspeccionProvider.listarCiudades(value!);
+                  }),
+              const SizedBox(
+                height: 10,
+              ),
+              DropdownButtonFormField(
+                  decoration: InputDecorations.authInputDecorations(
+                      prefixIcon: Icons.location_city,
+                      hintText: '',
+                      labelText: 'Ciudad de inspección'),
+                  validator: (value) {
+                    if (value == null) return 'Seleccione una ciudad';
+                    return null;
+                  },
+                  items: inspeccionProvider.ciudades.map((e) {
+                    return DropdownMenuItem(
+                      child: Text(e.label),
+                      value: e.value,
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    inspeccionService.resumePreoperacional.ciuId =
+                        int.parse(value.toString());
+                  }),
+              const SizedBox(
+                height: 10,
+              ),
               TextFormField(
                 autocorrect: false,
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value!.isEmpty) return 'Ingrese galones tanqueados';
+                  if (value!.isEmpty) return 'Ingrese kilometraje';
                   return null;
                 },
                 onChanged: (value) {
-                  inspeccionService.resumePreoperacional.tanqueGalones =
+                  inspeccionService.resumePreoperacional.resuPreKilometraje =
                       value.isEmpty ? 0 : int.parse(value);
                 },
                 decoration: InputDecorations.authInputDecorations(
                     hintText: '',
-                    labelText: 'Cantidad de galones tanqueados',
+                    labelText: 'Kilometraje',
                     prefixIcon: Icons.speed),
               ),
-            const SizedBox(
-              height: 10,
-            ),
-            if (inspeccionProvider.tieneRemolque) _infoRemolque(),
-            const SizedBox(
-              height: 10,
-            ),
-            if (inspeccionProvider.tieneGuia) _guiaTransporte(),
-            const SizedBox(
-              height: 10,
-            ),
-            // MaterialStateProperty.all<Color>(Colors.green)
-            ElevatedButton(
-              style: ButtonStyle(
-                  elevation: MaterialStateProperty.all<double>(10),
-                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                      EdgeInsets.symmetric(horizontal: 20)),
-                  minimumSize: MaterialStateProperty.all<Size>(Size.square(50)),
-                  textStyle: MaterialStateProperty.all<TextStyle>(
-                      TextStyle(fontSize: 16))),
-              child: const Text('Realizar inspección'),
-              onPressed: () async {
-                if (!inspeccionProvider.isValidForm()) return;
-                var now = DateTime.now();
-                var formatter = DateFormat('yyyy-MM-dd hh:mm a');
-                String formattedDate = formatter.format(now);
-                inspeccionService.resumePreoperacional.resuPreFecha =
-                    formattedDate;
-                inspeccionService.resumePreoperacional.persNumeroDoc =
-                    loginService.userDataLogged.usuarioUser!;
-                Navigator.pushReplacementNamed(context, 'inspeccion_vehiculo');
-              },
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-          ],
+              const SizedBox(
+                height: 10,
+              ),
+              Text('Foto kilometraje'),
+              Stack(
+                children: [
+                  BoardImage(
+                    url: inspeccionProvider.pathFileKilometraje,
+                  ),
+                  Positioned(
+                      right: 15,
+                      bottom: 10,
+                      child: IconButton(
+                        onPressed: () async {
+                          final _picker = ImagePicker();
+                          final XFile? photo = await _picker.pickImage(
+                              source: ImageSource.camera);
+
+                          if (photo == null) {
+                            return;
+                          }
+                          inspeccionService.resumePreoperacional.resuPreFotokm =
+                              photo.path;
+                          inspeccionProvider.updateSelectedImage(photo.path);
+                        },
+                        icon: Icon(
+                          Icons.camera_alt,
+                          color: Colors.white,
+                          size: 45,
+                        ),
+                      ))
+                ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              SwitchListTile.adaptive(
+                  value: inspeccionProvider.realizoTanqueo,
+                  title: const Text('¿Realizó tanqueo?'),
+                  activeColor: Colors.green,
+                  onChanged: (value) =>
+                      inspeccionProvider.updateRealizoTanqueo(value)),
+              SwitchListTile.adaptive(
+                  value: inspeccionProvider.tieneRemolque,
+                  title: const Text('¿Tiene remolque?'),
+                  activeColor: Colors.green,
+                  onChanged: (value) {
+                    inspeccionProvider.updateTieneRemolque(value);
+                    inspeccionProvider.listarRemolques();
+                  }),
+              SwitchListTile.adaptive(
+                  value: inspeccionProvider.tieneGuia,
+                  title: const Text('Tiene guía transporte?'),
+                  activeColor: Colors.green,
+                  onChanged: (value) =>
+                      inspeccionProvider.updateTieneGuia(value)),
+              const SizedBox(
+                height: 10,
+              ),
+              if (inspeccionProvider.realizoTanqueo)
+                TextFormField(
+                  autocorrect: false,
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value!.isEmpty) return 'Ingrese galones tanqueados';
+                    return null;
+                  },
+                  onChanged: (value) {
+                    inspeccionService.resumePreoperacional.tanqueGalones =
+                        value.isEmpty ? 0 : int.parse(value);
+                  },
+                  decoration: InputDecorations.authInputDecorations(
+                      hintText: '',
+                      labelText: 'Cantidad de galones tanqueados',
+                      prefixIcon: Icons.speed),
+                ),
+              const SizedBox(
+                height: 10,
+              ),
+              if (inspeccionProvider.tieneRemolque) _infoRemolque(),
+              const SizedBox(
+                height: 10,
+              ),
+              if (inspeccionProvider.tieneGuia) _guiaTransporte(),
+              const SizedBox(
+                height: 10,
+              ),
+              // MaterialStateProperty.all<Color>(Colors.green)
+              ElevatedButton(
+                style: ButtonStyle(
+                    elevation: MaterialStateProperty.all<double>(10),
+                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                        EdgeInsets.symmetric(horizontal: 20)),
+                    minimumSize:
+                        MaterialStateProperty.all<Size>(Size.square(50)),
+                    textStyle: MaterialStateProperty.all<TextStyle>(
+                        TextStyle(fontSize: 16))),
+                child: const Text('Realizar inspección'),
+                onPressed: () async {
+                  if (!inspeccionProvider.isValidForm()) return;
+                  var now = DateTime.now();
+                  var formatter = DateFormat('yyyy-MM-dd hh:mm a');
+                  String formattedDate = formatter.format(now);
+                  inspeccionService.resumePreoperacional.resuPreFecha =
+                      formattedDate;
+                  inspeccionService.resumePreoperacional.persNumeroDoc =
+                      loginService.userDataLogged.usuarioUser!;
+                  Navigator.pushReplacementNamed(
+                      context, 'inspeccion_vehiculo');
+                },
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+            ],
+          ),
         ),
       ),
     );
