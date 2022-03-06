@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:app_qinspecting/models/models.dart';
 
@@ -9,6 +10,8 @@ class LoginService extends ChangeNotifier {
   final List<Empresa> empresas = [];
   bool isLoading = false;
   bool isSaving = false;
+  // Create storage
+  final storage = new FlutterSecureStorage();
 
   Empresa? selectedEmpresa;
   late UserData userDataLogged;
@@ -24,6 +27,7 @@ class LoginService extends ChangeNotifier {
     Response response;
     response = await dio.post('https://apis.qinspecting.com/pflutter/new_login',
         data: json.encode(loginData));
+    await storage.write(key: 'token', value: user.toString());
     for (var item in response.data) {
       final tempEmpresa = Empresa.fromMap(item);
       final index =
@@ -51,5 +55,13 @@ class LoginService extends ChangeNotifier {
     notifyListeners();
 
     return tempUserData;
+  }
+
+  Future logout() async {
+    await storage.delete(key: 'token');
+  }
+
+  Future<String> readToken() async {
+    return await storage.read(key: 'token') ?? '';
   }
 }
