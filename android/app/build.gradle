@@ -52,7 +52,8 @@ android {
         // minSdkVersion 26
         // targetSdkVersion 30
         applicationId "com.app_qinspecting.appears"
-        minSdkVersion flutter.minSdkVersion
+        // minSdkVersion flutter.minSdkVersion
+        minSdkVersion 18
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
