@@ -47,11 +47,11 @@ class MyApp extends StatelessWidget {
     return OverlaySupport.global(
         child: MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Home Page',
+      title: 'Qinspecting',
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      initialRoute: 'login',
+      initialRoute: 'check_auth',
       routes: {
         'login': (_) => const LoginScreen(),
         'home': (_) => const LoadHomeScreen(),
