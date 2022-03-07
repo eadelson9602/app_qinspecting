@@ -46,6 +46,7 @@ dependencies:
   overlay_support: ^1.2.1
   connectivity_plus: ^2.2.1
   flutter_secure_storage: ^5.0.2
+  pdf: ^3.7.1
 
 dev_dependencies:
   flutter_test:
