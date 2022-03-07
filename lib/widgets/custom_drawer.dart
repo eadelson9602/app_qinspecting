@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'package:app_qinspecting/services/services.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final loginService = Provider.of<LoginService>(context, listen: false);
     return Theme(
         data: Theme.of(context).copyWith(
           canvasColor: Colors
@@ -54,6 +58,14 @@ class CustomDrawer extends StatelessWidget {
                 title: Text('Configuración',
                     style: TextStyle(color: Colors.green)),
                 onTap: () => Navigator.popAndPushNamed(context, 'settings')),
+            ListTile(
+                leading: Icon(Icons.logout, color: Colors.green),
+                title: Text('Cerrar sesión',
+                    style: TextStyle(color: Colors.green)),
+                onTap: () {
+                  loginService.logout();
+                  Navigator.pushReplacementNamed(context, 'login');
+                })
           ],
         )));
   }
