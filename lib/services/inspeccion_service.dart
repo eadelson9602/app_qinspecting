@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/providers/providers.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 class InspeccionService extends ChangeNotifier {
   var dio = Dio();
@@ -151,15 +153,7 @@ class InspeccionService extends ChangeNotifier {
         'https://apis.qinspecting.com/pflutter/list_items_x_placa/$baseEmpresa');
     for (var item in response.data) {
       final tempItem = ItemInspeccion.fromMap(item);
-      final index = itemsInspeccion
-          .indexWhere((element) => element.idItem == tempItem.idItem);
-      if (index == -1) {
-        itemsInspeccion.add(tempItem);
-        DBProvider.db.getItemById(tempItem.idItem).then((resultVehiculo) => {
-              if (resultVehiculo?.idItem == null)
-                DBProvider.db.nuevoItem(tempItem)
-            });
-      }
+      DBProvider.db.nuevoItem(tempItem);
     }
     isLoading = false;
     notifyListeners();
@@ -206,22 +200,28 @@ class InspeccionService extends ChangeNotifier {
       {required String path,
       required String company,
       required String folder}) async {
-    isLoading = true;
-    notifyListeners();
-    var fileName = '';
-    if (path.contains('/storage/emulated/0/Android/data/')) {
-      fileName = path.split('/')[8];
-    } else {
-      fileName = path.split('/')[6];
+    try {
+      isLoading = true;
+      notifyListeners();
+      var fileName = (path.split('/').last);
+      var formData = FormData.fromMap({
+        'files':
+            await MultipartFile.fromFile('${path}', filename: '${fileName}'),
+      });
+      Response response = await dio.post(
+          'https://apis.qinspecting.com/pflutter/upload_file/${company}/${folder}',
+          data: formData);
+      final resp = ResponseUploadFile.fromMap(response.data);
+      isLoading = false;
+      notifyListeners();
+      return resp.toMap();
+    } catch (error) {
+      // print('Error al subir foto ${error}');
+      showSimpleNotification(Text('Error: ${error}'),
+          leading: Icon(Icons.check),
+          autoDismiss: true,
+          background: Colors.orange,
+          position: NotificationPosition.bottom);
     }
-    var formData = FormData.fromMap(
-        {'files': await MultipartFile.fromFile(path, filename: fileName)});
-    Response response = await dio.post(
-        'https://apis.qinspecting.com/pflutter/upload_file/${company}/${folder}',
-        data: formData);
-    final resp = ResponseUploadFile.fromMap(response.data);
-    isLoading = false;
-    notifyListeners();
-    return resp.toMap();
   }
 }
