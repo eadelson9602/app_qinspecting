@@ -2,6 +2,7 @@ import 'dart:convert';
 
 class ItemInspeccion {
   ItemInspeccion({
+    required this.id,
     required this.placa,
     required this.tipoVehiculo,
     required this.idCategoria,
@@ -9,6 +10,7 @@ class ItemInspeccion {
     required this.idItem,
     required this.item,
   });
+  String id;
   String placa;
   String tipoVehiculo;
   int idCategoria;
@@ -22,6 +24,7 @@ class ItemInspeccion {
   String toJson() => json.encode(toMap());
 
   factory ItemInspeccion.fromMap(Map<String, dynamic> json) => ItemInspeccion(
+        id: json["id"],
         placa: json["placa"],
         tipoVehiculo: json["tipo_vehiculo"],
         idCategoria: json["id_categoria"],
@@ -31,6 +34,7 @@ class ItemInspeccion {
       );
 
   Map<String, dynamic> toMap() => {
+        "id": id,
         "placa": placa,
         "tipo_vehiculo": tipoVehiculo,
         "id_categoria": idCategoria,
