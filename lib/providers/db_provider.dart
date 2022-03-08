@@ -52,7 +52,7 @@ class DBProvider {
         CREATE TABLE Remolques(id_remolque INTEGER PRIMARY KEY, placa TEXT, id_tipo_vehiculo INTEGER, modelo INTEGER, marca TEXT, color TEXT, matricula INTEGER, numero_ejes INTEGER);
       ''');
       await db.execute('''
-        CREATE TABLE ItemsInspeccion(placa TEXT, tipo_vehiculo INTEGER, id_categoria INTEGER, categoria TEXT, id_item INTEGER PRIMARY KEY, item TEXT);
+        CREATE TABLE ItemsInspeccion(id TEXT PRIMARY KEY, placa TEXT, tipo_vehiculo INTEGER, id_categoria INTEGER, categoria TEXT, id_item, item TEXT);
       ''');
     });
   }
@@ -221,11 +221,13 @@ class DBProvider {
 
   Future<int?> nuevoItem(ItemInspeccion nuevoVehiculo) async {
     final db = await database;
-    final res = await db?.insert('ItemsInspeccion', nuevoVehiculo.toMap());
+
+    final res = await db?.insert('ItemsInspeccion', nuevoVehiculo.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
     return res;
   }
 
-  Future<ItemInspeccion?> getItemById(int id) async {
+  Future<ItemInspeccion?> getItemById(String id) async {
     final db = await database;
     final res = await db
         ?.query('ItemsInspeccion', where: 'id_item = ?', whereArgs: [id]);
