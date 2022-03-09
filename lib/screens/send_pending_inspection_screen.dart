@@ -53,8 +53,7 @@ class SendPendingInspectionScree extends StatelessWidget {
                               Icons.search,
                               color: Colors.green,
                             ),
-                            title:
-                                Text('Inspección No. ${allInspecciones[i].Id}'),
+                            title: Text('Inspección No. ${i + 1}'),
                             subtitle: Text(
                                 'Realizado el ${allInspecciones[i].resuPreFecha}'),
                           ),
