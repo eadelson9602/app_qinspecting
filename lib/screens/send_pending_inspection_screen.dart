@@ -110,8 +110,10 @@ class SendPendingInspectionScree extends StatelessWidget {
                                                   'path'];
 
                                           // Se envia la foto de la guia si tiene
-                                          if (allInspecciones[i].resuPreGuia !=
-                                              null) {
+                                          if (allInspecciones[i]
+                                                  .resuPreGuia
+                                                  ?.isNotEmpty ??
+                                              false) {
                                             Map<String, dynamic>?
                                                 responseUploadGuia =
                                                 await inspeccionService
@@ -120,7 +122,6 @@ class SendPendingInspectionScree extends StatelessWidget {
                                                             .resuPreFotoguia!,
                                                         company: 'qinspecting',
                                                         folder: 'inspecciones');
-                                            print(responseUploadGuia);
                                             allInspecciones[i].resuPreFotoguia =
                                                 responseUploadGuia?['path'];
                                           }
