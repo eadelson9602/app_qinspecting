@@ -314,11 +314,13 @@ class ButtonLogin extends StatelessWidget {
                 }
                 loginForm.isLoading = false;
               } catch (error) {
-                showSimpleNotification(Text('Error al iniciar sesión'),
-                    leading: Icon(Icons.check),
-                    autoDismiss: true,
-                    background: Colors.orange,
-                    position: NotificationPosition.bottom);
+                showSimpleNotification(
+                  Text('Error al iniciar sesión ${error}'),
+                  leading: Icon(Icons.check),
+                  autoDismiss: true,
+                  background: Colors.orange,
+                  position: NotificationPosition.bottom,
+                );
               }
             },
     );
