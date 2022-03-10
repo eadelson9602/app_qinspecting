@@ -46,8 +46,8 @@ class LoginService extends ChangeNotifier {
   Future<UserData> getUserData() async {
     isLoading = true;
     notifyListeners();
-    final baseEmpresa = selectedEmpresa!.nombreBase;
-    final usuario = selectedEmpresa!.usuarioUser;
+    final baseEmpresa = selectedEmpresa.nombreBase;
+    final usuario = selectedEmpresa.usuarioUser;
 
     Response response;
     response = await dio.get(
