@@ -82,7 +82,7 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
                                   folder: 'firmas');
 
                           Map dataFirmaSave = {
-                            "base": loginService.selectedEmpresa!.nombreBase,
+                            "base": loginService.selectedEmpresa.nombreBase,
                             "Firma_Id": null,
                             "Firma_acep_Ptd": "SI",
                             "Firma_Firma": responseUploadFirma!['path'],

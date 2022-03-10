@@ -38,7 +38,7 @@ class InspeccionVehiculoScreen extends StatelessWidget {
             categoria.items.forEach((item) {
               if (item.respuesta != null) {
                 item.fkPreoperacional = idEncabezado;
-                item.base = loginService.selectedEmpresa!.nombreBase;
+                item.base = loginService.selectedEmpresa.nombreBase;
                 inspeccionProvider.saveRespuestaInspeccion(item);
               }
             });
