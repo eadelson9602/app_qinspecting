@@ -20,7 +20,7 @@ class InspeccionForm extends StatelessWidget {
     final loginService = Provider.of<LoginService>(context);
 
     inspeccionService.resumePreoperacional.base =
-        loginService.selectedEmpresa!.nombreBase!;
+        loginService.selectedEmpresa.nombreBase!;
 
     Widget _guiaTransporte() {
       return inspeccionProvider.tieneGuia
