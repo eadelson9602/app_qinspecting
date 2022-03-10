@@ -3,6 +3,7 @@ import 'package:app_qinspecting/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:app_qinspecting/ui/input_decorations.dart';
 import 'package:app_qinspecting/providers/providers.dart';
@@ -211,6 +212,7 @@ class ButtonLogin extends StatelessWidget {
                                   title: Text(empresas[i].nombreQi.toString()),
                                   trailing: const Icon(Icons.houseboat_rounded),
                                   onTap: () async {
+                                    final storage = new FlutterSecureStorage();
                                     Navigator.pushNamed(context, 'home');
                                     final empresa = await DBProvider.db
                                         .getEmpresaById(
@@ -233,18 +235,24 @@ class ButtonLogin extends StatelessWidget {
                                     } else {
                                       DBProvider.db.updateUser(userData);
                                     }
+                                    await storage.write(
+                                        key: 'userData',
+                                        value: userData.toJson().toString());
+                                    await storage.write(
+                                        key: 'empresaSelected',
+                                        value: empresas[i].toJson().toString());
                                     loginService.userDataLogged = userData;
 
                                     await inspeccionService.getVehiculos(
-                                        loginService.selectedEmpresa!);
+                                        loginService.selectedEmpresa);
                                     await inspeccionService.getTrailers(
-                                        loginService.selectedEmpresa!);
+                                        loginService.selectedEmpresa);
                                     await inspeccionService.getDepartamentos(
-                                        loginService.selectedEmpresa!);
+                                        loginService.selectedEmpresa);
                                     await inspeccionService.getCiudades(
-                                        loginService.selectedEmpresa!);
+                                        loginService.selectedEmpresa);
                                     await inspeccionService.getItemsInspeccion(
-                                        loginService.selectedEmpresa!);
+                                        loginService.selectedEmpresa);
                                     // Guardamos los datos del usuario en la bd
                                   },
                                 ),
