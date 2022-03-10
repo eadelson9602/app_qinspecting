@@ -46,6 +46,7 @@ class _HomePageBody extends StatelessWidget {
         Provider.of<InspeccionProvider>(context, listen: false);
     final inspeccionService = Provider.of<InspeccionService>(context);
     final uiProvider = Provider.of<UiProvider>(context);
+    Provider.of<LoginService>(context, listen: false);
     final currentIndex = uiProvider.selectedMenuOpt;
 
     switch (currentIndex) {
