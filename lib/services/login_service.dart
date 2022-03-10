@@ -13,8 +13,12 @@ class LoginService extends ChangeNotifier {
   // Create storage
   final storage = new FlutterSecureStorage();
 
-  Empresa? selectedEmpresa;
+  late Empresa selectedEmpresa;
   late UserData userDataLogged;
+
+  LoginService() {
+    assingDataUserLogged();
+  }
 
   Future<List<Empresa>> login(int user, String password) async {
     final Map<String, String> loginData = {
@@ -27,7 +31,6 @@ class LoginService extends ChangeNotifier {
     Response response;
     response = await dio.post('https://apis.qinspecting.com/pflutter/new_login',
         data: json.encode(loginData));
-    await storage.write(key: 'token', value: user.toString());
     for (var item in response.data) {
       final tempEmpresa = Empresa.fromMap(item);
       final index =
@@ -62,6 +65,16 @@ class LoginService extends ChangeNotifier {
   }
 
   Future<String> readToken() async {
-    return await storage.read(key: 'token') ?? '';
+    return await storage.read(key: 'userData') ?? '';
+  }
+
+  assingDataUserLogged() async {
+    String tempUserData = await storage.read(key: 'userData') ?? '';
+    UserData userData = UserData.fromJson(tempUserData);
+    userDataLogged = userData;
+
+    String tempEmpresa = await storage.read(key: 'empresaSelected') ?? '';
+    Empresa empresaSelected = Empresa.fromJson(tempEmpresa);
+    selectedEmpresa = empresaSelected;
   }
 }
