@@ -185,6 +185,7 @@ class ButtonLogin extends StatelessWidget {
                 FocusScope.of(context).unfocus();
                 if (!loginForm.isValidForm()) return;
                 loginForm.isLoading = true;
+                final storage = new FlutterSecureStorage();
 
                 var connectivityResult =
                     await (Connectivity().checkConnectivity());
@@ -212,7 +213,6 @@ class ButtonLogin extends StatelessWidget {
                                   title: Text(empresas[i].nombreQi.toString()),
                                   trailing: const Icon(Icons.houseboat_rounded),
                                   onTap: () async {
-                                    final storage = new FlutterSecureStorage();
                                     Navigator.pushNamed(context, 'home');
                                     final empresa = await DBProvider.db
                                         .getEmpresaById(
@@ -265,7 +265,6 @@ class ButtonLogin extends StatelessWidget {
                   }
                 } else {
                   loginForm.isLoading = true;
-                  print('Sin conexión a red');
                   final userData =
                       await DBProvider.db.getUserById(loginForm.usuario);
                   if (userData != null &&
@@ -296,6 +295,13 @@ class ButtonLogin extends StatelessWidget {
                                       loginService.selectedEmpresa =
                                           empresas[i].copy();
                                       loginService.userDataLogged = userData;
+                                      await storage.write(
+                                          key: 'userData',
+                                          value: userData.toJson().toString());
+                                      await storage.write(
+                                          key: 'empresaSelected',
+                                          value:
+                                              empresas[i].toJson().toString());
                                       Navigator.pushNamed(context, 'home');
                                     },
                                   ),
