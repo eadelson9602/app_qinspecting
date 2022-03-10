@@ -2,6 +2,7 @@ import 'package:app_qinspecting/models/inspeccion.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'dart:io';
@@ -26,9 +27,37 @@ class DesktopScreen extends StatelessWidget {
       pdf.addPage(
         pw.Page(
           build: (pw.Context context) => pw.Container(
-            child: pw.Column(children: [
-              pw.Text('Hello World!'),
-              pw.Text(resumenPreoperacional.resuPreFecha),
+            child: pw.Table(children: [
+              pw.TableRow(
+                  decoration: pw.BoxDecoration(
+                    border: pw.Border.all(
+                        width: 1,
+                        style: pw.BorderStyle.solid,
+                        color: PdfColors.black),
+                  ),
+                  children: [
+                    pw.Row(children: [
+                      pw.Text('title'),
+                      pw.Text('title'),
+                      pw.Text('title'),
+                      pw.Text('title'),
+                      pw.Text('title'),
+                    ]),
+                  ]),
+              pw.TableRow(
+                decoration: pw.BoxDecoration(
+                  border: pw.Border.all(
+                      width: 1,
+                      style: pw.BorderStyle.solid,
+                      color: PdfColors.black),
+                ),
+                children: [
+                  pw.Text('Hola'),
+                  pw.Text('Hola'),
+                  pw.Text('Hola'),
+                  pw.Text('Hola'),
+                ],
+              )
             ]),
           ),
         ),
@@ -92,13 +121,6 @@ class DesktopScreen extends StatelessWidget {
                         onPressed: inspeccionService.isLoading
                             ? null
                             : () async {
-                                var path =
-                                    '/data/user/0/com.app_qinspecting.appears/cache/9ddb16bb-a8a2-4a19-b505-42bbac5514e02037786882131073751.jpg';
-                                var listPath = path.split('/');
-                                print(listPath);
-                                print(listPath.indexWhere(
-                                    (element) => element.contains('.jpg')));
-
                                 main(allInspecciones[i]);
                                 showSimpleNotification(Text('Pdf generado'),
                                     leading: Icon(Icons.check),
