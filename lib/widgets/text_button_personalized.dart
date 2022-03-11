@@ -14,10 +14,11 @@ class TextButtonPersonalized extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            iconButton,
-            color: Colors.white,
-          ),
+          if (iconButton != null)
+            Icon(
+              iconButton,
+              color: Colors.white,
+            ),
           SizedBox(
             width: 10,
           ),
