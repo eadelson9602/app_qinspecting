@@ -26,7 +26,7 @@ class InspeccionVehiculoScreen extends StatelessWidget {
         onPressed: () async {
           // Si tiene remolque
           if (inspeccionProvider.tieneRemolque) {
-            Navigator.pushReplacementNamed(context, 'inspeccion_remolque');
+            Navigator.pushNamed(context, 'inspeccion_remolque');
             return;
           }
 
