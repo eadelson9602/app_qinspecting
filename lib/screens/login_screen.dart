@@ -214,27 +214,19 @@ class ButtonLogin extends StatelessWidget {
                                   trailing: const Icon(Icons.houseboat_rounded),
                                   onTap: () async {
                                     Navigator.pushNamed(context, 'home');
-                                    final empresa = await DBProvider.db
-                                        .getEmpresaById(
-                                            empresas[i].empId!.toInt());
-                                    if (empresa?.empId == null) {
-                                      DBProvider.db.nuevaEmpresa(empresas[i]);
-                                    }
+
                                     // Asignamos al servicio la empresa seleccionada
                                     loginService.selectedEmpresa =
                                         empresas[i].copy();
 
+                                    DBProvider.db.nuevaEmpresa(empresas[i]);
+
                                     // Lanzamos la petición get para obtner los datos del usuario logueado
                                     final userData =
                                         await loginService.getUserData();
-                                    final user = await DBProvider.db
-                                        .getUserById(userData.id!);
 
-                                    if (user?.id == null) {
-                                      DBProvider.db.nuevoUser(userData);
-                                    } else {
-                                      DBProvider.db.updateUser(userData);
-                                    }
+                                    DBProvider.db.nuevoUser(userData);
+
                                     await storage.write(
                                         key: 'userData',
                                         value: userData.toJson().toString());
