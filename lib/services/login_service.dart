@@ -1,7 +1,8 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
+import 'package:app_qinspecting/providers/providers.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter/material.dart';
 
 import 'package:app_qinspecting/models/models.dart';
 
@@ -16,9 +17,9 @@ class LoginService extends ChangeNotifier {
   late Empresa selectedEmpresa;
   late UserData userDataLogged;
 
-  LoginService() {
-    assingDataUserLogged();
-  }
+  // LoginService() {
+  //   assingDataUserLogged();
+  // }
 
   Future<List<Empresa>> login(int user, String password) async {
     final Map<String, String> loginData = {
@@ -49,10 +50,21 @@ class LoginService extends ChangeNotifier {
     final baseEmpresa = selectedEmpresa.nombreBase;
     final usuario = selectedEmpresa.usuarioUser;
 
-    Response response;
-    response = await dio.get(
+    Response response = await dio.get(
         'https://apis.qinspecting.com/pflutter/list_data_user/$baseEmpresa/$usuario');
+
     final tempUserData = UserData.fromJson(response.toString());
+
+    await storage.write(
+        key: 'userData', value: tempUserData.toJson().toString());
+
+    await storage.write(
+        key: 'empresaSelected', value: selectedEmpresa.toJson().toString());
+
+    userDataLogged = tempUserData;
+
+    DBProvider.db.nuevoUser(tempUserData);
+    DBProvider.db.nuevaEmpresa(selectedEmpresa);
 
     isLoading = false;
     notifyListeners();
