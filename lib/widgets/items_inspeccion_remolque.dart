@@ -33,7 +33,10 @@ class _ItemsInspeccionarStateRemolque extends State<ItemsInspeccionarRemolque> {
                     elevation: 3,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(100)),
-                    child: TextButtonAllok(),
+                    child: TextButtonPersonalized(
+                      textButton: 'Todo ok',
+                      iconButton: Icons.check,
+                    ),
                     onPressed: () {
                       setState(() {
                         for (var item in itemsInspeccionar[i].items) {
