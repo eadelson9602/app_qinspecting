@@ -60,7 +60,8 @@ class DBProvider {
   // Forma corta
   Future<int?> nuevaEmpresa(Empresa nuevaEmpresa) async {
     final db = await database;
-    final res = await db?.insert('Empresas', nuevaEmpresa.toMap());
+    final res = await db?.insert('Empresas', nuevaEmpresa.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
     return res;
   }
 
@@ -104,7 +105,8 @@ class DBProvider {
   // CONSULTAS PARA USER DATA
   Future<int?> nuevoUser(UserData nuevoUser) async {
     final db = await database;
-    final res = await db?.insert('DataUsuario', nuevoUser.toMap());
+    final res = await db?.insert('DataUsuario', nuevoUser.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
     return res;
   }
 
