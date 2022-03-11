@@ -219,22 +219,8 @@ class ButtonLogin extends StatelessWidget {
                                     loginService.selectedEmpresa =
                                         empresas[i].copy();
 
-                                    DBProvider.db.nuevaEmpresa(empresas[i]);
-
                                     // Lanzamos la petición get para obtner los datos del usuario logueado
-                                    final userData =
-                                        await loginService.getUserData();
-
-                                    DBProvider.db.nuevoUser(userData);
-
-                                    await storage.write(
-                                        key: 'userData',
-                                        value: userData.toJson().toString());
-                                    await storage.write(
-                                        key: 'empresaSelected',
-                                        value: empresas[i].toJson().toString());
-                                    loginService.userDataLogged = userData;
-
+                                    await loginService.getUserData();
                                     await inspeccionService.getVehiculos(
                                         loginService.selectedEmpresa);
                                     await inspeccionService.getTrailers(
