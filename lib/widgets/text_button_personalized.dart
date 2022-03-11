@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
-class TextButtonAllok extends StatelessWidget {
-  const TextButtonAllok({Key? key}) : super(key: key);
+class TextButtonPersonalized extends StatelessWidget {
+  TextButtonPersonalized({Key? key, required this.textButton, this.iconButton})
+      : super(key: key);
+  final String textButton;
+  final IconData? iconButton;
 
   @override
   Widget build(BuildContext context) {
@@ -12,14 +15,14 @@ class TextButtonAllok extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.check,
+            iconButton,
             color: Colors.white,
           ),
           SizedBox(
             width: 10,
           ),
           Text(
-            'Todo ok',
+            textButton,
             style: const TextStyle(color: Colors.white, fontSize: 18),
           )
         ],
