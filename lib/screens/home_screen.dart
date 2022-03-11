@@ -46,7 +46,7 @@ class _HomePageBody extends StatelessWidget {
         Provider.of<InspeccionProvider>(context, listen: false);
     final inspeccionService = Provider.of<InspeccionService>(context);
     final uiProvider = Provider.of<UiProvider>(context);
-    Provider.of<LoginService>(context, listen: false);
+    final loginService = Provider.of<LoginService>(context, listen: false);
     final currentIndex = uiProvider.selectedMenuOpt;
 
     switch (currentIndex) {
@@ -63,6 +63,8 @@ class _HomePageBody extends StatelessWidget {
         inspeccionProvider.tieneGuia = false;
         inspeccionProvider.itemsInspeccion.clear();
         inspeccionProvider.itemsInspeccionRemolque.clear();
+
+        loginService.assingDataUserLogged();
         return const DesktopScreen();
       case 1:
         inspeccionProvider.listarDepartamentos();
