@@ -405,8 +405,7 @@ class InspeccionForm extends StatelessWidget {
                       formattedDate;
                   inspeccionService.resumePreoperacional.persNumeroDoc =
                       loginService.userDataLogged.usuarioUser!;
-                  Navigator.pushReplacementNamed(
-                      context, 'inspeccion_vehiculo');
+                  Navigator.pushNamed(context, 'inspeccion_vehiculo');
                 },
               ),
               const SizedBox(
