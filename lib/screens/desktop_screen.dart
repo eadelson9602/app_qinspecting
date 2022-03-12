@@ -1,11 +1,12 @@
+import 'dart:io';
 import 'package:app_qinspecting/models/inspeccion.dart';
+import 'package:app_qinspecting/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
-import 'package:provider/provider.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'dart:io';
+import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/providers/inspeccion_provider.dart';
 import 'package:app_qinspecting/services/services.dart';
@@ -90,51 +91,8 @@ class DesktopScreen extends StatelessWidget {
                   LinearProgressIndicator(),
                 ]),
               );
-            return Card(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ListTile(
-                    // leading: Icon(
-                    //   Icons.search,
-                    //   color: Colors.green,
-                    // ),
-                    title: Text('Inspección No. ${i + 1}'),
-                    subtitle:
-                        Text('Realizado el ${allInspecciones[i].resuPreFecha}'),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      // TextButton(
-                      //   child: const Text(
-                      //     'Eliminar',
-                      //     style: TextStyle(color: Colors.red),
-                      //   ),
-                      //   onPressed:
-                      //       inspeccionService.isLoading ? null : () async {},
-                      // ),
-                      // const SizedBox(width: 8),
-
-                      TextButton(
-                        child: const Text('Ver pdf'),
-                        onPressed: inspeccionService.isLoading
-                            ? null
-                            : () async {
-                                main(allInspecciones[i]);
-                                showSimpleNotification(Text('Pdf generado'),
-                                    leading: Icon(Icons.check),
-                                    autoDismiss: true,
-                                    background: Colors.green,
-                                    position: NotificationPosition.bottom);
-                              },
-                      ),
-                      const SizedBox(width: 8),
-                    ],
-                  ),
-                ],
-              ),
-            );
+            return CardInspeccionDesktop(
+                resumenPreoperacional: allInspecciones[i]);
           }),
     );
   }
