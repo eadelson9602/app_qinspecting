@@ -57,6 +57,8 @@ class _HomePageBody extends StatelessWidget {
         inspeccionProvider.vehiculoSelected = null;
         inspeccionProvider.remolqueSelected = null;
         inspeccionProvider.pathFileKilometraje = null;
+        inspeccionProvider.stepStepperRemolque = 0;
+        inspeccionProvider.stepStepper = 0;
         inspeccionProvider.pathFileGuia = null;
         inspeccionProvider.realizoTanqueo = false;
         inspeccionProvider.tieneRemolque = false;
