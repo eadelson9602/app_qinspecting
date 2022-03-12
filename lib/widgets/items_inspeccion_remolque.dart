@@ -176,20 +176,58 @@ class _ItemsInspeccionarStateRemolque extends State<ItemsInspeccionarRemolque> {
     return Stepper(
       margin: EdgeInsets.only(left: 55, bottom: 40),
       currentStep: inspeccionProvider.stepStepperRemolque,
+      controlsBuilder: (context, details) {
+        return Row(
+          children: [
+            if (inspeccionProvider.stepStepperRemolque > 0)
+              MaterialButton(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(100)),
+                onPressed: details.onStepCancel,
+                child: Container(
+                  child: Row(
+                    children: [
+                      Text(
+                        'Regresar',
+                        style: TextStyle(color: Colors.red, fontSize: 18),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            if (inspeccionProvider.stepStepperRemolque !=
+                itemsInspeccionar.length - 1)
+              MaterialButton(
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(100)),
+                  child: TextButtonPersonalized(
+                    textButton: 'Continuar',
+                  ),
+                  onPressed: inspeccionProvider.stepStepperRemolque ==
+                          itemsInspeccionar.length
+                      ? null
+                      : details.onStepContinue),
+          ],
+        );
+      },
       onStepCancel: () {
         if (inspeccionProvider.stepStepperRemolque > 0) {
           inspeccionProvider
-              .updateStep(inspeccionProvider.stepStepperRemolque -= 1);
+              .updateStepRemolque(inspeccionProvider.stepStepperRemolque--);
         }
       },
       onStepContinue: () {
-        if (inspeccionProvider.stepStepperRemolque < itemsInspeccionar.length) {
+        if (inspeccionProvider.stepStepperRemolque !=
+            itemsInspeccionar.length - 1) {
           inspeccionProvider
-              .updateStep(inspeccionProvider.stepStepperRemolque += 1);
+              .updateStepRemolque(inspeccionProvider.stepStepperRemolque++);
         }
       },
       onStepTapped: (int index) {
-        inspeccionProvider.updateStep(index);
+        inspeccionProvider.updateStepRemolque(index);
       },
       steps: _renderSteps(),
     );

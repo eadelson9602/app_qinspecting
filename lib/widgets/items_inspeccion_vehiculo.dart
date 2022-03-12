@@ -32,7 +32,10 @@ class _ItemsInspeccionarStateVehiculo extends State<ItemsInspeccionarVehiculo> {
                     elevation: 3,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(100)),
-                    child: TextButtonAllok(),
+                    child: TextButtonPersonalized(
+                      textButton: 'Todo ok',
+                      iconButton: Icons.check,
+                    ),
                     onPressed: () {
                       setState(() {
                         for (var item in itemsInspeccionar[i].items) {
@@ -172,14 +175,47 @@ class _ItemsInspeccionarStateVehiculo extends State<ItemsInspeccionarVehiculo> {
     return Stepper(
       margin: EdgeInsets.only(left: 55, bottom: 40),
       currentStep: inspeccionProvider.stepStepper,
+      controlsBuilder: (context, details) {
+        return Row(
+          children: [
+            if (inspeccionProvider.stepStepper > 0)
+              MaterialButton(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(100)),
+                onPressed: details.onStepCancel,
+                child: Container(
+                  child: Row(
+                    children: [
+                      Text(
+                        'Regresar',
+                        style: TextStyle(color: Colors.red, fontSize: 18),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            if (inspeccionProvider.stepStepper != itemsInspeccionar.length - 1)
+              MaterialButton(
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(100)),
+                  child: TextButtonPersonalized(
+                    textButton: 'Continuar',
+                  ),
+                  onPressed: details.onStepContinue),
+          ],
+        );
+      },
       onStepCancel: () {
         if (inspeccionProvider.stepStepper > 0) {
-          inspeccionProvider.updateStep(inspeccionProvider.stepStepper -= 1);
+          inspeccionProvider.updateStep(inspeccionProvider.stepStepper--);
         }
       },
       onStepContinue: () {
-        if (inspeccionProvider.stepStepper < itemsInspeccionar.length) {
-          inspeccionProvider.updateStep(inspeccionProvider.stepStepper += 1);
+        if (inspeccionProvider.stepStepper != itemsInspeccionar.length - 1) {
+          inspeccionProvider.updateStep(inspeccionProvider.stepStepper++);
         }
       },
       onStepTapped: (int index) {
