@@ -213,8 +213,6 @@ class ButtonLogin extends StatelessWidget {
                                   title: Text(empresas[i].nombreQi.toString()),
                                   trailing: const Icon(Icons.houseboat_rounded),
                                   onTap: () async {
-                                    Navigator.pushNamed(context, 'home');
-
                                     // Asignamos al servicio la empresa seleccionada
                                     loginService.selectedEmpresa =
                                         empresas[i].copy();
@@ -231,7 +229,7 @@ class ButtonLogin extends StatelessWidget {
                                         loginService.selectedEmpresa);
                                     await inspeccionService.getItemsInspeccion(
                                         loginService.selectedEmpresa);
-                                    // Guardamos los datos del usuario en la bd
+                                    Navigator.popAndPushNamed(context, 'home');
                                   },
                                 ),
                               ),
