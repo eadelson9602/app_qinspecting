@@ -3,7 +3,6 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/providers/providers.dart';
-import 'package:app_qinspecting/screens/loading_screen.dart';
 import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
@@ -19,7 +18,8 @@ class SendPendingInspectionScree extends StatelessWidget {
     final allInspecciones = inspeccionProvider.allInspecciones;
     inspeccionProvider.cargarTodosInspecciones();
 
-    if (allInspecciones.length == 0) return LoadingScreen();
+    if (allInspecciones.length == 0)
+      return Text('Sin inspecciones pendientes por sincronizar');
     return Scaffold(
       appBar: const CustomAppBar().createAppBar(),
       drawer: const CustomDrawer(),
@@ -170,6 +170,14 @@ class SendPendingInspectionScree extends StatelessWidget {
                                                       element));
                                             }
                                           });
+
+                                          await inspeccionProvider
+                                              .eliminarResumenPreoperacional(
+                                                  allInspecciones[i].Id!);
+
+                                          await inspeccionProvider
+                                              .eliminarRespuestaPreoperacional(
+                                                  allInspecciones[i].Id!);
 
                                           // Ejecutamos todas las peticiones
                                           await Future.wait(Promesas)
