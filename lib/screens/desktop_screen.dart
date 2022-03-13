@@ -1,11 +1,5 @@
-import 'dart:io';
-import 'package:app_qinspecting/models/inspeccion.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:overlay_support/overlay_support.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/providers/inspeccion_provider.dart';
@@ -21,54 +15,6 @@ class DesktopScreen extends StatelessWidget {
 
     final allInspecciones = inspeccionProvider.allInspecciones;
     inspeccionProvider.cargarTodosInspecciones();
-
-    Future<void> main(ResumenPreoperacional resumenPreoperacional) async {
-      final pdf = pw.Document();
-
-      pdf.addPage(
-        pw.Page(
-          build: (pw.Context context) => pw.Container(
-            child: pw.Table(children: [
-              pw.TableRow(
-                  decoration: pw.BoxDecoration(
-                    border: pw.Border.all(
-                        width: 1,
-                        style: pw.BorderStyle.solid,
-                        color: PdfColors.black),
-                  ),
-                  children: [
-                    pw.Row(children: [
-                      pw.Text('title'),
-                      pw.Text('title'),
-                      pw.Text('title'),
-                      pw.Text('title'),
-                      pw.Text('title'),
-                    ]),
-                  ]),
-              pw.TableRow(
-                decoration: pw.BoxDecoration(
-                  border: pw.Border.all(
-                      width: 1,
-                      style: pw.BorderStyle.solid,
-                      color: PdfColors.black),
-                ),
-                children: [
-                  pw.Text('Hola'),
-                  pw.Text('Hola'),
-                  pw.Text('Hola'),
-                  pw.Text('Hola'),
-                ],
-              )
-            ]),
-          ),
-        ),
-      );
-
-      final dir = await getExternalStorageDirectory();
-      final myPdfPath = '${dir!.path}/${resumenPreoperacional.Id}.pdf';
-      final file = File(myPdfPath);
-      await file.writeAsBytes(await pdf.save());
-    }
 
     return Container(
       height: double.infinity,

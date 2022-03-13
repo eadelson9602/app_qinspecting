@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:app_qinspecting/models/models.dart';
+import 'dart:io';
+import 'package:app_qinspecting/models/inspeccion.dart';
+import 'package:overlay_support/overlay_support.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 class CardInspeccionDesktop extends StatelessWidget {
   const CardInspeccionDesktop({Key? key, required this.resumenPreoperacional})
@@ -31,45 +37,187 @@ class CardInspeccionDesktop extends StatelessWidget {
             child: Row(
               children: [
                 Icon(Icons.list_alt_sharp),
-                IconButton(
-                  icon: Icon(Icons.picture_as_pdf_outlined),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: Icon(Icons.qr_code_scanner_sharp),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: Icon(Icons.edit),
-                  onPressed: () {},
-                ),
+                Expanded(
+                    child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.picture_as_pdf_outlined,
+                          color: Colors.red),
+                      onPressed: () async {
+                        await generatePdf(resumenPreoperacional);
+                        showSimpleNotification(Text('Pdf Generado'),
+                            leading: Icon(Icons.check),
+                            autoDismiss: true,
+                            background: Colors.green,
+                            position: NotificationPosition.bottom);
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.qr_code_scanner_sharp),
+                      onPressed: () {},
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.edit,
+                        color: Colors.green,
+                      ),
+                      onPressed: () {},
+                    ),
+                  ],
+                ))
               ],
             ),
           ),
           Divider(
             height: 10,
           ),
-          Text('ID Inspección', style: TextStyle(color: Colors.black54)),
-          Text('${resumenPreoperacional.Id}'),
-          Text(
-            'Documento conductor',
-            style: TextStyle(color: Colors.black54),
-          ),
-          Text('${resumenPreoperacional.persNumeroDoc}'),
-          Text('Kilometraje', style: TextStyle(color: Colors.black54)),
-          Text('${resumenPreoperacional.resuPreKilometraje}'),
-          Text(
-            'Galones tanqueados',
-            style: TextStyle(color: Colors.black54),
-          ),
-          Text('${resumenPreoperacional.tanqueGalones}'),
-          Text(
-            'Fecha inspección',
-            style: TextStyle(color: Colors.black54),
-          ),
-          Text('${resumenPreoperacional.resuPreFecha}'),
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text('ID Inspección',
+                          style: TextStyle(color: Colors.black54)),
+                    ),
+                    Expanded(
+                      child: Text(
+                        '${resumenPreoperacional.Id}',
+                        textAlign: TextAlign.end,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text('Documento conductor',
+                          style: TextStyle(color: Colors.black54)),
+                    ),
+                    Expanded(
+                        child: Text(
+                      '${resumenPreoperacional.persNumeroDoc}',
+                      textAlign: TextAlign.end,
+                    )),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text('Kilometraje',
+                          style: TextStyle(color: Colors.black54)),
+                    ),
+                    Expanded(
+                      child: Text(
+                        '${resumenPreoperacional.resuPreKilometraje}',
+                        textAlign: TextAlign.end,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text('Galones tanqueados',
+                          style: TextStyle(color: Colors.black54)),
+                    ),
+                    Expanded(
+                      child: Text(
+                        '${resumenPreoperacional.tanqueGalones}',
+                        textAlign: TextAlign.end,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text('Guía transporte',
+                          style: TextStyle(color: Colors.black54)),
+                    ),
+                    Expanded(
+                      child: Text(
+                        '${resumenPreoperacional.resuPreGuia}',
+                        textAlign: TextAlign.end,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text('Fecha inspección',
+                          style: TextStyle(color: Colors.black54)),
+                    ),
+                    Expanded(
+                      child: Text(
+                        '${resumenPreoperacional.resuPreFecha}',
+                        textAlign: TextAlign.end,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          )
         ],
       ),
     );
+  }
+
+  Future<void> generatePdf(ResumenPreoperacional resumenPreoperacional) async {
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) => pw.Container(
+          child: pw.Table(children: [
+            pw.TableRow(
+                decoration: pw.BoxDecoration(
+                  border: pw.Border.all(
+                      width: 1,
+                      style: pw.BorderStyle.solid,
+                      color: PdfColors.black),
+                ),
+                children: [
+                  pw.Row(children: [
+                    pw.Text('title'),
+                    pw.Text('title'),
+                    pw.Text('title'),
+                    pw.Text('title'),
+                    pw.Text('title'),
+                  ]),
+                ]),
+            pw.TableRow(
+              decoration: pw.BoxDecoration(
+                border: pw.Border.all(
+                    width: 1,
+                    style: pw.BorderStyle.solid,
+                    color: PdfColors.black),
+              ),
+              children: [
+                pw.Text('Hola'),
+                pw.Text('Hola'),
+                pw.Text('Hola'),
+                pw.Text('Hola'),
+              ],
+            )
+          ]),
+        ),
+      ),
+    );
+
+    final dir = await getExternalStorageDirectory();
+    final myPdfPath = '${dir!.path}/${resumenPreoperacional.Id}.pdf';
+    final file = File(myPdfPath);
+    await file.writeAsBytes(await pdf.save());
   }
 }
