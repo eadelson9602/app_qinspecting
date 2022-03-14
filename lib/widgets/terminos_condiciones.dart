@@ -11,6 +11,7 @@ class TerminosCondiciones extends StatelessWidget {
   Widget build(BuildContext context) {
     final loginService = Provider.of<LoginService>(context);
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
+    final firmaService = Provider.of<FirmaService>(context);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 15),
       child: SingleChildScrollView(
@@ -55,9 +56,9 @@ class TerminosCondiciones extends StatelessWidget {
                       title: const Text('Si'),
                       activeColor: Colors.green,
                       value: 'SI',
-                      groupValue: inspeccionProvider.aceptaTerminos.toString(),
+                      groupValue: firmaService.aceptaTerminos.toString(),
                       onChanged: (value) async {
-                        inspeccionProvider.updateTerminos(value.toString());
+                        firmaService.updateTerminos(value.toString());
                         Navigator.pushNamed(context, 'create_signature');
                       },
                     ),
@@ -67,9 +68,9 @@ class TerminosCondiciones extends StatelessWidget {
                       title: const Text('No'),
                       activeColor: Colors.green,
                       value: 'NO',
-                      groupValue: inspeccionProvider.aceptaTerminos.toString(),
+                      groupValue: firmaService.aceptaTerminos.toString(),
                       onChanged: (value) {
-                        inspeccionProvider.updateTerminos(value.toString());
+                        firmaService.updateTerminos(value.toString());
                       },
                     ),
                   ),
