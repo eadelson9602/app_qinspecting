@@ -85,7 +85,7 @@ class CardFirma extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final sizeScreen = MediaQuery.of(context).size;
+    final sizeScreen = MediaQuery.of(context).size;
     return Padding(
       padding: const EdgeInsets.all(15),
       child: Container(
@@ -105,6 +105,7 @@ class CardFirma extends StatelessWidget {
         child: Column(
           children: [
             Image(
+                height: sizeScreen.height * 0.55,
                 image: NetworkImage(
                     'https://apis.qinspecting.com/pflutter/${infoFirma.firma}')),
             SizedBox(height: 10),
@@ -131,12 +132,12 @@ class CardFirma extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text('ID Firma',
+                  child: Text('Aceptó términos y condiciones',
                       style: TextStyle(color: Colors.black54, fontSize: 18)),
                 ),
                 Expanded(
                   child: Text(
-                    '${infoFirma.idFirma}',
+                    '${infoFirma.terminosCondiciones}',
                     style: TextStyle(fontSize: 18),
                     textAlign: TextAlign.end,
                   ),
@@ -147,12 +148,12 @@ class CardFirma extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text('Aceptó términos y condiciones',
+                  child: Text('Fecha de realización',
                       style: TextStyle(color: Colors.black54, fontSize: 18)),
                 ),
                 Expanded(
                   child: Text(
-                    '${infoFirma.terminosCondiciones}',
+                    '${infoFirma.fechaFirma}',
                     style: TextStyle(fontSize: 18),
                     textAlign: TextAlign.end,
                   ),
