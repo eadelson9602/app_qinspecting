@@ -2,7 +2,7 @@ import 'dart:convert';
 
 class ResumenPreoperacional {
   ResumenPreoperacional({
-    this.Id,
+    this.id,
     required this.resuPreFecha,
     required this.resuPreUbicExpPre,
     required this.resuPreKilometraje,
@@ -18,7 +18,7 @@ class ResumenPreoperacional {
     required this.base,
   });
 
-  int? Id;
+  int? id;
   String resuPreFecha;
   String resuPreUbicExpPre;
   int resuPreKilometraje;
@@ -40,7 +40,7 @@ class ResumenPreoperacional {
 
   factory ResumenPreoperacional.fromMap(Map<String, dynamic> json) =>
       ResumenPreoperacional(
-        Id: json["Id"],
+        id: json["Id"],
         resuPreFecha: json["ResuPre_Fecha"],
         resuPreUbicExpPre: json["ResuPre_UbicExpPre"],
         resuPreKilometraje: int.parse(json["ResuPre_Kilometraje"]),
@@ -61,7 +61,7 @@ class ResumenPreoperacional {
       );
 
   Map<String, dynamic> toMap() => {
-        "Id": Id,
+        "Id": id,
         "ResuPre_Fecha": resuPreFecha,
         "ResuPre_UbicExpPre": resuPreUbicExpPre,
         "ResuPre_Kilometraje": resuPreKilometraje,
