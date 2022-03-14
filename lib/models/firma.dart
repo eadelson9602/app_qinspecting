@@ -13,7 +13,7 @@ class Firma {
   String? fechaFirma;
   String? terminosCondiciones;
   String? firma;
-  String? usuario;
+  int? usuario;
 
   factory Firma.fromJson(String str) => Firma.fromMap(json.decode(str));
 
