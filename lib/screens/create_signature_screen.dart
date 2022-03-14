@@ -34,6 +34,7 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final inspeccionService = Provider.of<InspeccionService>(context);
+    final firmaService = Provider.of<FirmaService>(context);
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
     final loginService = Provider.of<LoginService>(context);
     if (inspeccionService.isSaving) return LoadingScreen();
@@ -89,8 +90,8 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
                             "Pers_NumeroDoc":
                                 loginService.userDataLogged.usuarioUser
                           };
-                          Map responseSaveFirma = await inspeccionService
-                              .insertSignature(dataFirmaSave);
+                          Map responseSaveFirma =
+                              await firmaService.insertSignature(dataFirmaSave);
                           // show a notification at top of screen.
                           inspeccionService.isSaving = false;
                           inspeccionProvider.updateTerminos('NO');
