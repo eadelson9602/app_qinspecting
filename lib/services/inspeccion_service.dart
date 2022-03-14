@@ -9,17 +9,11 @@ class InspeccionService extends ChangeNotifier {
   var dio = Dio();
   bool isLoading = false;
   bool isSaving = false;
-  int indexTabaCreateSignature = 0;
   final List<Departamentos> departamentos = [];
   final List<Ciudades> ciudades = [];
   final List<Vehiculo> vehiculos = [];
   final List<Remolque> remolques = [];
   final List<ItemInspeccion> itemsInspeccion = [];
-
-  updateTabIndex(int value) {
-    indexTabaCreateSignature = value;
-    notifyListeners();
-  }
 
   final resumePreoperacional = ResumenPreoperacional(
       resuPreFecha: '',
