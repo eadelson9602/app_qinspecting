@@ -1,11 +1,12 @@
+import 'package:app_qinspecting/providers/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:app_qinspecting/models/models.dart';
 import 'dart:io';
-import 'package:app_qinspecting/models/inspeccion.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:provider/provider.dart';
 
 class CardInspeccionDesktop extends StatelessWidget {
   const CardInspeccionDesktop({Key? key, required this.resumenPreoperacional})
@@ -15,6 +16,7 @@ class CardInspeccionDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final inspeccionProvider = Provider.of<InspeccionProvider>(context);
     return Container(
       height: 250,
       width: double.infinity,
@@ -45,7 +47,10 @@ class CardInspeccionDesktop extends StatelessWidget {
                       icon: Icon(Icons.picture_as_pdf_outlined,
                           color: Colors.red),
                       onPressed: () async {
-                        await generatePdf(resumenPreoperacional);
+                        // Consultamos en sqlite las respuestas
+                        List<Item> respuestas = await inspeccionProvider
+                            .cargarTodasRespuestas(resumenPreoperacional.id!);
+                        await generatePdf(resumenPreoperacional, respuestas);
                         showSimpleNotification(Text('Pdf Generado'),
                             leading: Icon(Icons.check),
                             autoDismiss: true,
@@ -85,7 +90,7 @@ class CardInspeccionDesktop extends StatelessWidget {
                     ),
                     Expanded(
                       child: Text(
-                        '${resumenPreoperacional.Id}',
+                        '${resumenPreoperacional.id}',
                         textAlign: TextAlign.end,
                       ),
                     ),
@@ -173,9 +178,13 @@ class CardInspeccionDesktop extends StatelessWidget {
     );
   }
 
-  Future<void> generatePdf(ResumenPreoperacional resumenPreoperacional) async {
+  // Genera el pdf
+  Future<void> generatePdf(ResumenPreoperacional resumenPreoperacional,
+      List<Item> respuestas) async {
     final pdf = pw.Document();
-
+    respuestas.forEach((element) {
+      print(element.idItem);
+    });
     pdf.addPage(
       pw.Page(
         build: (pw.Context context) => pw.Container(
@@ -216,7 +225,7 @@ class CardInspeccionDesktop extends StatelessWidget {
     );
 
     final dir = await getExternalStorageDirectory();
-    final myPdfPath = '${dir!.path}/${resumenPreoperacional.Id}.pdf';
+    final myPdfPath = '${dir!.path}/${resumenPreoperacional.id}.pdf';
     final file = File(myPdfPath);
     await file.writeAsBytes(await pdf.save());
   }
