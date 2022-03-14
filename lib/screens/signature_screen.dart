@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:app_qinspecting/models/models.dart';
+import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
-import 'package:app_qinspecting/services/inspeccion_service.dart';
 
 class SignatureScreen extends StatelessWidget {
   const SignatureScreen({Key? key}) : super(key: key);
@@ -28,13 +29,14 @@ class MyStatelessWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final inspeccionService = Provider.of<InspeccionService>(context);
+    final firmaService = Provider.of<FirmaService>(context);
+    final loginService = Provider.of<LoginService>(context);
     return DefaultTabController(
       length: tabs.length,
-      initialIndex: inspeccionService.indexTabaCreateSignature,
+      initialIndex: firmaService.indexTabaCreateSignature,
       child: Builder(builder: (BuildContext context) {
         final TabController tabController = DefaultTabController.of(context)!;
-        tabController.index = inspeccionService.indexTabaCreateSignature;
+        tabController.index = firmaService.indexTabaCreateSignature;
         return Scaffold(
           appBar: AppBar(
             title: const Text('Qinspecting'),
@@ -51,19 +53,116 @@ class MyStatelessWidget extends StatelessWidget {
           body: TabBarView(
             children: [
               Container(
-                width: double.infinity,
-                height: 500,
-                child: Text('Aqui se vera la firma realizada'),
+                child: FutureBuilder(
+                    future:
+                        firmaService.getInfoFirma(loginService.selectedEmpresa),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      } else {
+                        final Firma dataFirma = snapshot.data as Firma;
+                        return CardFirma(
+                          infoFirma: dataFirma,
+                        );
+                      }
+                    }),
               ),
               Container(
-                width: double.infinity,
-                height: 500,
                 child: TerminosCondiciones(),
               ),
             ],
           ),
         );
       }),
+    );
+  }
+}
+
+class CardFirma extends StatelessWidget {
+  const CardFirma({Key? key, required this.infoFirma}) : super(key: key);
+
+  final Firma infoFirma;
+
+  @override
+  Widget build(BuildContext context) {
+    // final sizeScreen = MediaQuery.of(context).size;
+    return Padding(
+      padding: const EdgeInsets.all(15),
+      child: Container(
+        padding: EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: Offset(0, 3), // changes position of shadow
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Image(
+                image: NetworkImage(
+                    'https://apis.qinspecting.com/pflutter/${infoFirma.firma}')),
+            SizedBox(height: 10),
+            Divider(
+              height: 15,
+            ),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: Text('Usuario',
+                      style: TextStyle(color: Colors.black54, fontSize: 18)),
+                ),
+                Expanded(
+                  child: Text(
+                    '${infoFirma.usuario}',
+                    style: TextStyle(fontSize: 18),
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: Text('ID Firma',
+                      style: TextStyle(color: Colors.black54, fontSize: 18)),
+                ),
+                Expanded(
+                  child: Text(
+                    '${infoFirma.idFirma}',
+                    style: TextStyle(fontSize: 18),
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: Text('Aceptó términos y condiciones',
+                      style: TextStyle(color: Colors.black54, fontSize: 18)),
+                ),
+                Expanded(
+                  child: Text(
+                    '${infoFirma.terminosCondiciones}',
+                    style: TextStyle(fontSize: 18),
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 10),
+          ],
+        ),
+      ),
     );
   }
 }
