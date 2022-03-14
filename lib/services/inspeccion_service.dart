@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -194,6 +193,17 @@ class InspeccionService extends ChangeNotifier {
     isLoading = false;
     notifyListeners();
     return response.data;
+  }
+
+  Future<Firma> getInfoFirma(Empresa empresaSelected) async {
+    isLoading = true;
+    notifyListeners();
+    Response response = await dio.get(
+        'https://apis.qinspecting.com/pflutter/get_info_firma/${empresaSelected.nombreBase}/${empresaSelected.usuarioUser}');
+    final resp = Firma.fromMap(response.data);
+    isLoading = false;
+    notifyListeners();
+    return resp;
   }
 
   Future<Map<String, dynamic>?> uploadImage(
