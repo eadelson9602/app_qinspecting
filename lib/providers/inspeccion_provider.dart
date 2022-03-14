@@ -23,7 +23,6 @@ class InspeccionProvider extends ChangeNotifier {
   File? pictureGuia; //Archivo que se sube al server
   String? pathFileKilometraje;
   String? pathFileGuia;
-  String aceptaTerminos = 'NO';
   int stepStepper = 0;
   int stepStepperRemolque = 0;
 
@@ -50,11 +49,6 @@ class InspeccionProvider extends ChangeNotifier {
 
   updateStepRemolque(int value) {
     stepStepperRemolque = value;
-    notifyListeners();
-  }
-
-  updateTerminos(String value) {
-    aceptaTerminos = value;
     notifyListeners();
   }
 
