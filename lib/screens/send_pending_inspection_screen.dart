@@ -74,11 +74,11 @@ class SendPendingInspectionScree extends StatelessWidget {
                                             final responseDelete =
                                                 await inspeccionProvider
                                                     .eliminarResumenPreoperacional(
-                                                        allInspecciones[i].Id!);
+                                                        allInspecciones[i].id!);
 
                                             await inspeccionProvider
                                                 .eliminarRespuestaPreoperacional(
-                                                    allInspecciones[i].Id!);
+                                                    allInspecciones[i].id!);
 
                                             showSimpleNotification(
                                                 Text(
@@ -144,7 +144,7 @@ class SendPendingInspectionScree extends StatelessWidget {
                                                   await inspeccionProvider
                                                       .cargarTodasRespuestas(
                                                           allInspecciones[i]
-                                                              .Id!);
+                                                              .id!);
 
                                               List<Future> Promesas = [];
                                               respuestas.forEach((element) {
@@ -181,11 +181,11 @@ class SendPendingInspectionScree extends StatelessWidget {
 
                                               await inspeccionProvider
                                                   .eliminarResumenPreoperacional(
-                                                      allInspecciones[i].Id!);
+                                                      allInspecciones[i].id!);
 
                                               await inspeccionProvider
                                                   .eliminarRespuestaPreoperacional(
-                                                      allInspecciones[i].Id!);
+                                                      allInspecciones[i].id!);
 
                                               // Ejecutamos todas las peticiones
                                               await Future.wait(Promesas)
