@@ -105,60 +105,29 @@ class CardFirma extends StatelessWidget {
         child: Column(
           children: [
             Image(
-                height: sizeScreen.height * 0.55,
                 image: NetworkImage(
                     'https://apis.qinspecting.com/pflutter/${infoFirma.firma}')),
             SizedBox(height: 10),
             Divider(
               height: 15,
             ),
-            SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: Text('Usuario',
-                      style: TextStyle(color: Colors.black54, fontSize: 18)),
-                ),
-                Expanded(
-                  child: Text(
-                    '${infoFirma.usuario}',
-                    style: TextStyle(fontSize: 18),
-                    textAlign: TextAlign.end,
-                  ),
-                ),
-              ],
+            ListTile(
+              leading: Icon(Icons.person_outline),
+              title: Text('Usuario',
+                  style: TextStyle(color: Colors.black87, fontSize: 16)),
+              subtitle: Text('${infoFirma.usuario}'),
             ),
-            SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: Text('Aceptó términos y condiciones',
-                      style: TextStyle(color: Colors.black54, fontSize: 18)),
-                ),
-                Expanded(
-                  child: Text(
-                    '${infoFirma.terminosCondiciones}',
-                    style: TextStyle(fontSize: 18),
-                    textAlign: TextAlign.end,
-                  ),
-                ),
-              ],
+            ListTile(
+              leading: Icon(Icons.fact_check_outlined),
+              title: Text('Aceptó términos y condiciones?',
+                  style: TextStyle(color: Colors.black87, fontSize: 16)),
+              subtitle: Text('${infoFirma.terminosCondiciones}'),
             ),
-            SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: Text('Fecha de realización',
-                      style: TextStyle(color: Colors.black54, fontSize: 18)),
-                ),
-                Expanded(
-                  child: Text(
-                    '${infoFirma.fechaFirma}',
-                    style: TextStyle(fontSize: 18),
-                    textAlign: TextAlign.end,
-                  ),
-                ),
-              ],
+            ListTile(
+              leading: Icon(Icons.date_range),
+              title: Text('Fecha de realización',
+                  style: TextStyle(color: Colors.black87, fontSize: 16)),
+              subtitle: Text('${infoFirma.fechaFirma}'),
             ),
             SizedBox(height: 10),
           ],
