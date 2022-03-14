@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-class Respuesta {
-  Respuesta({
+class Firma {
+  Firma({
     required this.idFirma,
     this.fechaFirma,
     this.terminosCondiciones,
@@ -15,11 +15,11 @@ class Respuesta {
   String? firma;
   String? usuario;
 
-  factory Respuesta.fromJson(String str) => Respuesta.fromMap(json.decode(str));
+  factory Firma.fromJson(String str) => Firma.fromMap(json.decode(str));
 
   String toJson() => json.encode(toMap());
 
-  factory Respuesta.fromMap(Map<String, dynamic> json) => Respuesta(
+  factory Firma.fromMap(Map<String, dynamic> json) => Firma(
         idFirma: json["idFirma"],
         fechaFirma: json["fechaFirma"],
         terminosCondiciones: json["terminosCondiciones"],
