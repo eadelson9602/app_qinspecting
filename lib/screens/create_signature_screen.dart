@@ -35,7 +35,6 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
     final screenSize = MediaQuery.of(context).size;
     final inspeccionService = Provider.of<InspeccionService>(context);
     final firmaService = Provider.of<FirmaService>(context);
-    final inspeccionProvider = Provider.of<InspeccionProvider>(context);
     final loginService = Provider.of<LoginService>(context);
     if (inspeccionService.isSaving) return LoadingScreen();
     return Scaffold(
@@ -94,8 +93,8 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
                               await firmaService.insertSignature(dataFirmaSave);
                           // show a notification at top of screen.
                           inspeccionService.isSaving = false;
-                          inspeccionProvider.updateTerminos('NO');
-                          inspeccionService.updateTabIndex(0);
+                          firmaService.updateTerminos('NO');
+                          firmaService.updateTabIndex(0);
                           showSimpleNotification(
                               Text(responseSaveFirma['message']!),
                               leading: Icon(Icons.check),
