@@ -269,8 +269,21 @@ class DBProvider {
 
   Future<int?> nuevoInspeccion(ResumenPreoperacional nuevoInspeccion) async {
     final db = await database;
-    final res =
-        await db?.insert('ResumenPreoperacional', nuevoInspeccion.toMap());
+    Map<String, dynamic> resumenSave = {
+      "ResuPre_Fecha": nuevoInspeccion.resuPreFecha,
+      "ResuPre_UbicExpPre": nuevoInspeccion.resuPreUbicExpPre,
+      "ResuPre_Kilometraje": nuevoInspeccion.resuPreKilometraje,
+      "tanque_galones": nuevoInspeccion.tanqueGalones,
+      "ResuPre_Fotokm": nuevoInspeccion.resuPreFotokm,
+      "Pers_NumeroDoc": nuevoInspeccion.persNumeroDoc,
+      "ResuPre_guia": nuevoInspeccion.resuPreGuia,
+      "ResuPre_Fotoguia": nuevoInspeccion.resuPreFotoguia,
+      "Veh_Id": nuevoInspeccion.vehId,
+      "Remol_Id": nuevoInspeccion.remolId,
+      "Ciu_Id": nuevoInspeccion.ciuId,
+      "Respuestas": nuevoInspeccion.respuestas
+    };
+    final res = await db?.insert('ResumenPreoperacional', resumenSave);
     return res;
   }
 
