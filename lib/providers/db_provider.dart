@@ -28,7 +28,7 @@ class DBProvider {
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       await db.execute('''
-        CREATE TABLE ResumenPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, ResuPre_Fecha TEXT, ResuPre_UbicExpPre TEXT, ResuPre_Kilometraje TEXT, tanque_galones TEXT, ResuPre_Fotokm TEXT, Pers_NumeroDoc TEXT, ResuPre_guia TEXT, ResuPre_Fotoguia TEXT, Veh_Id INTEGER, Remol_Id INTEGER, Ciu_Id INTEGER, Respuestas TEXT, base TEXT);
+        CREATE TABLE ResumenPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, ResuPre_Fecha TEXT, ResuPre_UbicExpPre INTEGER, ResuPre_Kilometraje INTEGER, tanque_galones INTEGER, ResuPre_Fotokm TEXT, Pers_NumeroDoc INTEGER, ResuPre_guia TEXT, ResuPre_Fotoguia TEXT, Veh_Id INTEGER, Remol_Id INTEGER, Ciu_Id INTEGER, base TEXT);
       ''');
       await db.execute('''
         CREATE TABLE RespuestasPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, id_item INTEGER, item TEXT, respuesta TEXT, adjunto TEXT, observaciones TEXT, base TEXT, fk_preoperacional INTEGER, CONSTRAINT fk_preoperacional FOREIGN KEY (Id) REFERENCES ResumenPreoperacional(Id) ON DELETE CASCADE) ;
@@ -281,7 +281,6 @@ class DBProvider {
       "Veh_Id": nuevoInspeccion.vehId,
       "Remol_Id": nuevoInspeccion.remolId,
       "Ciu_Id": nuevoInspeccion.ciuId,
-      "Respuestas": nuevoInspeccion.respuestas
     };
     final res = await db?.insert('ResumenPreoperacional', resumenSave);
     return res;

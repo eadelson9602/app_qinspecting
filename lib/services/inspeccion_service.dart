@@ -18,7 +18,7 @@ class InspeccionService extends ChangeNotifier {
 
   final resumePreoperacional = ResumenPreoperacional(
       resuPreFecha: '',
-      resuPreUbicExpPre: '',
+      resuPreUbicExpPre: 0,
       resuPreKilometraje: 0,
       tanqueGalones: 0,
       resuPreFotokm: '',
@@ -28,7 +28,6 @@ class InspeccionService extends ChangeNotifier {
       vehId: 0,
       remolId: 0,
       ciuId: 0,
-      respuestas: '',
       base: '');
 
   Future<List<ResumenPreoperacional>?> getLatesInspections(

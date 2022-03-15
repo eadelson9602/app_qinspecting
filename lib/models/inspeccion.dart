@@ -15,14 +15,13 @@ class ResumenPreoperacional {
     required this.vehId,
     this.remolId,
     required this.ciuId,
-    this.respuestas,
     this.base,
   });
 
   int? id;
   int? resuPreId;
   String resuPreFecha;
-  String resuPreUbicExpPre;
+  int resuPreUbicExpPre;
   int resuPreKilometraje;
   int? tanqueGalones;
   String? resuPreFotokm;
@@ -32,7 +31,6 @@ class ResumenPreoperacional {
   int vehId;
   int? remolId;
   int ciuId;
-  String? respuestas;
   String? base;
 
   factory ResumenPreoperacional.fromJson(String str) =>
@@ -58,7 +56,6 @@ class ResumenPreoperacional {
         vehId: json["Veh_Id"],
         remolId: json["Remol_Id"] == null ? null : json["Remol_Id"],
         ciuId: json["Ciu_Id"],
-        respuestas: json["Respuestas"],
         base: json["base"],
       );
 
@@ -76,7 +73,6 @@ class ResumenPreoperacional {
         "Veh_Id": vehId,
         "Remol_Id": remolId,
         "Ciu_Id": ciuId,
-        "Respuestas": respuestas,
         "base": base
       };
 }
