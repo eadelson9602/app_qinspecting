@@ -82,11 +82,9 @@ class LoginService extends ChangeNotifier {
 
   assingDataUserLogged() async {
     String tempUserData = await storage.read(key: 'userData') ?? '';
-    UserData userData = UserData.fromJson(tempUserData);
-    userDataLogged = userData;
+    userDataLogged = UserData.fromJson(tempUserData);
 
     String tempEmpresa = await storage.read(key: 'empresaSelected') ?? '';
-    Empresa empresaSelected = Empresa.fromJson(tempEmpresa);
-    selectedEmpresa = empresaSelected;
+    selectedEmpresa = Empresa.fromJson(tempEmpresa);
   }
 }
