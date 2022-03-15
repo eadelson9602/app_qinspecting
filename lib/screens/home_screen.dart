@@ -28,7 +28,7 @@ class HomeScreen extends StatelessWidget {
       drawer: const CustomDrawer(),
       body: const SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(20),
+          padding: EdgeInsets.symmetric(horizontal: 20),
           child: _HomePageBody(),
         ),
       ),
