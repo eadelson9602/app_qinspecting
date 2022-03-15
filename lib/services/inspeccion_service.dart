@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -32,19 +33,36 @@ class InspeccionService extends ChangeNotifier {
 
   Future<List<ResumenPreoperacional>?> getLatesInspections(
       Empresa selectedEmpresa) async {
-    isLoading = true;
-    // notifyListeners();
+    final connectivityResult = await (Connectivity().checkConnectivity());
 
-    Response response = await dio.get(
-        'https://apis.qinspecting.com/pflutter/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.usuarioUser}');
-    List<ResumenPreoperacional> tempData = [];
-    for (var item in response.data) {
-      tempData.add(ResumenPreoperacional.fromMap(item));
+    if (connectivityResult == ConnectivityResult.mobile ||
+        connectivityResult == ConnectivityResult.wifi) {
+      try {
+        isLoading = true;
+        // notifyListeners();
+
+        Response response = await dio.get(
+            'https://apis.qinspecting.com/pflutter/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.usuarioUser}');
+        List<ResumenPreoperacional> tempData = [];
+        for (var item in response.data) {
+          tempData.add(ResumenPreoperacional.fromMap(item));
+        }
+
+        isLoading = false;
+        // notifyListeners();
+        return tempData;
+      } catch (error) {
+        return Future.error(error.toString());
+      }
+    } else {
+      showSimpleNotification(
+        Text('Sin conexión a internet'),
+        leading: Icon(Icons.wifi_tethering_error_rounded_outlined),
+        autoDismiss: true,
+        background: Colors.orange,
+        position: NotificationPosition.bottom,
+      );
     }
-
-    isLoading = false;
-    // notifyListeners();
-    return tempData;
   }
 
   Future<List<Departamentos>> getDepartamentos(Empresa empresaSelected) async {
