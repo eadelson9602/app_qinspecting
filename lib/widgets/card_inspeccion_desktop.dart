@@ -19,6 +19,7 @@ class CardInspeccionDesktop extends StatelessWidget {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
     return Container(
       height: 250,
+      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
       width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
@@ -90,7 +91,7 @@ class CardInspeccionDesktop extends StatelessWidget {
                     ),
                     Expanded(
                       child: Text(
-                        '${resumenPreoperacional.id}',
+                        '${resumenPreoperacional.resuPreId}',
                         textAlign: TextAlign.end,
                       ),
                     ),

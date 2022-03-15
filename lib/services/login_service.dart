@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
 
 import 'package:app_qinspecting/models/models.dart';
+import 'package:image_picker/image_picker.dart';
 
 class LoginService extends ChangeNotifier {
   var dio = Dio();
@@ -77,10 +78,14 @@ class LoginService extends ChangeNotifier {
   }
 
   Future<String> readToken() async {
-    return await storage.read(key: 'userData') ?? '';
+    final userData = await storage.read(key: 'userData') ?? '';
+    if (userData.isNotEmpty) {
+      await assingDataUserLogged();
+    }
+    return userData;
   }
 
-  assingDataUserLogged() async {
+  Future<void> assingDataUserLogged() async {
     String tempUserData = await storage.read(key: 'userData') ?? '';
     userDataLogged = UserData.fromJson(tempUserData);
 

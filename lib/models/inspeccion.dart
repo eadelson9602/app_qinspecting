@@ -3,6 +3,7 @@ import 'dart:convert';
 class ResumenPreoperacional {
   ResumenPreoperacional({
     this.id,
+    this.resuPreId,
     required this.resuPreFecha,
     required this.resuPreUbicExpPre,
     required this.resuPreKilometraje,
@@ -14,11 +15,12 @@ class ResumenPreoperacional {
     required this.vehId,
     this.remolId,
     required this.ciuId,
-    required this.respuestas,
-    required this.base,
+    this.respuestas,
+    this.base,
   });
 
   int? id;
+  int? resuPreId;
   String resuPreFecha;
   String resuPreUbicExpPre;
   int resuPreKilometraje;
@@ -30,8 +32,8 @@ class ResumenPreoperacional {
   int vehId;
   int? remolId;
   int ciuId;
-  String respuestas;
-  String base;
+  String? respuestas;
+  String? base;
 
   factory ResumenPreoperacional.fromJson(String str) =>
       ResumenPreoperacional.fromMap(json.decode(str));
@@ -41,15 +43,15 @@ class ResumenPreoperacional {
   factory ResumenPreoperacional.fromMap(Map<String, dynamic> json) =>
       ResumenPreoperacional(
         id: json["Id"],
+        resuPreId: json["ResuPre_Id"],
         resuPreFecha: json["ResuPre_Fecha"],
         resuPreUbicExpPre: json["ResuPre_UbicExpPre"],
-        resuPreKilometraje: int.parse(json["ResuPre_Kilometraje"]),
-        tanqueGalones: json["tanque_galones"] == null
-            ? null
-            : int.parse(json["tanque_galones"]),
+        resuPreKilometraje: json["ResuPre_Kilometraje"],
+        tanqueGalones:
+            json["tanque_galones"] == null ? null : json["tanque_galones"],
         resuPreFotokm:
             json["ResuPre_Fotokm"] == null ? null : json["ResuPre_Fotokm"],
-        persNumeroDoc: int.parse(json["Pers_NumeroDoc"]),
+        persNumeroDoc: json["Pers_NumeroDoc"],
         resuPreGuia: json["ResuPre_guia"] == null ? null : json["ResuPre_guia"],
         resuPreFotoguia:
             json["ResuPre_Fotoguia"] == null ? null : json["ResuPre_Fotoguia"],
@@ -62,6 +64,7 @@ class ResumenPreoperacional {
 
   Map<String, dynamic> toMap() => {
         "Id": id,
+        "ResuPre_Id": resuPreId,
         "ResuPre_Fecha": resuPreFecha,
         "ResuPre_UbicExpPre": resuPreUbicExpPre,
         "ResuPre_Kilometraje": resuPreKilometraje,

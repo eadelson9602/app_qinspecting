@@ -30,6 +30,23 @@ class InspeccionService extends ChangeNotifier {
       respuestas: '',
       base: '');
 
+  Future<List<ResumenPreoperacional>?> getLatesInspections(
+      Empresa selectedEmpresa) async {
+    isLoading = true;
+    // notifyListeners();
+
+    Response response = await dio.get(
+        'https://apis.qinspecting.com/pflutter/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.usuarioUser}');
+    List<ResumenPreoperacional> tempData = [];
+    for (var item in response.data) {
+      tempData.add(ResumenPreoperacional.fromMap(item));
+    }
+
+    isLoading = false;
+    // notifyListeners();
+    return tempData;
+  }
+
   Future<List<Departamentos>> getDepartamentos(Empresa empresaSelected) async {
     isLoading = true;
     notifyListeners();
