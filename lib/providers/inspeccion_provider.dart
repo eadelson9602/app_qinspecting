@@ -6,6 +6,7 @@ import 'package:app_qinspecting/providers/providers.dart';
 
 class InspeccionProvider extends ChangeNotifier {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  bool isSaving = false;
   bool realizoTanqueo = false;
   bool tieneRemolque = false;
   bool tieneGuia = false;
@@ -117,12 +118,14 @@ class InspeccionProvider extends ChangeNotifier {
   }
 
   saveInspecicon(ResumenPreoperacional nuevoInspeccion) async {
+    notifyListeners();
     final idEncabezado = await DBProvider.db.nuevoInspeccion(nuevoInspeccion);
     notifyListeners();
     return idEncabezado;
   }
 
   saveRespuestaInspeccion(Item nuevaRespuesta) async {
+    notifyListeners();
     final idRespuesta =
         await DBProvider.db.nuevoRespuestaInspeccion(nuevaRespuesta);
     notifyListeners();
