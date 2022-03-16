@@ -21,46 +21,45 @@ class InspeccionRemolqueScreen extends StatelessWidget {
       body: ItemsInspeccionarRemolque(),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.save),
-        onPressed: () async {
-          inspeccionService.resumePreoperacional.base =
-              loginService.selectedEmpresa.nombreBase;
-          final idEncabezado = await inspeccionProvider
-              .saveInspecicon(inspeccionService.resumePreoperacional);
-          List<Future> respuestas = [];
+        onPressed: inspeccionProvider.isSaving
+            ? null
+            : () async {
+                inspeccionProvider.isSaving = true;
+                List respuestas = [];
+                inspeccionProvider.itemsInspeccion.forEach((categoria) {
+                  categoria.items.forEach((item) {
+                    if (item.respuesta != null) {
+                      item.base = loginService.selectedEmpresa!.nombreBase;
+                      item.base = loginService.selectedEmpresa.nombreBase;
+                      respuestas.add(item.toJson());
+                    }
+                  });
+                });
+                inspeccionProvider.itemsInspeccionRemolque.forEach((categoria) {
+                  categoria.items.forEach((item) {
+                    if (item.respuesta != null) {
+                      item.base = loginService.selectedEmpresa!.nombreBase;
+                      item.base = loginService.selectedEmpresa.nombreBase;
+                      respuestas.add(item.toJson());
+                    }
+                  });
+                });
+                inspeccionService.resumePreoperacional.respuestas =
+                    respuestas.toString();
+                inspeccionProvider
+                    .saveInspecicon(inspeccionService.resumePreoperacional);
 
-          inspeccionProvider.itemsInspeccion.forEach((categoria) {
-            categoria.items.forEach((item) {
-              if (item.respuesta != null) {
-                item.fkPreoperacional = idEncabezado;
-                item.base = loginService.selectedEmpresa.nombreBase;
-                respuestas
-                    .add(inspeccionProvider.saveRespuestaInspeccion(item));
-              }
-            });
-          });
-          inspeccionProvider.itemsInspeccionRemolque.forEach((categoria) {
-            categoria.items.forEach((item) {
-              if (item.respuesta != null) {
-                item.fkPreoperacional = idEncabezado;
-                item.base = loginService.selectedEmpresa.nombreBase;
-                respuestas
-                    .add(inspeccionProvider.saveRespuestaInspeccion(item));
-              }
-            });
-          });
+                inspeccionProvider.isSaving = false;
+                uiProvider.selectedMenuOpt = 0;
+                // show a notification at top of screen.
+                showSimpleNotification(Text('Inspección realizada'),
+                    leading: Icon(Icons.check),
+                    autoDismiss: true,
+                    background: Colors.green,
+                    position: NotificationPosition.bottom);
 
-          await Future.wait(respuestas);
-
-          uiProvider.selectedMenuOpt = 0;
-          // show a notification at top of screen.
-          showSimpleNotification(Text('Inspección realizada'),
-              leading: Icon(Icons.check),
-              autoDismiss: true,
-              background: Colors.green,
-              position: NotificationPosition.bottom);
-
-          Navigator.pushReplacementNamed(context, 'home');
-        },
+                Navigator.pushReplacementNamed(context, 'home');
+              },
       ),
     );
   }
