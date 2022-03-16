@@ -6,7 +6,6 @@ import 'package:app_qinspecting/providers/providers.dart';
 
 class InspeccionProvider extends ChangeNotifier {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  bool isSaving = false;
   bool realizoTanqueo = false;
   bool tieneRemolque = false;
   bool tieneGuia = false;
