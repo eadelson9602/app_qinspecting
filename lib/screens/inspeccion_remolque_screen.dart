@@ -29,7 +29,6 @@ class InspeccionRemolqueScreen extends StatelessWidget {
                 inspeccionProvider.itemsInspeccion.forEach((categoria) {
                   categoria.items.forEach((item) {
                     if (item.respuesta != null) {
-                      item.base = loginService.selectedEmpresa!.nombreBase;
                       item.base = loginService.selectedEmpresa.nombreBase;
                       respuestas.add(item.toJson());
                     }
@@ -38,7 +37,6 @@ class InspeccionRemolqueScreen extends StatelessWidget {
                 inspeccionProvider.itemsInspeccionRemolque.forEach((categoria) {
                   categoria.items.forEach((item) {
                     if (item.respuesta != null) {
-                      item.base = loginService.selectedEmpresa!.nombreBase;
                       item.base = loginService.selectedEmpresa.nombreBase;
                       respuestas.add(item.toJson());
                     }
