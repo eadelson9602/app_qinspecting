@@ -34,25 +34,17 @@ class InspeccionVehiculoScreen extends StatelessWidget {
                 }
 
                 // Si no tiene remolque
-                inspeccionService.resumePreoperacional.base =
-                    loginService.selectedEmpresa.nombreBase;
                 final idEncabezado = await inspeccionProvider
                     .saveInspecicon(inspeccionService.resumePreoperacional);
-
-                List<Future> respuestas = [];
-
                 inspeccionProvider.itemsInspeccion.forEach((categoria) {
                   categoria.items.forEach((item) {
                     if (item.respuesta != null) {
                       item.fkPreoperacional = idEncabezado;
                       item.base = loginService.selectedEmpresa.nombreBase;
-                      respuestas.add(
-                          inspeccionProvider.saveRespuestaInspeccion(item));
+                      inspeccionProvider.saveRespuestaInspeccion(item);
                     }
                   });
                 });
-
-                await Future.wait(respuestas);
 
                 inspeccionProvider.isSaving = false;
                 uiProvider.selectedMenuOpt = 0;
