@@ -23,39 +23,43 @@ class InspeccionVehiculoScreen extends StatelessWidget {
         child: inspeccionProvider.tieneRemolque
             ? Icon(Icons.arrow_forward_ios_sharp)
             : Icon(Icons.save),
-        onPressed: inspeccionProvider.isSaving
-            ? null
-            : () async {
-                inspeccionProvider.isSaving = true;
-                // Si tiene remolque
-                if (inspeccionProvider.tieneRemolque) {
-                  Navigator.pushNamed(context, 'inspeccion_remolque');
-                  return;
-                }
+        onPressed: () async {
+          // Si tiene remolque
+          if (inspeccionProvider.tieneRemolque) {
+            Navigator.pushNamed(context, 'inspeccion_remolque');
+            return;
+          }
 
-                // Si no tiene remolque
-                final idEncabezado = await inspeccionProvider
-                    .saveInspecicon(inspeccionService.resumePreoperacional);
-                inspeccionProvider.itemsInspeccion.forEach((categoria) {
-                  categoria.items.forEach((item) {
-                    if (item.respuesta != null) {
-                      item.fkPreoperacional = idEncabezado;
-                      item.base = loginService.selectedEmpresa.nombreBase;
-                      inspeccionProvider.saveRespuestaInspeccion(item);
-                    }
-                  });
-                });
+          // Si no tiene remolque
+          inspeccionService.resumePreoperacional.base =
+              loginService.selectedEmpresa.nombreBase;
+          final idEncabezado = await inspeccionProvider
+              .saveInspecicon(inspeccionService.resumePreoperacional);
 
-                inspeccionProvider.isSaving = false;
-                uiProvider.selectedMenuOpt = 0;
-                // show a notification at top of screen.
-                showSimpleNotification(Text('Inspección realizada'),
-                    leading: Icon(Icons.check),
-                    autoDismiss: true,
-                    background: Colors.green,
-                    position: NotificationPosition.bottom);
-                Navigator.pushReplacementNamed(context, 'home');
-              },
+          List<Future> respuestas = [];
+
+          inspeccionProvider.itemsInspeccion.forEach((categoria) {
+            categoria.items.forEach((item) {
+              if (item.respuesta != null) {
+                item.fkPreoperacional = idEncabezado;
+                item.base = loginService.selectedEmpresa.nombreBase;
+                respuestas
+                    .add(inspeccionProvider.saveRespuestaInspeccion(item));
+              }
+            });
+          });
+
+          await Future.wait(respuestas);
+
+          uiProvider.selectedMenuOpt = 0;
+          // show a notification at top of screen.
+          showSimpleNotification(Text('Inspección realizada'),
+              leading: Icon(Icons.check),
+              autoDismiss: true,
+              background: Colors.green,
+              position: NotificationPosition.bottom);
+          Navigator.pushReplacementNamed(context, 'home');
+        },
       ),
     );
   }
