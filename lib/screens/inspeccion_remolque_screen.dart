@@ -21,28 +21,33 @@ class InspeccionRemolqueScreen extends StatelessWidget {
       body: ItemsInspeccionarRemolque(),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.save),
-        onPressed: () {
-          List respuestas = [];
+        onPressed: () async {
+          final idEncabezado = await inspeccionProvider
+              .saveInspecicon(inspeccionService.resumePreoperacional);
+          List<Future> respuestas = [];
+
           inspeccionProvider.itemsInspeccion.forEach((categoria) {
             categoria.items.forEach((item) {
               if (item.respuesta != null) {
+                item.fkPreoperacional = idEncabezado;
                 item.base = loginService.selectedEmpresa.nombreBase;
-                respuestas.add(item.toJson());
+                respuestas
+                    .add(inspeccionProvider.saveRespuestaInspeccion(item));
               }
             });
           });
           inspeccionProvider.itemsInspeccionRemolque.forEach((categoria) {
             categoria.items.forEach((item) {
               if (item.respuesta != null) {
+                item.fkPreoperacional = idEncabezado;
                 item.base = loginService.selectedEmpresa.nombreBase;
-                respuestas.add(item.toJson());
+                respuestas
+                    .add(inspeccionProvider.saveRespuestaInspeccion(item));
               }
             });
           });
-          inspeccionService.resumePreoperacional.respuestas =
-              respuestas.toString();
-          inspeccionProvider
-              .saveInspecicon(inspeccionService.resumePreoperacional);
+
+          await Future.wait(respuestas);
 
           uiProvider.selectedMenuOpt = 0;
           // show a notification at top of screen.

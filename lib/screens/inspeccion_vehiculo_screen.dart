@@ -34,15 +34,20 @@ class InspeccionVehiculoScreen extends StatelessWidget {
           final idEncabezado = await inspeccionProvider
               .saveInspecicon(inspeccionService.resumePreoperacional);
 
+          List<Future> respuestas = [];
+
           inspeccionProvider.itemsInspeccion.forEach((categoria) {
             categoria.items.forEach((item) {
               if (item.respuesta != null) {
                 item.fkPreoperacional = idEncabezado;
                 item.base = loginService.selectedEmpresa.nombreBase;
-                inspeccionProvider.saveRespuestaInspeccion(item);
+                respuestas
+                    .add(inspeccionProvider.saveRespuestaInspeccion(item));
               }
             });
           });
+
+          await Future.wait(respuestas);
 
           uiProvider.selectedMenuOpt = 0;
           // show a notification at top of screen.
