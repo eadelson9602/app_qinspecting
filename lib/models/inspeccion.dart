@@ -40,7 +40,7 @@ class ResumenPreoperacional {
 
   factory ResumenPreoperacional.fromMap(Map<String, dynamic> json) =>
       ResumenPreoperacional(
-          id: json["id"],
+          id: json["Id"],
           resuPreId: json["ResuPre_Id"],
           resuPreFecha: json["ResuPre_Fecha"],
           resuPreUbicExpPre: json["ResuPre_UbicExpPre"],
@@ -57,7 +57,7 @@ class ResumenPreoperacional {
           base: json["base"]);
 
   Map<String, dynamic> toMap() => {
-        "id": id,
+        "Id": id,
         "ResuPre_Id": resuPreId,
         "ResuPre_Fecha": resuPreFecha,
         "ResuPre_UbicExpPre": resuPreUbicExpPre,
