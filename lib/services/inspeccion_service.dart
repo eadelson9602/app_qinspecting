@@ -18,7 +18,7 @@ class InspeccionService extends ChangeNotifier {
 
   final resumePreoperacional = ResumenPreoperacional(
       resuPreFecha: '',
-      resuPreUbicExpPre: 0,
+      resuPreUbicExpPre: '',
       resuPreKilometraje: 0,
       tanqueGalones: 0,
       resuPreFotokm: '',
@@ -26,11 +26,11 @@ class InspeccionService extends ChangeNotifier {
       resuPreGuia: '',
       resuPreFotoguia: '',
       vehId: 0,
-      remolId: 0,
+      remolId: '0',
       ciuId: 0,
       base: '');
 
-  Future<List<ResumenPreoperacional>?> getLatesInspections(
+  Future<List<ResumenPreoperacional>> getLatesInspections(
       Empresa selectedEmpresa) async {
     final connectivityResult = await (Connectivity().checkConnectivity());
 
@@ -51,6 +51,13 @@ class InspeccionService extends ChangeNotifier {
         // notifyListeners();
         return tempData;
       } catch (error) {
+        showSimpleNotification(
+          Text('ERROR AL OBTENER INSPECCIONES: ${error.toString()}'),
+          leading: Icon(Icons.wifi_tethering_error_rounded_outlined),
+          autoDismiss: true,
+          background: Colors.orange,
+          position: NotificationPosition.bottom,
+        );
         return Future.error(error.toString());
       }
     } else {
@@ -61,6 +68,7 @@ class InspeccionService extends ChangeNotifier {
         background: Colors.orange,
         position: NotificationPosition.bottom,
       );
+      return [];
     }
   }
 
