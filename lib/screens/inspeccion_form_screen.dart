@@ -97,7 +97,7 @@ class InspeccionForm extends StatelessWidget {
               final resultRemolque =
                   await DBProvider.db.getRemolqueByPlate(value!);
               inspeccionService.resumePreoperacional.remolId =
-                  resultRemolque!.idRemolque;
+                  '${resultRemolque!.idRemolque}';
               inspeccionProvider.updateRemolqueSelected(resultRemolque);
 
               await inspeccionProvider.listarCategoriaItemsRemolque();
