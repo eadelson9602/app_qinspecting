@@ -31,6 +31,8 @@ class InspeccionVehiculoScreen extends StatelessWidget {
           }
 
           // Si no tiene remolque
+          inspeccionService.resumePreoperacional.base =
+              loginService.selectedEmpresa.nombreBase;
           final idEncabezado = await inspeccionProvider
               .saveInspecicon(inspeccionService.resumePreoperacional);
 

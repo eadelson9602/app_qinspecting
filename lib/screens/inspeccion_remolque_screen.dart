@@ -22,6 +22,8 @@ class InspeccionRemolqueScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.save),
         onPressed: () async {
+          inspeccionService.resumePreoperacional.base =
+              loginService.selectedEmpresa.nombreBase;
           final idEncabezado = await inspeccionProvider
               .saveInspecicon(inspeccionService.resumePreoperacional);
           List<Future> respuestas = [];
