@@ -281,6 +281,7 @@ class DBProvider {
       "Veh_Id": nuevoInspeccion.vehId,
       "Remol_Id": nuevoInspeccion.remolId,
       "Ciu_Id": nuevoInspeccion.ciuId,
+      "base": nuevoInspeccion.base,
     };
     final res = await db?.insert('ResumenPreoperacional', resumenSave);
     return res;
