@@ -122,7 +122,9 @@ class ContentCardInspectionPending extends StatelessWidget {
                               child: const Text('Guardar'),
                               onPressed: inspeccionService.isLoading
                                   ? null
-                                  : sendInspeccion(allInspecciones[i])),
+                                  : () {
+                                      sendInspeccion(allInspecciones[i]);
+                                    }),
                           const SizedBox(width: 8),
                         ],
                       ),
