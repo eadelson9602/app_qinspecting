@@ -26,7 +26,7 @@ class InspeccionService extends ChangeNotifier {
       resuPreGuia: '',
       resuPreFotoguia: '',
       vehId: 0,
-      remolId: '0',
+      remolId: 0,
       ciuId: 0,
       base: '');
 

@@ -30,7 +30,7 @@ class ResumenPreoperacional {
   String? resuPreGuia;
   String? resuPreFotoguia;
   int? vehId;
-  String? remolId;
+  int? remolId;
   int? ciuId;
   String? base;
   String? respuestas;
