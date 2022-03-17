@@ -16,6 +16,7 @@ class InspeccionRemolqueScreen extends StatelessWidget {
     final loginService = Provider.of<LoginService>(context);
     final uiProvider = Provider.of<UiProvider>(context);
 
+    if (inspeccionProvider.isSaving) return Loading();
     return Scaffold(
       appBar: AppBar(),
       body: ItemsInspeccionarRemolque(),
@@ -50,7 +51,7 @@ class InspeccionRemolqueScreen extends StatelessWidget {
           });
 
           await Future.wait(respuestas);
-
+          inspeccionProvider.updateSaving(false);
           uiProvider.selectedMenuOpt = 0;
           // show a notification at top of screen.
           showSimpleNotification(Text('Inspección realizada'),
