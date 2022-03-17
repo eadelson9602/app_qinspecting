@@ -9,6 +9,7 @@ class InspeccionProvider extends ChangeNotifier {
   bool realizoTanqueo = false;
   bool tieneRemolque = false;
   bool tieneGuia = false;
+  bool isSaving = false;
   Vehiculo? vehiculoSelected;
   Remolque? remolqueSelected;
 
@@ -28,6 +29,11 @@ class InspeccionProvider extends ChangeNotifier {
 
   bool isValidForm() {
     return formKey.currentState?.validate() ?? false;
+  }
+
+  void updateSaving(bool value) {
+    isSaving = value;
+    notifyListeners();
   }
 
   void updateSelectedImage(String path) {
