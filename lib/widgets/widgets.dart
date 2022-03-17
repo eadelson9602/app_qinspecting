@@ -8,3 +8,4 @@ export 'package:app_qinspecting/widgets/items_inspeccion_vehiculo.dart';
 export 'package:app_qinspecting/widgets/items_inspeccion_remolque.dart';
 export 'package:app_qinspecting/widgets/text_button_personalized.dart';
 export 'package:app_qinspecting/widgets/card_inspeccion_desktop.dart';
+export 'package:app_qinspecting/widgets/loading.dart';
