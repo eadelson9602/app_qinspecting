@@ -210,12 +210,12 @@ class _ItemsInspeccionarStateVehiculo extends State<ItemsInspeccionarVehiculo> {
       },
       onStepCancel: () {
         if (inspeccionProvider.stepStepper > 0) {
-          inspeccionProvider.updateStep(inspeccionProvider.stepStepper--);
+          inspeccionProvider.updateStep(inspeccionProvider.stepStepper -= 1);
         }
       },
       onStepContinue: () {
-        if (inspeccionProvider.stepStepper != itemsInspeccionar.length - 1) {
-          inspeccionProvider.updateStep(inspeccionProvider.stepStepper++);
+        if (inspeccionProvider.stepStepper != (itemsInspeccionar.length - 1)) {
+          inspeccionProvider.updateStep(inspeccionProvider.stepStepper += 1);
         }
       },
       onStepTapped: (int index) {

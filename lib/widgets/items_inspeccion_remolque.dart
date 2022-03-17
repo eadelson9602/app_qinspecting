@@ -216,14 +216,14 @@ class _ItemsInspeccionarStateRemolque extends State<ItemsInspeccionarRemolque> {
       onStepCancel: () {
         if (inspeccionProvider.stepStepperRemolque > 0) {
           inspeccionProvider
-              .updateStepRemolque(inspeccionProvider.stepStepperRemolque--);
+              .updateStepRemolque(inspeccionProvider.stepStepperRemolque -= 1);
         }
       },
       onStepContinue: () {
         if (inspeccionProvider.stepStepperRemolque !=
             itemsInspeccionar.length - 1) {
           inspeccionProvider
-              .updateStepRemolque(inspeccionProvider.stepStepperRemolque++);
+              .updateStepRemolque(inspeccionProvider.stepStepperRemolque += 1);
         }
       },
       onStepTapped: (int index) {
