@@ -157,7 +157,7 @@ class ContentCardInspectionPending extends StatelessWidget {
 
       // Asignamos el id del remolque si tiene
       inspeccion.remolId =
-          inspeccionProvider.tieneRemolque ? inspeccion.remolId : null;
+          inspeccion.remolId != null ? inspeccion.remolId : null;
 
       // Guardamos el resumen del preoperacional en el server
       final responseResumen =
