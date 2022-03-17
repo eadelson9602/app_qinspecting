@@ -16,6 +16,7 @@ class InspeccionVehiculoScreen extends StatelessWidget {
     final loginService = Provider.of<LoginService>(context);
     final uiProvider = Provider.of<UiProvider>(context);
 
+    if (inspeccionProvider.isSaving) return Loading();
     return Scaffold(
       appBar: AppBar(),
       body: ItemsInspeccionarVehiculo(),
@@ -24,6 +25,7 @@ class InspeccionVehiculoScreen extends StatelessWidget {
             ? Icon(Icons.arrow_forward_ios_sharp)
             : Icon(Icons.save),
         onPressed: () async {
+          inspeccionProvider.updateSaving(true);
           // Si tiene remolque
           if (inspeccionProvider.tieneRemolque) {
             Navigator.pushNamed(context, 'inspeccion_remolque');
@@ -50,7 +52,7 @@ class InspeccionVehiculoScreen extends StatelessWidget {
           });
 
           await Future.wait(respuestas);
-
+          inspeccionProvider.updateSaving(false);
           uiProvider.selectedMenuOpt = 0;
           // show a notification at top of screen.
           showSimpleNotification(Text('Inspección realizada'),
