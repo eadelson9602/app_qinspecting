@@ -25,12 +25,12 @@ class InspeccionVehiculoScreen extends StatelessWidget {
             ? Icon(Icons.arrow_forward_ios_sharp)
             : Icon(Icons.save),
         onPressed: () async {
-          inspeccionProvider.updateSaving(true);
           // Si tiene remolque
           if (inspeccionProvider.tieneRemolque) {
             Navigator.pushNamed(context, 'inspeccion_remolque');
             return;
           }
+          inspeccionProvider.updateSaving(true);
 
           // Si no tiene remolque
           final idEncabezado = await inspeccionProvider
