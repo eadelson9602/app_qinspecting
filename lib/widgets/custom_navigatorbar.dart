@@ -12,15 +12,21 @@ class CustomNavigationBar extends StatelessWidget {
     final currentIdex = uiProvider.selectedMenuOpt;
 
     return BottomNavigationBar(
+      items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Escritorio',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.app_registration_sharp),
+          label: 'Inspecciones',
+        ),
+      ],
       currentIndex: currentIdex,
+      selectedItemColor: Colors.green,
       onTap: (int i) {
         uiProvider.selectedMenuOpt = i;
       },
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Escritorio'),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.app_registration_sharp), label: 'Inspecciones'),
-      ],
     );
   }
 }
