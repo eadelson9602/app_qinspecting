@@ -217,19 +217,8 @@ class ButtonLogin extends StatelessWidget {
                                     loginService.selectedEmpresa =
                                         empresas[i].copy();
 
-                                    // Lanzamos la petición get para obtner los datos del usuario logueado
-                                    await loginService.getUserData();
-                                    await inspeccionService.getVehiculos(
-                                        loginService.selectedEmpresa);
-                                    await inspeccionService.getTrailers(
-                                        loginService.selectedEmpresa);
-                                    await inspeccionService.getDepartamentos(
-                                        loginService.selectedEmpresa);
-                                    await inspeccionService.getCiudades(
-                                        loginService.selectedEmpresa);
-                                    await inspeccionService.getItemsInspeccion(
-                                        loginService.selectedEmpresa);
-                                    Navigator.popAndPushNamed(context, 'home');
+                                    Navigator.popAndPushNamed(
+                                        context, 'get_data');
                                   },
                                 ),
                               ),
