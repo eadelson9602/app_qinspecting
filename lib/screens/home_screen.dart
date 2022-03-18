@@ -10,7 +10,13 @@ class LoadHomeScreen extends StatelessWidget {
   const LoadHomeScreen({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return const HomeScreen();
+    final loginService = Provider.of<LoginService>(context, listen: false);
+    return FutureBuilder(
+        future: loginService.assingDataUserLogged(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return Text('Espere');
+          return const HomeScreen();
+        });
   }
 }
 
@@ -20,9 +26,9 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Al instanciar el servicio, hace la petición al servidor
-    final inspeccionService = Provider.of<InspeccionService>(context);
+    // final inspeccionService = Provider.of<InspeccionService>(context);
 
-    if (inspeccionService.isLoading) return const LoadingScreen();
+    // if (inspeccionService.isLoading) return const LoadingScreen();
     return Scaffold(
       appBar: const CustomAppBar().createAppBar(),
       drawer: const CustomDrawer(),
@@ -46,7 +52,6 @@ class _HomePageBody extends StatelessWidget {
         Provider.of<InspeccionProvider>(context, listen: false);
     final inspeccionService = Provider.of<InspeccionService>(context);
     final uiProvider = Provider.of<UiProvider>(context);
-    final loginService = Provider.of<LoginService>(context, listen: false);
     final currentIndex = uiProvider.selectedMenuOpt;
 
     switch (currentIndex) {
@@ -65,8 +70,6 @@ class _HomePageBody extends StatelessWidget {
         inspeccionProvider.tieneGuia = false;
         inspeccionProvider.itemsInspeccion.clear();
         inspeccionProvider.itemsInspeccionRemolque.clear();
-
-        loginService.assingDataUserLogged();
         return const DesktopScreen();
       case 1:
         inspeccionProvider.listarDepartamentos();
