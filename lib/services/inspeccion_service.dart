@@ -1,3 +1,4 @@
+import 'package:app_qinspecting/services/services.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:app_qinspecting/providers/providers.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 class InspeccionService extends ChangeNotifier {
+  final loginService = LoginService();
   var dio = Dio();
   bool isLoading = false;
   bool isSaving = false;
@@ -79,19 +81,11 @@ class InspeccionService extends ChangeNotifier {
 
     Response response = await dio.get(
         'https://apis.qinspecting.com/pflutter/list_departments/$baseEmpresa');
+    departamentos.clear();
     for (var item in response.data) {
       final tempDepartamento = Departamentos.fromMap(item);
-      final index = departamentos
-          .indexWhere((element) => element.value == tempDepartamento.value);
-      if (index == -1) {
-        departamentos.add(tempDepartamento);
-        DBProvider.db
-            .getDepartamentoById(tempDepartamento.value)
-            .then((resultFindDepartamento) => {
-                  if (resultFindDepartamento?.value == null)
-                    {DBProvider.db.nuevoDepartamento(tempDepartamento)}
-                });
-      }
+      departamentos.add(tempDepartamento);
+      DBProvider.db.nuevoDepartamento(tempDepartamento);
     }
     isLoading = false;
     notifyListeners();
@@ -105,20 +99,11 @@ class InspeccionService extends ChangeNotifier {
 
     Response response = await dio
         .get('https://apis.qinspecting.com/pflutter/list_city/$baseEmpresa');
+    ciudades.clear();
     for (var item in response.data) {
       final tempCiudad = Ciudades.fromMap(item);
-      final index =
-          ciudades.indexWhere((element) => element.value == tempCiudad.value);
-      if (index == -1) {
-        ciudades.add(tempCiudad);
-        DBProvider.db
-            .getCiudadById(tempCiudad.value)
-            .then((resultFindCiudad) => {
-                  if (resultFindCiudad?.value == null)
-                    {DBProvider.db.nuevaCiudad(tempCiudad)}
-                });
-      }
-      ;
+      ciudades.add(tempCiudad);
+      DBProvider.db.nuevaCiudad(tempCiudad);
     }
     isLoading = false;
     notifyListeners();
@@ -132,19 +117,11 @@ class InspeccionService extends ChangeNotifier {
 
     Response response = await dio.get(
         'https://apis.qinspecting.com/pflutter/show_placas_cabezote/$baseEmpresa');
+    vehiculos.clear();
     for (var item in response.data) {
       final tempVehiculo = Vehiculo.fromMap(item);
-      final index = vehiculos
-          .indexWhere((element) => element.placa == tempVehiculo.placa);
-      if (index == -1) {
-        vehiculos.add(tempVehiculo);
-        DBProvider.db
-            .getVehiculoById(tempVehiculo.idVehiculo)
-            .then((resultVehiculo) => {
-                  if (resultVehiculo?.idVehiculo == null)
-                    DBProvider.db.nuevoVehiculo(tempVehiculo)
-                });
-      }
+      vehiculos.add(tempVehiculo);
+      DBProvider.db.nuevoVehiculo(tempVehiculo);
     }
     isLoading = false;
     notifyListeners();
@@ -158,19 +135,11 @@ class InspeccionService extends ChangeNotifier {
 
     Response response = await dio.get(
         'https://apis.qinspecting.com/pflutter/show_placas_trailer/$baseEmpresa');
+    remolques.clear();
     for (var item in response.data) {
       final tempRemolque = Remolque.fromMap(item);
-      final index = vehiculos
-          .indexWhere((element) => element.placa == tempRemolque.placa);
-      if (index == -1) {
-        remolques.add(tempRemolque);
-        DBProvider.db
-            .getRemolqueById(tempRemolque.idRemolque)
-            .then((resultVehiculo) => {
-                  if (resultVehiculo?.idRemolque == null)
-                    DBProvider.db.nuevoRemolque(tempRemolque)
-                });
-      }
+      remolques.add(tempRemolque);
+      DBProvider.db.nuevoRemolque(tempRemolque);
     }
     isLoading = false;
     notifyListeners();
@@ -185,8 +154,10 @@ class InspeccionService extends ChangeNotifier {
 
     Response response = await dio.get(
         'https://apis.qinspecting.com/pflutter/list_items_x_placa/$baseEmpresa');
+    itemsInspeccion.clear();
     for (var item in response.data) {
       final tempItem = ItemInspeccion.fromMap(item);
+      itemsInspeccion.add(tempItem);
       DBProvider.db.nuevoItem(tempItem);
     }
     isLoading = false;
@@ -245,6 +216,59 @@ class InspeccionService extends ChangeNotifier {
           autoDismiss: true,
           background: Colors.orange,
           position: NotificationPosition.bottom);
+    }
+  }
+
+  Future<bool> getData(Empresa selectedEmpresa) async {
+    try {
+      final baseEmpresa = selectedEmpresa.nombreBase;
+      await loginService.getUserData(selectedEmpresa);
+      Response response = await dio.get(
+          'https://apis.qinspecting.com/pflutter/show_placas_cabezote/$baseEmpresa');
+      for (var item in response.data) {
+        final tempVehiculo = Vehiculo.fromMap(item);
+        DBProvider.db.nuevoVehiculo(tempVehiculo);
+      }
+      print('11111111');
+      Response responseTrailer = await dio.get(
+          'https://apis.qinspecting.com/pflutter/show_placas_trailer/$baseEmpresa');
+      for (var item in responseTrailer.data) {
+        final tempRemolque = Remolque.fromMap(item);
+        DBProvider.db.nuevoRemolque(tempRemolque);
+      }
+      print('22222222');
+      Response responseDepartamentos = await dio.get(
+          'https://apis.qinspecting.com/pflutter/list_departments/$baseEmpresa');
+      for (var item in responseDepartamentos.data) {
+        final tempDepartamento = Departamentos.fromMap(item);
+        DBProvider.db.nuevoDepartamento(tempDepartamento);
+      }
+      print('33333333');
+      Response responseCiudades = await dio
+          .get('https://apis.qinspecting.com/pflutter/list_city/$baseEmpresa');
+      for (var item in responseCiudades.data) {
+        final tempCiudad = Ciudades.fromMap(item);
+        DBProvider.db.nuevaCiudad(tempCiudad);
+      }
+      print('44444444');
+      Response responseItems = await dio.get(
+          'https://apis.qinspecting.com/pflutter/list_items_x_placa/$baseEmpresa');
+      for (var item in responseItems.data) {
+        final tempItem = ItemInspeccion.fromMap(item);
+        DBProvider.db.nuevoItem(tempItem);
+      }
+
+      return true;
+    } catch (error) {
+      // print('Error al subir foto ${error}');
+      showSimpleNotification(Text('Error: ${error}'),
+          leading: Icon(Icons.check),
+          autoDismiss: true,
+          background: Colors.orange,
+          position: NotificationPosition.bottom);
+
+      Future.error(error);
+      return false;
     }
   }
 }
