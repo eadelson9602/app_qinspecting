@@ -10,13 +10,7 @@ class LoadHomeScreen extends StatelessWidget {
   const LoadHomeScreen({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    final loginService = Provider.of<LoginService>(context, listen: false);
-    return FutureBuilder(
-        future: loginService.assingDataUserLogged(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return Text('Espere');
-          return const HomeScreen();
-        });
+    return const HomeScreen();
   }
 }
 
@@ -25,19 +19,22 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Al instanciar el servicio, hace la petición al servidor
-    // final inspeccionService = Provider.of<InspeccionService>(context);
-
-    // if (inspeccionService.isLoading) return const LoadingScreen();
+    final loginService = Provider.of<LoginService>(context);
     return Scaffold(
       appBar: const CustomAppBar().createAppBar(),
       drawer: const CustomDrawer(),
-      body: const SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: _HomePageBody(),
-        ),
-      ),
+      body: SafeArea(
+          child: FutureBuilder(
+              future: loginService.assingDataUserLogged(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Text('Esperesss');
+                }
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: _HomePageBody(),
+                );
+              })),
       bottomNavigationBar: const CustomNavigationBar(),
     );
   }
