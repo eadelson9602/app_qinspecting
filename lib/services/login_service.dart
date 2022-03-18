@@ -5,7 +5,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
 
 import 'package:app_qinspecting/models/models.dart';
-import 'package:image_picker/image_picker.dart';
 
 class LoginService extends ChangeNotifier {
   var dio = Dio();
@@ -45,11 +44,11 @@ class LoginService extends ChangeNotifier {
     return empresas;
   }
 
-  Future<UserData> getUserData() async {
+  Future<UserData> getUserData(Empresa empresa) async {
     isLoading = true;
     notifyListeners();
-    final baseEmpresa = selectedEmpresa.nombreBase;
-    final usuario = selectedEmpresa.usuarioUser;
+    final baseEmpresa = empresa.nombreBase;
+    final usuario = empresa.usuarioUser;
 
     Response response = await dio.get(
         'https://apis.qinspecting.com/pflutter/list_data_user/$baseEmpresa/$usuario');
@@ -60,12 +59,12 @@ class LoginService extends ChangeNotifier {
         key: 'userData', value: tempUserData.toJson().toString());
 
     await storage.write(
-        key: 'empresaSelected', value: selectedEmpresa.toJson().toString());
+        key: 'empresaSelected', value: empresa.toJson().toString());
 
     userDataLogged = tempUserData;
 
     DBProvider.db.nuevoUser(tempUserData);
-    DBProvider.db.nuevaEmpresa(selectedEmpresa);
+    DBProvider.db.nuevaEmpresa(empresa);
 
     isLoading = false;
     notifyListeners();
