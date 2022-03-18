@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:app_qinspecting/screens/screens.dart';
 import 'package:app_qinspecting/services/services.dart';
 
 class GetDataScreen extends StatelessWidget {
@@ -15,14 +16,16 @@ class GetDataScreen extends StatelessWidget {
             future: inspeccionService.getData(loginService.selectedEmpresa),
             builder: (ctx, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return LoadHomeScreen();
               } else {
-                return Center(
-                  child: Text(
-                    'Cargado al 100',
-                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                  ),
-                );
+                Future.microtask(() {
+                  Navigator.pushReplacement(
+                      context,
+                      PageRouteBuilder(
+                          pageBuilder: (_, __, ___) => HomeScreen(),
+                          transitionDuration: Duration(seconds: 0)));
+                });
+                return Container();
               }
             }));
   }
