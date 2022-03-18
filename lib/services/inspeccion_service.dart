@@ -229,28 +229,24 @@ class InspeccionService extends ChangeNotifier {
         final tempVehiculo = Vehiculo.fromMap(item);
         DBProvider.db.nuevoVehiculo(tempVehiculo);
       }
-      print('11111111');
       Response responseTrailer = await dio.get(
           'https://apis.qinspecting.com/pflutter/show_placas_trailer/$baseEmpresa');
       for (var item in responseTrailer.data) {
         final tempRemolque = Remolque.fromMap(item);
         DBProvider.db.nuevoRemolque(tempRemolque);
       }
-      print('22222222');
       Response responseDepartamentos = await dio.get(
           'https://apis.qinspecting.com/pflutter/list_departments/$baseEmpresa');
       for (var item in responseDepartamentos.data) {
         final tempDepartamento = Departamentos.fromMap(item);
         DBProvider.db.nuevoDepartamento(tempDepartamento);
       }
-      print('33333333');
       Response responseCiudades = await dio
           .get('https://apis.qinspecting.com/pflutter/list_city/$baseEmpresa');
       for (var item in responseCiudades.data) {
         final tempCiudad = Ciudades.fromMap(item);
         DBProvider.db.nuevaCiudad(tempCiudad);
       }
-      print('44444444');
       Response responseItems = await dio.get(
           'https://apis.qinspecting.com/pflutter/list_items_x_placa/$baseEmpresa');
       for (var item in responseItems.data) {
