@@ -127,7 +127,8 @@ class DBProvider {
   // CONSULTAS PARA MODULO INSPECCIONES
   Future<int?> nuevoDepartamento(Departamentos nuevoDepartamento) async {
     final db = await database;
-    final res = await db?.insert('Departamentos', nuevoDepartamento.toMap());
+    final res = await db?.insert('Departamentos', nuevoDepartamento.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
     return res;
   }
 
@@ -149,7 +150,8 @@ class DBProvider {
 
   Future<int?> nuevaCiudad(Ciudades nuevaCiudad) async {
     final db = await database;
-    final res = await db?.insert('Ciudades', nuevaCiudad.toMap());
+    final res = await db?.insert('Ciudades', nuevaCiudad.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
     return res;
   }
 
@@ -169,13 +171,15 @@ class DBProvider {
 
   Future<int?> nuevoVehiculo(Vehiculo nuevoVehiculo) async {
     final db = await database;
-    final res = await db?.insert('Vehiculos', nuevoVehiculo.toMap());
+    final res = await db?.insert('Vehiculos', nuevoVehiculo.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
     return res;
   }
 
   Future<int?> nuevoRemolque(Remolque nuevoRemolque) async {
     final db = await database;
-    final res = await db?.insert('Remolques', nuevoRemolque.toMap());
+    final res = await db?.insert('Remolques', nuevoRemolque.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
     return res;
   }
 
