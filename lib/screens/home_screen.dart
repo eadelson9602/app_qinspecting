@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -71,7 +73,7 @@ class _HomePageBody extends StatelessWidget {
       case 1:
         inspeccionProvider.listarDepartamentos();
         inspeccionProvider.listarVehiculos();
-        return FormValidateUserScreen();
+        return InspeccionForm();
       default:
         return const DesktopScreen();
     }
