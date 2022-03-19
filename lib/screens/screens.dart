@@ -12,5 +12,5 @@ export 'package:app_qinspecting/screens/profile_screen.dart';
 export 'package:app_qinspecting/screens/send_pending_inspection_screen.dart';
 export 'package:app_qinspecting/screens/settings_screen.dart';
 export 'package:app_qinspecting/screens/signature_screen.dart';
-export 'package:app_qinspecting/widgets/alert_dialog.dart';
+export 'package:app_qinspecting/screens/form_validate_user_screen.dart';
 export 'package:app_qinspecting/screens/get_data_screen.dart';
