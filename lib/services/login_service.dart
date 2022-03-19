@@ -17,10 +17,6 @@ class LoginService extends ChangeNotifier {
   late Empresa selectedEmpresa;
   late UserData userDataLogged;
 
-  // LoginService() {
-  //   assingDataUserLogged();
-  // }
-
   Future<List<Empresa>> login(int user, String password) async {
     final Map<String, String> loginData = {
       'user': '$user',
@@ -55,11 +51,9 @@ class LoginService extends ChangeNotifier {
 
     final tempUserData = UserData.fromJson(response.toString());
 
-    await storage.write(
-        key: 'userData', value: tempUserData.toJson().toString());
+    await storage.write(key: 'usuario', value: '${empresa.usuarioUser}');
 
-    await storage.write(
-        key: 'empresaSelected', value: empresa.toJson().toString());
+    await storage.write(key: 'idEmpresa', value: '${empresa.empId}');
 
     userDataLogged = tempUserData;
 
@@ -73,22 +67,27 @@ class LoginService extends ChangeNotifier {
   }
 
   Future logout() async {
-    await storage.delete(key: 'token');
+    await storage.delete(key: 'userData');
   }
 
   Future<String> readToken() async {
-    final userData = await storage.read(key: 'userData') ?? '';
-    if (userData.isNotEmpty) {
-      await assingDataUserLogged();
-    }
+    final userData = await storage.read(key: 'usuario') ?? '';
     return userData;
   }
 
-  Future<void> assingDataUserLogged() async {
-    String tempUserData = await storage.read(key: 'userData') ?? '';
-    userDataLogged = UserData.fromJson(tempUserData);
+  Future<Map<String, dynamic>> assingDataUserLogged() async {
+    String usuario = await storage.read(key: 'usuario') ?? '';
+    String idEmpresa = await storage.read(key: 'idEmpresa') ?? '';
+    if (usuario.isNotEmpty && idEmpresa.isNotEmpty) {
+      final tempDataUser =
+          await DBProvider.db.getUserById(int.parse(usuario)) as UserData;
+      userDataLogged = tempDataUser;
 
-    String tempEmpresa = await storage.read(key: 'empresaSelected') ?? '';
-    selectedEmpresa = Empresa.fromJson(tempEmpresa);
+      final tempDataEmp =
+          await DBProvider.db.getEmpresaById(int.parse(idEmpresa)) as Empresa;
+      selectedEmpresa = tempDataEmp;
+    }
+
+    return {"usuario": usuario, "idEmpresa": idEmpresa};
   }
 }
