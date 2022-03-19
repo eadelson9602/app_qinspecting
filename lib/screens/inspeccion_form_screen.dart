@@ -18,6 +18,8 @@ class InspeccionForm extends StatelessWidget {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
     final inspeccionService = Provider.of<InspeccionService>(context);
     final loginService = Provider.of<LoginService>(context);
+    final uiProvider = Provider.of<UiProvider>(context);
+    // GlobalKey<FormState> _abcKey = GlobalKey<FormState>();
 
     inspeccionService.resumePreoperacional.base =
         loginService.selectedEmpresa.nombreBase!;
@@ -206,10 +208,10 @@ class InspeccionForm extends StatelessWidget {
     if (inspeccionProvider.vehiculos.isEmpty) return const LoadingScreen();
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15),
+      padding: EdgeInsets.symmetric(
+          horizontal: uiProvider.selectedMenuOpt == 1 ? 0 : 15),
       child: SingleChildScrollView(
         child: Form(
-          key: inspeccionProvider.formKey,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
             children: [
@@ -397,7 +399,7 @@ class InspeccionForm extends StatelessWidget {
                         TextStyle(fontSize: 16))),
                 child: const Text('Realizar inspección'),
                 onPressed: () async {
-                  if (!inspeccionProvider.isValidForm()) return;
+                  // if (!_abcKey.currentState!.validate()) return;
                   var now = DateTime.now();
                   var formatter = DateFormat('yyyy-MM-dd hh:mm a');
                   String formattedDate = formatter.format(now);
