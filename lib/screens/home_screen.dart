@@ -30,7 +30,7 @@ class HomeScreen extends StatelessWidget {
               future: loginService.assingDataUserLogged(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: Text('Espere...'));
+                  return Center(child: CircularProgressIndicator());
                 }
                 return Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
