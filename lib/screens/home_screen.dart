@@ -28,7 +28,7 @@ class HomeScreen extends StatelessWidget {
               future: loginService.assingDataUserLogged(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Text('Esperesss');
+                  return Center(child: Text('Espere...'));
                 }
                 return Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
@@ -71,7 +71,7 @@ class _HomePageBody extends StatelessWidget {
       case 1:
         inspeccionProvider.listarDepartamentos();
         inspeccionProvider.listarVehiculos();
-        return AlertDialogValidate();
+        return FormValidateUserScreen();
       default:
         return const DesktopScreen();
     }
