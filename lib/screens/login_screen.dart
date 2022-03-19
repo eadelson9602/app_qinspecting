@@ -170,8 +170,6 @@ class ButtonLogin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loginForm = Provider.of<LoginFormProvider>(context);
-    final inspeccionService =
-        Provider.of<InspeccionService>(context, listen: false);
 
     return MaterialButton(
       elevation: 3,
@@ -214,8 +212,8 @@ class ButtonLogin extends StatelessWidget {
                                   trailing: const Icon(Icons.houseboat_rounded),
                                   onTap: () async {
                                     // Asignamos al servicio la empresa seleccionada
-                                    loginService.selectedEmpresa =
-                                        empresas[i].copy();
+                                    loginService.selectedEmpresa = empresas[i];
+                                    await loginService.getUserData(empresas[i]);
 
                                     Navigator.popAndPushNamed(
                                         context, 'get_data');
