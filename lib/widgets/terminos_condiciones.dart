@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/services/services.dart';
-import 'package:app_qinspecting/providers/providers.dart';
 
 class TerminosCondiciones extends StatelessWidget {
   const TerminosCondiciones({Key? key}) : super(key: key);
@@ -10,7 +9,6 @@ class TerminosCondiciones extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loginService = Provider.of<LoginService>(context);
-    final inspeccionProvider = Provider.of<InspeccionProvider>(context);
     final firmaService = Provider.of<FirmaService>(context);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 15),

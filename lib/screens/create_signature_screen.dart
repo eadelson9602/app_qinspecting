@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import 'package:signature/signature.dart';
 
 import 'package:app_qinspecting/screens/loading_screen.dart';
-import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/services/services.dart';
 
 class CreateSignatureScreen extends StatefulWidget {
