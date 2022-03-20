@@ -16,7 +16,19 @@ class CustomDrawer extends StatelessWidget {
         ),
         child: Drawer(
             child: ListView(
-          children: <Widget>[
+          children: [
+            Container(
+              padding: EdgeInsets.only(left: 10, top: 15),
+              child: Row(
+                children: [
+                  Image(
+                    image: AssetImage('assets/images/logo.png'),
+                    height: 40,
+                  ),
+                ],
+              ),
+            ),
+            Divider(),
             ListTile(
               leading: const Icon(
                 Icons.account_box,
