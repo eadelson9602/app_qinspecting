@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,24 +12,58 @@ class DesktopScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final loginService = Provider.of<LoginService>(context);
     final inspeccionService = Provider.of<InspeccionService>(context);
-
-    return Container(
-        height: double.infinity,
-        child: FutureBuilder(
-            future: inspeccionService
-                .getLatesInspections(loginService.selectedEmpresa),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              } else {
-                List data = snapshot.data as List;
-                return ListView.builder(
-                    itemCount: data.length,
-                    itemBuilder: (_, int i) {
-                      return CardInspeccionDesktop(
-                          resumenPreoperacional: data[i]);
-                    });
-              }
-            }));
+    return FutureBuilder(
+      future: Connectivity().checkConnectivity(),
+      builder: (context, snapshot) {
+        if (snapshot.data == ConnectivityResult.mobile ||
+            snapshot.data == ConnectivityResult.wifi) {
+          return Container(
+              height: double.infinity,
+              child: FutureBuilder(
+                  future: inspeccionService
+                      .getLatesInspections(loginService.selectedEmpresa),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    } else {
+                      List data = snapshot.data as List;
+                      return ListView.builder(
+                          itemCount: data.length,
+                          itemBuilder: (_, int i) {
+                            return CardInspeccionDesktop(
+                                resumenPreoperacional: data[i]);
+                          });
+                    }
+                  }));
+        } else {
+          return Center(
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 20,
+                ),
+                Image(
+                  image: AssetImage('assets/images/boot.gif'),
+                  // fit: BoxFit.cover,
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Text(
+                  'Oops!!',
+                  style: TextStyle(fontSize: 34, color: Colors.black38),
+                  textAlign: TextAlign.center,
+                ),
+                Text(
+                  'Debe conectarse a internet para ver las inspecciones enviadas...',
+                  style: TextStyle(fontSize: 24, color: Colors.black38),
+                  textAlign: TextAlign.center,
+                )
+              ],
+            ),
+          );
+        }
+      },
+    );
   }
 }
