@@ -90,7 +90,8 @@ class HeaderLogo extends StatelessWidget {
         height: 60,
         margin: const EdgeInsets.only(top: 60),
         child: const Image(
-          image: AssetImage('assets/images/logo.jpg'),
+          image: AssetImage('assets/images/logo.png'),
+          height: 70,
         ),
       ),
     );
