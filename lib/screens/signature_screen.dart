@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -52,21 +53,35 @@ class MyStatelessWidget extends StatelessWidget {
           drawer: const CustomDrawer(),
           body: TabBarView(
             children: [
-              Container(
-                child: FutureBuilder(
-                    future:
-                        firmaService.getInfoFirma(loginService.selectedEmpresa),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(child: CircularProgressIndicator());
-                      } else {
-                        final Firma dataFirma = snapshot.data as Firma;
-                        return CardFirma(
-                          infoFirma: dataFirma,
-                        );
-                      }
-                    }),
-              ),
+              FutureBuilder(
+                  future: Connectivity().checkConnectivity(),
+                  builder: (context, snapshot) {
+                    if (snapshot.data == ConnectivityResult.mobile ||
+                        snapshot.data == ConnectivityResult.wifi) {
+                      return Container(
+                        child: FutureBuilder(
+                            future: firmaService
+                                .getInfoFirma(loginService.selectedEmpresa),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                    child: CircularProgressIndicator());
+                              } else {
+                                final Firma dataFirma = snapshot.data as Firma;
+                                return CardFirma(
+                                  infoFirma: dataFirma,
+                                );
+                              }
+                            }),
+                      );
+                    } else {
+                      return Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: NoInternet(),
+                      );
+                    }
+                  }),
               Container(
                 child: TerminosCondiciones(),
               ),
@@ -85,7 +100,6 @@ class CardFirma extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sizeScreen = MediaQuery.of(context).size;
     return Padding(
       padding: const EdgeInsets.all(15),
       child: Container(
