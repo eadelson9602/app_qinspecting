@@ -5,10 +5,10 @@ class CustomAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return createAppBar();
+    return createAppBar(context);
   }
 
-  AppBar createAppBar() {
+  AppBar createAppBar(BuildContext context) {
     return AppBar(
       title: const Text('Qinspecting'),
       backgroundColor: Colors.green,

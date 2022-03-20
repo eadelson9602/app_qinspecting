@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -23,7 +21,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final loginService = Provider.of<LoginService>(context);
     return Scaffold(
-      appBar: const CustomAppBar().createAppBar(),
+      appBar: const CustomAppBar().createAppBar(context),
       drawer: const CustomDrawer(),
       body: SafeArea(
           child: FutureBuilder(

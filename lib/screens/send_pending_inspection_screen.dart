@@ -19,7 +19,7 @@ class SendPendingInspectionScree extends StatelessWidget {
     inspeccionProvider.cargarTodosInspecciones();
 
     return Scaffold(
-      appBar: const CustomAppBar().createAppBar(),
+      appBar: const CustomAppBar().createAppBar(context),
       drawer: const CustomDrawer(),
       body: Container(
         height: double.infinity,
