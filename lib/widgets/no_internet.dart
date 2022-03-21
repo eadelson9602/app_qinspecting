@@ -24,7 +24,7 @@ class NoInternet extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           Text(
-            'Debe conectarse a internet para ver las inspecciones enviadas...',
+            'Debe conectarse a internet...',
             style: TextStyle(fontSize: 24, color: Colors.black38),
             textAlign: TextAlign.center,
           )
