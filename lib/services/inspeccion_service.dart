@@ -1,9 +1,9 @@
-import 'package:app_qinspecting/services/services.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import 'package:app_qinspecting/models/models.dart';
+import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/providers/providers.dart';
 import 'package:overlay_support/overlay_support.dart';
 
@@ -17,6 +17,7 @@ class InspeccionService extends ChangeNotifier {
   final List<Vehiculo> vehiculos = [];
   final List<Remolque> remolques = [];
   final List<ItemInspeccion> itemsInspeccion = [];
+  final inspeccionProvider = InspeccionProvider();
 
   final resumePreoperacional = ResumenPreoperacional(
       resuPreFecha: '',
@@ -265,6 +266,89 @@ class InspeccionService extends ChangeNotifier {
 
       Future.error(error);
       return false;
+    }
+  }
+
+  Future<Map<String, dynamic>> sendInspeccion(
+      ResumenPreoperacional inspeccion) async {
+    try {
+      isSaving = true;
+      // Se envia la foto del kilometraje al servidor
+      Map<String, dynamic>? responseUploadKilometraje = await uploadImage(
+          path: inspeccion.resuPreFotokm!,
+          company: 'qinspecting',
+          folder: 'inspecciones');
+      inspeccion.resuPreFotokm = responseUploadKilometraje?['path'];
+
+      // Se envia la foto de la guia si tiene
+      if (inspeccion.resuPreGuia?.isNotEmpty ?? false) {
+        Map<String, dynamic>? responseUploadGuia = await uploadImage(
+            path: inspeccion.resuPreFotoguia!,
+            company: 'qinspecting',
+            folder: 'inspecciones');
+        inspeccion.resuPreFotoguia = responseUploadGuia?['path'];
+      }
+
+      // Asignamos el id del remolque si tiene
+      inspeccion.remolId = inspeccion.remolId != null && inspeccion.remolId != 0
+          ? inspeccion.remolId
+          : null;
+
+      // Guardamos el resumen del preoperacional en el server
+      final responseResumen = await insertPreoperacional(inspeccion);
+      // Consultamos en sqlite las respuestas
+      List<Item> respuestas =
+          await inspeccionProvider.cargarTodasRespuestas(inspeccion.id!);
+
+      List<Future> Promesas = [];
+      respuestas.forEach((element) {
+        // loginService.selectedEmpresa!.nombreQi
+        element.fkPreoperacional = responseResumen.idInspeccion;
+        if (element.adjunto != null) {
+          Promesas.add(uploadImage(
+                  path: element.adjunto!,
+                  company: 'qinspecting',
+                  folder: 'inspecciones')
+              .then((response) {
+            final responseUpload = ResponseUploadFile.fromMap(response!);
+            element.adjunto = responseUpload.path;
+
+            insertRespuestasPreoperacional(element);
+          }));
+        } else {
+          Promesas.add(insertRespuestasPreoperacional(element));
+        }
+      });
+
+      await inspeccionProvider.eliminarResumenPreoperacional(inspeccion.id!);
+
+      await inspeccionProvider.eliminarRespuestaPreoperacional(inspeccion.id!);
+
+      // Ejecutamos todas las peticiones
+      await Future.wait(Promesas).then((value) {
+        // print(value);
+      });
+
+      // show a notification at top of screen.
+      showSimpleNotification(Text(responseResumen.message!),
+          leading: Icon(Icons.check),
+          autoDismiss: true,
+          background: Colors.green,
+          position: NotificationPosition.bottom);
+
+      isSaving = false;
+      return responseResumen.toMap();
+    } catch (error) {
+      showSimpleNotification(Text('Error: ${error}'),
+          leading: Icon(Icons.check),
+          autoDismiss: true,
+          background: Colors.orange,
+          position: NotificationPosition.bottom);
+      return {
+        "message": 'Error al guardar inspección ${error}',
+        "ok": false,
+        "idInspeccion": 0
+      };
     }
   }
 }
