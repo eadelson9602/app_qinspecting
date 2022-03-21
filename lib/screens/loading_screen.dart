@@ -13,7 +13,7 @@ class LoadingScreen extends StatelessWidget {
         children: const [
           Center(
             child: Image(
-              image: AssetImage('assets/images/loading.gif'),
+              image: AssetImage('assets/images/loading_3.gif'),
               width: 180,
             ),
           ),
