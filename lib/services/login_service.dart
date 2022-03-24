@@ -67,7 +67,7 @@ class LoginService extends ChangeNotifier {
   }
 
   Future logout() async {
-    await storage.delete(key: 'userData');
+    await storage.delete(key: 'usuario');
   }
 
   Future<String> readToken() async {
