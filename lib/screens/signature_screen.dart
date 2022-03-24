@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -68,10 +69,48 @@ class MyStatelessWidget extends StatelessWidget {
                                 return Center(
                                     child: CircularProgressIndicator());
                               } else {
-                                final Firma dataFirma = snapshot.data as Firma;
-                                return CardFirma(
-                                  infoFirma: dataFirma,
-                                );
+                                if (snapshot.data != null) {
+                                  final Firma dataFirma =
+                                      snapshot.data as Firma;
+                                  return CardFirma(
+                                    infoFirma: dataFirma,
+                                  );
+                                } else {
+                                  return Column(
+                                    children: [
+                                      SizedBox(
+                                        height: 50.0,
+                                      ),
+                                      Image(
+                                        image: AssetImage(
+                                            'assets/images/boot_signature_2.gif'),
+                                        // fit: BoxFit.cover,
+                                      ),
+                                      SizedBox(
+                                        width: 250,
+                                        child: DefaultTextStyle(
+                                            style: TextStyle(
+                                                fontSize: 30.0,
+                                                fontFamily: 'Agne',
+                                                color: Colors.black),
+                                            child: AnimatedTextKit(
+                                              isRepeatingAnimation: true,
+                                              animatedTexts: [
+                                                TypewriterAnimatedText(
+                                                    'Oops!!! Debe realizar su firma',
+                                                    speed: Duration(
+                                                        milliseconds: 100),
+                                                    textAlign:
+                                                        TextAlign.center),
+                                              ],
+                                              onTap: () {
+                                                print("Tap Event");
+                                              },
+                                            )),
+                                      )
+                                    ],
+                                  );
+                                }
                               }
                             }),
                       );
