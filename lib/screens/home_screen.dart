@@ -19,22 +19,14 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loginService = Provider.of<LoginService>(context);
     return Scaffold(
       appBar: const CustomAppBar().createAppBar(context),
       drawer: const CustomDrawer(),
       body: SafeArea(
-          child: FutureBuilder(
-              future: loginService.assingDataUserLogged(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: _HomePageBody(),
-                );
-              })),
+          child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        child: _HomePageBody(),
+      )),
       bottomNavigationBar: const CustomNavigationBar(),
     );
   }
