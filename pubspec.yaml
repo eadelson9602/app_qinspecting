@@ -48,6 +48,7 @@ dependencies:
   flutter_secure_storage: ^5.0.2
   pdf: ^3.7.1
   permission_handler: ^9.2.0
+  animated_text_kit: ^4.2.1
 
 dev_dependencies:
   flutter_test:
