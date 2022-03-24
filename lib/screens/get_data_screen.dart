@@ -9,7 +9,8 @@ class GetDataScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final inspeccionService = Provider.of<InspeccionService>(context);
+    final inspeccionService =
+        Provider.of<InspeccionService>(context, listen: false);
     final loginService = Provider.of<LoginService>(context, listen: false);
     return Scaffold(
         body: FutureBuilder(
