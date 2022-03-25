@@ -406,19 +406,23 @@ class InspeccionForm extends StatelessWidget {
                 onPressed: () async {
                   if (!inspeccionProvider.isValidForm()) return;
                   if (inspeccionProvider.pathFileKilometraje == null ||
-                      inspeccionProvider.pathFileGuia == null) {
+                      (inspeccionProvider.tieneGuia &&
+                          inspeccionProvider.pathFileGuia == null)) {
                     String message =
                         inspeccionProvider.pathFileKilometraje == null
                             ? 'Ingrese foto del kilometraje!'
                             : 'Ingrese foto de la guía';
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(message),
+                      content: Text(
+                        message,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.black),
+                      ),
                       duration: const Duration(seconds: 2),
                       width: 280.0, // Width of the SnackBar.
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0, // Inner padding for SnackBar content.
-                      ),
+                      padding: const EdgeInsets.all(10),
                       behavior: SnackBarBehavior.floating,
+                      backgroundColor: Colors.orange,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       ),
