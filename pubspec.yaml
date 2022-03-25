@@ -49,6 +49,7 @@ dependencies:
   pdf: ^3.7.1
   permission_handler: ^9.2.0
   animated_text_kit: ^4.2.1
+  printing: ^5.7.4
 
 dev_dependencies:
   flutter_test:
