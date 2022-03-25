@@ -66,6 +66,7 @@ class MyApp extends StatelessWidget {
         'create_signature': (_) => const CreateSignatureScreen(),
         'check_auth': (_) => CheckScreen(),
         'get_data': (_) => GetDataScreen(),
+        'pdf': (_) => PdfScreen(),
       },
       // Se usa para controlar pagina que no existes 404
       onGenerateRoute: (settings) {

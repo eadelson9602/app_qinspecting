@@ -13,3 +13,4 @@ export 'package:app_qinspecting/screens/send_pending_inspection_screen.dart';
 export 'package:app_qinspecting/screens/settings_screen.dart';
 export 'package:app_qinspecting/screens/signature_screen.dart';
 export 'package:app_qinspecting/screens/get_data_screen.dart';
+export 'package:app_qinspecting/screens/pdf_screen.dart';
