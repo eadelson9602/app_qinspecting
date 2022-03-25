@@ -145,7 +145,7 @@ class CardFirma extends StatelessWidget {
         padding: EdgeInsets.all(15),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.all(Radius.circular(20)),
+          borderRadius: BorderRadius.all(Radius.circular(10)),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.5),
@@ -158,6 +158,7 @@ class CardFirma extends StatelessWidget {
         child: Column(
           children: [
             Image(
+                height: 270,
                 image: NetworkImage(
                     'https://apis.qinspecting.com/pflutter/${infoFirma.firma}')),
             SizedBox(height: 10),
