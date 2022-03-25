@@ -89,6 +89,10 @@ class InspeccionForm extends StatelessWidget {
                 prefixIcon: Icons.local_shipping,
                 hintText: '',
                 labelText: 'Placa del remolque'),
+            validator: (value) {
+              if (value == null) return 'Seleccione una placa';
+              return null;
+            },
             items: inspeccionProvider.remolques.map((e) {
               return DropdownMenuItem(
                 child: Text(e.placa),
@@ -212,6 +216,7 @@ class InspeccionForm extends StatelessWidget {
           horizontal: uiProvider.selectedMenuOpt == 1 ? 0 : 15),
       child: SingleChildScrollView(
         child: Form(
+          key: inspeccionProvider.formKey,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
             children: [
@@ -399,7 +404,27 @@ class InspeccionForm extends StatelessWidget {
                         TextStyle(fontSize: 16))),
                 child: const Text('Realizar inspección'),
                 onPressed: () async {
-                  // if (!_abcKey.currentState!.validate()) return;
+                  if (!inspeccionProvider.isValidForm()) return;
+                  if (inspeccionProvider.pathFileKilometraje == null ||
+                      inspeccionProvider.pathFileGuia == null) {
+                    String message =
+                        inspeccionProvider.pathFileKilometraje == null
+                            ? 'Ingrese foto del kilometraje!'
+                            : 'Ingrese foto de la guía';
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(message),
+                      duration: const Duration(seconds: 2),
+                      width: 280.0, // Width of the SnackBar.
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0, // Inner padding for SnackBar content.
+                      ),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                    ));
+                    return;
+                  }
                   var now = DateTime.now();
                   var formatter = DateFormat('yyyy-MM-dd hh:mm a');
                   String formattedDate = formatter.format(now);
