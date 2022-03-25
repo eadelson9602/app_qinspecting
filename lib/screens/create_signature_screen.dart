@@ -38,98 +38,92 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
     if (inspeccionService.isSaving) return LoadingScreen();
     return Scaffold(
       appBar: AppBar(),
-      body: Center(
-        child: Column(
+      body: Container(
+        color: Colors.red,
+        child: Signature(
+          controller: _controller,
+          height: screenSize.height * 0.9,
+          backgroundColor: Colors.grey[200]!,
+        ),
+      ),
+      bottomNavigationBar: //OK AND CLEAR BUTTONS
+          Container(
+        decoration: const BoxDecoration(color: Colors.grey),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisSize: MainAxisSize.max,
           children: [
-            //SIGNATURE CANVAS
-            Signature(
-              controller: _controller,
-              height: screenSize.height * 0.83,
-              backgroundColor: Colors.grey[200]!,
+            //SHOW EXPORTED IMAGE IN NEW ROUTE
+            IconButton(
+              icon: const Icon(Icons.check),
+              color: Colors.black,
+              onPressed: () async {
+                if (_controller.isNotEmpty) {
+                  inspeccionService.isSaving = true;
+                  final Uint8List? data = await _controller.toPngBytes();
+                  if (data != null) {
+                    // File('my_firma.png').writeAsBytes(data);
+
+                    final dir = await getExternalStorageDirectory();
+                    final myImagePath =
+                        '${dir!.path}/${loginService.userDataLogged.usuarioUser}.png';
+                    File imageFile = File(myImagePath);
+                    if (!await imageFile.exists()) {
+                      imageFile.create(recursive: true);
+                    }
+                    imageFile.writeAsBytesSync(data);
+                    // Se envia la foto de la firma al servidor
+                    Map<String, dynamic>? responseUploadFirma =
+                        await inspeccionService.uploadImage(
+                            path: myImagePath,
+                            company: 'qinspecting',
+                            folder: 'firmas');
+
+                    Map dataFirmaSave = {
+                      "base": loginService.selectedEmpresa.nombreBase,
+                      "Firma_Id": null,
+                      "Firma_acep_Ptd": "SI",
+                      "Firma_Firma": responseUploadFirma!['path'],
+                      "Pers_NumeroDoc": loginService.userDataLogged.usuarioUser
+                    };
+                    Map responseSaveFirma =
+                        await firmaService.insertSignature(dataFirmaSave);
+                    // show a notification at top of screen.
+                    inspeccionService.isSaving = false;
+                    firmaService.updateTerminos('NO');
+                    firmaService.updateTabIndex(0);
+                    showSimpleNotification(Text(responseSaveFirma['message']!),
+                        leading: Icon(Icons.check),
+                        autoDismiss: true,
+                        background: Colors.green,
+                        position: NotificationPosition.bottom);
+                    Navigator.pop(context);
+                  }
+                }
+              },
             ),
-            //OK AND CLEAR BUTTONS
-            Container(
-              decoration: const BoxDecoration(color: Colors.grey),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                mainAxisSize: MainAxisSize.max,
-                children: <Widget>[
-                  //SHOW EXPORTED IMAGE IN NEW ROUTE
-                  IconButton(
-                    icon: const Icon(Icons.check),
-                    color: Colors.black,
-                    onPressed: () async {
-                      if (_controller.isNotEmpty) {
-                        inspeccionService.isSaving = true;
-                        final Uint8List? data = await _controller.toPngBytes();
-                        if (data != null) {
-                          // File('my_firma.png').writeAsBytes(data);
-
-                          final dir = await getExternalStorageDirectory();
-                          final myImagePath =
-                              '${dir!.path}/${loginService.userDataLogged.usuarioUser}.png';
-                          File imageFile = File(myImagePath);
-                          if (!await imageFile.exists()) {
-                            imageFile.create(recursive: true);
-                          }
-                          imageFile.writeAsBytesSync(data);
-                          // Se envia la foto de la firma al servidor
-                          Map<String, dynamic>? responseUploadFirma =
-                              await inspeccionService.uploadImage(
-                                  path: myImagePath,
-                                  company: 'qinspecting',
-                                  folder: 'firmas');
-
-                          Map dataFirmaSave = {
-                            "base": loginService.selectedEmpresa.nombreBase,
-                            "Firma_Id": null,
-                            "Firma_acep_Ptd": "SI",
-                            "Firma_Firma": responseUploadFirma!['path'],
-                            "Pers_NumeroDoc":
-                                loginService.userDataLogged.usuarioUser
-                          };
-                          Map responseSaveFirma =
-                              await firmaService.insertSignature(dataFirmaSave);
-                          // show a notification at top of screen.
-                          inspeccionService.isSaving = false;
-                          firmaService.updateTerminos('NO');
-                          firmaService.updateTabIndex(0);
-                          showSimpleNotification(
-                              Text(responseSaveFirma['message']!),
-                              leading: Icon(Icons.check),
-                              autoDismiss: true,
-                              background: Colors.green,
-                              position: NotificationPosition.bottom);
-                          Navigator.pop(context);
-                        }
-                      }
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.undo),
-                    color: Colors.black,
-                    onPressed: () {
-                      setState(() => _controller.undo());
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.redo),
-                    color: Colors.black,
-                    onPressed: () {
-                      setState(() => _controller.redo());
-                    },
-                  ),
-                  //CLEAR CANVAS
-                  IconButton(
-                    icon: const Icon(Icons.clear),
-                    color: Colors.black,
-                    onPressed: () {
-                      setState(() => _controller.clear());
-                    },
-                  ),
-                ],
-              ),
-            )
+            IconButton(
+              icon: const Icon(Icons.undo),
+              color: Colors.black,
+              onPressed: () {
+                setState(() => _controller.undo());
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.redo),
+              color: Colors.black,
+              onPressed: () {
+                setState(() => _controller.redo());
+              },
+            ),
+            //CLEAR CANVAS
+            IconButton(
+              icon: const Icon(Icons.clear),
+              color: Colors.black,
+              onPressed: () {
+                setState(() => _controller.clear());
+              },
+            ),
           ],
         ),
       ),
