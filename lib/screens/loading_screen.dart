@@ -13,7 +13,7 @@ class LoadingScreen extends StatelessWidget {
         children: const [
           Center(
             child: Image(
-              image: AssetImage('assets/images/loading_3.gif'),
+              image: AssetImage('assets/images/loading_4.gif'),
               width: 180,
             ),
           ),
@@ -23,9 +23,7 @@ class LoadingScreen extends StatelessWidget {
           Text(
             'Cargando...',
             style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                color: Colors.orange),
+                fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black),
           )
         ],
       ),
