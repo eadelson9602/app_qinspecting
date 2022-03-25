@@ -61,7 +61,8 @@ class ContentCardInspectionPending extends StatelessWidget {
         itemCount: allInspecciones.length,
         itemBuilder: (_, int i) {
           return Card(
-            child: inspeccionService.isSaving
+            child: inspeccionService.isSaving &&
+                    inspeccionService.indexSelected == i
                 ? Container(
                     padding: EdgeInsets.all(20),
                     child: Column(children: [
@@ -96,7 +97,7 @@ class ContentCardInspectionPending extends StatelessWidget {
                               'Eliminar',
                               style: TextStyle(color: Colors.red),
                             ),
-                            onPressed: inspeccionService.isLoading
+                            onPressed: inspeccionService.isSaving
                                 ? null
                                 : () async {
                                     final responseDelete =
@@ -120,9 +121,10 @@ class ContentCardInspectionPending extends StatelessWidget {
                           const SizedBox(width: 8),
                           TextButton(
                               child: const Text('Guardar'),
-                              onPressed: inspeccionService.isLoading
+                              onPressed: inspeccionService.isSaving
                                   ? null
                                   : () {
+                                      inspeccionService.indexSelected = i;
                                       inspeccionService
                                           .sendInspeccion(allInspecciones[i]);
                                     }),
