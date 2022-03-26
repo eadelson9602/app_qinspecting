@@ -259,12 +259,11 @@ class ButtonLogin extends StatelessWidget {
                                           empresas[i].copy();
                                       loginService.userDataLogged = userData;
                                       await storage.write(
-                                          key: 'userData',
-                                          value: userData.toJson().toString());
+                                          key: 'usuario',
+                                          value: '${empresas[i].usuarioUser}');
                                       await storage.write(
-                                          key: 'empresaSelected',
-                                          value:
-                                              empresas[i].toJson().toString());
+                                          key: 'idEmpresa',
+                                          value: '${empresas[i].empId}');
                                       Navigator.pushNamed(context, 'home');
                                     },
                                   ),
