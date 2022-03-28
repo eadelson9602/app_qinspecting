@@ -50,6 +50,7 @@ dependencies:
   permission_handler: ^9.2.0
   animated_text_kit: ^4.2.1
   printing: ^5.7.4
+  date_range_form_field: ^1.0.2
 
 dev_dependencies:
   flutter_test:
