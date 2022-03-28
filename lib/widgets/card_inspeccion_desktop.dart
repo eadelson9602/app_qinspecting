@@ -1,12 +1,8 @@
-import 'package:app_qinspecting/providers/providers.dart';
 import 'package:flutter/material.dart';
-import 'package:app_qinspecting/models/models.dart';
-import 'dart:io';
-import 'package:overlay_support/overlay_support.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 import 'package:provider/provider.dart';
+
+import 'package:app_qinspecting/models/models.dart';
+import 'package:app_qinspecting/providers/providers.dart';
 
 class CardInspeccionDesktop extends StatelessWidget {
   const CardInspeccionDesktop({Key? key, required this.resumenPreoperacional})
@@ -49,14 +45,12 @@ class CardInspeccionDesktop extends StatelessWidget {
                           color: Colors.red),
                       onPressed: () async {
                         // Consultamos en sqlite las respuestas
-                        List<Item> respuestas = await inspeccionProvider
-                            .cargarTodasRespuestas(resumenPreoperacional.id!);
-                        await generatePdf(resumenPreoperacional, respuestas);
-                        showSimpleNotification(Text('Pdf Generado'),
-                            leading: Icon(Icons.check),
-                            autoDismiss: true,
-                            background: Colors.green,
-                            position: NotificationPosition.bottom);
+                        List<Item> respuestas =
+                            await inspeccionProvider.cargarTodasRespuestas(
+                                resumenPreoperacional.resuPreId!);
+
+                        Navigator.pushNamed(context, 'pdf',
+                            arguments: [resumenPreoperacional, respuestas]);
                       },
                     ),
                     IconButton(
@@ -177,57 +171,5 @@ class CardInspeccionDesktop extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  // Genera el pdf
-  Future<void> generatePdf(ResumenPreoperacional resumenPreoperacional,
-      List<Item> respuestas) async {
-    final pdf = pw.Document();
-    respuestas.forEach((element) {
-      print(element.idItem);
-    });
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) => pw.Container(
-          child: pw.Table(children: [
-            pw.TableRow(
-                decoration: pw.BoxDecoration(
-                  border: pw.Border.all(
-                      width: 1,
-                      style: pw.BorderStyle.solid,
-                      color: PdfColors.black),
-                ),
-                children: [
-                  pw.Row(children: [
-                    pw.Text('title'),
-                    pw.Text('title'),
-                    pw.Text('title'),
-                    pw.Text('title'),
-                    pw.Text('title'),
-                  ]),
-                ]),
-            pw.TableRow(
-              decoration: pw.BoxDecoration(
-                border: pw.Border.all(
-                    width: 1,
-                    style: pw.BorderStyle.solid,
-                    color: PdfColors.black),
-              ),
-              children: [
-                pw.Text('Hola'),
-                pw.Text('Hola'),
-                pw.Text('Hola'),
-                pw.Text('Hola'),
-              ],
-            )
-          ]),
-        ),
-      ),
-    );
-
-    final dir = await getExternalStorageDirectory();
-    final myPdfPath = '${dir!.path}/${resumenPreoperacional.id}.pdf';
-    final file = File(myPdfPath);
-    await file.writeAsBytes(await pdf.save());
   }
 }
