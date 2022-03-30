@@ -34,7 +34,7 @@ class DesktopScreen extends StatelessWidget {
                       } else {
                         List data = snapshot.data as List;
                         return Container(
-                          height: sizeScreen.height * 0.7,
+                          height: sizeScreen.height * 1,
                           child: ListView.builder(
                               itemCount: data.length,
                               itemBuilder: (_, int i) {
@@ -55,11 +55,12 @@ class DesktopScreen extends StatelessWidget {
   Form DateRange(InspeccionService inspeccionService, sizeScreen) {
     return Form(
       key: inspeccionService.formKey,
-      child: Row(
+      child: Column(
         children: [
           DateRangeField(
-              width: sizeScreen.width * 0.64,
+              width: sizeScreen.width * 1,
               enabled: true,
+              margin: EdgeInsets.only(bottom: 0, top: 20),
               decoration: InputDecoration(
                 labelText: 'Rango de fecha',
                 prefixIcon: Icon(Icons.date_range),
@@ -80,12 +81,9 @@ class DesktopScreen extends StatelessWidget {
               }),
           ElevatedButton(
             child: Container(
-              // width: 50,
+              width: 70,
               child: Row(
-                children: [
-                  Icon(Icons.search),
-                  // Text('Buscar')
-                ],
+                children: [Icon(Icons.search), Text('Buscar')],
               ),
             ),
             onPressed: () {
