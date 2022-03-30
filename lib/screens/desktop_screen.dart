@@ -6,9 +6,15 @@ import 'package:provider/provider.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 
-class DesktopScreen extends StatelessWidget {
+class DesktopScreen extends StatefulWidget {
   const DesktopScreen({Key? key}) : super(key: key);
 
+  @override
+  State<DesktopScreen> createState() => _DesktopScreenState();
+}
+
+class _DesktopScreenState extends State<DesktopScreen> {
+  GlobalKey<FormState> myFormKey = new GlobalKey();
   @override
   Widget build(BuildContext context) {
     final loginService = Provider.of<LoginService>(context);
@@ -54,7 +60,7 @@ class DesktopScreen extends StatelessWidget {
 
   Form DateRange(InspeccionService inspeccionService, sizeScreen) {
     return Form(
-      key: inspeccionService.formKey,
+      key: myFormKey,
       child: Column(
         children: [
           DateRangeField(
@@ -87,8 +93,11 @@ class DesktopScreen extends StatelessWidget {
               ),
             ),
             onPressed: () {
-              if (!inspeccionService.isValidForm()) return;
-              print(inspeccionService.myDateRange.toString().split(' '));
+              bool isValidForm() {
+                return myFormKey.currentState?.validate() ?? false;
+              }
+
+              if (!isValidForm()) return;
             },
           ),
         ],
