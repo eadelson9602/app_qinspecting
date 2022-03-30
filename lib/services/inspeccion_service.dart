@@ -41,10 +41,6 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool isValidForm() {
-    return formKey.currentState?.validate() ?? false;
-  }
-
   Future<List<ResumenPreoperacional>> getLatesInspections(
       Empresa selectedEmpresa) async {
     final connectivityResult = await (Connectivity().checkConnectivity());
