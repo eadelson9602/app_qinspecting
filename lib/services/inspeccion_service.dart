@@ -19,6 +19,8 @@ class InspeccionService extends ChangeNotifier {
   final List<ItemInspeccion> itemsInspeccion = [];
   final inspeccionProvider = InspeccionProvider();
   int indexSelected = 0;
+  DateTimeRange? myDateRange;
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   final resumePreoperacional = ResumenPreoperacional(
       resuPreFecha: '',
@@ -33,6 +35,15 @@ class InspeccionService extends ChangeNotifier {
       remolId: 0,
       ciuId: 0,
       base: '');
+
+  void updateDate(DateTimeRange value) {
+    myDateRange = value;
+    notifyListeners();
+  }
+
+  bool isValidForm() {
+    return formKey.currentState?.validate() ?? false;
+  }
 
   Future<List<ResumenPreoperacional>> getLatesInspections(
       Empresa selectedEmpresa) async {
