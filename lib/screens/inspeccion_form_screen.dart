@@ -5,27 +5,20 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import 'package:app_qinspecting/providers/providers.dart';
-import 'package:app_qinspecting/screens/screens.dart';
+// import 'package:app_qinspecting/screens/screens.dart';
 import 'package:app_qinspecting/services/inspeccion_service.dart';
 import 'package:app_qinspecting/ui/input_decorations.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 
-class InspeccionForm extends StatefulWidget {
+class InspeccionForm extends StatelessWidget {
   const InspeccionForm({Key? key}) : super(key: key);
 
-  @override
-  State<InspeccionForm> createState() => _InspeccionFormState();
-}
-
-class _InspeccionFormState extends State<InspeccionForm> {
-  GlobalKey<FormState> myFormKey = new GlobalKey();
   @override
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
     final inspeccionService = Provider.of<InspeccionService>(context);
     final loginService = Provider.of<LoginService>(context);
     final uiProvider = Provider.of<UiProvider>(context);
-    // GlobalKey<FormState> _abcKey = GlobalKey<FormState>();
 
     inspeccionService.resumePreoperacional.base =
         loginService.selectedEmpresa.nombreBase!;
@@ -215,14 +208,14 @@ class _InspeccionFormState extends State<InspeccionForm> {
             );
     }
 
-    if (inspeccionProvider.vehiculos.isEmpty) return const LoadingScreen();
+    // if (inspeccionProvider.vehiculos.isEmpty) return const LoadingScreen();
 
     return Container(
       padding: EdgeInsets.symmetric(
           horizontal: uiProvider.selectedMenuOpt == 1 ? 0 : 15),
       child: SingleChildScrollView(
         child: Form(
-          key: myFormKey,
+          key: inspeccionProvider.formKey,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
             children: [
@@ -410,11 +403,8 @@ class _InspeccionFormState extends State<InspeccionForm> {
                         TextStyle(fontSize: 16))),
                 child: const Text('Realizar inspección'),
                 onPressed: () async {
-                  bool isValidForm() {
-                    return myFormKey.currentState?.validate() ?? false;
-                  }
+                  if (!inspeccionProvider.isValidForm()) return;
 
-                  if (!isValidForm()) return;
                   if (inspeccionProvider.pathFileKilometraje == null ||
                       (inspeccionProvider.tieneGuia &&
                           inspeccionProvider.pathFileGuia == null)) {
