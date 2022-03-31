@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:app_qinspecting/screens/home_screen.dart';
 import 'package:flutter/material.dart';
@@ -170,6 +172,8 @@ class ButtonLogin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loginForm = Provider.of<LoginFormProvider>(context);
+    final loginService = Provider.of<LoginService>(context, listen: false);
+    final storage = new FlutterSecureStorage();
 
     return MaterialButton(
       elevation: 3,
@@ -179,16 +183,12 @@ class ButtonLogin extends StatelessWidget {
       onPressed: loginForm.isLoading
           ? null
           : () async {
+              if (!loginForm.isValidForm()) return;
+              loginForm.isLoading = true;
               try {
                 FocusScope.of(context).unfocus();
-                if (!loginForm.isValidForm()) return;
-                loginForm.isLoading = true;
-                final storage = new FlutterSecureStorage();
-
                 var connectivityResult =
                     await (Connectivity().checkConnectivity());
-                final loginService =
-                    Provider.of<LoginService>(context, listen: false);
                 if (connectivityResult == ConnectivityResult.mobile ||
                     connectivityResult == ConnectivityResult.wifi) {
                   final empresas = await loginService.login(
@@ -223,7 +223,6 @@ class ButtonLogin extends StatelessWidget {
                             ));
                   } else {
                     loginForm.existUser = false;
-                    loginForm.isLoading = false;
                     // TODO => Notificamos que no existe en el sistema
                   }
                 } else {
@@ -272,9 +271,17 @@ class ButtonLogin extends StatelessWidget {
                     } else {
                       loginForm.existUser = false;
                     }
+                  } else {
+                    showSimpleNotification(
+                      Text(
+                          'Debe haber iniciado sesión anteriormente, para ingresar en offline'),
+                      leading: Icon(Icons.info),
+                      autoDismiss: true,
+                      background: Colors.orange,
+                      position: NotificationPosition.bottom,
+                    );
                   }
                 }
-                loginForm.isLoading = false;
               } catch (error) {
                 showSimpleNotification(
                   Text('Error al iniciar sesión ${error}'),
@@ -283,6 +290,8 @@ class ButtonLogin extends StatelessWidget {
                   background: Colors.orange,
                   position: NotificationPosition.bottom,
                 );
+              } finally {
+                loginForm.isLoading = false;
               }
             },
     );
