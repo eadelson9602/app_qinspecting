@@ -83,6 +83,16 @@ class InspeccionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<bool> listarDataInit() async {
+    final resVehiculos = await DBProvider.db.getAllVehiculos();
+    vehiculos = [...resVehiculos!];
+
+    final resDepartamentos = await DBProvider.db.getAllDepartamentos();
+    departamentos = [...resDepartamentos!];
+    notifyListeners();
+    return true;
+  }
+
   listarDepartamentos() async {
     final resDepartamentos = await DBProvider.db.getAllDepartamentos();
     departamentos = [...resDepartamentos!];
