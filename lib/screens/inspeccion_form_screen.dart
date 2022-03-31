@@ -10,9 +10,15 @@ import 'package:app_qinspecting/services/inspeccion_service.dart';
 import 'package:app_qinspecting/ui/input_decorations.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 
-class InspeccionForm extends StatelessWidget {
+class InspeccionForm extends StatefulWidget {
   const InspeccionForm({Key? key}) : super(key: key);
 
+  @override
+  State<InspeccionForm> createState() => _InspeccionFormState();
+}
+
+class _InspeccionFormState extends State<InspeccionForm> {
+  GlobalKey<FormState> myFormKey = new GlobalKey();
   @override
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
@@ -216,7 +222,7 @@ class InspeccionForm extends StatelessWidget {
           horizontal: uiProvider.selectedMenuOpt == 1 ? 0 : 15),
       child: SingleChildScrollView(
         child: Form(
-          key: inspeccionProvider.formKey,
+          key: myFormKey,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
             children: [
@@ -404,7 +410,11 @@ class InspeccionForm extends StatelessWidget {
                         TextStyle(fontSize: 16))),
                 child: const Text('Realizar inspección'),
                 onPressed: () async {
-                  if (!inspeccionProvider.isValidForm()) return;
+                  bool isValidForm() {
+                    return myFormKey.currentState?.validate() ?? false;
+                  }
+
+                  if (!isValidForm()) return;
                   if (inspeccionProvider.pathFileKilometraje == null ||
                       (inspeccionProvider.tieneGuia &&
                           inspeccionProvider.pathFileGuia == null)) {
