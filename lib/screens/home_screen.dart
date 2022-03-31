@@ -61,9 +61,17 @@ class _HomePageBody extends StatelessWidget {
         inspeccionProvider.itemsInspeccionRemolque.clear();
         return const DesktopScreen();
       case 1:
-        inspeccionProvider.listarDepartamentos();
-        inspeccionProvider.listarVehiculos();
-        return InspeccionForm();
+        // inspeccionProvider.listarDepartamentos();
+        // inspeccionProvider.listarVehiculos();
+        return FutureBuilder(
+            future: inspeccionProvider.listarDataInit(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const LoadingScreen();
+              } else {
+                return InspeccionForm();
+              }
+            });
       default:
         return const DesktopScreen();
     }
