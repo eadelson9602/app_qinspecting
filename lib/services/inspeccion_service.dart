@@ -280,72 +280,89 @@ class InspeccionService extends ChangeNotifier {
   Future<Map<String, dynamic>> sendInspeccion(
       ResumenPreoperacional inspeccion) async {
     try {
-      isSaving = true;
-      // Se envia la foto del kilometraje al servidor
-      Map<String, dynamic>? responseUploadKilometraje = await uploadImage(
-          path: inspeccion.resuPreFotokm!,
-          company: 'qinspecting',
-          folder: 'inspecciones');
-      inspeccion.resuPreFotokm = responseUploadKilometraje?['path'];
-
-      // Se envia la foto de la guia si tiene
-      if (inspeccion.resuPreGuia?.isNotEmpty ?? false) {
-        Map<String, dynamic>? responseUploadGuia = await uploadImage(
-            path: inspeccion.resuPreFotoguia!,
+      var connectivityResult = await (Connectivity().checkConnectivity());
+      if (connectivityResult == ConnectivityResult.mobile ||
+          connectivityResult == ConnectivityResult.wifi) {
+        isSaving = true;
+        // Se envia la foto del kilometraje al servidor
+        Map<String, dynamic>? responseUploadKilometraje = await uploadImage(
+            path: inspeccion.resuPreFotokm!,
             company: 'qinspecting',
             folder: 'inspecciones');
-        inspeccion.resuPreFotoguia = responseUploadGuia?['path'];
-      }
+        inspeccion.resuPreFotokm = responseUploadKilometraje?['path'];
 
-      // Asignamos el id del remolque si tiene
-      inspeccion.remolId = inspeccion.remolId != null && inspeccion.remolId != 0
-          ? inspeccion.remolId
-          : null;
-
-      // Guardamos el resumen del preoperacional en el server
-      final responseResumen = await insertPreoperacional(inspeccion);
-      // Consultamos en sqlite las respuestas
-      List<Item> respuestas =
-          await inspeccionProvider.cargarTodasRespuestas(inspeccion.id!);
-
-      List<Future> Promesas = [];
-      respuestas.forEach((element) {
-        // loginService.selectedEmpresa!.nombreQi
-        element.fkPreoperacional = responseResumen.idInspeccion;
-        if (element.adjunto != null) {
-          Promesas.add(uploadImage(
-                  path: element.adjunto!,
-                  company: 'qinspecting',
-                  folder: 'inspecciones')
-              .then((response) {
-            final responseUpload = ResponseUploadFile.fromMap(response!);
-            element.adjunto = responseUpload.path;
-
-            insertRespuestasPreoperacional(element);
-          }));
-        } else {
-          Promesas.add(insertRespuestasPreoperacional(element));
+        // Se envia la foto de la guia si tiene
+        if (inspeccion.resuPreGuia?.isNotEmpty ?? false) {
+          Map<String, dynamic>? responseUploadGuia = await uploadImage(
+              path: inspeccion.resuPreFotoguia!,
+              company: 'qinspecting',
+              folder: 'inspecciones');
+          inspeccion.resuPreFotoguia = responseUploadGuia?['path'];
         }
-      });
 
-      await inspeccionProvider.eliminarResumenPreoperacional(inspeccion.id!);
+        // Asignamos el id del remolque si tiene
+        inspeccion.remolId =
+            inspeccion.remolId != null && inspeccion.remolId != 0
+                ? inspeccion.remolId
+                : null;
 
-      await inspeccionProvider.eliminarRespuestaPreoperacional(inspeccion.id!);
+        // Guardamos el resumen del preoperacional en el server
+        final responseResumen = await insertPreoperacional(inspeccion);
+        // Consultamos en sqlite las respuestas
+        List<Item> respuestas =
+            await inspeccionProvider.cargarTodasRespuestas(inspeccion.id!);
 
-      // Ejecutamos todas las peticiones
-      await Future.wait(Promesas).then((value) {
-        // print(value);
-      });
+        List<Future> Promesas = [];
+        respuestas.forEach((element) {
+          // loginService.selectedEmpresa!.nombreQi
+          element.fkPreoperacional = responseResumen.idInspeccion;
+          if (element.adjunto != null) {
+            Promesas.add(uploadImage(
+                    path: element.adjunto!,
+                    company: 'qinspecting',
+                    folder: 'inspecciones')
+                .then((response) {
+              final responseUpload = ResponseUploadFile.fromMap(response!);
+              element.adjunto = responseUpload.path;
 
-      // show a notification at top of screen.
-      showSimpleNotification(Text(responseResumen.message!),
-          leading: Icon(Icons.check),
+              insertRespuestasPreoperacional(element);
+            }));
+          } else {
+            Promesas.add(insertRespuestasPreoperacional(element));
+          }
+        });
+
+        await inspeccionProvider.eliminarResumenPreoperacional(inspeccion.id!);
+
+        // Ejecutamos todas las peticiones
+        await Future.wait(Promesas).then((value) async {
+          await inspeccionProvider
+              .eliminarRespuestaPreoperacional(inspeccion.id!);
+          // print(value);
+        });
+        // show a notification at top of screen.
+        showSimpleNotification(Text(responseResumen.message!),
+            leading: Icon(Icons.check),
+            autoDismiss: true,
+            background: Colors.green,
+            position: NotificationPosition.bottom);
+
+        isSaving = false;
+        return responseResumen.toMap();
+      } else {
+        showSimpleNotification(
+          Text('Debe conectarse a internet'),
+          leading: Icon(Icons.wifi_off),
           autoDismiss: true,
-          background: Colors.green,
-          position: NotificationPosition.bottom);
-
-      isSaving = false;
-      return responseResumen.toMap();
+          background: Colors.orange,
+          position: NotificationPosition.bottom,
+        );
+        return {
+          "message": 'Sin conexión a internet',
+          "ok": false,
+          "idInspeccion": 0
+        };
+      }
     } catch (error) {
       showSimpleNotification(Text('Error: ${error}'),
           leading: Icon(Icons.check),
