@@ -25,13 +25,20 @@ class _DesktopScreenState extends State<DesktopScreen> {
       builder: (context, snapshot) {
         if (snapshot.data == ConnectivityResult.mobile ||
             snapshot.data == ConnectivityResult.wifi) {
-          return ListView(
-              physics:
-                  NeverScrollableScrollPhysics(), // <-- this will disable scroll
-              shrinkWrap: true,
-              children: [
-                DateRange(inspeccionService, sizeScreen),
-                FutureBuilder(
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DateRange(inspeccionService, sizeScreen),
+              SizedBox(
+                height: 15,
+              ),
+              Text(
+                'Inspecciones realizadas',
+                style: TextStyle(fontSize: 18),
+              ),
+              SizedBox(
+                height: 300,
+                child: FutureBuilder(
                     future: inspeccionService
                         .getLatesInspections(loginService.selectedEmpresa),
                     builder: (context, snapshot) {
@@ -39,18 +46,36 @@ class _DesktopScreenState extends State<DesktopScreen> {
                         return Center(child: CircularProgressIndicator());
                       } else {
                         List data = snapshot.data as List;
-                        return Container(
-                          height: sizeScreen.height * 1,
+                        return Expanded(
                           child: ListView.builder(
+                              shrinkWrap: true,
+                              scrollDirection: Axis.horizontal,
                               itemCount: data.length,
-                              itemBuilder: (_, int i) {
-                                return CardInspeccionDesktop(
-                                    resumenPreoperacional: data[i]);
-                              }),
+                              itemBuilder: (_, int i) => CardInspeccionDesktop(
+                                  resumenPreoperacional: data[i])),
                         );
                       }
-                    })
-              ]);
+                    }),
+              ),
+              // Text(
+              //   'Demo Headline 2',
+              //   style: TextStyle(fontSize: 18),
+              // ),
+              // Expanded(
+              //   child: ListView.builder(
+              //     shrinkWrap: true,
+              //     itemBuilder: (ctx, int) {
+              //       return Card(
+              //         child: ListTile(
+              //             title: Text('Motivation $int'),
+              //             subtitle:
+              //                 Text('this is a description of the motivation')),
+              //       );
+              //     },
+              //   ),
+              // ),
+            ],
+          );
         } else {
           return NoInternet();
         }
