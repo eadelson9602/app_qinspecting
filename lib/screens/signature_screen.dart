@@ -33,6 +33,7 @@ class MyStatelessWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final firmaService = Provider.of<FirmaService>(context);
     final loginService = Provider.of<LoginService>(context);
+    final appBar = CustomAppBar();
     return DefaultTabController(
       length: tabs.length,
       initialIndex: firmaService.indexTabaCreateSignature,
@@ -40,17 +41,7 @@ class MyStatelessWidget extends StatelessWidget {
         final TabController tabController = DefaultTabController.of(context)!;
         tabController.index = firmaService.indexTabaCreateSignature;
         return Scaffold(
-          appBar: AppBar(
-            title: const Text('Qinspecting'),
-            backgroundColor: Colors.green,
-            actions: [
-              IconButton(
-                  onPressed: () {}, icon: const Icon(Icons.notifications))
-            ],
-            bottom: const TabBar(
-              tabs: tabs,
-            ),
-          ),
+          appBar: appBar.createAppBar(context),
           drawer: const CustomDrawer(),
           body: TabBarView(
             children: [
