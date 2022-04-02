@@ -34,11 +34,21 @@ class SendPendingInspectionScree extends StatelessWidget {
                 inspeccionProvider: inspeccionProvider),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton(
-        mini: true,
-        onPressed: () => print('tab'),
-        child: Icon(Icons.upload_rounded),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   mini: true,
+      //   onPressed: inspeccionService.isSaving
+      //       ? null
+      //       : () async {
+      //           List<Future> promesas = [];
+      //           allInspecciones.forEach((element) {
+      //             promesas.add(inspeccionService.sendInspeccion(element));
+      //           });
+      //           await Future.wait(promesas).then((value) {
+      //             print(value);
+      //           });
+      //         },
+      //   child: Icon(Icons.upload_rounded),
+      // ),
     );
   }
 }
