@@ -332,20 +332,21 @@ class InspeccionService extends ChangeNotifier {
           }
         });
 
-        await inspeccionProvider.eliminarResumenPreoperacional(inspeccion.id!);
-
         // Ejecutamos todas las peticiones
         await Future.wait(Promesas).then((value) async {
-          await inspeccionProvider
-              .eliminarRespuestaPreoperacional(inspeccion.id!);
           // print(value);
         });
+
         // show a notification at top of screen.
         showSimpleNotification(Text(responseResumen.message!),
             leading: Icon(Icons.check),
             autoDismiss: true,
             background: Colors.green,
             position: NotificationPosition.bottom);
+
+        await inspeccionProvider.eliminarResumenPreoperacional(inspeccion.id!);
+        await inspeccionProvider
+            .eliminarRespuestaPreoperacional(inspeccion.id!);
 
         isSaving = false;
         return responseResumen.toMap();
