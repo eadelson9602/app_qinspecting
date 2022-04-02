@@ -21,10 +21,14 @@ class CustomAppBar extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15),
           child: CircleAvatar(
-            child: FadeInImage(
-              placeholder: const AssetImage('assets/images/loading-2.gif'),
-              image: NetworkImage(url.toString()),
-              fit: BoxFit.cover,
+            child: ClipRRect(
+              borderRadius: BorderRadius.all(Radius.circular(25)),
+              child: FadeInImage(
+                placeholder: const AssetImage('assets/images/loading-2.gif'),
+                image: NetworkImage(url.toString()),
+                fit: BoxFit.cover,
+                height: 40,
+              ),
             ),
           ),
         )
