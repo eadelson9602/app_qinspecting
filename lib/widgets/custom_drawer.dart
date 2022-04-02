@@ -47,13 +47,13 @@ class CustomDrawer extends StatelessWidget {
                   style: TextStyle(color: Colors.green),
                 ),
                 onTap: () => Navigator.pushReplacementNamed(context, 'home')),
-            ListTile(
-                leading: const Icon(Icons.fact_check, color: Colors.green),
-                title: const Text(
-                  'Inspección',
-                  style: TextStyle(color: Colors.green),
-                ),
-                onTap: () => Navigator.popAndPushNamed(context, 'inspeccion')),
+            // ListTile(
+            //     leading: const Icon(Icons.fact_check, color: Colors.green),
+            //     title: const Text(
+            //       'Inspección',
+            //       style: TextStyle(color: Colors.green),
+            //     ),
+            //     onTap: () => Navigator.popAndPushNamed(context, 'inspeccion')),
             ListTile(
               leading: Icon(Icons.send, color: Colors.green),
               title: Text('Enviar inspecciones',
