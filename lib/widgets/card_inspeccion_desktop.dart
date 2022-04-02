@@ -16,7 +16,7 @@ class CardInspeccionDesktop extends StatelessWidget {
     return Container(
       height: 250,
       margin: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-      width: double.infinity,
+      width: 280,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.all(Radius.circular(20)),
