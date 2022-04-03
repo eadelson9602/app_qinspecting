@@ -131,3 +131,74 @@ class ResponseUploadFile {
         "path": path,
       };
 }
+
+// Esta clase se usara para mostrar las cards del escritorio
+class ResumenPreoperacionalServer {
+  ResumenPreoperacionalServer({
+    this.consecutivo,
+    this.resuPreFecha,
+    this.creado,
+    this.hora,
+    this.detalle,
+    this.resuPreId,
+    this.tanqueo,
+    this.resuPreGuia,
+    this.grave,
+    this.moderada,
+    this.estado,
+    this.cantFallas,
+    this.nota,
+  });
+
+  String? consecutivo;
+  String? resuPreFecha;
+  String? creado;
+  String? hora;
+  String? detalle;
+  int? resuPreId;
+  String? tanqueo;
+  String? resuPreGuia;
+  int? grave;
+  int? moderada;
+  String? estado;
+  String? cantFallas;
+  String? nota;
+
+  factory ResumenPreoperacionalServer.fromJson(String str) =>
+      ResumenPreoperacionalServer.fromMap(json.decode(str));
+
+  String toJson() => json.encode(toMap());
+
+  factory ResumenPreoperacionalServer.fromMap(Map<String, dynamic> json) =>
+      ResumenPreoperacionalServer(
+        consecutivo: json["consecutivo"],
+        resuPreFecha: json["resuPreFecha"],
+        creado: json["creado"],
+        hora: json["hora"],
+        detalle: json["detalle"],
+        resuPreId: json["resuPreId"],
+        tanqueo: json["tanqueo"],
+        resuPreGuia: json["resuPreGuia"] == null ? null : json["resuPreGuia"],
+        grave: json["grave"],
+        moderada: json["moderada"] == null ? null : json["moderada"],
+        estado: json["estado"],
+        cantFallas: json["cantFallas"],
+        nota: json["nota"],
+      );
+
+  Map<String, dynamic> toMap() => {
+        "consecutivo": consecutivo,
+        "resuPreFecha": resuPreFecha,
+        "creado": creado,
+        "hora": hora,
+        "detalle": detalle,
+        "resuPreId": resuPreId,
+        "tanqueo": tanqueo,
+        "resuPreGuia": resuPreGuia == null ? null : resuPreGuia,
+        "grave": grave,
+        "moderada": moderada == null ? null : moderada,
+        "estado": estado,
+        "cantFallas": cantFallas,
+        "nota": nota,
+      };
+}
