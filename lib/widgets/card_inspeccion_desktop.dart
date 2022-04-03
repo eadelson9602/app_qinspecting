@@ -8,13 +8,13 @@ class CardInspeccionDesktop extends StatelessWidget {
   const CardInspeccionDesktop({Key? key, required this.resumenPreoperacional})
       : super(key: key);
 
-  final ResumenPreoperacional resumenPreoperacional;
+  final ResumenPreoperacionalServer resumenPreoperacional;
 
   @override
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
     return Container(
-      height: 250,
+      height: 280,
       margin: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
       width: 280,
       decoration: BoxDecoration(
@@ -95,12 +95,12 @@ class CardInspeccionDesktop extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: Text('Documento conductor',
+                      child: Text('Persona responsable',
                           style: TextStyle(color: Colors.black54)),
                     ),
                     Expanded(
                         child: Text(
-                      '${resumenPreoperacional.persNumeroDoc}',
+                      '${resumenPreoperacional.creado}',
                       textAlign: TextAlign.end,
                     )),
                   ],
@@ -109,42 +109,12 @@ class CardInspeccionDesktop extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: Text('Kilometraje',
+                      child: Text('Hora de inspección',
                           style: TextStyle(color: Colors.black54)),
                     ),
                     Expanded(
                       child: Text(
-                        '${resumenPreoperacional.resuPreKilometraje}',
-                        textAlign: TextAlign.end,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text('Galones tanqueados',
-                          style: TextStyle(color: Colors.black54)),
-                    ),
-                    Expanded(
-                      child: Text(
-                        '${resumenPreoperacional.tanqueGalones}',
-                        textAlign: TextAlign.end,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text('Guía transporte',
-                          style: TextStyle(color: Colors.black54)),
-                    ),
-                    Expanded(
-                      child: Text(
-                        '${resumenPreoperacional.resuPreGuia}',
+                        '${resumenPreoperacional.hora}',
                         textAlign: TextAlign.end,
                       ),
                     ),
@@ -160,6 +130,66 @@ class CardInspeccionDesktop extends StatelessWidget {
                     Expanded(
                       child: Text(
                         '${resumenPreoperacional.resuPreFecha}',
+                        textAlign: TextAlign.end,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text('Tanqueo?',
+                          style: TextStyle(color: Colors.black54)),
+                    ),
+                    Expanded(
+                      child: Text(
+                        '${resumenPreoperacional.tanqueo}',
+                        textAlign: TextAlign.end,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text('Fallas graves',
+                          style: TextStyle(color: Colors.black54)),
+                    ),
+                    Expanded(
+                      child: Text(
+                        '${resumenPreoperacional.grave}',
+                        textAlign: TextAlign.end,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text('Fallas moderadas',
+                          style: TextStyle(color: Colors.black54)),
+                    ),
+                    Expanded(
+                      child: Text(
+                        '${resumenPreoperacional.moderada}',
+                        textAlign: TextAlign.end,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text('Estado',
+                          style: TextStyle(color: Colors.black54)),
+                    ),
+                    Expanded(
+                      child: Text(
+                        '${resumenPreoperacional.estado}',
                         textAlign: TextAlign.end,
                       ),
                     ),
