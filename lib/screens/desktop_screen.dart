@@ -36,27 +36,25 @@ class _DesktopScreenState extends State<DesktopScreen> {
                 'Inspecciones realizadas',
                 style: TextStyle(fontSize: 18),
               ),
-              SizedBox(
-                height: 300,
-                child: FutureBuilder(
-                    future: inspeccionService
-                        .getLatesInspections(loginService.selectedEmpresa),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(child: CircularProgressIndicator());
-                      } else {
-                        List data = snapshot.data as List;
-                        return Expanded(
-                          child: ListView.builder(
-                              shrinkWrap: true,
-                              scrollDirection: Axis.horizontal,
-                              itemCount: data.length,
-                              itemBuilder: (_, int i) => CardInspeccionDesktop(
-                                  resumenPreoperacional: data[i])),
-                        );
-                      }
-                    }),
-              ),
+              FutureBuilder(
+                  future: inspeccionService
+                      .getLatesInspections(loginService.selectedEmpresa),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    } else {
+                      List data = snapshot.data as List;
+                      return Container(
+                        height: 300,
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            scrollDirection: Axis.horizontal,
+                            itemCount: data.length,
+                            itemBuilder: (_, int i) => CardInspeccionDesktop(
+                                resumenPreoperacional: data[i])),
+                      );
+                    }
+                  }),
               // Text(
               //   'Demo Headline 2',
               //   style: TextStyle(fontSize: 18),
