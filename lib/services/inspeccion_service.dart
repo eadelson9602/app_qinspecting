@@ -41,7 +41,7 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<List<ResumenPreoperacional>> getLatesInspections(
+  Future<List<ResumenPreoperacionalServer>> getLatesInspections(
       Empresa selectedEmpresa) async {
     final connectivityResult = await (Connectivity().checkConnectivity());
 
@@ -53,9 +53,9 @@ class InspeccionService extends ChangeNotifier {
 
         Response response = await dio.get(
             'https://apis.qinspecting.com/pflutter/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.usuarioUser}');
-        List<ResumenPreoperacional> tempData = [];
+        List<ResumenPreoperacionalServer> tempData = [];
         for (var item in response.data) {
-          tempData.add(ResumenPreoperacional.fromMap(item));
+          tempData.add(ResumenPreoperacionalServer.fromMap(item));
         }
 
         isLoading = false;
