@@ -18,6 +18,7 @@ class InspeccionService extends ChangeNotifier {
   final List<Remolque> remolques = [];
   final List<ItemInspeccion> itemsInspeccion = [];
   final inspeccionProvider = InspeccionProvider();
+  List<ResumenPreoperacionalServer> inspeccionesRange = [];
   int indexSelected = 0;
   DateTimeRange? myDateRange;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -58,6 +59,57 @@ class InspeccionService extends ChangeNotifier {
           tempData.add(ResumenPreoperacionalServer.fromMap(item));
         }
 
+        isLoading = false;
+        // notifyListeners();
+        return tempData;
+      } catch (error) {
+        showSimpleNotification(
+          Text('ERROR AL OBTENER INSPECCIONES: ${error.toString()}'),
+          leading: Icon(Icons.wifi_tethering_error_rounded_outlined),
+          autoDismiss: true,
+          background: Colors.orange,
+          position: NotificationPosition.bottom,
+        );
+        return Future.error(error.toString());
+      }
+    } else {
+      showSimpleNotification(
+        Text('Sin conexión a internet'),
+        leading: Icon(Icons.wifi_tethering_error_rounded_outlined),
+        autoDismiss: true,
+        background: Colors.orange,
+        position: NotificationPosition.bottom,
+      );
+      return [];
+    }
+  }
+
+  Future<List<ResumenPreoperacionalServer>> getRangeInspections(
+      Empresa selectedEmpresa, fechaInicio, fechaFin) async {
+    final connectivityResult = await (Connectivity().checkConnectivity());
+
+    if (connectivityResult == ConnectivityResult.mobile ||
+        connectivityResult == ConnectivityResult.wifi) {
+      try {
+        isLoading = true;
+        // notifyListeners();
+
+        Response response = await dio.get(
+            'https://apis.qinspecting.com/pflutter/get_range_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.usuarioUser}/${fechaInicio}/${fechaFin}');
+        List<ResumenPreoperacionalServer> tempData = [];
+        for (var item in response.data) {
+          tempData.add(ResumenPreoperacionalServer.fromMap(item));
+        }
+        inspeccionesRange = [...tempData];
+        if (inspeccionesRange.isEmpty) {
+          showSimpleNotification(
+            Text('Sin resultados'),
+            leading: Icon(Icons.info),
+            autoDismiss: true,
+            background: Colors.orange,
+            position: NotificationPosition.bottom,
+          );
+        }
         isLoading = false;
         // notifyListeners();
         return tempData;
