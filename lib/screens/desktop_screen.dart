@@ -45,7 +45,7 @@ class _DesktopScreenState extends State<DesktopScreen> {
                     } else {
                       List data = snapshot.data as List;
                       return Container(
-                        height: 350,
+                        height: 370,
                         child: ListView.builder(
                             shrinkWrap: true,
                             scrollDirection: Axis.horizontal,
