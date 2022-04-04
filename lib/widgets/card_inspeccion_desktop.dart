@@ -14,7 +14,7 @@ class CardInspeccionDesktop extends StatelessWidget {
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
     return Container(
-      height: 280,
+      height: 270,
       margin: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
       width: 280,
       decoration: BoxDecoration(
@@ -180,7 +180,7 @@ class CardInspeccionDesktop extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 10),
+                // SizedBox(height: 10),
                 Row(
                   children: [
                     Expanded(
@@ -188,9 +188,23 @@ class CardInspeccionDesktop extends StatelessWidget {
                           style: TextStyle(color: Colors.black54)),
                     ),
                     Expanded(
-                      child: Text(
-                        '${resumenPreoperacional.estado}',
-                        textAlign: TextAlign.end,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Chip(
+                            padding: EdgeInsets.all(0),
+                            backgroundColor:
+                                resumenPreoperacional.estado == 'APROBADO'
+                                    ? Colors.green
+                                    : Colors.red,
+                            label: Text(
+                              '${resumenPreoperacional.estado}',
+                              textAlign: TextAlign.end,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 11),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
