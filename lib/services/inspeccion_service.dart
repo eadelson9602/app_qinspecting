@@ -59,6 +59,7 @@ class InspeccionService extends ChangeNotifier {
           tempData.add(ResumenPreoperacionalServer.fromMap(item));
         }
 
+        inspeccionesRange = [...tempData];
         isLoading = false;
         // notifyListeners();
         return tempData;
