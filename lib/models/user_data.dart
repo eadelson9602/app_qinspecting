@@ -146,3 +146,28 @@ class UserData {
         "Firma_Id": firmaId
       };
 }
+
+class TipoDocumentos {
+  TipoDocumentos({
+    this.value,
+    this.label,
+  });
+
+  int? value;
+  String? label;
+
+  factory TipoDocumentos.fromJson(String str) =>
+      TipoDocumentos.fromMap(json.decode(str));
+
+  String toJson() => json.encode(toMap());
+
+  factory TipoDocumentos.fromMap(Map<String, dynamic> json) => TipoDocumentos(
+        value: json["value"],
+        label: json["label"],
+      );
+
+  Map<String, dynamic> toMap() => {
+        "value": value,
+        "label": label,
+      };
+}
