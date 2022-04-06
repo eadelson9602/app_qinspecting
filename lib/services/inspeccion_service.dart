@@ -316,6 +316,14 @@ class InspeccionService extends ChangeNotifier {
         DBProvider.db.nuevoItem(tempItem);
       }
 
+      Response responseTipodoc = await dio.get(
+        'https://apis.qinspecting.com/pflutter/list_type_documents/$baseEmpresa',
+      );
+      for (var item in responseTipodoc.data) {
+        final tempTipoDoc = TipoDocumentos.fromMap(item);
+        DBProvider.db.nuevoTipoDocumento(tempTipoDoc);
+      }
+
       return true;
     } catch (error) {
       // print('Error al subir foto ${error}');
