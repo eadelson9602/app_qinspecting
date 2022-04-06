@@ -15,8 +15,8 @@ class SendPendingInspectionScree extends StatelessWidget {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
     final inspeccionService = Provider.of<InspeccionService>(context);
     // final loginService = Provider.of<LoginService>(context);
-    final allInspecciones = inspeccionProvider.allInspecciones;
     inspeccionProvider.cargarTodosInspecciones();
+    final allInspecciones = inspeccionProvider.allInspecciones;
 
     return Scaffold(
       appBar: const CustomAppBar().createAppBar(context),
