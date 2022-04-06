@@ -54,6 +54,7 @@ class _FormProfile extends StatelessWidget {
     final perfilForm = Provider.of<PerfilFormProvider>(context);
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
     inspeccionProvider.listarCiudades(perfilForm.userDataLogged!.dptId!);
+    inspeccionProvider.listarTipoDocs();
     return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -153,9 +154,13 @@ class _FormProfile extends StatelessWidget {
                           prefixIcon: Icons.assignment_ind,
                           hintText: '',
                           labelText: 'Tipo documento'),
-                      items: const [
-                        DropdownMenuItem(value: 1, child: Text('Ciudad 1'))
-                      ],
+                      value: perfilForm.userDataLogged?.tipoDocId,
+                      items: inspeccionProvider.tipoDocumentos.map((e) {
+                        return DropdownMenuItem(
+                          child: Text(e.label!),
+                          value: e.value,
+                        );
+                      }).toList(),
                       onChanged: (value) {}),
                   const SizedBox(
                     height: 10,
