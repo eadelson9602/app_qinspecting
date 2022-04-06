@@ -40,6 +40,9 @@ class DBProvider {
         CREATE TABLE DataUsuario( id INTEGER PRIMARY KEY, UsuarioUser INTEGER, Usuario_Contra TEXT, Pers_LugarExpDoc INTEGER, Ciu_Nombre TEXT, Dpt_Id INTEGER, Departamento TEXT, Pers_FechaNaci TEXT, Pers_Genero TEXT, Pers_Rh TEXT, Pers_Arl TEXT, Pers_Eps TEXT, Pers_Afp TEXT, Pers_Celular TEXT, Pers_Direccion TEXT, Pers_Apellidos TEXT, Pers_Nombres TEXT, Pers_Email TEXT, Pers_Imagen TEXT, Carg_id INTEGER, Carg_Descripcion TEXT, Usuario_Estado INTEGER, estado INTEGER, TipoDoc_Id INTEGER, TipoDoc_Descrip TEXT, Rol_Id INTEGER, Rol_Nombre TEXT, Rol_Descripcion TEXT, DocCond_Id INTEGER, DocCond_Lice_Cond INTEGER, DocCond_CatLiceCond TEXT, Firma_Id NUMBER);
       ''');
       await db.execute('''
+        CREATE TABLE TipoDocumentos(value INTEGER PRIMARY KEY, label TEXT);
+      ''');
+      await db.execute('''
         CREATE TABLE Departamentos(value INTEGER PRIMARY KEY, label TEXT);
       ''');
       await db.execute('''
@@ -122,6 +125,23 @@ class DBProvider {
     final res = await db?.update('DataUsuario', nuevoDatosUsuario.toMap(),
         where: 'id= ?', whereArgs: [nuevoDatosUsuario.id]);
     return res;
+  }
+
+  Future<int?> nuevoTipoDocumento(TipoDocumentos nuevoTipoDoc) async {
+    final db = await database;
+    final res = await db?.insert('TipoDocumentos', nuevoTipoDoc.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
+    return res;
+  }
+
+  Future<List<TipoDocumentos>?> getAllTipoDocs(
+      TipoDocumentos nuevoTipoDoc) async {
+    final db = await database;
+    final res = await db?.query('TipoDocumentos');
+
+    return res!.isNotEmpty
+        ? res.map((s) => TipoDocumentos.fromMap(s)).toList()
+        : [];
   }
 
   // CONSULTAS PARA MODULO INSPECCIONES
