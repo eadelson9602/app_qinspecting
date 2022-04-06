@@ -134,8 +134,7 @@ class DBProvider {
     return res;
   }
 
-  Future<List<TipoDocumentos>?> getAllTipoDocs(
-      TipoDocumentos nuevoTipoDoc) async {
+  Future<List<TipoDocumentos>?> getAllTipoDocs() async {
     final db = await database;
     final res = await db?.query('TipoDocumentos');
 
