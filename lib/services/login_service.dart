@@ -40,25 +40,6 @@ class LoginService extends ChangeNotifier {
     return empresas;
   }
 
-  Future<List<TipoDocumentos>> getTypeDocuments(Empresa empresa) async {
-    isLoading = true;
-    notifyListeners();
-
-    Response response = await dio.get(
-      'https://apis.qinspecting.com/pflutter/list_type_documents/${empresa.nombreBase}',
-    );
-    List<TipoDocumentos> tempTipodocs = [];
-    for (var item in response.data) {
-      final tempTipoDoc = TipoDocumentos.fromMap(item);
-      tempTipodocs.add(tempTipoDoc);
-      DBProvider.db.nuevoTipoDocumento(tempTipoDoc);
-    }
-    isLoading = false;
-    notifyListeners();
-
-    return tempTipodocs;
-  }
-
   Future<UserData> getUserData(Empresa empresa) async {
     isLoading = true;
     notifyListeners();
