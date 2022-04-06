@@ -15,6 +15,7 @@ class InspeccionProvider extends ChangeNotifier {
 
   List<Departamentos> departamentos = [];
   List<Ciudades> ciudades = [];
+  List<TipoDocumentos> tipoDocumentos = [];
   List<Vehiculo> vehiculos = [];
   List<Remolque> remolques = [];
   List<ItemsVehiculo> itemsInspeccion = [];
@@ -103,6 +104,12 @@ class InspeccionProvider extends ChangeNotifier {
     final resCiudades =
         await DBProvider.db.getCiudadesByIdDepartamento(idDepartamento);
     ciudades = [...resCiudades!];
+    notifyListeners();
+  }
+
+  listarTipoDocs() async {
+    final resTipoDocs = await DBProvider.db.getAllTipoDocs();
+    tipoDocumentos = [...resTipoDocs!];
     notifyListeners();
   }
 
