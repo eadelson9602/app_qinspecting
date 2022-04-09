@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:app_qinspecting/models/empresa.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:app_qinspecting/screens/home_screen.dart';
 import 'package:flutter/material.dart';
@@ -184,132 +185,114 @@ class ButtonLogin extends StatelessWidget {
           ? null
           : () async {
               if (!loginForm.isValidForm()) return;
-              loginForm.isLoading = true;
-              try {
-                FocusScope.of(context).unfocus();
-                var connectivityResult =
-                    await (Connectivity().checkConnectivity());
-                if (connectivityResult == ConnectivityResult.mobile ||
-                    connectivityResult == ConnectivityResult.wifi) {
-                  final empresas = await loginService.login(
-                      loginForm.usuario, loginForm.password);
-                  if (empresas.isNotEmpty) {
-                    showModalBottomSheet(
-                        isScrollControlled: false,
-                        shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(20))),
-                        context: context,
-                        builder: (context) => Container(
-                              height: empresas.length > 2 ? 250 : 150,
-                              padding: const EdgeInsets.all(20),
-                              child: ListView.builder(
-                                itemCount: empresas.length,
-                                itemBuilder: (_, int i) => ListTile(
-                                  leading:
-                                      getImage(empresas[i].rutaLogo.toString()),
-                                  title: Text(empresas[i].nombreQi.toString()),
-                                  trailing: const Icon(Icons.houseboat_rounded),
-                                  onTap: () async {
-                                    // Asignamos al servicio la empresa seleccionada
-                                    loginService.selectedEmpresa = empresas[i];
-                                    await loginService.getUserData(empresas[i]);
-
-                                    Navigator.popAndPushNamed(
-                                        context, 'get_data');
-                                  },
-                                ),
-                              ),
-                            ));
-                  } else {
-                    loginForm.existUser = false;
-                    // TODO => Notificamos que no existe en el sistema
-                  }
-                } else {
-                  loginForm.isLoading = true;
-                  final userData =
-                      await DBProvider.db.getUserById(loginForm.usuario);
-                  if (userData != null &&
-                      userData.usuarioContra == loginForm.password) {
-                    final empresas = await DBProvider.db
-                        .getAllEmpresasByUsuario(loginForm.usuario);
-                    if (empresas != null) {
-                      showModalBottomSheet(
-                          isScrollControlled: false,
-                          shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(20))),
-                          context: context,
-                          builder: (context) => Container(
-                                height: empresas.length > 2 ? 250 : 150,
-                                padding: const EdgeInsets.all(20),
-                                child: ListView.builder(
-                                  itemCount: empresas.length,
-                                  itemBuilder: (_, int i) => ListTile(
-                                    leading: getImage(
-                                        empresas[i].rutaLogo.toString()),
-                                    title:
-                                        Text(empresas[i].nombreQi.toString()),
-                                    trailing:
-                                        const Icon(Icons.houseboat_rounded),
-                                    onTap: () async {
-                                      // Asignamos al servicio la empresa seleccionada y los datos del usuario
-                                      loginService.selectedEmpresa =
-                                          empresas[i].copy();
-                                      loginService.userDataLogged = userData;
-                                      await storage.write(
-                                          key: 'usuario',
-                                          value: '${empresas[i].usuarioUser}');
-                                      await storage.write(
-                                          key: 'idEmpresa',
-                                          value: '${empresas[i].empId}');
-                                      Navigator.pushNamed(context, 'home');
-                                    },
-                                  ),
-                                ),
-                              ));
-                    } else {
-                      loginForm.existUser = false;
-                    }
-                  } else {
-                    showSimpleNotification(
-                      Text(
-                          'Debe haber iniciado sesión anteriormente, para ingresar en offline'),
-                      leading: Icon(Icons.info),
-                      autoDismiss: true,
-                      background: Colors.orange,
-                      position: NotificationPosition.bottom,
-                    );
-                  }
-                }
-              } catch (error) {
-                showSimpleNotification(
-                  Text('Error al iniciar sesión ${error}'),
-                  leading: Icon(Icons.check),
-                  autoDismiss: true,
-                  background: Colors.orange,
-                  position: NotificationPosition.bottom,
-                );
-              } finally {
-                loginForm.isLoading = false;
-              }
+              login(context, loginForm, loginService, storage);
             },
     );
+  }
+
+  void login(BuildContext context, LoginFormProvider loginForm,
+      LoginService loginService, FlutterSecureStorage storage) async {
+    try {
+      loginForm.isLoading = true;
+      FocusScope.of(context).unfocus();
+      List<Empresa> empresas = [];
+      var connectivityResult = await Connectivity().checkConnectivity();
+      bool isConnected = connectivityResult == ConnectivityResult.mobile ||
+              connectivityResult == ConnectivityResult.wifi
+          ? true
+          : false;
+
+      if (isConnected) {
+        final tempEmpresas =
+            await loginService.login(loginForm.usuario, loginForm.password);
+        if (tempEmpresas.isNotEmpty) {
+          tempEmpresas.forEach((element) => empresas.add(element));
+        }
+      } else {
+        final userData = await DBProvider.db.getUserById(loginForm.usuario);
+        if (userData != null && userData.usuarioContra == loginForm.password) {
+          final tempEmpresas =
+              await DBProvider.db.getAllEmpresasByUsuario(loginForm.usuario);
+          tempEmpresas!.forEach((element) => empresas.add(element));
+          loginService.userDataLogged = userData;
+        } else {
+          showSimpleNotification(
+            Text(
+                'Debe haber iniciado sesión anteriormente, para ingresar en offline'),
+            leading: Icon(Icons.info),
+            autoDismiss: true,
+            background: Colors.orange,
+            position: NotificationPosition.bottom,
+          );
+          return;
+        }
+      }
+
+      showModalBottomSheet(
+          isScrollControlled: false,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+          context: context,
+          builder: (context) => Container(
+                height: empresas.length > 2 ? 250 : 150,
+                padding: const EdgeInsets.all(20),
+                child: ListView.builder(
+                  itemCount: empresas.length,
+                  itemBuilder: (_, int i) => ListTile(
+                    leading: Container(
+                        width: 70,
+                        height: 70,
+                        child: getImage(empresas[i].rutaLogo.toString())),
+                    title: Text(empresas[i].nombreQi.toString()),
+                    trailing: const Icon(Icons.arrow_right),
+                    onTap: () async {
+                      // Asignamos al servicio la empresa seleccionada
+                      loginService.selectedEmpresa = empresas[i];
+                      // online
+                      if (isConnected) {
+                        await loginService.getUserData(empresas[i]);
+                        Navigator.popAndPushNamed(context, 'get_data');
+                        return;
+                      }
+                      // Offline
+                      await storage.write(
+                          key: 'usuario', value: '${empresas[i].usuarioUser}');
+                      await storage.write(
+                          key: 'idEmpresa', value: '${empresas[i].empId}');
+                      Navigator.pushNamed(context, 'home');
+                    },
+                  ),
+                ),
+              ));
+    } catch (error) {
+      showSimpleNotification(
+        Text('Error al iniciar sesión ${error}'),
+        leading: Icon(Icons.check),
+        autoDismiss: true,
+        background: Colors.orange,
+        position: NotificationPosition.bottom,
+      );
+    } finally {
+      loginForm.isLoading = false;
+    }
   }
 
   Widget getImage(String? url) {
     if (url == null || url.contains('svg')) {
       return const ClipRRect(
-        borderRadius: BorderRadius.all(Radius.circular(100)),
+        borderRadius: BorderRadius.all(Radius.circular(50)),
         child: Image(
           image: AssetImage('assets/images/no-image.png'),
           height: 40,
         ),
       );
     }
-    return FadeInImage(
-        placeholder: const AssetImage('assets/images/loading.gif'),
-        image: NetworkImage(url));
+    return ClipRRect(
+      borderRadius: BorderRadius.all(Radius.circular(50)),
+      child: FadeInImage(
+          placeholder: const AssetImage('assets/images/loading.gif'),
+          image: NetworkImage(url)),
+    );
   }
 }
 
