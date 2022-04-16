@@ -1,3 +1,4 @@
+import 'package:app_qinspecting/models/pdf.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -436,6 +437,28 @@ class InspeccionService extends ChangeNotifier {
         "ok": false,
         "idInspeccion": 0
       };
+    }
+  }
+
+  Future<Pdf?> detatilPdf(
+      Empresa empresaSelected, ResumenPreoperacionalServer inspeccion) async {
+    try {
+      isLoading = true;
+      notifyListeners();
+
+      Response response = await dio.get(
+          'https://apis.qinspecting.com/pflutter/inspeccion/${empresaSelected.nombreBase}/${inspeccion.resuPreId}');
+
+      isLoading = false;
+      notifyListeners();
+      return Pdf.fromJson(response.toString());
+    } catch (error) {
+      showSimpleNotification(Text('Error al obtener detalle pdf: ${error}'),
+          leading: Icon(Icons.check),
+          autoDismiss: true,
+          background: Colors.orange,
+          position: NotificationPosition.bottom);
+      return null;
     }
   }
 }
