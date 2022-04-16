@@ -6,3 +6,4 @@ export 'package:app_qinspecting/models/vehiculo.dart';
 export 'package:app_qinspecting/models/inspeccion.dart';
 export 'package:app_qinspecting/models/remolque.dart';
 export 'package:app_qinspecting/models/firma.dart';
+export 'package:app_qinspecting/models/pdf.dart';
