@@ -1,12 +1,12 @@
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 import 'package:app_qinspecting/models/models.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:pdf/widgets.dart' as pw;
+import 'package:provider/provider.dart';
+import 'package:app_qinspecting/services/services.dart';
 
 class PdfScreen extends StatelessWidget {
   const PdfScreen({Key? key}) : super(key: key);
@@ -14,16 +14,18 @@ class PdfScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final params = ModalRoute.of(context)!.settings.arguments as List;
-    ResumenPreoperacional resumenPreoperacional = params[0];
+    final resumenPreoperacional = params[0] as ResumenPreoperacionalServer;
+
+    final inspeccionService = Provider.of<InspeccionService>(context);
+    final loginService = Provider.of<LoginService>(context);
     final sizeScreen = MediaQuery.of(context).size;
-    List<Item> respuestas = params[1];
     return Scaffold(
       appBar: AppBar(title: Text('PDF')),
       body: PdfPreview(
         pdfFileName: 'Preoperacional ${resumenPreoperacional.resuPreId}',
         dpi: 420,
-        build: (format) =>
-            _generatePdf(format, resumenPreoperacional, respuestas, sizeScreen),
+        build: (format) => _generatePdf(format, sizeScreen,
+            resumenPreoperacional, inspeccionService, loginService),
       ),
     );
   }
@@ -31,15 +33,25 @@ class PdfScreen extends StatelessWidget {
   // Genera el pdf
   Future<Uint8List> _generatePdf(
       PdfPageFormat format,
-      ResumenPreoperacional resumenPreoperacional,
-      List<Item> respuestas,
-      sizeScreen) async {
+      Size sizeScreen,
+      ResumenPreoperacionalServer resumenPreoperacional,
+      InspeccionService inspeccionService,
+      LoginService loginService) async {
     final pdf = pw.Document();
-    // respuestas.forEach((element) {
-    //   print(element.idItem);
-    // });
     final alto = sizeScreen.height * 1;
     final ancho = sizeScreen.width * 1;
+
+    Pdf? infoPdf = await inspeccionService.detatilPdf(
+        loginService.selectedEmpresa, resumenPreoperacional);
+    String bodyResponse = infoPdf!.detalle.map((element) {
+      '''
+        <tr>
+          <td colspan="191" class="categoria">
+            ${element.categoria}
+          </td>
+        </tr>
+      ''';
+    }).toString();
 
     await Printing.layoutPdf(
         onLayout: (PdfPageFormat format) async => await Printing.convertHtml(
@@ -49,11 +61,11 @@ class PdfScreen extends StatelessWidget {
           <style>
             body{
               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-              font-size: 9px !important;
+              font-size: 2px !important;
             }
 
             img {
-              height: 40px;
+              height: 20px;
             }
 
             table {
@@ -76,7 +88,6 @@ class PdfScreen extends StatelessWidget {
 
             .consecutivo{
               color: #008500;
-              /* font-size: 18px; */
               font-weight: bold;
             }
 
@@ -131,18 +142,18 @@ class PdfScreen extends StatelessWidget {
             <thead>
               <tr>
                 <th rowspan="2" colspan="16">
-                  <img src="https://apis.qinspecting.com/tmc/adjuntos/logo_tmc.png" width=80 height=40 alt="Logo corporativo">
+                  <img src="${infoPdf.rutaLogo}" width=80 height=40 alt="Logo empresa cliente">
                 </th>
-                <th rowspan="2" colspan="110">INSPECCIÓN DE VEHÍCULOS DE CARGA</th>
+                <th rowspan="2" colspan="110">${infoPdf.nombreFormatoPreope}</th>
                 <th colspan="10">Código</th>
-                <th colspan="10">F-M-01</th>
+                <th colspan="10">${infoPdf.versionFormtPreope}</th>
                 <th rowspan="2" colspan="16">
-                  <img src="https://qinspecting.com/img/Qi.png" width=50 height=40 alt="Logo corporativo">
+                  <img src="https://qinspecting.com/img/Qi.png" width=50 height=40 alt="Logo qinspecting">
                 </th>
               </tr>
               <tr>
                 <th colspan="10">Versión</th>
-                <th colspan="10">02</th>
+                <th colspan="10">${infoPdf.versionFormtPreope}</th>
               </tr>
             </thead>
             <tbody>
@@ -150,19 +161,19 @@ class PdfScreen extends StatelessWidget {
               <tr>
                 <td colspan="43">
                   <p>CIUDAD Y FECHA:</p>
-                  <p>Puerto López 2022-03-28</p>
+                  <p>${infoPdf.resuPreFecha}</p>
                 </td>
                 <td colspan="43">
                   <p>TIPO DE VEHÍCULO:</p>
-                  <p>TractoCamión 6x4</p>
+                  <p>${infoPdf.tvDescripcion}</p>
                 </td>
                 <td colspan="67">
                   <p>MARCA/LINEA/MODELO:</p>
-                  <p>INTERNATIONAL / 9400 / 2012</p>
+                  <p>${infoPdf.mlm}</p>
                 </td>
                 <td colspan="39">
                   <p>¿REALIZÓ TANQUEO ?</p>
-                  <p>NO</p>
+                  <p>${infoPdf.tanque}</p>
                 </td>
               </tr>
             </tbody>
@@ -171,23 +182,23 @@ class PdfScreen extends StatelessWidget {
             <tr>
               <td>
                 <p>KILOMETRAJE:</p>
-                <p>30</p>
+                <p>${infoPdf.kilometraje}</p>
               </td>
               <td>
                 <p>NOMBRE QUIEN REALIZÓ INSPECCIÓN:</p>
-                <p>juan sin miedo</p>
+                <p>${infoPdf.conductor}</p>
               </td>
               <td>
                 <p>PLACA VEHÍCULO:</p>
-                <p>hpd 62d</p>
+                <p>${infoPdf.vehPlaca}</p>
               </td>
               <td>
                 <p>PLACA REMOLQUE:</p>
-                <p>hpd 62drr</p>
+                <p>${infoPdf.remolPlaca}</p>
               </td>
               <td>
                 <p>ESTADO:</p>
-                <p>Aprobado</p>
+                <p>PENDIENTE AGREGAR PROPIEDAD A LA CONSULTA</p>
               </td>
             </tr>
           </table>
@@ -197,20 +208,20 @@ class PdfScreen extends StatelessWidget {
                 <p>N° INSPECCION:</p>
               </td>
               <td class="consecutivo" rowspan="2">
-                QI-TMC-05664
+                ${infoPdf.consecutivo}
               </td>
 
               <td rowspan="2">
                 <p>FIRMA CONDUCTOR:</p>
               </td>
               <td rowspan="2">
-                <img src="https://qinspecting.com/img/Qi.png" alt="Firma digital">
+                ${infoPdf.firma!.contains('.jpg') ? '<img src="${infoPdf.firma}" alt="Firma digital">' : infoPdf.firma}
               </td>
               <td rowspan="2">
                 <p>FIRMA DE QUIEN INSPECCIONA:</p>
               </td>
               <td rowspan="2">
-                <img src="https://qinspecting.com/img/Qi.png" alt="Firma digital">
+                ${infoPdf.firma!.contains('.jpg') ? '<img src="${infoPdf.firma}" alt="Firma digital">' : infoPdf.firma}
               </td>
             </tr>
           </table>
@@ -250,7 +261,7 @@ class PdfScreen extends StatelessWidget {
                 Documentos Vehículo
               </td>
             </tr>
-
+            ${bodyResponse}
             <tr>
               <td class="item" colspan="80">Licencia de Tránsito</td>
               <td colspan="10">X</td>
@@ -471,115 +482,6 @@ class PdfScreen extends StatelessWidget {
         </body>
         </html>''',
             ));
-
-    final netImage = await networkImage('https://www.nfet.net/nfet.jpg');
-    pdf.addPage(
-      pw.Page(
-        pageFormat: PdfPageFormat(ancho, alto, marginAll: 2),
-        build: (context) {
-          return pw.Row(
-            children: [
-              pw.Container(
-                width: ancho,
-                color: PdfColors.cyan,
-                child: pw.Table(
-                  children: [
-                    pw.TableRow(children: [
-                      pw.Container(
-                        color: PdfColors.green,
-                        width: 50.0,
-                        height: 50.0,
-                        child: pw.Text("Logo Empresa"),
-                      ),
-                      pw.Container(
-                        color: PdfColors.red,
-                        width: 50.0,
-                        height: 50.0,
-                        child: pw.Text("INSPECCIÓN DE VEHICULOS DE CARGA"),
-                      ),
-                      pw.Container(
-                        color: PdfColors.red,
-                        width: 50.0,
-                        height: 50.0,
-                        child: pw.Text("Código"),
-                      ),
-                    ]),
-                    pw.TableRow(children: [
-                      pw.Container(
-                        color: PdfColors.deepPurple,
-                        width: 50.0,
-                        height: 50.0,
-                        child: pw.Text("5"),
-                      ),
-                      pw.Container(
-                        color: PdfColors.cyan,
-                        width: 50.0,
-                        height: 50.0,
-                        child: pw.Text("6"),
-                      ),
-                    ]),
-                    pw.TableRow(children: [
-                      pw.Container(
-                        color: PdfColors.amberAccent,
-                        width: 50.0,
-                        height: 50.0,
-                        child: pw.Text("7"),
-                      ),
-                      pw.Container(
-                        color: PdfColors.black,
-                        width: 50.0,
-                        height: 50.0,
-                        child: pw.Text("8"),
-                      ),
-                    ]),
-                  ],
-                ),
-              ),
-              pw.Container(
-                width: ancho,
-                color: PdfColors.cyan,
-                child: pw.Table(
-                  columnWidths: {
-                    1: pw.FractionColumnWidth(.3),
-                  },
-                  children: [
-                    pw.TableRow(children: [
-                      pw.Container(
-                        color: PdfColors.green,
-                        width: 50.0,
-                        height: 50.0,
-                        child: pw.Text(
-                            "1111111111111111111111111111111111111111111"),
-                      ),
-                      pw.Container(
-                        color: PdfColors.red,
-                        width: 50.0,
-                        height: 50.0,
-                        child: pw.Text("2"),
-                      ),
-                    ]),
-                    pw.TableRow(children: [
-                      pw.Container(
-                        color: PdfColors.deepPurple,
-                        width: 50.0,
-                        height: 100.0,
-                        child: pw.Text("5"),
-                      ),
-                      pw.Container(
-                        color: PdfColors.cyan,
-                        width: 50.0,
-                        height: 100.0,
-                        child: pw.Text("6"),
-                      ),
-                    ]),
-                  ],
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
 
     // final dir = await getExternalStorageDirectory();
     // final myPdfPath = '${dir!.path}/${resumenPreoperacional.id}.pdf';
