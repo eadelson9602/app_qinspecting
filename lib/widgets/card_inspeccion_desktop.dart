@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/models/models.dart';
-import 'package:app_qinspecting/providers/providers.dart';
 
 class CardInspeccionDesktop extends StatelessWidget {
   const CardInspeccionDesktop({Key? key, required this.resumenPreoperacional})
@@ -12,7 +10,6 @@ class CardInspeccionDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final inspeccionProvider = Provider.of<InspeccionProvider>(context);
     return Container(
       height: 270,
       margin: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
@@ -43,15 +40,8 @@ class CardInspeccionDesktop extends StatelessWidget {
                     IconButton(
                       icon: Icon(Icons.picture_as_pdf_outlined,
                           color: Colors.red),
-                      onPressed: () async {
-                        // Consultamos en sqlite las respuestas
-                        List<Item> respuestas =
-                            await inspeccionProvider.cargarTodasRespuestas(
-                                resumenPreoperacional.resuPreId!);
-
-                        Navigator.pushNamed(context, 'pdf',
-                            arguments: [resumenPreoperacional, respuestas]);
-                      },
+                      onPressed: () => Navigator.pushNamed(context, 'pdf',
+                          arguments: [resumenPreoperacional]),
                     ),
                     IconButton(
                       icon: Icon(Icons.qr_code_scanner_sharp),
