@@ -8,6 +8,8 @@
 	<string>Necesito permiso para acceder a la cámara</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Necesito permiso para acceder al micrófono</string>
+	<key>com.apple.security.network.client</key>
+	<string>Necesito permiso para acceder a conexión a internet</string>
 
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
