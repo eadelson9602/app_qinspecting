@@ -48,7 +48,7 @@ class _DesktopScreenState extends State<DesktopScreen> {
                     } else {
                       List data = snapshot.data as List;
                       return Container(
-                        height: sizeScreen.height * 0.5,
+                        height: sizeScreen.height * 0.446,
                         child: Swiper(
                           layout: SwiperLayout.STACK,
                           itemHeight: sizeScreen.height * 0.9,
