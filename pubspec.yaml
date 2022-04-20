@@ -54,6 +54,8 @@ dependencies:
   badges: ^2.0.2
   syncfusion_flutter_datepicker: ^19.4.56
   card_swiper: ^2.0.3
+  syncfusion_flutter_pdf: ^19.4.56-beta
+  syncfusion_flutter_pdfviewer: ^19.4.56-beta
   
 dev_dependencies:
   flutter_test:
