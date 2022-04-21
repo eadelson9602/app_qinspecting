@@ -116,16 +116,60 @@ class PdfScreen extends StatelessWidget {
 
     //Dibuja el título del pdf
     page.graphics.drawString('${infoPdf.nombreFormatoPreope}',
-        PdfStandardFont(PdfFontFamily.helvetica, 12, style: PdfFontStyle.bold),
+        PdfStandardFont(PdfFontFamily.helvetica, 10),
         brush: PdfBrushes.black,
         bounds: Rect.fromLTWH(122, 0, pageSize.width - 285, 60),
         format: PdfStringFormat(
             lineAlignment: PdfVerticalAlignment.middle,
             alignment: PdfTextAlignment.center));
 
-    //Dibuja el rectangulo para el codigo y version del formato
+    //Dibuja los rectangulos para el código y version del formato
+    //Top-left
     page.graphics.drawRectangle(
-        bounds: Rect.fromLTWH(355, 0, 100, 60), pen: PdfPen(PdfColor(0, 0, 0)));
+        bounds: Rect.fromLTWH(355, 0, 50, 30), pen: PdfPen(PdfColor(0, 0, 0)));
+    //Texto para CODIGO
+    page.graphics.drawString(
+        'Código', PdfStandardFont(PdfFontFamily.helvetica, 9),
+        brush: PdfBrushes.black,
+        bounds: Rect.fromLTWH(355, 0, 50, 30),
+        format: PdfStringFormat(
+            lineAlignment: PdfVerticalAlignment.middle,
+            alignment: PdfTextAlignment.center));
+    //Top-rigth
+    page.graphics.drawRectangle(
+        bounds: Rect.fromLTWH(405, 0, 50, 30), pen: PdfPen(PdfColor(0, 0, 0)));
+    //Texto para CODIGO DE LA BASE
+    page.graphics.drawString('${infoPdf.codFormtPreope}',
+        PdfStandardFont(PdfFontFamily.helvetica, 9),
+        brush: PdfBrushes.black,
+        bounds: Rect.fromLTWH(405, 0, 50, 30),
+        format: PdfStringFormat(
+            lineAlignment: PdfVerticalAlignment.middle,
+            alignment: PdfTextAlignment.center));
+
+    //Bottom-left
+    page.graphics.drawRectangle(
+        bounds: Rect.fromLTWH(355, 30, 50, 30), pen: PdfPen(PdfColor(0, 0, 0)));
+    //Texto para VERSION
+    page.graphics.drawString(
+        'Versión', PdfStandardFont(PdfFontFamily.helvetica, 9),
+        brush: PdfBrushes.black,
+        bounds: Rect.fromLTWH(355, 30, 50, 30),
+        format: PdfStringFormat(
+            lineAlignment: PdfVerticalAlignment.middle,
+            alignment: PdfTextAlignment.center));
+
+    //Bottom-rigth
+    page.graphics.drawRectangle(
+        bounds: Rect.fromLTWH(405, 30, 50, 30), pen: PdfPen(PdfColor(0, 0, 0)));
+    //Texto para VERSION DE LA BASE
+    page.graphics.drawString('${infoPdf.versionFormtPreope}',
+        PdfStandardFont(PdfFontFamily.helvetica, 9),
+        brush: PdfBrushes.black,
+        bounds: Rect.fromLTWH(405, 30, 50, 30),
+        format: PdfStringFormat(
+            lineAlignment: PdfVerticalAlignment.middle,
+            alignment: PdfTextAlignment.center));
 
     //Dibuja el rectangulo para logo de QI
     page.graphics.drawRectangle(
