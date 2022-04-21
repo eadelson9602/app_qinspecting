@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 // import 'package:printing/printing.dart';
 
@@ -8,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:http/http.dart' show get;
 
 class PdfScreen extends StatelessWidget {
   const PdfScreen({Key? key}) : super(key: key);
@@ -37,7 +39,6 @@ class PdfScreen extends StatelessWidget {
               onPressed: () async {
                 final pathPdf = await _generatePdf(
                     resumenPreoperacional, inspeccionService, loginService);
-                print(pathPdf);
                 await Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     builder: (BuildContext context) {
@@ -61,7 +62,12 @@ class PdfScreen extends StatelessWidget {
       InspeccionService inspeccionService, LoginService loginService) async {
     Pdf? infoPdf = await inspeccionService.detatilPdf(
         loginService.selectedEmpresa, resumenPreoperacional);
-    print(infoPdf);
+
+    var responseLogoCliente = await get(Uri.parse(infoPdf!.rutaLogo!));
+    var logoCliente = responseLogoCliente.bodyBytes;
+    var responseLogoQi =
+        await get(Uri.parse('https://qinspecting.com/img/Qi.png'));
+    var logoQi = responseLogoQi.bodyBytes;
 
     //Create a PDF document.
     final PdfDocument document = PdfDocument();
@@ -72,11 +78,12 @@ class PdfScreen extends StatelessWidget {
     //Draw rectangle
     page.graphics.drawRectangle(
         bounds: Rect.fromLTWH(0, 0, pageSize.width, pageSize.height),
-        pen: PdfPen(PdfColor(142, 170, 219, 255)));
+        pen: PdfPen(PdfColor(0, 0, 0)));
     //Generate PDF grid.
     final PdfGrid grid = getGrid();
     //Draw the header section by creating text element
-    final PdfLayoutResult result = drawHeader(page, pageSize, grid);
+    final PdfLayoutResult result =
+        drawHeader(page, pageSize, grid, infoPdf, logoCliente, logoQi);
     //Draw grid
     drawGrid(page, grid, result);
     //Add invoice footer
@@ -91,57 +98,44 @@ class PdfScreen extends StatelessWidget {
     return File('${output.path}/example.pdf');
   }
 
-  //Draws the invoice header
-  PdfLayoutResult drawHeader(PdfPage page, Size pageSize, PdfGrid grid) {
-    //Draw rectangle
+  //Dibuja el encabezado
+  PdfLayoutResult drawHeader(PdfPage page, Size pageSize, PdfGrid grid,
+      Pdf infoPdf, Uint8List logoCliente, Uint8List logoQi) {
+    //Dibula el rectangulo que contiene el logo del cliente
     page.graphics.drawRectangle(
-        brush: PdfSolidBrush(PdfColor(91, 126, 215, 255)),
-        bounds: Rect.fromLTWH(0, 0, pageSize.width - 115, 90));
-    //Draw string
-    page.graphics.drawString(
-        'INVOICE', PdfStandardFont(PdfFontFamily.helvetica, 30),
-        brush: PdfBrushes.white,
-        bounds: Rect.fromLTWH(25, 0, pageSize.width - 115, 90),
-        format: PdfStringFormat(lineAlignment: PdfVerticalAlignment.middle));
+        bounds: Rect.fromLTWH(0, 0, 120, 60), pen: PdfPen(PdfColor(0, 0, 0)));
 
+    //Dibuja el logo del cliente
+    page.graphics
+        .drawImage(PdfBitmap(logoCliente), Rect.fromLTWH(1, 1, 118, 57));
+
+    //Diduja el rectangulo con el titulo del pdf
     page.graphics.drawRectangle(
-        bounds: Rect.fromLTWH(400, 0, pageSize.width - 400, 90),
-        brush: PdfSolidBrush(PdfColor(65, 104, 205)));
+        bounds: Rect.fromLTWH(120, 0, pageSize.width - 280, 60),
+        pen: PdfPen(PdfColor(0, 0, 0)));
 
-    page.graphics.drawString(r'$' + getTotalAmount(grid).toString(),
-        PdfStandardFont(PdfFontFamily.helvetica, 18),
-        bounds: Rect.fromLTWH(400, 0, pageSize.width - 400, 100),
-        brush: PdfBrushes.white,
+    //Dibuja el título del pdf
+    page.graphics.drawString('${infoPdf.nombreFormatoPreope}',
+        PdfStandardFont(PdfFontFamily.helvetica, 12, style: PdfFontStyle.bold),
+        brush: PdfBrushes.black,
+        bounds: Rect.fromLTWH(122, 0, pageSize.width - 285, 60),
         format: PdfStringFormat(
-            alignment: PdfTextAlignment.center,
-            lineAlignment: PdfVerticalAlignment.middle));
+            lineAlignment: PdfVerticalAlignment.middle,
+            alignment: PdfTextAlignment.center));
 
-    final PdfFont contentFont = PdfStandardFont(PdfFontFamily.helvetica, 9);
-    //Draw string
-    page.graphics.drawString('Amount', contentFont,
-        brush: PdfBrushes.white,
-        bounds: Rect.fromLTWH(400, 0, pageSize.width - 400, 33),
-        format: PdfStringFormat(
-            alignment: PdfTextAlignment.center,
-            lineAlignment: PdfVerticalAlignment.bottom));
-    //Create data foramt and convert it to text.
-    final String invoiceNumber =
-        'Invoice Number: 2058557939\r\n\r\nDate: ${DateTime.now()}';
-    final Size contentSize = contentFont.measureString(invoiceNumber);
-    // ignore: leading_newlines_in_multiline_strings
-    const String address = '''Bill To: \r\n\r\nAbraham Swearegin, 
-        \r\n\r\nUnited States, California, San Mateo, 
-        \r\n\r\n9920 BridgePointe Parkway, \r\n\r\n9365550136''';
+    //Dibuja el rectangulo para el codigo y version del formato
+    page.graphics.drawRectangle(
+        bounds: Rect.fromLTWH(355, 0, 100, 60), pen: PdfPen(PdfColor(0, 0, 0)));
 
-    PdfTextElement(text: invoiceNumber, font: contentFont).draw(
-        page: page,
-        bounds: Rect.fromLTWH(pageSize.width - (contentSize.width + 30), 120,
-            contentSize.width + 30, pageSize.height - 120));
+    //Dibuja el rectangulo para logo de QI
+    page.graphics.drawRectangle(
+        bounds: Rect.fromLTWH(455, 0, 60, 60), pen: PdfPen(PdfColor(0, 0, 0)));
 
-    return PdfTextElement(text: address, font: contentFont).draw(
-        page: page,
-        bounds: Rect.fromLTWH(30, 120,
-            pageSize.width - (contentSize.width + 30), pageSize.height - 120))!;
+    //Dibuja el logo de QI
+    page.graphics.drawImage(PdfBitmap(logoQi), Rect.fromLTWH(462, 8, 45, 45));
+
+    return PdfTextElement()
+        .draw(page: page, bounds: Rect.fromLTWH(0, 20, pageSize.width, 80))!;
   }
 
   //Draws the grid
