@@ -80,7 +80,7 @@ class PdfScreen extends StatelessWidget {
         bounds: Rect.fromLTWH(0, 0, pageSize.width, pageSize.height),
         pen: PdfPen(PdfColor(0, 0, 0)));
     //Generate PDF grid.
-    final PdfGrid grid = getGrid();
+    final PdfGrid grid = getGrid(infoPdf);
     //Draw the header section by creating text element
     final PdfLayoutResult result =
         drawHeader(page, pageSize, grid, infoPdf, logoCliente, logoQi);
@@ -198,22 +198,6 @@ class PdfScreen extends StatelessWidget {
     //Draw the PDF grid and get the result.
     result = grid.draw(
         page: page, bounds: Rect.fromLTWH(0, result.bounds.bottom + 40, 0, 0))!;
-
-    //Draw grand total.
-    page.graphics.drawString('Grand Total',
-        PdfStandardFont(PdfFontFamily.helvetica, 9, style: PdfFontStyle.bold),
-        bounds: Rect.fromLTWH(
-            quantityCellBounds!.left,
-            result.bounds.bottom + 10,
-            quantityCellBounds!.width,
-            quantityCellBounds!.height));
-    page.graphics.drawString(getTotalAmount(grid).toString(),
-        PdfStandardFont(PdfFontFamily.helvetica, 9, style: PdfFontStyle.bold),
-        bounds: Rect.fromLTWH(
-            totalPriceCellBounds!.left,
-            result.bounds.bottom + 10,
-            totalPriceCellBounds!.width,
-            totalPriceCellBounds!.height));
   }
 
   //Draw the invoice footer data.
@@ -238,29 +222,33 @@ class PdfScreen extends StatelessWidget {
   }
 
   //Create PDF grid and return
-  PdfGrid getGrid() {
+  PdfGrid getGrid(Pdf infoPdf) {
+    print(infoPdf.detalle);
     //Create a PDF grid
     final PdfGrid grid = PdfGrid();
     //Secify the columns count to the grid.
-    grid.columns.add(count: 5);
+    grid.columns.add(count: 6);
     //Create the header row of the grid.
-    final PdfGridRow headerRow = grid.headers.add(1)[0];
+    final PdfGridRow headerRow = grid.headers.add(2)[0];
     //Set style
     headerRow.style.backgroundBrush = PdfSolidBrush(PdfColor(68, 114, 196));
     headerRow.style.textBrush = PdfBrushes.white;
-    headerRow.cells[0].value = 'Product Id';
+    headerRow.cells[0].value = 'Item';
+    headerRow.cells[0].columnSpan = 2;
     headerRow.cells[0].stringFormat.alignment = PdfTextAlignment.center;
-    headerRow.cells[1].value = 'Product Name';
-    headerRow.cells[2].value = 'Price';
-    headerRow.cells[3].value = 'Quantity';
-    headerRow.cells[4].value = 'Total';
+    headerRow.cells[1].value = 'Tiene';
+    headerRow.cells[1].columnSpan = 2;
+    headerRow.cells[2].value = 'Estado';
+    headerRow.cells[2].columnSpan = 2;
+    headerRow.cells[3].value = 'Observaciones';
+    headerRow.cells[3].columnSpan = 2;
     //Add rows
-    addProducts('CA-1098', 'AWC Logo Cap', 8.99, 2, 17.98, grid);
-    addProducts('LJ-0192', 'Long-Sleeve Logo Jersey,M', 49.99, 3, 149.97, grid);
-    addProducts('So-B909-M', 'Mountain Bike Socks,M', 9.5, 2, 19, grid);
-    addProducts('LJ-0192', 'Long-Sleeve Logo Jersey,M', 49.99, 4, 199.96, grid);
-    addProducts('FK-5136', 'ML Fork', 175.49, 6, 1052.94, grid);
-    addProducts('HL-U509', 'Sports-100 Helmet,Black', 34.99, 1, 34.99, grid);
+    // addProducts('CA-1098', 'AWC Logo Cap', 8.99, 2, 17.98, grid);
+    // addProducts('LJ-0192', 'Long-Sleeve Logo Jersey,M', 49.99, 3, 149.97, grid);
+    // addProducts('So-B909-M', 'Mountain Bike Socks,M', 9.5, 2, 19, grid);
+    // addProducts('LJ-0192', 'Long-Sleeve Logo Jersey,M', 49.99, 4, 199.96, grid);
+    // addProducts('FK-5136', 'ML Fork', 175.49, 6, 1052.94, grid);
+    // addProducts('HL-U509', 'Sports-100 Helmet,Black', 34.99, 1, 34.99, grid);
     //Apply the table built-in style
     grid.applyBuiltInStyle(PdfGridBuiltInStyle.listTable4Accent5);
     //Set gird columns width
@@ -292,16 +280,5 @@ class PdfScreen extends StatelessWidget {
     row.cells[2].value = price.toString();
     row.cells[3].value = quantity.toString();
     row.cells[4].value = total.toString();
-  }
-
-  //Get the total amount.
-  double getTotalAmount(PdfGrid grid) {
-    double total = 0;
-    for (int i = 0; i < grid.rows.count; i++) {
-      final String value =
-          grid.rows[i].cells[grid.columns.count - 1].value as String;
-      total += double.parse(value);
-    }
-    return total;
   }
 }
