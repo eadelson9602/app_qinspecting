@@ -1,12 +1,15 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:pdf/pdf.dart';
-import 'package:printing/printing.dart';
-import 'package:pdf/widgets.dart' as pw;
+// import 'package:printing/printing.dart';
 
 import 'package:app_qinspecting/models/models.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:app_qinspecting/services/services.dart';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:http/http.dart' show get;
 
 class PdfScreen extends StatelessWidget {
   const PdfScreen({Key? key}) : super(key: key);
@@ -18,474 +21,243 @@ class PdfScreen extends StatelessWidget {
 
     final inspeccionService = Provider.of<InspeccionService>(context);
     final loginService = Provider.of<LoginService>(context);
-    final sizeScreen = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(title: Text('PDF')),
-      body: PdfPreview(
-        pdfFileName: 'Preoperacional ${resumenPreoperacional.resuPreId}',
-        dpi: 420,
-        build: (format) => _generatePdf(format, sizeScreen,
-            resumenPreoperacional, inspeccionService, loginService),
+      appBar: AppBar(
+        title: Text('Preoperacional ${resumenPreoperacional.resuPreId}'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            TextButton(
+              child: const Text('Generate PDF'),
+              style: TextButton.styleFrom(
+                primary: Colors.white,
+                backgroundColor: Colors.lightBlue,
+                onSurface: Colors.grey,
+              ),
+              onPressed: () async {
+                final pathPdf = await _generatePdf(
+                    resumenPreoperacional, inspeccionService, loginService);
+                await Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) {
+                      return Scaffold(
+                        appBar: AppBar(),
+                        body: SfPdfViewer.file(pathPdf),
+                      );
+                    },
+                  ),
+                );
+              },
+            )
+          ],
+        ),
       ),
     );
   }
 
   // Genera el pdf
-  Future<Uint8List> _generatePdf(
-      PdfPageFormat format,
-      Size sizeScreen,
-      ResumenPreoperacionalServer resumenPreoperacional,
-      InspeccionService inspeccionService,
-      LoginService loginService) async {
-    final pdf = pw.Document();
-    final alto = sizeScreen.height * 1;
-    final ancho = sizeScreen.width * 1;
-
+  Future<File> _generatePdf(ResumenPreoperacionalServer resumenPreoperacional,
+      InspeccionService inspeccionService, LoginService loginService) async {
     Pdf? infoPdf = await inspeccionService.detatilPdf(
         loginService.selectedEmpresa, resumenPreoperacional);
-    String bodyResponse = infoPdf!.detalle.map((element) {
-      '''
-        <tr>
-          <td colspan="191" class="categoria">
-            ${element.categoria}
-          </td>
-        </tr>
-      ''';
-    }).toString();
 
-    await Printing.layoutPdf(
-        onLayout: (PdfPageFormat format) async => await Printing.convertHtml(
-              format: format,
-              html: '''<html>
-        <body>
-          <style>
-            body{
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-              font-size: 2px !important;
-            }
+    var responseLogoCliente = await get(Uri.parse(infoPdf!.rutaLogo!));
+    var logoCliente = responseLogoCliente.bodyBytes;
+    var responseLogoQi =
+        await get(Uri.parse('https://qinspecting.com/img/Qi.png'));
+    var logoQi = responseLogoQi.bodyBytes;
 
-            img {
-              height: 20px;
-            }
+    //Create a PDF document.
+    final PdfDocument document = PdfDocument();
+    //Add page to the PDF
+    final PdfPage page = document.pages.add();
+    //Get page client size
+    final Size pageSize = page.getClientSize();
+    //Draw rectangle
+    page.graphics.drawRectangle(
+        bounds: Rect.fromLTWH(0, 0, pageSize.width, pageSize.height),
+        pen: PdfPen(PdfColor(0, 0, 0)));
+    //Generate PDF grid.
+    final PdfGrid grid = getGrid();
+    //Draw the header section by creating text element
+    final PdfLayoutResult result =
+        drawHeader(page, pageSize, grid, infoPdf, logoCliente, logoQi);
+    //Draw grid
+    drawGrid(page, grid, result);
+    //Add invoice footer
+    drawFooter(page, pageSize);
+    //Save the PDF document
+    final output = await getTemporaryDirectory();
 
-            table {
-              width: 100%;
-              border-spacing: 0 !important;
-            }
+    File('${output.path}/example.pdf').writeAsBytes(document.save());
+    // Dispose the document.
+    document.dispose();
 
-            td, th{
-              border: 1px solid #000;
-              padding: 2px 5px;
-              text-align: center;
-              color: rgb(48, 48, 48);
-            }
+    return File('${output.path}/example.pdf');
+  }
 
-            td p, .item {
-              margin: 0;
-              font-weight: bold;
-              text-align: left;
-            }
+  //Dibuja el encabezado
+  PdfLayoutResult drawHeader(PdfPage page, Size pageSize, PdfGrid grid,
+      Pdf infoPdf, Uint8List logoCliente, Uint8List logoQi) {
+    //Dibula el rectangulo que contiene el logo del cliente
+    page.graphics.drawRectangle(
+        bounds: Rect.fromLTWH(0, 0, 120, 60), pen: PdfPen(PdfColor(0, 0, 0)));
 
-            .consecutivo{
-              color: #008500;
-              font-weight: bold;
-            }
+    //Dibuja el logo del cliente
+    page.graphics
+        .drawImage(PdfBitmap(logoCliente), Rect.fromLTWH(1, 1, 118, 57));
 
-            .categoria{
-              font-weight: bold;
-              background-color: #e0e0e0;
-            }
+    //Diduja el rectangulo con el titulo del pdf
+    page.graphics.drawRectangle(
+        bounds: Rect.fromLTWH(120, 0, pageSize.width - 280, 60),
+        pen: PdfPen(PdfColor(0, 0, 0)));
 
-            .item {
-               /*font-size: 12px;*/
-            }
+    //Dibuja el título del pdf
+    page.graphics.drawString('${infoPdf.nombreFormatoPreope}',
+        PdfStandardFont(PdfFontFamily.helvetica, 12, style: PdfFontStyle.bold),
+        brush: PdfBrushes.black,
+        bounds: Rect.fromLTWH(122, 0, pageSize.width - 285, 60),
+        format: PdfStringFormat(
+            lineAlignment: PdfVerticalAlignment.middle,
+            alignment: PdfTextAlignment.center));
 
-            .observaciones{
-              text-align: left;
-              /* font-size: 12px; */
-            }
+    //Dibuja el rectangulo para el codigo y version del formato
+    page.graphics.drawRectangle(
+        bounds: Rect.fromLTWH(355, 0, 100, 60), pen: PdfPen(PdfColor(0, 0, 0)));
 
-            td p:nth-child(even){
-              font-weight: normal;
-              text-transform: uppercase;
-            }
+    //Dibuja el rectangulo para logo de QI
+    page.graphics.drawRectangle(
+        bounds: Rect.fromLTWH(455, 0, 60, 60), pen: PdfPen(PdfColor(0, 0, 0)));
 
-            caption {
-              text-align: left;
-              font-size: 18px;
-              padding: 5px;
-              font-weight: bold;
-            }
+    //Dibuja el logo de QI
+    page.graphics.drawImage(PdfBitmap(logoQi), Rect.fromLTWH(462, 8, 45, 45));
 
-            .caption_title{
-              text-align: center;
-              border: 1px solid #000;
-            }
+    return PdfTextElement()
+        .draw(page: page, bounds: Rect.fromLTWH(0, 20, pageSize.width, 80))!;
+  }
 
-            ul{
-              list-style: none;
-              text-align: center;
-              margin: 0;
-            }
+  //Draws the grid
+  void drawGrid(PdfPage page, PdfGrid grid, PdfLayoutResult result) {
+    Rect? totalPriceCellBounds;
+    Rect? quantityCellBounds;
+    //Invoke the beginCellLayout event.
+    grid.beginCellLayout = (Object sender, PdfGridBeginCellLayoutArgs args) {
+      final PdfGrid grid = sender as PdfGrid;
+      if (args.cellIndex == grid.columns.count - 1) {
+        totalPriceCellBounds = args.bounds;
+      } else if (args.cellIndex == grid.columns.count - 2) {
+        quantityCellBounds = args.bounds;
+      }
+    };
+    //Draw the PDF grid and get the result.
+    result = grid.draw(
+        page: page, bounds: Rect.fromLTWH(0, result.bounds.bottom + 40, 0, 0))!;
 
-            li{
-              display: inline;
-              margin-right: 20px;
-              text-align: center;
-            }
+    //Draw grand total.
+    page.graphics.drawString('Grand Total',
+        PdfStandardFont(PdfFontFamily.helvetica, 9, style: PdfFontStyle.bold),
+        bounds: Rect.fromLTWH(
+            quantityCellBounds!.left,
+            result.bounds.bottom + 10,
+            quantityCellBounds!.width,
+            quantityCellBounds!.height));
+    page.graphics.drawString(getTotalAmount(grid).toString(),
+        PdfStandardFont(PdfFontFamily.helvetica, 9, style: PdfFontStyle.bold),
+        bounds: Rect.fromLTWH(
+            totalPriceCellBounds!.left,
+            result.bounds.bottom + 10,
+            totalPriceCellBounds!.width,
+            totalPriceCellBounds!.height));
+  }
 
-            table td {
-              margin: 0;
-            }
-          </style>
-          <table>
-            <thead>
-              <tr>
-                <th rowspan="2" colspan="16">
-                  <img src="${infoPdf.rutaLogo}" width=80 height=40 alt="Logo empresa cliente">
-                </th>
-                <th rowspan="2" colspan="110">${infoPdf.nombreFormatoPreope}</th>
-                <th colspan="10">Código</th>
-                <th colspan="10">${infoPdf.versionFormtPreope}</th>
-                <th rowspan="2" colspan="16">
-                  <img src="https://qinspecting.com/img/Qi.png" width=50 height=40 alt="Logo qinspecting">
-                </th>
-              </tr>
-              <tr>
-                <th colspan="10">Versión</th>
-                <th colspan="10">${infoPdf.versionFormtPreope}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Resumen preoperacional -->
-              <tr>
-                <td colspan="43">
-                  <p>CIUDAD Y FECHA:</p>
-                  <p>${infoPdf.resuPreFecha}</p>
-                </td>
-                <td colspan="43">
-                  <p>TIPO DE VEHÍCULO:</p>
-                  <p>${infoPdf.tvDescripcion}</p>
-                </td>
-                <td colspan="67">
-                  <p>MARCA/LINEA/MODELO:</p>
-                  <p>${infoPdf.mlm}</p>
-                </td>
-                <td colspan="39">
-                  <p>¿REALIZÓ TANQUEO ?</p>
-                  <p>${infoPdf.tanque}</p>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <table>
-            <tr>
-              <td>
-                <p>KILOMETRAJE:</p>
-                <p>${infoPdf.kilometraje}</p>
-              </td>
-              <td>
-                <p>NOMBRE QUIEN REALIZÓ INSPECCIÓN:</p>
-                <p>${infoPdf.conductor}</p>
-              </td>
-              <td>
-                <p>PLACA VEHÍCULO:</p>
-                <p>${infoPdf.vehPlaca}</p>
-              </td>
-              <td>
-                <p>PLACA REMOLQUE:</p>
-                <p>${infoPdf.remolPlaca}</p>
-              </td>
-              <td>
-                <p>ESTADO:</p>
-                <p>PENDIENTE AGREGAR PROPIEDAD A LA CONSULTA</p>
-              </td>
-            </tr>
-          </table>
-          <table>
-            <tr>
-              <td rowspan="2">
-                <p>N° INSPECCION:</p>
-              </td>
-              <td class="consecutivo" rowspan="2">
-                ${infoPdf.consecutivo}
-              </td>
+  //Draw the invoice footer data.
+  void drawFooter(PdfPage page, Size pageSize) {
+    final PdfPen linePen =
+        PdfPen(PdfColor(142, 170, 219, 255), dashStyle: PdfDashStyle.custom);
+    linePen.dashPattern = <double>[3, 3];
+    //Draw line
+    page.graphics.drawLine(linePen, Offset(0, pageSize.height - 100),
+        Offset(pageSize.width, pageSize.height - 100));
 
-              <td rowspan="2">
-                <p>FIRMA CONDUCTOR:</p>
-              </td>
-              <td rowspan="2">
-                ${infoPdf.firma!.contains('.jpg') ? '<img src="${infoPdf.firma}" alt="Firma digital">' : infoPdf.firma}
-              </td>
-              <td rowspan="2">
-                <p>FIRMA DE QUIEN INSPECCIONA:</p>
-              </td>
-              <td rowspan="2">
-                ${infoPdf.firma!.contains('.jpg') ? '<img src="${infoPdf.firma}" alt="Firma digital">' : infoPdf.firma}
-              </td>
-            </tr>
-          </table>
-          <table>
-            <caption class="caption_title">
-              <ul>
-                <li>S: Si</li>
-                <li>N: No</li>
-                <li>B: Bueno</li>
-                <li>M: Malo</li>
-              </ul>
-            </caption>
-            <tr>
-              <td rowspan="2" colspan="80">
-                ITEM
-              </td>
+    const String footerContent =
+        // ignore: leading_newlines_in_multiline_strings
+        '''800 Interchange Blvd.\r\n\r\nSuite 2501, Austin,
+         TX 78721\r\n\r\nAny Questions? support@adventure-works.com''';
 
-              <td colspan="20">
-                TIENE:
-              </td>
-              <td colspan="20">
-                ESTADO:
-              </td>
-              <td rowspan="2" colspan="72">
-                OBSERVACIONES
-              </td>
-            </tr>
+    //Added 30 as a margin for the layout
+    page.graphics.drawString(
+        footerContent, PdfStandardFont(PdfFontFamily.helvetica, 9),
+        format: PdfStringFormat(alignment: PdfTextAlignment.right),
+        bounds: Rect.fromLTWH(pageSize.width - 30, pageSize.height - 70, 0, 0));
+  }
 
-            <tr>
-              <td colspan="10">S</td>
-              <td colspan="10">N</td>
-              <td colspan="10">B</td>
-              <td colspan="10">M</td>
-            </tr>
-            <tr>
-              <td colspan="191" class="categoria">
-                Documentos Vehículo
-              </td>
-            </tr>
-            ${bodyResponse}
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10">X</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10"></td>
-              <td colspan="10">x</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10">X</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10"></td>
-              <td colspan="10">x</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10">X</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10"></td>
-              <td colspan="10">x</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10">X</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10"></td>
-              <td colspan="10">x</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10">X</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10"></td>
-              <td colspan="10">x</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10">X</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10"></td>
-              <td colspan="10">x</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td colspan="191" class="categoria">
-                Documentos Vehículo
-              </td>
-            </tr>
+  //Create PDF grid and return
+  PdfGrid getGrid() {
+    //Create a PDF grid
+    final PdfGrid grid = PdfGrid();
+    //Secify the columns count to the grid.
+    grid.columns.add(count: 5);
+    //Create the header row of the grid.
+    final PdfGridRow headerRow = grid.headers.add(1)[0];
+    //Set style
+    headerRow.style.backgroundBrush = PdfSolidBrush(PdfColor(68, 114, 196));
+    headerRow.style.textBrush = PdfBrushes.white;
+    headerRow.cells[0].value = 'Product Id';
+    headerRow.cells[0].stringFormat.alignment = PdfTextAlignment.center;
+    headerRow.cells[1].value = 'Product Name';
+    headerRow.cells[2].value = 'Price';
+    headerRow.cells[3].value = 'Quantity';
+    headerRow.cells[4].value = 'Total';
+    //Add rows
+    addProducts('CA-1098', 'AWC Logo Cap', 8.99, 2, 17.98, grid);
+    addProducts('LJ-0192', 'Long-Sleeve Logo Jersey,M', 49.99, 3, 149.97, grid);
+    addProducts('So-B909-M', 'Mountain Bike Socks,M', 9.5, 2, 19, grid);
+    addProducts('LJ-0192', 'Long-Sleeve Logo Jersey,M', 49.99, 4, 199.96, grid);
+    addProducts('FK-5136', 'ML Fork', 175.49, 6, 1052.94, grid);
+    addProducts('HL-U509', 'Sports-100 Helmet,Black', 34.99, 1, 34.99, grid);
+    //Apply the table built-in style
+    grid.applyBuiltInStyle(PdfGridBuiltInStyle.listTable4Accent5);
+    //Set gird columns width
+    grid.columns[1].width = 200;
+    for (int i = 0; i < headerRow.cells.count; i++) {
+      headerRow.cells[i].style.cellPadding =
+          PdfPaddings(bottom: 5, left: 5, right: 5, top: 5);
+    }
+    for (int i = 0; i < grid.rows.count; i++) {
+      final PdfGridRow row = grid.rows[i];
+      for (int j = 0; j < row.cells.count; j++) {
+        final PdfGridCell cell = row.cells[j];
+        if (j == 0) {
+          cell.stringFormat.alignment = PdfTextAlignment.center;
+        }
+        cell.style.cellPadding =
+            PdfPaddings(bottom: 5, left: 5, right: 5, top: 5);
+      }
+    }
+    return grid;
+  }
 
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10">X</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10"></td>
-              <td colspan="10">x</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10">X</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10"></td>
-              <td colspan="10">x</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10">X</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10"></td>
-              <td colspan="10">x</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10">X</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10"></td>
-              <td colspan="10">x</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10">X</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10"></td>
-              <td colspan="10">x</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10">X</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-            <tr>
-              <td class="item" colspan="80">Licencia de Tránsito</td>
-              <td colspan="10"></td>
-              <td colspan="10">x</td>
-              <td colspan="10"></td>
-              <td colspan="10"></td>
-              <td colspan="72" class="observaciones">OBSERVACIONES:</td>
-            </tr>
-          </table>
+  //Create and row for the grid.
+  void addProducts(String productId, String productName, double price,
+      int quantity, double total, PdfGrid grid) {
+    final PdfGridRow row = grid.rows.add();
+    row.cells[0].value = productId;
+    row.cells[1].value = productName;
+    row.cells[2].value = price.toString();
+    row.cells[3].value = quantity.toString();
+    row.cells[4].value = total.toString();
+  }
 
-          <table>
-            <caption>Observaciones:</caption>
-            <thead>
-              <tr>
-                <th colspan="68">ITEM:</th>
-                <th colspan="94">OBSERVACIONES:</th>
-                <th colspan="30">FOTO:</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td colspan="68" class="item">ITEM:</td>
-                <td colspan="94" class="observaciones">OBSERVACIONES:</td>
-                <td colspan="30">FOTO:</td>
-              </tr>
-            </tbody>
-          </table>
-        </body>
-        </html>''',
-            ));
-
-    // final dir = await getExternalStorageDirectory();
-    // final myPdfPath = '${dir!.path}/${resumenPreoperacional.id}.pdf';
-    // final file = File(myPdfPath);
-    return pdf.save();
+  //Get the total amount.
+  double getTotalAmount(PdfGrid grid) {
+    double total = 0;
+    for (int i = 0; i < grid.rows.count; i++) {
+      final String value =
+          grid.rows[i].cells[grid.columns.count - 1].value as String;
+      total += double.parse(value);
+    }
+    return total;
   }
 }
