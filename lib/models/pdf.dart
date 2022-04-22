@@ -153,12 +153,12 @@ class Detalle {
   Detalle({
     this.idCategoria,
     this.categoria,
-    this.respuestas,
+    required this.respuestas,
   });
 
   int? idCategoria;
   String? categoria;
-  String? respuestas;
+  List<RespuestaInspeccion> respuestas;
 
   factory Detalle.fromJson(String str) => Detalle.fromMap(json.decode(str));
 
@@ -167,12 +167,47 @@ class Detalle {
   factory Detalle.fromMap(Map<String, dynamic> json) => Detalle(
         idCategoria: json["idCategoria"],
         categoria: json["categoria"],
-        respuestas: json["respuestas"],
+        respuestas: List<RespuestaInspeccion>.from(
+            json["respuestas"].map((x) => RespuestaInspeccion.fromMap(x))),
       );
 
   Map<String, dynamic> toMap() => {
         "idCategoria": idCategoria,
         "categoria": categoria,
-        "respuestas": respuestas,
+        "respuestas": List<dynamic>.from(respuestas.map((x) => x.toMap())),
+      };
+}
+
+class RespuestaInspeccion {
+  RespuestaInspeccion({
+    this.foto,
+    this.item,
+    this.idItem,
+    this.observacion,
+  });
+
+  String? foto;
+  String? item;
+  int? idItem;
+  String? observacion;
+
+  factory RespuestaInspeccion.fromJson(String str) =>
+      RespuestaInspeccion.fromMap(json.decode(str));
+
+  String toJson() => json.encode(toMap());
+
+  factory RespuestaInspeccion.fromMap(Map<String, dynamic> json) =>
+      RespuestaInspeccion(
+        foto: json["foto"],
+        item: json["item"],
+        idItem: json["idItem"],
+        observacion: json["observacion"],
+      );
+
+  Map<String, dynamic> toMap() => {
+        "foto": foto,
+        "item": item,
+        "idItem": idItem,
+        "observacion": observacion,
       };
 }
