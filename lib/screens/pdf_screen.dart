@@ -80,7 +80,7 @@ class PdfScreen extends StatelessWidget {
         bounds: Rect.fromLTWH(0, 0, pageSize.width, pageSize.height),
         pen: PdfPen(PdfColor(0, 0, 0)));
     //Generate PDF grid.
-    final PdfGrid grid = getGrid(infoPdf);
+    final PdfGrid grid = getGrid(infoPdf, pageSize);
     //Draw the header section by creating text element
     final PdfLayoutResult result =
         drawHeader(page, pageSize, grid, infoPdf, logoCliente, logoQi);
@@ -211,7 +211,7 @@ class PdfScreen extends StatelessWidget {
   }
 
   //Create PDF grid and return
-  PdfGrid getGrid(Pdf infoPdf) {
+  PdfGrid getGrid(Pdf infoPdf, Size pageSize) {
     print(infoPdf.detalle);
     //Create a PDF grid
     final PdfGrid grid = PdfGrid();
@@ -221,18 +221,41 @@ class PdfScreen extends StatelessWidget {
     //Add header to the grid
     grid.headers.add(2);
 
+    //Styles for headers
+    PdfStringFormat format = PdfStringFormat();
+    format.alignment = PdfTextAlignment.center;
+    format.lineAlignment = PdfVerticalAlignment.middle;
+
     //Add the rows to the grid
     PdfGridRow header = grid.headers[0];
-    header.cells[0].value = 'Item';
-    header.cells[1].value = 'Employee Name';
-    header.cells[2].value = 'Salary';
+    header.cells[0].value = 'ITEM';
+    header.cells[0].rowSpan = 2;
+    header.cells[1].value = 'TIENE';
+    header.cells[1].columnSpan = 2;
+    header.cells[3].value = 'ESTADO';
+    header.cells[3].columnSpan = 2;
+    header.cells[5].value = 'OBSERVACIONES';
+    header.cells[5].rowSpan = 2;
+    header.cells[6].value = 'FOTO';
+    header.cells[6].rowSpan = 2;
 
     PdfGridRow header1 = grid.headers[1];
-    header1.cells[0].value = 'Item';
-    header1.cells[1].value = 'Employee Name';
-    header1.cells[1].columnSpan = 2;
-    // header1.cells[2].value = '';
-    header1.cells[3].value = 'Salary';
+    header1.cells[1].value = 'S';
+    header1.cells[2].value = 'N';
+    header1.cells[3].value = 'B';
+    header1.cells[4].value = 'M';
+
+    //Styles for headers
+    grid.columns[0].format = format;
+    grid.columns[0].width = pageSize.width - 320;
+    grid.columns[1].format = format;
+    grid.columns[2].format = format;
+    grid.columns[3].format = format;
+    grid.columns[4].format = format;
+    grid.columns[5].format = format;
+    grid.columns[5].width = pageSize.width - 350;
+    grid.columns[6].format = format;
+    grid.columns[6].width = pageSize.width - 450;
 
     return grid;
   }
