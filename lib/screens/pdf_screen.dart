@@ -212,14 +212,13 @@ class PdfScreen extends StatelessWidget {
 
   //Create PDF grid and return
   PdfGrid getGrid(Pdf infoPdf, Size pageSize) {
-    print(infoPdf.detalle);
     //Create a PDF grid
     final PdfGrid grid = PdfGrid();
     //Secify the columns count to the grid.
     grid.columns.add(count: 7);
 
     //Add header to the grid
-    grid.headers.add(2);
+    grid.headers.add(3);
 
     //Styles for headers
     PdfStringFormat format = PdfStringFormat();
@@ -227,7 +226,11 @@ class PdfScreen extends StatelessWidget {
     format.lineAlignment = PdfVerticalAlignment.middle;
 
     //Add the rows to the grid
-    PdfGridRow header = grid.headers[0];
+    PdfGridRow headerInfo = grid.headers[0];
+    headerInfo.cells[0].value = 'S: Si 		N: No 		B: Bueno 		M: Malo';
+    headerInfo.cells[0].columnSpan = 7;
+
+    PdfGridRow header = grid.headers[1];
     header.cells[0].value = 'ITEM';
     header.cells[0].rowSpan = 2;
     header.cells[1].value = 'TIENE';
@@ -239,7 +242,7 @@ class PdfScreen extends StatelessWidget {
     header.cells[6].value = 'FOTO';
     header.cells[6].rowSpan = 2;
 
-    PdfGridRow header1 = grid.headers[1];
+    PdfGridRow header1 = grid.headers[2];
     header1.cells[1].value = 'S';
     header1.cells[2].value = 'N';
     header1.cells[3].value = 'B';
@@ -261,13 +264,8 @@ class PdfScreen extends StatelessWidget {
   }
 
   //Create and row for the grid.
-  void addProducts(String productId, String productName, double price,
-      int quantity, double total, PdfGrid grid) {
+  void addProducts(PdfGrid grid) {
     final PdfGridRow row = grid.rows.add();
-    row.cells[0].value = productId;
-    row.cells[1].value = productName;
-    row.cells[2].value = price.toString();
-    row.cells[3].value = quantity.toString();
-    row.cells[4].value = total.toString();
+    row.cells[0].value = 15;
   }
 }
