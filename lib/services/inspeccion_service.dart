@@ -440,25 +440,16 @@ class InspeccionService extends ChangeNotifier {
     }
   }
 
-  Future<Pdf?> detatilPdf(
+  Future<Pdf> detatilPdf(
       Empresa empresaSelected, ResumenPreoperacionalServer inspeccion) async {
-    try {
-      isLoading = true;
-      notifyListeners();
+    isLoading = true;
+    notifyListeners();
 
-      Response response = await dio.get(
-          'https://apis.qinspecting.com/pflutter/inspeccion/${empresaSelected.nombreBase}/${inspeccion.resuPreId}');
+    Response response = await dio.get(
+        'https://apis.qinspecting.com/pflutter/inspeccion/${empresaSelected.nombreBase}/${inspeccion.resuPreId}');
 
-      isLoading = false;
-      notifyListeners();
-      return Pdf.fromJson(response.toString());
-    } catch (error) {
-      showSimpleNotification(Text('Error al obtener detalle pdf: ${error}'),
-          leading: Icon(Icons.check),
-          autoDismiss: true,
-          background: Colors.orange,
-          position: NotificationPosition.bottom);
-      return null;
-    }
+    isLoading = false;
+    notifyListeners();
+    return Pdf.fromJson(response.toString());
   }
 }
