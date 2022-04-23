@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 // import 'package:printing/printing.dart';
 
 import 'package:app_qinspecting/models/models.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:app_qinspecting/services/services.dart';
@@ -60,10 +61,17 @@ class PdfScreen extends StatelessWidget {
   // Genera el pdf
   Future<File> _generatePdf(ResumenPreoperacionalServer resumenPreoperacional,
       InspeccionService inspeccionService, LoginService loginService) async {
-    Pdf? infoPdf = await inspeccionService.detatilPdf(
-        loginService.selectedEmpresa, resumenPreoperacional);
+    Pdf infoPdf = await inspeccionService
+        .detatilPdf(loginService.selectedEmpresa, resumenPreoperacional)
+        .then((data) => data, onError: (e) {
+      showSimpleNotification(Text('Error al obtener detalle pdf: ${e}'),
+          leading: Icon(Icons.check),
+          autoDismiss: true,
+          background: Colors.orange,
+          position: NotificationPosition.bottom);
+    });
 
-    var responseLogoCliente = await get(Uri.parse(infoPdf!.rutaLogo!));
+    var responseLogoCliente = await get(Uri.parse(infoPdf.rutaLogo!));
     var logoCliente = responseLogoCliente.bodyBytes;
     var responseLogoQi =
         await get(Uri.parse('https://qinspecting.com/img/Qi.png'));
@@ -87,7 +95,7 @@ class PdfScreen extends StatelessWidget {
     //Draw grid
     drawGrid(page, grid, result);
     //Add invoice footer
-    drawFooter(page, pageSize);
+    // drawFooter(page, pageSize);
     //Save the PDF document
     final output = await getTemporaryDirectory();
 
@@ -219,11 +227,18 @@ class PdfScreen extends StatelessWidget {
 
     //Add header to the grid
     grid.headers.add(3);
+    grid.style = PdfGridStyle(
+        cellPadding: PdfPaddings(left: 2, right: 2, top: 0, bottom: 0));
 
     //Styles for headers
     PdfStringFormat format = PdfStringFormat();
     format.alignment = PdfTextAlignment.center;
     format.lineAlignment = PdfVerticalAlignment.middle;
+
+    //Styles for cells
+    PdfStringFormat formatColumns = PdfStringFormat();
+    formatColumns.alignment = PdfTextAlignment.left;
+    formatColumns.lineAlignment = PdfVerticalAlignment.middle;
 
     //Add the rows to the grid
     PdfGridRow headerInfo = grid.headers[0];
@@ -260,12 +275,39 @@ class PdfScreen extends StatelessWidget {
     grid.columns[6].format = format;
     grid.columns[6].width = pageSize.width - 450;
 
+    //Add rows
+    infoPdf.detalle.forEach((categoria) {
+      final PdfGridRow row = grid.rows.add();
+      row.cells[0].value = categoria.categoria;
+      row.cells[0].columnSpan = 7;
+      row.cells[0].style =
+          PdfGridCellStyle(backgroundBrush: PdfBrushes.lightGray);
+      categoria.respuestas.forEach((respuesta) {
+        addProducts(grid, respuesta, formatColumns);
+      });
+    });
+
     return grid;
   }
 
   //Create and row for the grid.
-  void addProducts(PdfGrid grid) {
+  void addProducts(PdfGrid grid, RespuestaInspeccion respuesta,
+      PdfStringFormat formatColumns) {
     final PdfGridRow row = grid.rows.add();
-    row.cells[0].value = 15;
+
+    row.cells[0].value = '${respuesta.item}';
+    row.cells[0].style.stringFormat = formatColumns;
+    if (respuesta.respuesta == 'S') {
+      row.cells[1].value = 'S';
+    } else if (respuesta.respuesta == 'N') {
+      row.cells[2].value = 'N';
+    } else if (respuesta.respuesta == 'B') {
+      row.cells[3].value = 'B';
+    } else {
+      row.cells[4].value = 'M';
+    }
+    row.cells[5].value =
+        '${respuesta.observacion == null ? '' : respuesta.observacion}';
+    row.cells[6].value = '${respuesta.foto == null ? '' : respuesta.foto}';
   }
 }
