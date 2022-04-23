@@ -179,16 +179,13 @@ class Detalle {
 }
 
 class RespuestaInspeccion {
-  RespuestaInspeccion({
-    this.foto,
-    this.item,
-    this.idItem,
-    this.observacion,
-  });
+  RespuestaInspeccion(
+      {this.foto, this.item, this.idItem, this.observacion, this.respuesta});
 
   String? foto;
   String? item;
   int? idItem;
+  String? respuesta;
   String? observacion;
 
   factory RespuestaInspeccion.fromJson(String str) =>
@@ -201,6 +198,7 @@ class RespuestaInspeccion {
         foto: json["foto"],
         item: json["item"],
         idItem: json["idItem"],
+        respuesta: json["respuesta"],
         observacion: json["observacion"],
       );
 
@@ -208,6 +206,7 @@ class RespuestaInspeccion {
         "foto": foto,
         "item": item,
         "idItem": idItem,
+        "respuesta": respuesta,
         "observacion": observacion,
       };
 }
