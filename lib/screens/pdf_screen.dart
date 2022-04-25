@@ -73,9 +73,15 @@ class PdfScreen extends StatelessWidget {
 
     var responseLogoCliente = await get(Uri.parse(infoPdf.rutaLogo!));
     var logoCliente = responseLogoCliente.bodyBytes;
+
     var responseLogoQi =
         await get(Uri.parse('https://qinspecting.com/img/Qi.png'));
     var logoQi = responseLogoQi.bodyBytes;
+
+    var resFirmaConductor = await get(Uri.parse(infoPdf.firma!));
+    var firmaConductor = resFirmaConductor.bodyBytes;
+    var resFirmaAuditor = await get(Uri.parse(infoPdf.firma!));
+    var firmaAuditor = resFirmaAuditor.bodyBytes;
 
     //Create a PDF document.
     final PdfDocument document = PdfDocument();
@@ -83,19 +89,29 @@ class PdfScreen extends StatelessWidget {
     final PdfPage page = document.pages.add();
     //Get page client size
     final Size pageSize = page.getClientSize();
-    //Draw rectangle
+    //Draw rectangle used how margin
     page.graphics.drawRectangle(
         bounds: Rect.fromLTWH(0, 0, pageSize.width, pageSize.height),
         pen: PdfPen(PdfColor(0, 0, 0)));
+
+    // Draw header
+    final header = drawHeader(document, infoPdf, logoCliente, logoQi);
+    document.template.top = header;
+
     //Generate PDF grid.
-    final PdfGrid grid = getGrid(infoPdf, pageSize);
-    //Draw the header section by creating text element
-    final PdfLayoutResult result =
-        drawHeader(page, pageSize, grid, infoPdf, logoCliente, logoQi);
+    final PdfGrid gridAnswers = getGridAnswers(infoPdf, pageSize);
+
+    final PdfGrid gridSummary =
+        getGridSummary(infoPdf, pageSize, firmaConductor, firmaAuditor);
+
     //Draw grid
-    drawGrid(page, grid, result);
+    gridSummary.draw(page: page, bounds: Rect.fromLTWH(0, 60, 0, 0));
+    //Draw the PDF grid
+    gridAnswers.draw(page: page, bounds: Rect.fromLTWH(0, 142, 0, 0));
+
     //Add invoice footer
     // drawFooter(page, pageSize);
+
     //Save the PDF document
     final output = await getTemporaryDirectory();
 
@@ -106,24 +122,28 @@ class PdfScreen extends StatelessWidget {
     return File('${output.path}/example.pdf');
   }
 
-  //Dibuja el encabezado
-  PdfLayoutResult drawHeader(PdfPage page, Size pageSize, PdfGrid grid,
-      Pdf infoPdf, Uint8List logoCliente, Uint8List logoQi) {
+  PdfPageTemplateElement drawHeader(PdfDocument document, Pdf infoPdf,
+      Uint8List logoCliente, Uint8List logoQi) {
+    final pageSize = document.pages[0].getClientSize();
+    //Create the header with specific bounds
+    PdfPageTemplateElement header =
+        PdfPageTemplateElement(Rect.fromLTWH(0, 0, pageSize.width, 60));
+
     //Dibula el rectangulo que contiene el logo del cliente
-    page.graphics.drawRectangle(
+    header.graphics.drawRectangle(
         bounds: Rect.fromLTWH(0, 0, 120, 60), pen: PdfPen(PdfColor(0, 0, 0)));
 
     //Dibuja el logo del cliente
-    page.graphics
+    header.graphics
         .drawImage(PdfBitmap(logoCliente), Rect.fromLTWH(1, 1, 118, 57));
 
     //Diduja el rectangulo con el titulo del pdf
-    page.graphics.drawRectangle(
+    header.graphics.drawRectangle(
         bounds: Rect.fromLTWH(120, 0, pageSize.width - 280, 60),
         pen: PdfPen(PdfColor(0, 0, 0)));
 
     //Dibuja el título del pdf
-    page.graphics.drawString('${infoPdf.nombreFormatoPreope}',
+    header.graphics.drawString('${infoPdf.nombreFormatoPreope}',
         PdfStandardFont(PdfFontFamily.helvetica, 10),
         brush: PdfBrushes.black,
         bounds: Rect.fromLTWH(122, 0, pageSize.width - 285, 60),
@@ -133,10 +153,10 @@ class PdfScreen extends StatelessWidget {
 
     //Dibuja los rectangulos para el código y version del formato
     //Top-left
-    page.graphics.drawRectangle(
+    header.graphics.drawRectangle(
         bounds: Rect.fromLTWH(355, 0, 50, 30), pen: PdfPen(PdfColor(0, 0, 0)));
     //Texto para CODIGO
-    page.graphics.drawString(
+    header.graphics.drawString(
         'Código', PdfStandardFont(PdfFontFamily.helvetica, 9),
         brush: PdfBrushes.black,
         bounds: Rect.fromLTWH(355, 0, 50, 30),
@@ -144,10 +164,10 @@ class PdfScreen extends StatelessWidget {
             lineAlignment: PdfVerticalAlignment.middle,
             alignment: PdfTextAlignment.center));
     //Top-rigth
-    page.graphics.drawRectangle(
+    header.graphics.drawRectangle(
         bounds: Rect.fromLTWH(405, 0, 50, 30), pen: PdfPen(PdfColor(0, 0, 0)));
     //Texto para CODIGO DE LA BASE
-    page.graphics.drawString('${infoPdf.codFormtPreope}',
+    header.graphics.drawString('${infoPdf.codFormtPreope}',
         PdfStandardFont(PdfFontFamily.helvetica, 9),
         brush: PdfBrushes.black,
         bounds: Rect.fromLTWH(405, 0, 50, 30),
@@ -156,10 +176,10 @@ class PdfScreen extends StatelessWidget {
             alignment: PdfTextAlignment.center));
 
     //Bottom-left
-    page.graphics.drawRectangle(
+    header.graphics.drawRectangle(
         bounds: Rect.fromLTWH(355, 30, 50, 30), pen: PdfPen(PdfColor(0, 0, 0)));
     //Texto para VERSION
-    page.graphics.drawString(
+    header.graphics.drawString(
         'Versión', PdfStandardFont(PdfFontFamily.helvetica, 9),
         brush: PdfBrushes.black,
         bounds: Rect.fromLTWH(355, 30, 50, 30),
@@ -168,10 +188,10 @@ class PdfScreen extends StatelessWidget {
             alignment: PdfTextAlignment.center));
 
     //Bottom-rigth
-    page.graphics.drawRectangle(
+    header.graphics.drawRectangle(
         bounds: Rect.fromLTWH(405, 30, 50, 30), pen: PdfPen(PdfColor(0, 0, 0)));
     //Texto para VERSION DE LA BASE
-    page.graphics.drawString('${infoPdf.versionFormtPreope}',
+    header.graphics.drawString('${infoPdf.versionFormtPreope}',
         PdfStandardFont(PdfFontFamily.helvetica, 9),
         brush: PdfBrushes.black,
         bounds: Rect.fromLTWH(405, 30, 50, 30),
@@ -180,21 +200,87 @@ class PdfScreen extends StatelessWidget {
             alignment: PdfTextAlignment.center));
 
     //Dibuja el rectangulo para logo de QI
-    page.graphics.drawRectangle(
+    header.graphics.drawRectangle(
         bounds: Rect.fromLTWH(455, 0, 60, 60), pen: PdfPen(PdfColor(0, 0, 0)));
 
     //Dibuja el logo de QI
-    page.graphics.drawImage(PdfBitmap(logoQi), Rect.fromLTWH(462, 8, 45, 45));
+    header.graphics.drawImage(PdfBitmap(logoQi), Rect.fromLTWH(462, 8, 45, 45));
 
-    return PdfTextElement()
-        .draw(page: page, bounds: Rect.fromLTWH(0, 20, pageSize.width, 80))!;
+    //Return header
+    return header;
   }
 
-  //Draws the grid
-  void drawGrid(PdfPage page, PdfGrid grid, PdfLayoutResult result) {
-    //Draw the PDF grid
-    result = grid.draw(
-        page: page, bounds: Rect.fromLTWH(0, result.bounds.bottom + 40, 0, 0))!;
+  PdfGrid getGridSummary(
+      Pdf infoPdf, Size pageSize, firmaConductor, firmaAuditor) {
+    //Create a PDF grid
+    final PdfGrid gridSummary = PdfGrid();
+    //Secify the columns count to the grid.
+    gridSummary.columns.add(count: 6);
+
+    //Add header to the grid
+    gridSummary.headers.add(3);
+    gridSummary.style = PdfGridStyle(
+        cellPadding: PdfPaddings(left: 5, right: 5, top: 0, bottom: 0));
+
+    PdfGridRow rowSummary = gridSummary.headers[0];
+    rowSummary.cells[0].value = '''CIUDAD Y FECHA: 
+    ${infoPdf.resuPreFecha}''';
+    rowSummary.cells[0].columnSpan = 2;
+    rowSummary.cells[2].value = '''TIPO DE VEHÍCULO:
+    ${infoPdf.tvDescripcion}''';
+    rowSummary.cells[3].value = '''MARCA/LÍNEA/MODELO:
+    ${infoPdf.mlm}''';
+    rowSummary.cells[3].columnSpan = 2;
+    rowSummary.cells[5].value = '''¿TANQUEO?
+    ${infoPdf.tanque}''';
+
+    PdfGridRow rowSummary1 = gridSummary.headers[1];
+    rowSummary1.cells[0].value = '''KILOMETRAJE:
+    ${infoPdf.kilometraje}''';
+    rowSummary1.cells[1].value = '''NOMBRE QUIEN REALIZÓ LA INSPECCIÓN:
+    ${infoPdf.conductor}''';
+    rowSummary1.cells[1].columnSpan = 2;
+    rowSummary1.cells[3].value = '''PLACA VEHÍCULO:
+    ${infoPdf.vehPlaca}''';
+    rowSummary1.cells[4].value = '''PLACA REMOLQUE:
+    ${infoPdf.remolPlaca}''';
+    rowSummary1.cells[5].value = 'ESTADO';
+
+    PdfGridRow rowSummary2 = gridSummary.headers[2];
+    rowSummary2.cells[0].value = 'N°. INSPECCIÓN';
+    rowSummary2.cells[1].value = '${infoPdf.consecutivo}';
+    rowSummary2.cells[2].value = 'FIRMA CONDUCTOR';
+    rowSummary2.cells[3].style =
+        PdfGridCellStyle(backgroundImage: PdfBitmap(firmaConductor));
+    rowSummary2.height = 30;
+    rowSummary2.cells[4].value = 'FIRMA DE QUIEN INSPECCIONA';
+    rowSummary2.cells[5].value = 'FOTO DE LA FIRMA';
+
+    // Styles for table
+    gridSummary.style = PdfGridStyle(
+      cellPadding: PdfPaddings(top: 2, left: 2, bottom: 2, right: 2),
+      font: PdfStandardFont(PdfFontFamily.timesRoman, 8),
+    );
+
+    //Styles for headers
+    //Styles for headers
+    PdfStringFormat format = PdfStringFormat();
+    format.alignment = PdfTextAlignment.center;
+    format.lineAlignment = PdfVerticalAlignment.middle;
+    // grid.columns[0].format = format;
+    rowSummary2.cells[1].style = PdfGridCellStyle(
+      format: PdfStringFormat(
+          alignment: PdfTextAlignment.center,
+          lineAlignment: PdfVerticalAlignment.middle),
+      font: PdfStandardFont(PdfFontFamily.timesRoman, 10),
+      textBrush: PdfBrushes.green,
+    );
+    rowSummary2.cells[0].stringFormat = format;
+    rowSummary2.cells[2].stringFormat = format;
+    rowSummary2.cells[4].stringFormat = format;
+    rowSummary2.cells[5].stringFormat = format;
+
+    return gridSummary;
   }
 
   //Draw the invoice footer data.
@@ -219,7 +305,7 @@ class PdfScreen extends StatelessWidget {
   }
 
   //Create PDF grid and return
-  PdfGrid getGrid(Pdf infoPdf, Size pageSize) {
+  PdfGrid getGridAnswers(Pdf infoPdf, Size pageSize) {
     //Create a PDF grid
     final PdfGrid grid = PdfGrid();
     //Secify the columns count to the grid.
@@ -292,7 +378,7 @@ class PdfScreen extends StatelessWidget {
 
   //Create and row for the grid.
   void addProducts(PdfGrid grid, RespuestaInspeccion respuesta,
-      PdfStringFormat formatColumns) {
+      PdfStringFormat formatColumns) async {
     final PdfGridRow row = grid.rows.add();
 
     row.cells[0].value = '${respuesta.item}';
