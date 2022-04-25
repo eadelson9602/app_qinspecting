@@ -105,9 +105,13 @@ class PdfScreen extends StatelessWidget {
         getGridSummary(infoPdf, pageSize, firmaConductor, firmaAuditor);
 
     //Draw grid
-    gridSummary.draw(page: page, bounds: Rect.fromLTWH(0, 60, 0, 0));
+    PdfLayoutResult resultSummary = gridSummary.draw(
+        page: page, bounds: Rect.fromLTWH(0, 60, 0, 0)) as PdfLayoutResult;
+
     //Draw the PDF grid
-    gridAnswers.draw(page: page, bounds: Rect.fromLTWH(0, 142, 0, 0));
+    gridAnswers.draw(
+        page: page,
+        bounds: Rect.fromLTWH(0, resultSummary.bounds.bottom, 0, 0));
 
     //Add invoice footer
     // drawFooter(page, pageSize);
@@ -115,11 +119,12 @@ class PdfScreen extends StatelessWidget {
     //Save the PDF document
     final output = await getTemporaryDirectory();
 
-    File('${output.path}/example.pdf').writeAsBytes(document.save());
+    File('${output.path}/${resumenPreoperacional.consecutivo}.pdf')
+        .writeAsBytes(document.save());
     // Dispose the document.
     document.dispose();
 
-    return File('${output.path}/example.pdf');
+    return File('${output.path}/${resumenPreoperacional.consecutivo}.pdf');
   }
 
   PdfPageTemplateElement drawHeader(PdfDocument document, Pdf infoPdf,
