@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 class Pdf {
   Pdf({
@@ -180,9 +181,15 @@ class Detalle {
 
 class RespuestaInspeccion {
   RespuestaInspeccion(
-      {this.foto, this.item, this.idItem, this.observacion, this.respuesta});
+      {this.foto,
+      this.item,
+      this.idItem,
+      this.observacion,
+      this.respuesta,
+      this.fotoConverted});
 
   String? foto;
+  Uint8List? fotoConverted;
   String? item;
   int? idItem;
   String? respuesta;
@@ -196,6 +203,7 @@ class RespuestaInspeccion {
   factory RespuestaInspeccion.fromMap(Map<String, dynamic> json) =>
       RespuestaInspeccion(
         foto: json["foto"],
+        fotoConverted: json["fotoConverted"],
         item: json["item"],
         idItem: json["idItem"],
         respuesta: json["respuesta"],
@@ -204,6 +212,7 @@ class RespuestaInspeccion {
 
   Map<String, dynamic> toMap() => {
         "foto": foto,
+        "fotoConverted": fotoConverted,
         "item": item,
         "idItem": idItem,
         "respuesta": respuesta,
