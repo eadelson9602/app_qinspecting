@@ -1,11 +1,11 @@
-import 'package:app_qinspecting/models/pdf.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' show get;
 
 import 'package:app_qinspecting/models/models.dart';
-import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/providers/providers.dart';
+import 'package:app_qinspecting/services/services.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 class InspeccionService extends ChangeNotifier {
@@ -448,8 +448,36 @@ class InspeccionService extends ChangeNotifier {
     Response response = await dio.get(
         'https://apis.qinspecting.com/pflutter/inspeccion/${empresaSelected.nombreBase}/${inspeccion.resuPreId}');
 
+    List<Future> promesas = [];
+
+    Pdf temData = Pdf.fromJson(response.toString());
+    temData.detalle.forEach((categoria) {
+      categoria.respuestas.forEach((respuesta) {
+        if (respuesta.foto != null) {
+          promesas.add(get(Uri.parse(respuesta.foto!)).then((value) {
+            return {"foto": respuesta.foto!, "data": value};
+          }));
+        }
+      });
+    });
+
+    List<dynamic> responseFile =
+        await Future.wait(promesas).then((value) => value);
+
+    temData.detalle.forEach((categoria) {
+      categoria.respuestas.forEach((respuesta) {
+        if (respuesta.foto != null) {
+          responseFile.forEach((element) {
+            if (element['foto'] == respuesta.foto) {
+              respuesta.fotoConverted = element['data'].bodyBytes;
+            }
+          });
+        }
+      });
+    });
+
     isLoading = false;
     notifyListeners();
-    return Pdf.fromJson(response.toString());
+    return temData;
   }
 }
