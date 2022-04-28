@@ -399,6 +399,12 @@ class PdfScreen extends StatelessWidget {
     }
     row.cells[5].value =
         '${respuesta.observacion == null ? '' : respuesta.observacion}';
-    row.cells[6].value = '${respuesta.foto == null ? '' : respuesta.foto}';
+    if (respuesta.foto == null) {
+      row.cells[6].value = '';
+    } else {
+      row.cells[6].style = PdfGridCellStyle(
+          backgroundImage: PdfBitmap(respuesta.fotoConverted!));
+      row.height = 40;
+    }
   }
 }
