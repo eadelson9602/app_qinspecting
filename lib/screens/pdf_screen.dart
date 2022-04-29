@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:app_qinspecting/screens/screens.dart';
 import 'package:flutter/material.dart';
 // import 'package:printing/printing.dart';
 
@@ -26,35 +27,19 @@ class PdfScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Preoperacional ${resumenPreoperacional.resuPreId}'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            TextButton(
-              child: const Text('Generate PDF'),
-              style: TextButton.styleFrom(
-                primary: Colors.white,
-                backgroundColor: Colors.lightBlue,
-                onSurface: Colors.grey,
-              ),
-              onPressed: () async {
-                final pathPdf = await _generatePdf(
-                    resumenPreoperacional, inspeccionService, loginService);
-                await Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (BuildContext context) {
-                      return Scaffold(
-                        appBar: AppBar(),
-                        body: SfPdfViewer.file(pathPdf),
-                      );
-                    },
-                  ),
-                );
-              },
-            )
-          ],
-        ),
-      ),
+      body: FutureBuilder(
+          future: _generatePdf(
+              resumenPreoperacional, inspeccionService, loginService),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return LoadingScreen();
+            } else {
+              final pathPdf = snapshot.data as File;
+              print(pathPdf);
+              // SfPdfViewer.file(pathPdf)
+              return SfPdfViewer.file(pathPdf);
+            }
+          }),
     );
   }
 
