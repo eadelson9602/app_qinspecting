@@ -1,17 +1,19 @@
+// import 'package:printing/printing.dart';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:app_qinspecting/screens/screens.dart';
 import 'package:flutter/material.dart';
-// import 'package:printing/printing.dart';
-
-import 'package:app_qinspecting/models/models.dart';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart' show get;
 import 'package:overlay_support/overlay_support.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:provider/provider.dart';
-import 'package:app_qinspecting/services/services.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-import 'package:http/http.dart' show get;
+
+import 'package:app_qinspecting/models/models.dart';
+import 'package:app_qinspecting/services/services.dart';
+import 'package:provider/provider.dart';
 
 class PdfScreen extends StatelessWidget {
   const PdfScreen({Key? key}) : super(key: key);
@@ -35,11 +37,22 @@ class PdfScreen extends StatelessWidget {
               return LoadingScreen();
             } else {
               final pathPdf = snapshot.data as File;
-              print(pathPdf);
-              // SfPdfViewer.file(pathPdf)
               return SfPdfViewer.file(pathPdf);
             }
           }),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final output = await getTemporaryDirectory();
+
+          final ByteData file = await rootBundle
+              .load('${output.path}/${resumenPreoperacional.consecutivo}.pdf');
+
+          Share.shareFiles(
+              ['${output.path}/${resumenPreoperacional.consecutivo}.pdf']);
+        },
+        tooltip: 'Compartir',
+        child: const Icon(Icons.share),
+      ),
     );
   }
 
