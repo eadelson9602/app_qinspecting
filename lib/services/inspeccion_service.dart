@@ -442,9 +442,6 @@ class InspeccionService extends ChangeNotifier {
 
   Future<Pdf> detatilPdf(
       Empresa empresaSelected, ResumenPreoperacionalServer inspeccion) async {
-    isLoading = true;
-    notifyListeners();
-
     Response response = await dio.get(
         'https://apis.qinspecting.com/pflutter/inspeccion/${empresaSelected.nombreBase}/${inspeccion.resuPreId}');
 
@@ -475,9 +472,6 @@ class InspeccionService extends ChangeNotifier {
         }
       });
     });
-
-    isLoading = false;
-    notifyListeners();
     return temData;
   }
 }
