@@ -120,22 +120,12 @@ class CardFirma extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(15),
       child: Container(
-        padding: EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 5,
-              blurRadius: 7,
-              offset: Offset(0, 3), // changes position of shadow
-            ),
-          ],
-        ),
         child: Column(
           children: [
-            Image(height: 270, image: NetworkImage(infoFirma.firma!)),
+            ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child:
+                    Image(height: 270, image: NetworkImage(infoFirma.firma!))),
             SizedBox(height: 10),
             Divider(
               height: 15,
