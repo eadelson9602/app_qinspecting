@@ -1,5 +1,4 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -23,13 +22,13 @@ class MyStatelessWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final firmaService = Provider.of<FirmaService>(context);
     final loginService = Provider.of<LoginService>(context);
+    final inspeccionService = Provider.of<InspeccionService>(context);
 
     List<Widget> _widgetOptions = <Widget>[
       FutureBuilder(
-          future: Connectivity().checkConnectivity(),
+          future: inspeccionService.checkConnection(),
           builder: (context, snapshot) {
-            if (snapshot.data == ConnectivityResult.mobile ||
-                snapshot.data == ConnectivityResult.wifi) {
+            if (snapshot.data == true) {
               return FutureBuilder(
                   future:
                       firmaService.getInfoFirma(loginService.selectedEmpresa),
