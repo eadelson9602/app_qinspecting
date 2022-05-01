@@ -31,10 +31,6 @@ class _DesktopScreenState extends State<DesktopScreen> {
               SizedBox(
                 height: 10,
               ),
-              // DateRange(loginService, inspeccionService, sizeScreen),
-              // SizedBox(
-              //   height: 15,
-              // ),
               Text(
                 'Inspecciones realizadas',
                 style: TextStyle(fontSize: 18),
@@ -68,65 +64,6 @@ class _DesktopScreenState extends State<DesktopScreen> {
           return NoInternet();
         }
       },
-    );
-  }
-
-  Form DateRange(LoginService loginService, InspeccionService inspeccionService,
-      sizeScreen) {
-    return Form(
-      child: Column(
-        children: [
-          ElevatedButton(
-            child: Container(
-              width: 200,
-              child: Row(
-                children: [
-                  Icon(Icons.calendar_today),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Text('Filtrar por rango de fecha')
-                ],
-              ),
-            ),
-            onPressed: () async {
-              await Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (BuildContext context) {
-                    return Scaffold(
-                      appBar: AppBar(),
-                      body: SfDateRangePicker(
-                        enablePastDates: true,
-                        view: DateRangePickerView.month,
-                        selectionMode: DateRangePickerSelectionMode.range,
-                        monthViewSettings:
-                            DateRangePickerMonthViewSettings(firstDayOfWeek: 1),
-                        showActionButtons: true,
-                        cancelText: 'Cancelar',
-                        confirmText: 'Buscar',
-                        onCancel: () => Navigator.pop(context),
-                        onSubmit: (val) async {
-                          PickerDateRange date = val as PickerDateRange;
-                          final initialDate =
-                              date.startDate.toString().split(' ')[0];
-                          final endDate = date.endDate.toString().split(' ')[0];
-
-                          await inspeccionService.getRangeInspections(
-                              loginService.selectedEmpresa,
-                              initialDate,
-                              endDate);
-
-                          Navigator.pop(context);
-                        },
-                      ),
-                    );
-                  },
-                ),
-              );
-            },
-          ),
-        ],
-      ),
     );
   }
 }
