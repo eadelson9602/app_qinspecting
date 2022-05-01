@@ -38,6 +38,16 @@ class InspeccionService extends ChangeNotifier {
       ciuId: 0,
       base: '');
 
+  Future<bool> checkConnection() async {
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile ||
+        connectivityResult == ConnectivityResult.wifi) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   void updateDate(DateTimeRange value) {
     myDateRange = value;
     notifyListeners();
@@ -45,10 +55,9 @@ class InspeccionService extends ChangeNotifier {
 
   Future<List<ResumenPreoperacionalServer>> getLatesInspections(
       Empresa selectedEmpresa) async {
-    final connectivityResult = await (Connectivity().checkConnectivity());
+    final connectivityResult = await checkConnection();
 
-    if (connectivityResult == ConnectivityResult.mobile ||
-        connectivityResult == ConnectivityResult.wifi) {
+    if (connectivityResult) {
       try {
         isLoading = true;
         // notifyListeners();
@@ -228,6 +237,7 @@ class InspeccionService extends ChangeNotifier {
           autoDismiss: true,
           background: Colors.orange,
           position: NotificationPosition.bottom);
+      return null;
     }
   }
 
@@ -291,9 +301,8 @@ class InspeccionService extends ChangeNotifier {
   Future<Map<String, dynamic>> sendInspeccion(
       ResumenPreoperacional inspeccion) async {
     try {
-      var connectivityResult = await (Connectivity().checkConnectivity());
-      if (connectivityResult == ConnectivityResult.mobile ||
-          connectivityResult == ConnectivityResult.wifi) {
+      final connectivityResult = await checkConnection();
+      if (connectivityResult) {
         isSaving = true;
         // Se envia la foto del kilometraje al servidor
         Map<String, dynamic>? responseUploadKilometraje = await uploadImage(
