@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:path_provider/path_provider.dart';
@@ -59,45 +60,56 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
               color: Colors.black,
               onPressed: () async {
                 if (_controller.isNotEmpty) {
-                  inspeccionService.isSaving = true;
-                  final Uint8List? data = await _controller.toPngBytes();
-                  if (data != null) {
-                    // File('my_firma.png').writeAsBytes(data);
+                  try {
+                    inspeccionService.isSaving = true;
+                    final Uint8List? data = await _controller.toPngBytes();
+                    if (data != null) {
+                      // File('my_firma.png').writeAsBytes(data);
 
-                    final dir = await getExternalStorageDirectory();
-                    final myImagePath =
-                        '${dir!.path}/${loginService.userDataLogged.usuarioUser}.png';
-                    File imageFile = File(myImagePath);
-                    if (!await imageFile.exists()) {
-                      imageFile.create(recursive: true);
+                      final dir = await getExternalStorageDirectory();
+                      final myImagePath =
+                          '${dir!.path}/${loginService.userDataLogged.usuarioUser}.png';
+                      File imageFile = File(myImagePath);
+                      if (!await imageFile.exists()) {
+                        imageFile.create(recursive: true);
+                      }
+                      imageFile.writeAsBytesSync(data);
+                      // Se envia la foto de la firma al servidor
+                      Map<String, dynamic>? responseUploadFirma =
+                          await inspeccionService.uploadImage(
+                              path: myImagePath,
+                              company: 'qinspecting',
+                              folder: 'firmas');
+
+                      Map dataFirmaSave = {
+                        "base": loginService.selectedEmpresa.nombreBase,
+                        "Firma_Id": null,
+                        "Firma_acep_Ptd": "SI",
+                        "Firma_Firma": responseUploadFirma?['path'],
+                        "Pers_NumeroDoc":
+                            loginService.userDataLogged.usuarioUser
+                      };
+                      Map responseSaveFirma =
+                          await firmaService.insertSignature(dataFirmaSave);
+                      // show a notification at top of screen.
+                      inspeccionService.isSaving = false;
+                      firmaService.updateTerminos('NO');
+                      firmaService.updateTabIndex(0);
+                      print(responseSaveFirma['message']!);
+                      showSimpleNotification(
+                          Text(responseSaveFirma['message']!),
+                          leading: Icon(Icons.check),
+                          autoDismiss: true,
+                          background: Colors.green,
+                          position: NotificationPosition.bottom);
+                      Navigator.pop(context);
                     }
-                    imageFile.writeAsBytesSync(data);
-                    // Se envia la foto de la firma al servidor
-                    Map<String, dynamic>? responseUploadFirma =
-                        await inspeccionService.uploadImage(
-                            path: myImagePath,
-                            company: 'qinspecting',
-                            folder: 'firmas');
-
-                    Map dataFirmaSave = {
-                      "base": loginService.selectedEmpresa.nombreBase,
-                      "Firma_Id": null,
-                      "Firma_acep_Ptd": "SI",
-                      "Firma_Firma": responseUploadFirma!['path'],
-                      "Pers_NumeroDoc": loginService.userDataLogged.usuarioUser
-                    };
-                    Map responseSaveFirma =
-                        await firmaService.insertSignature(dataFirmaSave);
-                    // show a notification at top of screen.
-                    inspeccionService.isSaving = false;
-                    firmaService.updateTerminos('NO');
-                    firmaService.updateTabIndex(0);
-                    showSimpleNotification(Text(responseSaveFirma['message']!),
+                  } on DioError catch (e) {
+                    showSimpleNotification(Text('Error al guardar firma'),
                         leading: Icon(Icons.check),
                         autoDismiss: true,
-                        background: Colors.green,
+                        background: Colors.orange,
                         position: NotificationPosition.bottom);
-                    Navigator.pop(context);
                   }
                 }
               },
