@@ -57,6 +57,7 @@ dependencies:
   syncfusion_flutter_pdf: ^19.4.56-beta
   syncfusion_flutter_pdfviewer: ^19.4.56-beta
   share_plus: ^4.0.4
+  intl: ^0.17.0
   
 dev_dependencies:
   flutter_test:

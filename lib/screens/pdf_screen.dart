@@ -3,8 +3,8 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:app_qinspecting/screens/screens.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' show get;
+import 'package:intl/intl.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -44,9 +44,6 @@ class PdfScreen extends StatelessWidget {
         onPressed: () async {
           final output = await getTemporaryDirectory();
 
-          final ByteData file = await rootBundle
-              .load('${output.path}/${resumenPreoperacional.consecutivo}.pdf');
-
           Share.shareFiles(
               ['${output.path}/${resumenPreoperacional.consecutivo}.pdf']);
         },
@@ -76,6 +73,9 @@ class PdfScreen extends StatelessWidget {
         await get(Uri.parse('https://qinspecting.com/img/Qi.png'));
     var logoQi = responseLogoQi.bodyBytes;
 
+    var responseKilometraje = await get(Uri.parse(infoPdf.fotoKm!));
+    var fotoKilometraje = responseKilometraje.bodyBytes;
+
     var resFirmaConductor = await get(Uri.parse(infoPdf.firma!));
     var firmaConductor = resFirmaConductor.bodyBytes;
     var resFirmaAuditor = await get(Uri.parse(infoPdf.firma!));
@@ -97,10 +97,11 @@ class PdfScreen extends StatelessWidget {
     document.template.top = header;
 
     //Generate PDF grid.
-    final PdfGrid gridAnswers = getGridAnswers(infoPdf, pageSize);
+    final PdfGrid gridSummary = getGridSummary(
+        infoPdf, pageSize, firmaConductor, firmaAuditor, resumenPreoperacional);
 
-    final PdfGrid gridSummary =
-        getGridSummary(infoPdf, pageSize, firmaConductor, firmaAuditor);
+    final PdfGrid gridAnswers =
+        getGridAnswers(infoPdf, pageSize, fotoKilometraje);
 
     //Draw grid
     PdfLayoutResult resultSummary = gridSummary.draw(
@@ -110,9 +111,6 @@ class PdfScreen extends StatelessWidget {
     gridAnswers.draw(
         page: page,
         bounds: Rect.fromLTWH(0, resultSummary.bounds.bottom, 0, 0));
-
-    //Add invoice footer
-    // drawFooter(page, pageSize);
 
     //Save the PDF document
     final output = await getTemporaryDirectory();
@@ -213,8 +211,8 @@ class PdfScreen extends StatelessWidget {
     return header;
   }
 
-  PdfGrid getGridSummary(
-      Pdf infoPdf, Size pageSize, firmaConductor, firmaAuditor) {
+  PdfGrid getGridSummary(Pdf infoPdf, Size pageSize, firmaConductor,
+      firmaAuditor, ResumenPreoperacionalServer resumenPreoperacional) {
     //Create a PDF grid
     final PdfGrid gridSummary = PdfGrid();
     //Secify the columns count to the grid.
@@ -247,7 +245,8 @@ class PdfScreen extends StatelessWidget {
     ${infoPdf.vehPlaca}''';
     rowSummary1.cells[4].value = '''PLACA REMOLQUE:
     ${infoPdf.remolPlaca}''';
-    rowSummary1.cells[5].value = 'ESTADO';
+    rowSummary1.cells[5].value = '''ESTADO:
+    ${resumenPreoperacional.estado}''';
 
     PdfGridRow rowSummary2 = gridSummary.headers[2];
     rowSummary2.cells[0].value = 'N°. INSPECCIÓN';
@@ -286,29 +285,9 @@ class PdfScreen extends StatelessWidget {
     return gridSummary;
   }
 
-  //Draw the invoice footer data.
-  void drawFooter(PdfPage page, Size pageSize) {
-    final PdfPen linePen =
-        PdfPen(PdfColor(142, 170, 219, 255), dashStyle: PdfDashStyle.custom);
-    linePen.dashPattern = <double>[3, 3];
-    //Draw line
-    page.graphics.drawLine(linePen, Offset(0, pageSize.height - 100),
-        Offset(pageSize.width, pageSize.height - 100));
-
-    const String footerContent =
-        // ignore: leading_newlines_in_multiline_strings
-        '''800 Interchange Blvd.\r\n\r\nSuite 2501, Austin,
-         TX 78721\r\n\r\nAny Questions? support@adventure-works.com''';
-
-    //Added 30 as a margin for the layout
-    page.graphics.drawString(
-        footerContent, PdfStandardFont(PdfFontFamily.helvetica, 9),
-        format: PdfStringFormat(alignment: PdfTextAlignment.right),
-        bounds: Rect.fromLTWH(pageSize.width - 30, pageSize.height - 70, 0, 0));
-  }
-
   //Create PDF grid and return
-  PdfGrid getGridAnswers(Pdf infoPdf, Size pageSize) {
+  PdfGrid getGridAnswers(
+      Pdf infoPdf, Size pageSize, Uint8List fotoKilometraje) {
     //Create a PDF grid
     final PdfGrid grid = PdfGrid();
     //Secify the columns count to the grid.
@@ -364,39 +343,114 @@ class PdfScreen extends StatelessWidget {
     grid.columns[6].format = format;
     grid.columns[6].width = pageSize.width - 450;
 
+    DateTime fechaHoy = DateTime.now();
     //Add rows
     infoPdf.detalle.forEach((categoria) {
+      // Dibujas las categorias
       final PdfGridRow row = grid.rows.add();
       row.cells[0].value = categoria.categoria;
       row.cells[0].columnSpan = 7;
       row.cells[0].style =
           PdfGridCellStyle(backgroundBrush: PdfBrushes.lightGray);
+      // Dibuja los items
+      if (categoria.idCategoria == 45) {
+        categoria.respuestas.add(RespuestaInspeccion(
+            idItem: -1,
+            item: 'Kilometraje',
+            foto: infoPdf.fotoKm,
+            fotoConverted: fotoKilometraje));
+      }
       categoria.respuestas.forEach((respuesta) {
-        addProducts(grid, respuesta, formatColumns);
+        addProducts(grid, infoPdf, respuesta, formatColumns, fechaHoy);
       });
     });
-
     return grid;
   }
 
   //Create and row for the grid.
-  void addProducts(PdfGrid grid, RespuestaInspeccion respuesta,
-      PdfStringFormat formatColumns) async {
+  void addProducts(PdfGrid grid, Pdf infoPdf, RespuestaInspeccion respuesta,
+      PdfStringFormat formatColumns, DateTime fechaHoy) async {
     final PdfGridRow row = grid.rows.add();
-
     row.cells[0].value = '${respuesta.item}';
+
     row.cells[0].style.stringFormat = formatColumns;
     if (respuesta.respuesta == 'S') {
-      row.cells[1].value = 'S';
+      row.cells[1].value = 'X';
     } else if (respuesta.respuesta == 'N') {
-      row.cells[2].value = 'N';
+      row.cells[2].value = 'X';
     } else if (respuesta.respuesta == 'B') {
-      row.cells[3].value = 'B';
+      row.cells[3].value = 'X';
     } else {
-      row.cells[4].value = 'M';
+      row.cells[4].value = 'X';
     }
-    row.cells[5].value =
-        '${respuesta.observacion == null ? '' : respuesta.observacion}';
+
+    // Une las celdas de respuestas S, N, B, M y Observaciones para mostrar el kilometraje al final del pdf
+    if (respuesta.idItem == -1) {
+      row.cells[1].columnSpan = 5;
+      row.cells[1].value = '${infoPdf.kilometraje} KM';
+      row.cells[1].style.stringFormat = formatColumns;
+    }
+
+    row.cells[5].style.stringFormat = formatColumns;
+
+    if (respuesta.idItem == 1 && infoPdf.fechaVencLicCond != '') {
+      // 1, "Licencia de Tránsito"
+      row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.fechaVencLicCond}';
+
+      DateTime tempDate = DateTime.parse(infoPdf.fechaVencLicCond!);
+      final difference = tempDate.difference(fechaHoy).inDays;
+      row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
+          ? PdfBrushes.orange
+          : PdfBrushes.red;
+    } else if (respuesta.idItem == 3 && infoPdf.fechaFinSoat != '') {
+      //3, "Soat"
+      row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.fechaFinSoat}';
+
+      DateTime tempDate = DateTime.parse(infoPdf.fechaFinSoat!);
+      final difference = tempDate.difference(fechaHoy).inDays;
+      row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
+          ? PdfBrushes.orange
+          : PdfBrushes.red;
+    } else if (respuesta.idItem == 4 && infoPdf.fechaFinPoExtra != '') {
+      //4, "Póliza Contra Actual"
+      row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.fechaFinPoExtra}';
+
+      DateTime tempDate = DateTime.parse(infoPdf.fechaFinPoExtra!);
+      final difference = tempDate.difference(fechaHoy).inDays;
+      row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
+          ? PdfBrushes.orange
+          : PdfBrushes.red;
+    } else if (respuesta.idItem == 5 && infoPdf.rcHidroFechaFin != '') {
+      //5, "Póliza Extracontractual (Hidrocarburos)"
+      row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.rcHidroFechaFin}';
+
+      DateTime tempDate = DateTime.parse(infoPdf.rcHidroFechaFin!);
+      final difference = tempDate.difference(fechaHoy).inDays;
+      row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
+          ? PdfBrushes.orange
+          : PdfBrushes.red;
+    } else if (respuesta.idItem == 6 && infoPdf.fechaFinReTec != '') {
+      //6, "Certificado de Revisión Técnico mecánica  y de Gases"
+      row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.fechaFinReTec}';
+
+      DateTime tempDate = DateTime.parse(infoPdf.fechaFinReTec!);
+      final difference = tempDate.difference(fechaHoy).inDays;
+      row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
+          ? PdfBrushes.orange
+          : PdfBrushes.red;
+    } else if (respuesta.idItem == 7 && infoPdf.fechaFinQr != '') {
+      //7, "Revisión Luz Negra 5° Rueda"
+      row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.fechaFinQr}';
+
+      DateTime tempDate = DateTime.parse(infoPdf.fechaFinQr!);
+      final difference = tempDate.difference(fechaHoy).inDays;
+      row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
+          ? PdfBrushes.orange
+          : PdfBrushes.red;
+    } else {
+      row.cells[5].value =
+          '${respuesta.observacion == null ? '' : respuesta.observacion}';
+    }
     if (respuesta.foto == null) {
       row.cells[6].value = '';
     } else {
