@@ -12,19 +12,9 @@ class SignatureScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // appBar: const CustomAppBar().createAppBar(),
-      body: Container(
-        child: MyStatelessWidget(),
-      ),
-    );
+    return MyStatelessWidget();
   }
 }
-
-const List<Tab> tabs = <Tab>[
-  Tab(text: 'Mi firma'),
-  Tab(text: 'Relizar firma'),
-];
 
 class MyStatelessWidget extends StatelessWidget {
   const MyStatelessWidget({Key? key}) : super(key: key);
@@ -33,92 +23,89 @@ class MyStatelessWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final firmaService = Provider.of<FirmaService>(context);
     final loginService = Provider.of<LoginService>(context);
-    final appBar = CustomAppBar();
-    return DefaultTabController(
-      length: tabs.length,
-      initialIndex: firmaService.indexTabaCreateSignature,
-      child: Builder(builder: (BuildContext context) {
-        final TabController tabController = DefaultTabController.of(context)!;
-        tabController.index = firmaService.indexTabaCreateSignature;
-        return Scaffold(
-          appBar: appBar.createAppBar(context),
-          drawer: const CustomDrawer(),
-          body: TabBarView(
-            children: [
-              FutureBuilder(
-                  future: Connectivity().checkConnectivity(),
+
+    List<Widget> _widgetOptions = <Widget>[
+      FutureBuilder(
+          future: Connectivity().checkConnectivity(),
+          builder: (context, snapshot) {
+            if (snapshot.data == ConnectivityResult.mobile ||
+                snapshot.data == ConnectivityResult.wifi) {
+              return FutureBuilder(
+                  future:
+                      firmaService.getInfoFirma(loginService.selectedEmpresa),
                   builder: (context, snapshot) {
-                    if (snapshot.data == ConnectivityResult.mobile ||
-                        snapshot.data == ConnectivityResult.wifi) {
-                      return Container(
-                        child: FutureBuilder(
-                            future: firmaService
-                                .getInfoFirma(loginService.selectedEmpresa),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Center(
-                                    child: CircularProgressIndicator());
-                              } else {
-                                if (snapshot.data != null) {
-                                  final Firma dataFirma =
-                                      snapshot.data as Firma;
-                                  return CardFirma(
-                                    infoFirma: dataFirma,
-                                  );
-                                } else {
-                                  return Column(
-                                    children: [
-                                      SizedBox(
-                                        height: 50.0,
-                                      ),
-                                      Image(
-                                        image: AssetImage(
-                                            'assets/images/boot_signature_2.gif'),
-                                        // fit: BoxFit.cover,
-                                      ),
-                                      SizedBox(
-                                        width: 250,
-                                        child: DefaultTextStyle(
-                                            style: TextStyle(
-                                                fontSize: 30.0,
-                                                fontFamily: 'Agne',
-                                                color: Colors.black),
-                                            child: AnimatedTextKit(
-                                              isRepeatingAnimation: true,
-                                              animatedTexts: [
-                                                TypewriterAnimatedText(
-                                                    'Oops!!! Debe realizar su firma',
-                                                    speed: Duration(
-                                                        milliseconds: 100),
-                                                    textAlign:
-                                                        TextAlign.center),
-                                              ],
-                                              onTap: () {
-                                                print("Tap Event");
-                                              },
-                                            )),
-                                      )
-                                    ],
-                                  );
-                                }
-                              }
-                            }),
-                      );
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
                     } else {
-                      return Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: NoInternet(),
-                      );
+                      if (snapshot.data != null) {
+                        final Firma dataFirma = snapshot.data as Firma;
+                        return CardFirma(
+                          infoFirma: dataFirma,
+                        );
+                      } else {
+                        return Column(
+                          children: [
+                            SizedBox(
+                              height: 50.0,
+                            ),
+                            Image(
+                                image: AssetImage(
+                                    'assets/images/boot_signature_2.gif')),
+                            SizedBox(
+                              width: 250,
+                              child: DefaultTextStyle(
+                                  style: TextStyle(
+                                      fontSize: 30.0,
+                                      fontFamily: 'Agne',
+                                      color: Colors.black),
+                                  child: AnimatedTextKit(
+                                    isRepeatingAnimation: true,
+                                    animatedTexts: [
+                                      TypewriterAnimatedText(
+                                          'Oops!!! Debe realizar su firma',
+                                          speed: Duration(milliseconds: 100),
+                                          textAlign: TextAlign.center),
+                                    ],
+                                    onTap: () {
+                                      print("Tap Event");
+                                    },
+                                  )),
+                            )
+                          ],
+                        );
+                      }
                     }
-                  }),
-              Container(
-                child: TerminosCondiciones(),
-              ),
-            ],
+                  });
+            } else {
+              return Padding(
+                padding: const EdgeInsets.all(15),
+                child: NoInternet(),
+              );
+            }
+          }),
+      TerminosCondiciones()
+    ];
+    return Scaffold(
+      appBar: CustomAppBar().createAppBar(context),
+      drawer: const CustomDrawer(),
+      body: Center(
+        child: _widgetOptions.elementAt(firmaService.indexTabaCreateSignature),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Firma',
           ),
-        );
-      }),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.business),
+            label: 'Realizar firma',
+          ),
+        ],
+        currentIndex: firmaService.indexTabaCreateSignature,
+        selectedItemColor: Colors.green,
+        onTap: (value) => firmaService.updateTabIndex(value),
+      ),
     );
   }
 }
@@ -148,10 +135,7 @@ class CardFirma extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Image(
-                height: 270,
-                image: NetworkImage(
-                    'https://apis.qinspecting.com/pflutter/${infoFirma.firma}')),
+            Image(height: 270, image: NetworkImage(infoFirma.firma!)),
             SizedBox(height: 10),
             Divider(
               height: 15,
