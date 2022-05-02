@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/screens/screens.dart';
-import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 
 class LoadHomeScreen extends StatelessWidget {
@@ -19,61 +18,32 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final uiProvider = Provider.of<UiProvider>(context);
+    final inspeccionProvider =
+        Provider.of<InspeccionProvider>(context, listen: false);
+
+    List<Widget> _widgetOptions = [
+      DesktopScreen(),
+      FutureBuilder(
+          future: inspeccionProvider.listarDataInit(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const LoadingScreen();
+            } else {
+              return InspeccionForm();
+            }
+          })
+    ];
+
     return Scaffold(
       appBar: const CustomAppBar().createAppBar(context),
       drawer: const CustomDrawer(),
       body: SafeArea(
           child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20),
-        child: _HomePageBody(),
+        child: _widgetOptions.elementAt(uiProvider.selectedMenuOpt),
       )),
-      bottomNavigationBar: const CustomNavigationBar(),
+      bottomNavigationBar: CustomNavigationBar(),
     );
-  }
-}
-
-class _HomePageBody extends StatelessWidget {
-  const _HomePageBody({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final inspeccionProvider =
-        Provider.of<InspeccionProvider>(context, listen: false);
-    final inspeccionService = Provider.of<InspeccionService>(context);
-    final uiProvider = Provider.of<UiProvider>(context);
-    final currentIndex = uiProvider.selectedMenuOpt;
-
-    switch (currentIndex) {
-      case 0:
-        inspeccionService.resumePreoperacional.ciuId = 0;
-        inspeccionService.resumePreoperacional.resuPreKilometraje = 0;
-        inspeccionService.resumePreoperacional.vehId = 0;
-        inspeccionProvider.vehiculoSelected = null;
-        inspeccionProvider.remolqueSelected = null;
-        inspeccionProvider.pathFileKilometraje = null;
-        inspeccionProvider.stepStepperRemolque = 0;
-        inspeccionProvider.stepStepper = 0;
-        inspeccionProvider.pathFileGuia = null;
-        inspeccionProvider.realizoTanqueo = false;
-        inspeccionProvider.tieneRemolque = false;
-        inspeccionProvider.tieneGuia = false;
-        inspeccionProvider.itemsInspeccion.clear();
-        inspeccionProvider.itemsInspeccionRemolque.clear();
-        return const DesktopScreen();
-      case 1:
-        // inspeccionProvider.listarDepartamentos();
-        // inspeccionProvider.listarVehiculos();
-        return FutureBuilder(
-            future: inspeccionProvider.listarDataInit(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const LoadingScreen();
-              } else {
-                return InspeccionForm();
-              }
-            });
-      default:
-        return const DesktopScreen();
-    }
   }
 }
