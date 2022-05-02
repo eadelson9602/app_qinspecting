@@ -3,6 +3,7 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/providers/providers.dart';
+import 'package:app_qinspecting/screens/screens.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 
@@ -16,7 +17,7 @@ class InspeccionRemolqueScreen extends StatelessWidget {
     final loginService = Provider.of<LoginService>(context);
     final uiProvider = Provider.of<UiProvider>(context);
 
-    if (inspeccionProvider.isSaving) return Loading();
+    if (inspeccionProvider.isSaving) return LoadingScreen();
     return Scaffold(
       appBar: AppBar(),
       body: ItemsInspeccionarRemolque(),
