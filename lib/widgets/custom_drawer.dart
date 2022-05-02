@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/services/services.dart';
+import '../providers/providers.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final uiProvider = Provider.of<UiProvider>(context);
     final loginService = Provider.of<LoginService>(context, listen: false);
     return Theme(
         data: Theme.of(context).copyWith(
@@ -47,28 +49,34 @@ class CustomDrawer extends StatelessWidget {
                   style: TextStyle(color: Colors.green),
                 ),
                 onTap: () => Navigator.pushReplacementNamed(context, 'home')),
-            // ListTile(
-            //     leading: const Icon(Icons.fact_check, color: Colors.green),
-            //     title: const Text(
-            //       'Inspección',
-            //       style: TextStyle(color: Colors.green),
-            //     ),
-            //     onTap: () => Navigator.popAndPushNamed(context, 'inspeccion')),
+            ListTile(
+                leading: const Icon(Icons.fact_check, color: Colors.green),
+                title: const Text(
+                  'Inspección',
+                  style: TextStyle(color: Colors.green),
+                ),
+                onTap: () {
+                  uiProvider.selectedMenuOpt = 1;
+                  Navigator.pushReplacementNamed(context, 'home');
+                }),
             ListTile(
               leading: Icon(Icons.send, color: Colors.green),
               title: Text('Enviar inspecciones',
                   style: TextStyle(color: Colors.green)),
-              onTap: () => Navigator.popAndPushNamed(context, 'send_pending'),
+              onTap: () =>
+                  Navigator.pushReplacementNamed(context, 'send_pending'),
             ),
             ListTile(
                 leading: Icon(Icons.gesture, color: Colors.green),
                 title: Text('Firma', style: TextStyle(color: Colors.green)),
-                onTap: () => Navigator.popAndPushNamed(context, 'signature')),
+                onTap: () =>
+                    Navigator.pushReplacementNamed(context, 'signature')),
             ListTile(
                 leading: Icon(Icons.settings, color: Colors.green),
                 title: Text('Configuración',
                     style: TextStyle(color: Colors.green)),
-                onTap: () => Navigator.popAndPushNamed(context, 'settings')),
+                onTap: () =>
+                    Navigator.pushReplacementNamed(context, 'settings')),
             ListTile(
                 leading: Icon(Icons.logout, color: Colors.green),
                 title: Text('Cerrar sesión',
