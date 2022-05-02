@@ -174,6 +174,8 @@ class ButtonLogin extends StatelessWidget {
   Widget build(BuildContext context) {
     final loginForm = Provider.of<LoginFormProvider>(context);
     final loginService = Provider.of<LoginService>(context, listen: false);
+    final inspeccionService =
+        Provider.of<InspeccionService>(context, listen: false);
     final storage = new FlutterSecureStorage();
 
     return MaterialButton(
@@ -185,22 +187,23 @@ class ButtonLogin extends StatelessWidget {
           ? null
           : () async {
               if (!loginForm.isValidForm()) return;
-              login(context, loginForm, loginService, storage);
+              login(
+                  context, loginForm, loginService, storage, inspeccionService);
             },
     );
   }
 
-  void login(BuildContext context, LoginFormProvider loginForm,
-      LoginService loginService, FlutterSecureStorage storage) async {
+  void login(
+      BuildContext context,
+      LoginFormProvider loginForm,
+      LoginService loginService,
+      FlutterSecureStorage storage,
+      InspeccionService inspeccionService) async {
     try {
       loginForm.isLoading = true;
       FocusScope.of(context).unfocus();
       List<Empresa> empresas = [];
-      var connectivityResult = await Connectivity().checkConnectivity();
-      bool isConnected = connectivityResult == ConnectivityResult.mobile ||
-              connectivityResult == ConnectivityResult.wifi
-          ? true
-          : false;
+      bool isConnected = await inspeccionService.checkConnection();
 
       if (isConnected) {
         final tempEmpresas =
@@ -218,7 +221,7 @@ class ButtonLogin extends StatelessWidget {
         } else {
           showSimpleNotification(
             Text(
-                'Debe haber iniciado sesión anteriormente, para ingresar en offline'),
+                'Recuerde iniciar sesión con conexión, para ingresar en offline'),
             leading: Icon(Icons.info),
             autoDismiss: true,
             background: Colors.orange,
@@ -240,8 +243,8 @@ class ButtonLogin extends StatelessWidget {
                   itemCount: empresas.length,
                   itemBuilder: (_, int i) => ListTile(
                     leading: Container(
-                        width: 70,
-                        height: 70,
+                        width: 50,
+                        height: 50,
                         child: getImage(empresas[i].rutaLogo.toString())),
                     title: Text(empresas[i].nombreQi.toString()),
                     trailing: const Icon(Icons.arrow_right),
@@ -266,7 +269,7 @@ class ButtonLogin extends StatelessWidget {
               ));
     } catch (error) {
       showSimpleNotification(
-        Text('Error al iniciar sesión ${error}'),
+        Text('Error al iniciar sesión'),
         leading: Icon(Icons.check),
         autoDismiss: true,
         background: Colors.orange,
