@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:app_qinspecting/screens/screens.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' show get;
-import 'package:intl/intl.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
