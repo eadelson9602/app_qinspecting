@@ -1,9 +1,8 @@
 import 'package:card_swiper/card_swiper.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
+import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 
@@ -20,20 +19,35 @@ class _DesktopScreenState extends State<DesktopScreen> {
     final loginService = Provider.of<LoginService>(context);
     final inspeccionService = Provider.of<InspeccionService>(context);
     final sizeScreen = MediaQuery.of(context).size;
+    final inspeccionProvider =
+        Provider.of<InspeccionProvider>(context, listen: false);
+
+    inspeccionService.resumePreoperacional.ciuId = 0;
+    inspeccionService.resumePreoperacional.resuPreKilometraje = 0;
+    inspeccionService.resumePreoperacional.vehId = 0;
+    inspeccionProvider.vehiculoSelected = null;
+    inspeccionProvider.remolqueSelected = null;
+    inspeccionProvider.pathFileKilometraje = null;
+    inspeccionProvider.stepStepperRemolque = 0;
+    inspeccionProvider.stepStepper = 0;
+    inspeccionProvider.pathFileGuia = null;
+    inspeccionProvider.realizoTanqueo = false;
+    inspeccionProvider.tieneRemolque = false;
+    inspeccionProvider.tieneGuia = false;
+    inspeccionProvider.itemsInspeccion.clear();
+    inspeccionProvider.itemsInspeccionRemolque.clear();
+
     return FutureBuilder(
-      future: Connectivity().checkConnectivity(),
+      future: inspeccionService.checkConnection(),
       builder: (context, snapshot) {
-        if (snapshot.data == ConnectivityResult.mobile ||
-            snapshot.data == ConnectivityResult.wifi) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.data == true) {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
                 height: 10,
-              ),
-              Text(
-                'Inspecciones realizadas',
-                style: TextStyle(fontSize: 18),
               ),
               FutureBuilder(
                   future: inspeccionService
