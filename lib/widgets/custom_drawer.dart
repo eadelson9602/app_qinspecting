@@ -48,7 +48,10 @@ class CustomDrawer extends StatelessWidget {
                   'Escritorio',
                   style: TextStyle(color: Colors.green),
                 ),
-                onTap: () => Navigator.pushReplacementNamed(context, 'home')),
+                onTap: () {
+                  uiProvider.selectedMenuOpt = 0;
+                  Navigator.pushReplacementNamed(context, 'home');
+                }),
             ListTile(
                 leading: const Icon(Icons.fact_check, color: Colors.green),
                 title: const Text(
