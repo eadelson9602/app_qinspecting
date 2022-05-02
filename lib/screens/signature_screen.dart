@@ -93,11 +93,11 @@ class MyStatelessWidget extends StatelessWidget {
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Icon(Icons.gesture),
             label: 'Firma',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.business),
+            icon: Icon(Icons.create),
             label: 'Realizar firma',
           ),
         ],
