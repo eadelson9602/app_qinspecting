@@ -8,9 +8,45 @@ class SettingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        child: Text('Pagina settings'),
+      body: Center(
+        child: _AccessButton(),
       ),
     );
+  }
+}
+
+class _AccessButton extends StatelessWidget {
+  const _AccessButton({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text('Es necesario activar el gps'),
+        MaterialButton(
+          color: Colors.black,
+          shape: StadiumBorder(),
+          child: Text(
+            'Solicitar acceso',
+            style: TextStyle(color: Colors.white),
+          ),
+          onPressed: () {},
+        )
+      ],
+    );
+  }
+}
+
+class _EnableGpsMessage extends StatelessWidget {
+  const _EnableGpsMessage({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text('Debe de habilitar el gps');
   }
 }
