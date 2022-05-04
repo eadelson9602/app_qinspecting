@@ -1,7 +1,4 @@
-import 'dart:io';
-
 import 'package:app_qinspecting/models/empresa.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:app_qinspecting/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
