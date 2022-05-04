@@ -18,21 +18,11 @@ class AppState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(providers: [
-      ChangeNotifierProvider(
-        create: (_) => UiProvider(),
-      ),
-      ChangeNotifierProvider(
-        create: (_) => LoginService(),
-      ),
-      ChangeNotifierProvider(
-        create: (_) => InspeccionProvider(),
-      ),
-      ChangeNotifierProvider(
-        create: (_) => LoginFormProvider(),
-      ),
-      ChangeNotifierProvider(
-        create: (_) => PerfilFormProvider(),
-      ),
+      ChangeNotifierProvider(create: (_) => UiProvider()),
+      ChangeNotifierProvider(create: (_) => LoginService()),
+      ChangeNotifierProvider(create: (_) => InspeccionProvider()),
+      ChangeNotifierProvider(create: (_) => LoginFormProvider()),
+      ChangeNotifierProvider(create: (_) => PerfilFormProvider()),
       ChangeNotifierProvider(create: (_) => InspeccionService()),
       ChangeNotifierProvider(create: (_) => FirmaService()),
     ], child: const MyApp());
