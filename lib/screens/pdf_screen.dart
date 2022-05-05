@@ -344,6 +344,12 @@ class PdfScreen extends StatelessWidget {
 
     DateTime fechaHoy = DateTime.now();
     //Add rows
+    infoPdf.detalle.last.respuestas.add(RespuestaInspeccion(
+        idItem: -1,
+        item: 'Kilometraje',
+        foto: infoPdf.fotoKm,
+        fotoConverted: fotoKilometraje));
+
     infoPdf.detalle.forEach((categoria) {
       // Dibujas las categorias
       final PdfGridRow row = grid.rows.add();
@@ -352,22 +358,15 @@ class PdfScreen extends StatelessWidget {
       row.cells[0].style =
           PdfGridCellStyle(backgroundBrush: PdfBrushes.lightGray);
       // Dibuja los items
-      if (categoria.idCategoria == 45) {
-        categoria.respuestas.add(RespuestaInspeccion(
-            idItem: -1,
-            item: 'Kilometraje',
-            foto: infoPdf.fotoKm,
-            fotoConverted: fotoKilometraje));
-      }
       categoria.respuestas.forEach((respuesta) {
-        addProducts(grid, infoPdf, respuesta, formatColumns, fechaHoy);
+        addRows(grid, infoPdf, respuesta, formatColumns, fechaHoy);
       });
     });
     return grid;
   }
 
   //Create and row for the grid.
-  void addProducts(PdfGrid grid, Pdf infoPdf, RespuestaInspeccion respuesta,
+  void addRows(PdfGrid grid, Pdf infoPdf, RespuestaInspeccion respuesta,
       PdfStringFormat formatColumns, DateTime fechaHoy) async {
     final PdfGridRow row = grid.rows.add();
     row.cells[0].value = '${respuesta.item}';
