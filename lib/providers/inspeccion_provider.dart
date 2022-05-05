@@ -29,6 +29,20 @@ class InspeccionProvider extends ChangeNotifier {
   int stepStepper = 0;
   int stepStepperRemolque = 0;
 
+  void clearData(){
+    vehiculoSelected = null;
+    remolqueSelected = null;
+    pathFileKilometraje = null;
+    stepStepperRemolque = 0;
+    stepStepper = 0;
+    pathFileGuia = null;
+    realizoTanqueo = false;
+    tieneRemolque = false;
+    tieneGuia = false;
+    itemsInspeccion.clear();
+    itemsInspeccionRemolque.clear();
+  }
+
   bool isValidForm() {
     return formKey.currentState?.validate() ?? false;
   }
@@ -91,7 +105,6 @@ class InspeccionProvider extends ChangeNotifier {
 
     final resDepartamentos = await DBProvider.db.getAllDepartamentos();
     departamentos = [...resDepartamentos!];
-    // notifyListeners();
     return true;
   }
 
