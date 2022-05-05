@@ -1,5 +1,5 @@
 import 'package:app_qinspecting/models/empresa.dart';
-import 'package:app_qinspecting/screens/home_screen.dart';
+import 'package:app_qinspecting/screens/screens.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
@@ -17,7 +17,7 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final _sizeScreen = MediaQuery.of(context).size;
     final inspeccionService = Provider.of<InspeccionService>(context);
-    if (inspeccionService.isLoading) return LoadHomeScreen();
+    if (inspeccionService.isLoading) return LoadingScreen();
     return Scaffold(
       body: AuthBackground(
         child: SingleChildScrollView(
