@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
       initialRoute: 'check_auth',
       routes: {
         'login': (_) => const LoginScreen(),
-        'home': (_) => const LoadHomeScreen(),
+        'home': (_) => const HomeScreen(),
         'profile': (_) => const ProfileScreen(),
         'inspeccion': (_) => const InspeccionScreen(),
         'signature': (_) => const SignatureScreen(),
