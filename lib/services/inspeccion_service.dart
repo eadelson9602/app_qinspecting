@@ -10,7 +10,8 @@ import 'package:overlay_support/overlay_support.dart';
 
 class InspeccionService extends ChangeNotifier {
   final loginService = LoginService();
-  var dio = Dio();
+  final dio = Dio();
+
   bool isLoading = false;
   bool isSaving = false;
   final List<Departamentos> departamentos = [];
@@ -19,29 +20,35 @@ class InspeccionService extends ChangeNotifier {
   final List<Remolque> remolques = [];
   final List<ItemInspeccion> itemsInspeccion = [];
   final inspeccionProvider = InspeccionProvider();
-  List<ResumenPreoperacionalServer> inspeccionesRange = [];
+  List<ResumenPreoperacionalServer> listInspections = [];
   int indexSelected = 0;
   DateTimeRange? myDateRange;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   final resumePreoperacional = ResumenPreoperacional(
-      resuPreFecha: '',
-      resuPreUbicExpPre: '',
-      resuPreKilometraje: 0,
-      tanqueGalones: 0,
-      resuPreFotokm: '',
-      persNumeroDoc: 0,
-      resuPreGuia: '',
-      resuPreFotoguia: '',
-      vehId: 0,
-      remolId: 0,
-      ciuId: 0,
-      base: '');
+    resuPreFecha: '',
+    resuPreUbicExpPre: '',
+    resuPreKilometraje: 0,
+    tanqueGalones: 0,
+    resuPreFotokm: '',
+    persNumeroDoc: 0,
+    resuPreGuia: '',
+    resuPreFotoguia: '',
+    vehId: 0,
+    remolId: 0,
+    ciuId: 0,
+    base: ''
+  );
+
+  void clearData (){
+    resumePreoperacional.ciuId = 0;
+    resumePreoperacional.resuPreKilometraje = 0;
+    resumePreoperacional.vehId = 0;
+  }
 
   Future<bool> checkConnection() async {
     final connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.mobile ||
-        connectivityResult == ConnectivityResult.wifi) {
+    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
       return true;
     } else {
       return false;
@@ -53,45 +60,25 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<List<ResumenPreoperacionalServer>> getLatesInspections(
-      Empresa selectedEmpresa) async {
-    final connectivityResult = await checkConnection();
-
-    if (connectivityResult) {
-      try {
-        isLoading = true;
-        // notifyListeners();
-
-        Response response = await dio.get(
-            'https://apis.qinspecting.com/pflutter/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.usuarioUser}');
-        List<ResumenPreoperacionalServer> tempData = [];
-        for (var item in response.data) {
-          tempData.add(ResumenPreoperacionalServer.fromMap(item));
-        }
-
-        inspeccionesRange = [...tempData];
-        isLoading = false;
-        // notifyListeners();
-        return tempData;
-      } catch (error) {
-        showSimpleNotification(
-          Text('No hemos podido obtener las inspecciones'),
-          leading: Icon(Icons.wifi_tethering_error_rounded_outlined),
-          autoDismiss: true,
-          background: Colors.orange,
-          position: NotificationPosition.bottom,
-        );
-        return Future.error(error.toString());
+  Future<bool> getLatesInspections(Empresa selectedEmpresa) async {
+    try {
+      Response response = await dio.get('https://apis.qinspecting.com/pflutter/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.usuarioUser}');
+      List<ResumenPreoperacionalServer> tempData = [];
+      for (var item in response.data) {
+        tempData.add(ResumenPreoperacionalServer.fromMap(item));
       }
-    } else {
+
+      listInspections = [...tempData];
+      return true;
+    } catch (error) {
       showSimpleNotification(
-        Text('Sin conexión a internet'),
+        Text('No hemos podido obtener las inspecciones'),
         leading: Icon(Icons.wifi_tethering_error_rounded_outlined),
         autoDismiss: true,
         background: Colors.orange,
         position: NotificationPosition.bottom,
       );
-      return [];
+      return Future.error(error.toString());
     }
   }
 
@@ -100,8 +87,7 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
 
-    Response response = await dio.get(
-        'https://apis.qinspecting.com/pflutter/list_departments/$baseEmpresa');
+    Response response = await dio.get('https://apis.qinspecting.com/pflutter/list_departments/$baseEmpresa');
     departamentos.clear();
     for (var item in response.data) {
       final tempDepartamento = Departamentos.fromMap(item);
@@ -118,8 +104,7 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
 
-    Response response = await dio
-        .get('https://apis.qinspecting.com/pflutter/list_city/$baseEmpresa');
+    Response response = await dio.get('https://apis.qinspecting.com/pflutter/list_city/$baseEmpresa');
     ciudades.clear();
     for (var item in response.data) {
       final tempCiudad = Ciudades.fromMap(item);
@@ -136,8 +121,7 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
 
-    Response response = await dio.get(
-        'https://apis.qinspecting.com/pflutter/show_placas_cabezote/$baseEmpresa');
+    Response response = await dio.get('https://apis.qinspecting.com/pflutter/show_placas_cabezote/$baseEmpresa');
     vehiculos.clear();
     for (var item in response.data) {
       final tempVehiculo = Vehiculo.fromMap(item);
@@ -154,8 +138,7 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
 
-    Response response = await dio.get(
-        'https://apis.qinspecting.com/pflutter/show_placas_trailer/$baseEmpresa');
+    Response response = await dio.get('https://apis.qinspecting.com/pflutter/show_placas_trailer/$baseEmpresa');
     remolques.clear();
     for (var item in response.data) {
       final tempRemolque = Remolque.fromMap(item);
@@ -167,14 +150,12 @@ class InspeccionService extends ChangeNotifier {
     return remolques;
   }
 
-  Future<List<ItemInspeccion>> getItemsInspeccion(
-      Empresa empresaSelected) async {
+  Future<List<ItemInspeccion>> getItemsInspeccion(Empresa empresaSelected) async {
     isLoading = true;
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
 
-    Response response = await dio.get(
-        'https://apis.qinspecting.com/pflutter/list_items_x_placa/$baseEmpresa');
+    Response response = await dio.get('https://apis.qinspecting.com/pflutter/list_items_x_placa/$baseEmpresa');
     itemsInspeccion.clear();
     for (var item in response.data) {
       final tempItem = ItemInspeccion.fromMap(item);
@@ -186,13 +167,10 @@ class InspeccionService extends ChangeNotifier {
     return itemsInspeccion;
   }
 
-  Future<Respuesta> insertPreoperacional(
-      ResumenPreoperacional inspeccion) async {
+  Future<Respuesta> insertPreoperacional(ResumenPreoperacional inspeccion) async {
     isLoading = true;
     notifyListeners();
-    Response response = await dio.post(
-        'https://apis.qinspecting.com/pflutter/insert_preoperacional',
-        data: inspeccion.toJson());
+    Response response = await dio.post('https://apis.qinspecting.com/pflutter/insert_preoperacional', data: inspeccion.toJson());
     final resp = Respuesta.fromMap(response.data);
     isLoading = false;
     notifyListeners();
@@ -202,42 +180,30 @@ class InspeccionService extends ChangeNotifier {
   Future<Respuesta> insertRespuestasPreoperacional(Item respuesta) async {
     isLoading = true;
     notifyListeners();
-    Response response = await dio.post(
-        'https://apis.qinspecting.com/pflutter/insert_respuestas_preoperacional',
-        data: respuesta.toJson());
+    Response response = await dio.post('https://apis.qinspecting.com/pflutter/insert_respuestas_preoperacional', data: respuesta.toJson());
     final resp = Respuesta.fromMap(response.data);
     isLoading = false;
     notifyListeners();
     return resp;
   }
 
-  Future<Map<String, dynamic>?> uploadImage(
-      {required String path,
-      required String company,
-      required String folder}) async {
+  Future<Map<String, dynamic>?> uploadImage({required String path, required String company, required String folder}) async {
     try {
-      isLoading = true;
-      notifyListeners();
+      
       var fileName = (path.split('/').last);
-      var formData = FormData.fromMap({
-        'files':
-            await MultipartFile.fromFile('${path}', filename: '${fileName}'),
-      });
-      Response response = await dio.post(
-          'https://apis.qinspecting.com/pflutter/upload_file/${company}/${folder}',
-          data: formData);
+      var formData = FormData.fromMap({'files': await MultipartFile.fromFile('${path}', filename: '${fileName}')});
+      Response response = await dio.post('https://apis.qinspecting.com/pflutter/upload_file/${company}/${folder}', data: formData);
       final resp = ResponseUploadFile.fromMap(response.data);
-      isLoading = false;
-      notifyListeners();
+      
       return resp.toMap();
     } catch (error) {
-      // print('Error al subir foto ${error}');
       showSimpleNotification(Text('No se ha podido subir la foto al servidor'),
-          leading: Icon(Icons.check),
-          autoDismiss: true,
-          background: Colors.orange,
-          position: NotificationPosition.bottom);
-      return null;
+        leading: Icon(Icons.check),
+        autoDismiss: true,
+        background: Colors.orange,
+        position: NotificationPosition.bottom
+      );
+      return Future.error(error);
     }
   }
 
@@ -245,40 +211,33 @@ class InspeccionService extends ChangeNotifier {
     try {
       final baseEmpresa = selectedEmpresa.nombreBase;
       await loginService.getUserData(selectedEmpresa);
-      Response response = await dio.get(
-          'https://apis.qinspecting.com/pflutter/show_placas_cabezote/$baseEmpresa');
+      Response response = await dio.get('https://apis.qinspecting.com/pflutter/show_placas_cabezote/$baseEmpresa');
       for (var item in response.data) {
         final tempVehiculo = Vehiculo.fromMap(item);
         DBProvider.db.nuevoVehiculo(tempVehiculo);
       }
-      Response responseTrailer = await dio.get(
-          'https://apis.qinspecting.com/pflutter/show_placas_trailer/$baseEmpresa');
+      Response responseTrailer = await dio.get('https://apis.qinspecting.com/pflutter/show_placas_trailer/$baseEmpresa');
       for (var item in responseTrailer.data) {
         final tempRemolque = Remolque.fromMap(item);
         DBProvider.db.nuevoRemolque(tempRemolque);
       }
-      Response responseDepartamentos = await dio.get(
-          'https://apis.qinspecting.com/pflutter/list_departments/$baseEmpresa');
+      Response responseDepartamentos = await dio.get('https://apis.qinspecting.com/pflutter/list_departments/$baseEmpresa');
       for (var item in responseDepartamentos.data) {
         final tempDepartamento = Departamentos.fromMap(item);
         DBProvider.db.nuevoDepartamento(tempDepartamento);
       }
-      Response responseCiudades = await dio
-          .get('https://apis.qinspecting.com/pflutter/list_city/$baseEmpresa');
+      Response responseCiudades = await dio.get('https://apis.qinspecting.com/pflutter/list_city/$baseEmpresa');
       for (var item in responseCiudades.data) {
         final tempCiudad = Ciudades.fromMap(item);
         DBProvider.db.nuevaCiudad(tempCiudad);
       }
-      Response responseItems = await dio.get(
-          'https://apis.qinspecting.com/pflutter/list_items_x_placa/$baseEmpresa');
+      Response responseItems = await dio.get('https://apis.qinspecting.com/pflutter/list_items_x_placa/$baseEmpresa');
       for (var item in responseItems.data) {
         final tempItem = ItemInspeccion.fromMap(item);
         DBProvider.db.nuevoItem(tempItem);
       }
 
-      Response responseTipodoc = await dio.get(
-        'https://apis.qinspecting.com/pflutter/list_type_documents/$baseEmpresa',
-      );
+      Response responseTipodoc = await dio.get('https://apis.qinspecting.com/pflutter/list_type_documents/$baseEmpresa');
       for (var item in responseTipodoc.data) {
         final tempTipoDoc = TipoDocumentos.fromMap(item);
         DBProvider.db.nuevoTipoDocumento(tempTipoDoc);
@@ -298,50 +257,43 @@ class InspeccionService extends ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>> sendInspeccion(
-      ResumenPreoperacional inspeccion) async {
+  Future<Map<String, dynamic>> sendInspeccion(ResumenPreoperacional inspeccion) async {
     try {
       final connectivityResult = await checkConnection();
       if (connectivityResult) {
         isSaving = true;
         // Se envia la foto del kilometraje al servidor
         Map<String, dynamic>? responseUploadKilometraje = await uploadImage(
-            path: inspeccion.resuPreFotokm!,
-            company: 'qinspecting',
-            folder: 'inspecciones');
+          path: inspeccion.resuPreFotokm!,
+          company: 'qinspecting',
+          folder: 'inspecciones'
+        );
         inspeccion.resuPreFotokm = responseUploadKilometraje?['path'];
 
         // Se envia la foto de la guia si tiene
         if (inspeccion.resuPreGuia?.isNotEmpty ?? false) {
           Map<String, dynamic>? responseUploadGuia = await uploadImage(
-              path: inspeccion.resuPreFotoguia!,
-              company: 'qinspecting',
-              folder: 'inspecciones');
+            path: inspeccion.resuPreFotoguia!,
+            company: 'qinspecting',
+            folder: 'inspecciones'
+          );
           inspeccion.resuPreFotoguia = responseUploadGuia?['path'];
         }
 
         // Asignamos el id del remolque si tiene
-        inspeccion.remolId =
-            inspeccion.remolId != null && inspeccion.remolId != 0
-                ? inspeccion.remolId
-                : null;
+        inspeccion.remolId = inspeccion.remolId != null && inspeccion.remolId != 0 ? inspeccion.remolId : null;
 
         // Guardamos el resumen del preoperacional en el server
         final responseResumen = await insertPreoperacional(inspeccion);
         // Consultamos en sqlite las respuestas
-        List<Item> respuestas =
-            await inspeccionProvider.cargarTodasRespuestas(inspeccion.id!);
+        List<Item> respuestas = await inspeccionProvider.cargarTodasRespuestas(inspeccion.id!);
 
         List<Future> Promesas = [];
         respuestas.forEach((element) {
-          // loginService.selectedEmpresa!.nombreQi
           element.fkPreoperacional = responseResumen.idInspeccion;
           if (element.adjunto != null) {
-            Promesas.add(uploadImage(
-                    path: element.adjunto!,
-                    company: 'qinspecting',
-                    folder: 'inspecciones')
-                .then((response) {
+            Promesas.add(uploadImage(path: element.adjunto!, company: 'qinspecting', folder: 'inspecciones')
+            .then((response) {
               final responseUpload = ResponseUploadFile.fromMap(response!);
               element.adjunto = responseUpload.path;
 
@@ -359,14 +311,14 @@ class InspeccionService extends ChangeNotifier {
 
         // show a notification at top of screen.
         showSimpleNotification(Text(responseResumen.message!),
-            leading: Icon(Icons.check),
-            autoDismiss: true,
-            background: Colors.green,
-            position: NotificationPosition.bottom);
+          leading: Icon(Icons.check),
+          autoDismiss: true,
+          background: Colors.green,
+          position: NotificationPosition.bottom
+        );
 
         await inspeccionProvider.eliminarResumenPreoperacional(inspeccion.id!);
-        await inspeccionProvider
-            .eliminarRespuestaPreoperacional(inspeccion.id!);
+        await inspeccionProvider.eliminarRespuestaPreoperacional(inspeccion.id!);
 
         isSaving = false;
         return responseResumen.toMap();
@@ -386,10 +338,11 @@ class InspeccionService extends ChangeNotifier {
       }
     } catch (error) {
       showSimpleNotification(Text('No se ha podido guardar la inspección'),
-          leading: Icon(Icons.check),
-          autoDismiss: true,
-          background: Colors.orange,
-          position: NotificationPosition.bottom);
+        leading: Icon(Icons.check),
+        autoDismiss: true,
+        background: Colors.orange,
+        position: NotificationPosition.bottom
+      );
       return {
         "message": 'No se ha podido guardar la inspección',
         "ok": false,
@@ -398,10 +351,8 @@ class InspeccionService extends ChangeNotifier {
     }
   }
 
-  Future<Pdf> detatilPdf(
-      Empresa empresaSelected, ResumenPreoperacionalServer inspeccion) async {
-    Response response = await dio.get(
-        'https://apis.qinspecting.com/pflutter/inspeccion/${empresaSelected.nombreBase}/${inspeccion.resuPreId}');
+  Future<Pdf> detatilPdf(Empresa empresaSelected, ResumenPreoperacionalServer inspeccion) async {
+    Response response = await dio.get('https://apis.qinspecting.com/pflutter/inspeccion/${empresaSelected.nombreBase}/${inspeccion.resuPreId}');
 
     List<Future> promesas = [];
 
@@ -416,8 +367,7 @@ class InspeccionService extends ChangeNotifier {
       });
     });
 
-    List<dynamic> responseFile =
-        await Future.wait(promesas).then((value) => value);
+    List<dynamic> responseFile = await Future.wait(promesas).then((value) => value);
 
     temData.detalle.forEach((categoria) {
       categoria.respuestas.forEach((respuesta) {
