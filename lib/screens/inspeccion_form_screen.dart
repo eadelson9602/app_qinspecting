@@ -16,9 +16,9 @@ class InspeccionForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
-    final inspeccionService = Provider.of<InspeccionService>(context);
-    final loginService = Provider.of<LoginService>(context);
-    final uiProvider = Provider.of<UiProvider>(context);
+    final inspeccionService =
+        Provider.of<InspeccionService>(context, listen: false);
+    final loginService = Provider.of<LoginService>(context, listen: false);
 
     inspeccionService.resumePreoperacional.base =
         loginService.selectedEmpresa.nombreBase!;
@@ -208,11 +208,7 @@ class InspeccionForm extends StatelessWidget {
             );
     }
 
-    // if (inspeccionProvider.vehiculos.isEmpty) return const LoadingScreen();
-
     return Container(
-      padding: EdgeInsets.symmetric(
-          horizontal: uiProvider.selectedMenuOpt == 1 ? 0 : 15),
       child: SingleChildScrollView(
         child: Form(
           key: inspeccionProvider.formKey,
@@ -318,16 +314,19 @@ class InspeccionForm extends StatelessWidget {
                       bottom: 10,
                       child: IconButton(
                         onPressed: () async {
-                          final _picker = ImagePicker();
-                          final XFile? photo = await _picker.pickImage(
-                              source: ImageSource.camera);
-
-                          if (photo == null) {
-                            return;
+                          final reponsePermission = await inspeccionProvider
+                              .requestCameraPermission();
+                          if (reponsePermission) {
+                            final _picker = ImagePicker();
+                            final XFile? photo = await _picker.pickImage(
+                                source: ImageSource.camera);
+                            if (photo == null) {
+                              return;
+                            }
+                            inspeccionService.resumePreoperacional
+                                .resuPreFotokm = photo.path;
+                            inspeccionProvider.updateSelectedImage(photo.path);
                           }
-                          inspeccionService.resumePreoperacional.resuPreFotokm =
-                              photo.path;
-                          inspeccionProvider.updateSelectedImage(photo.path);
                         },
                         icon: Icon(
                           Icons.camera_alt,
