@@ -52,16 +52,16 @@ class CustomDrawer extends StatelessWidget {
                   uiProvider.selectedMenuOpt = 0;
                   Navigator.pushReplacementNamed(context, 'home');
                 }),
-            ListTile(
-                leading: const Icon(Icons.fact_check, color: Colors.green),
-                title: const Text(
-                  'Inspección',
-                  style: TextStyle(color: Colors.green),
-                ),
-                onTap: () {
-                  uiProvider.selectedMenuOpt = 1;
-                  Navigator.pushReplacementNamed(context, 'home');
-                }),
+            // ListTile(
+            //     leading: const Icon(Icons.fact_check, color: Colors.green),
+            //     title: const Text(
+            //       'Inspección',
+            //       style: TextStyle(color: Colors.green),
+            //     ),
+            //     onTap: () {
+            //       uiProvider.selectedMenuOpt = 1;
+            //       Navigator.pushReplacementNamed(context, 'home');
+            //     }),
             ListTile(
               leading: Icon(Icons.send, color: Colors.green),
               title: Text('Enviar inspecciones',
