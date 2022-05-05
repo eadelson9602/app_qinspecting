@@ -16,68 +16,49 @@ class DesktopScreen extends StatefulWidget {
 class _DesktopScreenState extends State<DesktopScreen> {
   @override
   Widget build(BuildContext context) {
-    final loginService = Provider.of<LoginService>(context);
-    final inspeccionService = Provider.of<InspeccionService>(context);
+    final loginService = Provider.of<LoginService>(context, listen: false);
+    final inspeccionService = Provider.of<InspeccionService>(context, listen: false);
     final sizeScreen = MediaQuery.of(context).size;
-    final inspeccionProvider =
-        Provider.of<InspeccionProvider>(context, listen: false);
+    final inspeccionProvider = Provider.of<InspeccionProvider>(context, listen: false);
 
-    inspeccionService.resumePreoperacional.ciuId = 0;
-    inspeccionService.resumePreoperacional.resuPreKilometraje = 0;
-    inspeccionService.resumePreoperacional.vehId = 0;
-    inspeccionProvider.vehiculoSelected = null;
-    inspeccionProvider.remolqueSelected = null;
-    inspeccionProvider.pathFileKilometraje = null;
-    inspeccionProvider.stepStepperRemolque = 0;
-    inspeccionProvider.stepStepper = 0;
-    inspeccionProvider.pathFileGuia = null;
-    inspeccionProvider.realizoTanqueo = false;
-    inspeccionProvider.tieneRemolque = false;
-    inspeccionProvider.tieneGuia = false;
-    inspeccionProvider.itemsInspeccion.clear();
-    inspeccionProvider.itemsInspeccionRemolque.clear();
+    inspeccionService.clearData();
+    inspeccionProvider.clearData();
 
-    return FutureBuilder(
-      future: inspeccionService.checkConnection(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        } else if (snapshot.data == true) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                height: 10,
-              ),
-              FutureBuilder(
-                  future: inspeccionService
-                      .getLatesInspections(loginService.selectedEmpresa),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    } else {
-                      List data = snapshot.data as List;
-                      return Container(
-                        height: 355,
-                        child: Swiper(
-                          layout: SwiperLayout.STACK,
-                          itemHeight: sizeScreen.height * 0.9,
-                          itemWidth: sizeScreen.height * 0.5,
-                          itemBuilder: (BuildContext context, int i) {
-                            return CardInspeccionDesktop(
-                                resumenPreoperacional: data[i]);
-                          },
-                          itemCount: data.length,
-                        ),
-                      );
-                    }
-                  }),
-            ],
-          );
-        } else {
-          return NoInternet();
-        }
-      },
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          height: 10,
+        ),
+        FutureBuilder(
+          future: inspeccionService.getLatesInspections(loginService.selectedEmpresa),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Container(
+                height: 355,
+                child: Center(
+                  child: CircularProgressIndicator()
+                )
+              );
+            } else if (snapshot.data != false) {
+              return Container(
+                height: 355,
+                child: Swiper(
+                  layout: SwiperLayout.STACK,
+                  itemHeight: sizeScreen.height * 1,
+                  itemWidth: sizeScreen.height * 0.5,
+                  itemBuilder: (BuildContext context, int i) {
+                    return CardInspeccionDesktop(resumenPreoperacional: inspeccionService.listInspections[i]);
+                  },
+                  itemCount: inspeccionService.listInspections.length,
+                ),
+              );
+            } else {
+              return NoInternet();
+            }
+          }
+        ),
+      ],
     );
   }
 }
