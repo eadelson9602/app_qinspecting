@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/providers/providers.dart';
@@ -90,7 +91,7 @@ class InspeccionProvider extends ChangeNotifier {
 
     final resDepartamentos = await DBProvider.db.getAllDepartamentos();
     departamentos = [...resDepartamentos!];
-    notifyListeners();
+    // notifyListeners();
     return true;
   }
 
@@ -179,5 +180,26 @@ class InspeccionProvider extends ChangeNotifier {
         await DBProvider.db.deleteRespuestaPreoperacional(idResumen);
     notifyListeners();
     return respuestas;
+  }
+
+  // Validación de permisos
+  Future<bool> requestCameraPermission() async {
+    final status = await Permission.camera.request();
+
+    if (status == PermissionStatus.granted) {
+      return true;
+    } else {
+      return await openAppSettings();
+    }
+  }
+
+  Future<bool> requestLocationPermission() async {
+    final status = await Permission.locationWhenInUse.request();
+
+    if (status == PermissionStatus.granted) {
+      return true;
+    } else {
+      return await openAppSettings();
+    }
   }
 }
