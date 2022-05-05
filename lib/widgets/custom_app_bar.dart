@@ -3,16 +3,13 @@ import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/services/login_service.dart';
 
-class CustomAppBar extends StatelessWidget {
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({Key? key}) : super(key: key);
+  Size get preferredSize => const Size.fromHeight(50);
 
   @override
   Widget build(BuildContext context) {
-    return createAppBar(context);
-  }
-
-  AppBar createAppBar(BuildContext context) {
-    final loginService = Provider.of<LoginService>(context);
+    final loginService = Provider.of<LoginService>(context, listen: false);
     String url = loginService.userDataLogged.persImagen!;
     return AppBar(
       title: const Text('Qinspecting'),
