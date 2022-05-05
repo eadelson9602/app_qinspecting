@@ -17,7 +17,7 @@ class GetDataScreen extends StatelessWidget {
             future: inspeccionService.getData(loginService.selectedEmpresa),
             builder: (ctx, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return LoadHomeScreen();
+                return LoadingScreen();
               } else {
                 Future.microtask(() {
                   Navigator.pushReplacement(
