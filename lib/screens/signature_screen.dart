@@ -85,8 +85,8 @@ class MyStatelessWidget extends StatelessWidget {
       TerminosCondiciones()
     ];
     return Scaffold(
-      appBar: CustomAppBar().createAppBar(context),
-      drawer: const CustomDrawer(),
+      appBar: CustomAppBar(),
+      drawer: CustomDrawer(),
       body: Center(
         child: _widgetOptions.elementAt(firmaService.indexTabaCreateSignature),
       ),

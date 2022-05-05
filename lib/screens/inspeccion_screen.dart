@@ -16,8 +16,8 @@ class InspeccionScreen extends StatelessWidget {
     inspeccionProvider.listarVehiculos();
 
     return Scaffold(
-      appBar: const CustomAppBar().createAppBar(context),
-      drawer: const CustomDrawer(),
+      appBar: CustomAppBar(),
+      drawer: CustomDrawer(),
       body: InspeccionForm(),
     );
   }
