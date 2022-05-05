@@ -61,24 +61,37 @@ class InspeccionService extends ChangeNotifier {
   }
 
   Future<bool> getLatesInspections(Empresa selectedEmpresa) async {
-    try {
-      Response response = await dio.get('https://apis.qinspecting.com/pflutter/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.usuarioUser}');
-      List<ResumenPreoperacionalServer> tempData = [];
-      for (var item in response.data) {
-        tempData.add(ResumenPreoperacionalServer.fromMap(item));
-      }
+    final connectivityResult = await checkConnection();
 
-      listInspections = [...tempData];
-      return true;
-    } catch (error) {
+    if (connectivityResult) {
+      try {
+        Response response = await dio.get('https://apis.qinspecting.com/pflutter/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.usuarioUser}');
+        List<ResumenPreoperacionalServer> tempData = [];
+        for (var item in response.data) {
+          tempData.add(ResumenPreoperacionalServer.fromMap(item));
+        }
+
+        listInspections = [...tempData];
+        return true;
+      } catch (error) {
+        showSimpleNotification(
+          Text('No hemos podido obtener las inspecciones'),
+          leading: Icon(Icons.wifi_tethering_error_rounded_outlined),
+          autoDismiss: true,
+          background: Colors.orange,
+          position: NotificationPosition.bottom,
+        );
+        return Future.error(error.toString());
+      }
+    } else {
       showSimpleNotification(
-        Text('No hemos podido obtener las inspecciones'),
+        Text('Sin conexión a internet'),
         leading: Icon(Icons.wifi_tethering_error_rounded_outlined),
         autoDismiss: true,
         background: Colors.orange,
         position: NotificationPosition.bottom,
       );
-      return Future.error(error.toString());
+      return false;
     }
   }
 
