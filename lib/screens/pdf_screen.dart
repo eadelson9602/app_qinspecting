@@ -20,56 +20,54 @@ class PdfScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final params = ModalRoute.of(context)!.settings.arguments as List;
-    final resumenPreoperacional = params[0] as ResumenPreoperacionalServer;
+    final resumenPreoperacional = params[0];
+    final inspeccionService = Provider.of<InspeccionService>(context, listen: false);
+    final loginService = Provider.of<LoginService>(context, listen: false);
 
-    final inspeccionService = Provider.of<InspeccionService>(context);
-    final loginService = Provider.of<LoginService>(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Preoperacional ${resumenPreoperacional.resuPreId}'),
-      ),
-      body: FutureBuilder(
-          future: _generatePdf(
-              resumenPreoperacional, inspeccionService, loginService),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return LoadingScreen();
-            } else {
-              final pathPdf = snapshot.data as File;
-              return SfPdfViewer.file(pathPdf);
-            }
-          }),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final output = await getTemporaryDirectory();
-
-          Share.shareFiles(
-              ['${output.path}/${resumenPreoperacional.consecutivo}.pdf']);
-        },
-        tooltip: 'Compartir',
-        child: const Icon(Icons.share),
-      ),
+    return FutureBuilder(
+      future: _generatePdf(resumenPreoperacional, inspeccionService, loginService),
+      builder: (context, snapshot) {
+        if (snapshot.data == null) {
+          return LoadingScreen();
+        } else {
+          var tempFile = snapshot.data as File;
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Preoperacional ${resumenPreoperacional.resuPreId}'),
+            ),
+            body: SfPdfViewer.file(tempFile),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () async {
+                await Share.shareFiles([tempFile.path]);
+              },
+              tooltip: 'Compartir',
+              child: const Icon(Icons.share),
+            ),
+          );
+        }
+      }
     );
   }
 
   // Genera el pdf
-  Future<File> _generatePdf(ResumenPreoperacionalServer resumenPreoperacional,
-      InspeccionService inspeccionService, LoginService loginService) async {
-    Pdf infoPdf = await inspeccionService
-        .detatilPdf(loginService.selectedEmpresa, resumenPreoperacional)
-        .then((data) => data, onError: (e) {
-      showSimpleNotification(Text('Error al obtener detalle pdf: ${e}'),
-          leading: Icon(Icons.check),
-          autoDismiss: true,
-          background: Colors.orange,
-          position: NotificationPosition.bottom);
+  Future<File> _generatePdf(
+    ResumenPreoperacionalServer resumenPreoperacional,
+    InspeccionService inspeccionService,
+    LoginService loginService
+  ) async {
+    Pdf infoPdf = await inspeccionService.detatilPdf(loginService.selectedEmpresa, resumenPreoperacional).then((data) => data, onError: (e) {
+      showSimpleNotification(Text('Error al obtener detalle pdf'),
+        leading: Icon(Icons.check),
+        autoDismiss: true,
+        background: Colors.orange,
+        position: NotificationPosition.bottom
+      );
     });
 
     var responseLogoCliente = await get(Uri.parse(infoPdf.rutaLogo!));
     var logoCliente = responseLogoCliente.bodyBytes;
 
-    var responseLogoQi =
-        await get(Uri.parse('https://qinspecting.com/img/Qi.png'));
+    var responseLogoQi = await get(Uri.parse('https://qinspecting.com/img/Qi.png'));
     var logoQi = responseLogoQi.bodyBytes;
 
     var responseKilometraje = await get(Uri.parse(infoPdf.fotoKm!));
@@ -113,13 +111,13 @@ class PdfScreen extends StatelessWidget {
 
     //Save the PDF document
     final output = await getTemporaryDirectory();
+    final pathFile = '${output.path}/${resumenPreoperacional.consecutivo}.pdf';
 
-    File('${output.path}/${resumenPreoperacional.consecutivo}.pdf')
-        .writeAsBytes(document.save());
+    File(pathFile).writeAsBytes(document.save());
     // Dispose the document.
     document.dispose();
 
-    return File('${output.path}/${resumenPreoperacional.consecutivo}.pdf');
+    return File(pathFile);
   }
 
   PdfPageTemplateElement drawHeader(PdfDocument document, Pdf infoPdf,
@@ -452,8 +450,7 @@ class PdfScreen extends StatelessWidget {
     if (respuesta.foto == null) {
       row.cells[6].value = '';
     } else {
-      row.cells[6].style = PdfGridCellStyle(
-          backgroundImage: PdfBitmap(respuesta.fotoConverted!));
+      row.cells[6].style = PdfGridCellStyle(backgroundImage: PdfBitmap(respuesta.fotoConverted!));
       row.height = 40;
     }
   }
