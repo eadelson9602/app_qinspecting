@@ -28,7 +28,7 @@ class DBProvider {
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       await db.execute('''
-        CREATE TABLE ResumenPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, ResuPre_Fecha TEXT, ResuPre_UbicExpPre TEXT, ResuPre_Kilometraje NUMERIC, tanque_galones NUMERIC, ResuPre_Fotokm TEXT, Pers_NumeroDoc NUMERIC, ResuPre_guia TEXT, ResuPre_Fotoguia TEXT, Veh_Id NUMERIC, Remol_Id NUMERIC, Ciu_Id NUMERIC, base TEXT);
+        CREATE TABLE ResumenPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, ResuPre_Fecha TEXT, ResuPre_UbicExpPre TEXT, ResuPre_Kilometraje NUMERIC, tanque_galones NUMERIC, ResuPre_Fotokm TEXT, Pers_NumeroDoc NUMERIC, ResuPre_guia TEXT, ResuPre_Fotoguia TEXT, Veh_Id NUMERIC, Remol_Id NUMERIC, Ciu_Id NUMERIC, ciudad TEXT, base TEXT);
       ''');
       await db.execute('''
         CREATE TABLE RespuestasPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, id_item INTEGER, item TEXT, respuesta TEXT, adjunto TEXT, observaciones TEXT, base TEXT, fk_preoperacional INTEGER, CONSTRAINT fk_preoperacional FOREIGN KEY (Id) REFERENCES ResumenPreoperacional(Id) ON DELETE CASCADE) ;
@@ -293,6 +293,7 @@ class DBProvider {
   Future<int?> nuevoInspeccion(ResumenPreoperacional nuevoInspeccion) async {
     final db = await database;
     Map<String, dynamic> resumenSave = {
+      "placa": nuevoInspeccion.placa,
       "ResuPre_Fecha": nuevoInspeccion.resuPreFecha,
       "ResuPre_UbicExpPre": nuevoInspeccion.resuPreUbicExpPre,
       "ResuPre_Kilometraje": nuevoInspeccion.resuPreKilometraje,
