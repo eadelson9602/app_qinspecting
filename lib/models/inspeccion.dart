@@ -3,6 +3,7 @@ import 'dart:convert';
 class ResumenPreoperacional {
   ResumenPreoperacional({
     this.id,
+    this.placa,
     this.resuPreId,
     this.resuPreFecha,
     this.resuPreUbicExpPre,
@@ -15,11 +16,13 @@ class ResumenPreoperacional {
     this.vehId,
     this.remolId,
     this.ciuId,
+    this.ciudad,
     this.base,
     this.respuestas,
   });
 
   int? id;
+  String? placa;
   int? resuPreId;
   String? resuPreFecha;
   String? resuPreUbicExpPre;
@@ -32,6 +35,7 @@ class ResumenPreoperacional {
   int? vehId;
   int? remolId;
   int? ciuId;
+  String? ciudad;
   String? base;
   String? respuestas;
 
@@ -43,24 +47,26 @@ class ResumenPreoperacional {
   factory ResumenPreoperacional.fromMap(Map<String, dynamic> json) =>
       ResumenPreoperacional(
           id: json["Id"],
+          placa: json["placa"],
           resuPreId: json["ResuPre_Id"],
           resuPreFecha: json["ResuPre_Fecha"],
           resuPreUbicExpPre: json["ResuPre_UbicExpPre"],
           resuPreKilometraje: json["ResuPre_Kilometraje"],
           tanqueGalones: json["tanque_galones"],
-          resuPreFotokm:
-              json["ResuPre_Fotokm"] == null ? null : json["ResuPre_Fotokm"],
+          resuPreFotokm: json["ResuPre_Fotokm"] == null ? null : json["ResuPre_Fotokm"],
           persNumeroDoc: json["Pers_NumeroDoc"],
           resuPreGuia: json["ResuPre_guia"],
           resuPreFotoguia: json["ResuPre_Fotoguia"],
           vehId: json["Veh_Id"],
           remolId: json["Remol_Id"],
           ciuId: json["Ciu_Id"],
+          ciudad: json["ciudad"],
           base: json["base"],
           respuestas: json["respuestas"]);
 
   Map<String, dynamic> toMap() => {
         "Id": id,
+        "placa": placa,
         "ResuPre_Id": resuPreId,
         "ResuPre_Fecha": resuPreFecha,
         "ResuPre_UbicExpPre": resuPreUbicExpPre,
@@ -73,6 +79,7 @@ class ResumenPreoperacional {
         "Veh_Id": vehId,
         "Remol_Id": remolId,
         "Ciu_Id": ciuId,
+        "ciudad": ciudad,
         "base": base,
         "respuestas": respuestas
       };
