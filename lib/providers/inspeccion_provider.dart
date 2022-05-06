@@ -6,7 +6,6 @@ import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/providers/providers.dart';
 
 class InspeccionProvider extends ChangeNotifier {
-  GlobalKey<FormState> formKey = GlobalKey<FormState>();
   bool realizoTanqueo = false;
   bool tieneRemolque = false;
   bool tieneGuia = false;
@@ -41,10 +40,6 @@ class InspeccionProvider extends ChangeNotifier {
     tieneGuia = false;
     itemsInspeccion.clear();
     itemsInspeccionRemolque.clear();
-  }
-
-  bool isValidForm() {
-    return formKey.currentState?.validate() ?? false;
   }
 
   void updateSaving(bool value) {
