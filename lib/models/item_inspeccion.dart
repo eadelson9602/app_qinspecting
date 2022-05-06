@@ -61,28 +61,31 @@ class ItemsVehiculo {
   String toJson() => json.encode(toMap());
 
   factory ItemsVehiculo.fromMap(Map<String, dynamic> json) => ItemsVehiculo(
-        idCategoria: json["id_categoria"],
-        categoria: json["categoria"],
-        items: List<Item>.from(json["items"].map((x) => Item.fromMap(x))),
-      );
+    idCategoria: json["id_categoria"],
+    categoria: json["categoria"],
+    items: List<Item>.from(json["items"].map((x) => Item.fromMap(x))
+  ));
 
   Map<String, dynamic> toMap() => {
-        "id_categoria": idCategoria,
-        "categoria": categoria,
-        "items": List<dynamic>.from(items.map((x) => x.toMap())),
-      };
+    "id_categoria": idCategoria,
+    "categoria": categoria,
+    "items": List<dynamic>.from(items.map((x) => x.toMap())
+  )};
 }
 
 class Item {
-  Item(
-      {required this.idItem,
-      required this.item,
-      this.respuesta,
-      this.adjunto,
-      this.observaciones,
-      this.fkPreoperacional,
-      this.base});
+  Item({
+    this.idCategoria,
+    required this.idItem,
+    required this.item,
+    this.respuesta,
+    this.adjunto,
+    this.observaciones,
+    this.fkPreoperacional,
+    this.base
+  });
 
+  int? idCategoria;
   String idItem;
   String item;
   String? respuesta;
@@ -96,22 +99,24 @@ class Item {
   String toJson() => json.encode(toMap());
 
   factory Item.fromMap(Map<String, dynamic> json) => Item(
-        idItem: json["id_item"].toString(),
-        item: json["item"],
-        respuesta: json["respuesta"],
-        adjunto: json["adjunto"],
-        observaciones: json["observaciones"],
-        fkPreoperacional: json["Id"],
-        base: json["base"],
-      );
+    idCategoria: json['idCategoria'],
+    idItem: json["id_item"].toString(),
+    item: json["item"],
+    respuesta: json["respuesta"],
+    adjunto: json["adjunto"],
+    observaciones: json["observaciones"],
+    fkPreoperacional: json["Id"],
+    base: json["base"],
+  );
 
   Map<String, dynamic> toMap() => {
-        "id_item": idItem,
-        "item": item,
-        "respuesta": respuesta,
-        "adjunto": adjunto,
-        "observaciones": observaciones,
-        "fk_preoperacional": fkPreoperacional,
-        "base": base,
-      };
+    "idCategoria": idCategoria,
+    "id_item": idItem,
+    "item": item,
+    "respuesta": respuesta,
+    "adjunto": adjunto,
+    "observaciones": observaciones,
+    "fk_preoperacional": fkPreoperacional,
+    "base": base,
+  };
 }
