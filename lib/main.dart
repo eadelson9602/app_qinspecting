@@ -57,6 +57,7 @@ class MyApp extends StatelessWidget {
         'check_auth': (_) => CheckScreen(),
         'get_data': (_) => GetDataScreen(),
         'pdf': (_) => PdfScreen(),
+        'pdf_offline': (_) => PdfScreenOffline(),
       },
       // Se usa para controlar pagina que no existes 404
       onGenerateRoute: (settings) {
