@@ -39,14 +39,3 @@ class _AccessButton extends StatelessWidget {
     );
   }
 }
-
-class _EnableGpsMessage extends StatelessWidget {
-  const _EnableGpsMessage({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Text('Debe de habilitar el gps');
-  }
-}
