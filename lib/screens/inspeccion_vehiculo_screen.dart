@@ -1,6 +1,3 @@
-import 'dart:js';
-
-import 'package:app_qinspecting/models/item_inspeccion.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
