@@ -91,53 +91,46 @@ class ContentCardInspectionPending extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ListTile(
-                        leading: Icon(
-                          Icons.search,
-                          color: Colors.green,
-                        ),
                         title: Text('Inspección No. ${i + 1}'),
-                        subtitle: Text(
-                            'Realizado el ${allInspecciones[i].resuPreFecha}'),
+                        subtitle: Text('Realizado el ${allInspecciones[i].resuPreFecha}'),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          TextButton(
-                            child: const Text(
-                              'Eliminar',
-                              style: TextStyle(color: Colors.red),
-                            ),
+                          IconButton(
+                            icon: Icon(Icons.delete, color: Colors.red,),
                             onPressed: inspeccionService.isSaving
-                                ? null
-                                : () async {
-                                    final responseDelete =
-                                        await inspeccionProvider
-                                            .eliminarResumenPreoperacional(
-                                                allInspecciones[i].id!);
-
-                                    await inspeccionProvider
-                                        .eliminarRespuestaPreoperacional(
-                                            allInspecciones[i].id!);
-
-                                    showSimpleNotification(
-                                        Text(
-                                            'Inspección ${responseDelete} eliminada'),
-                                        leading: Icon(Icons.check),
-                                        autoDismiss: true,
-                                        background: Colors.green,
-                                        position: NotificationPosition.bottom);
-                                  },
+                              ? null
+                              : () async {
+                                  final responseDelete = await inspeccionProvider.eliminarResumenPreoperacional(allInspecciones[i].id!);
+                                  await inspeccionProvider.eliminarRespuestaPreoperacional(allInspecciones[i].id!);
+                                  showSimpleNotification(
+                                    Text('Inspección ${responseDelete} eliminada'),
+                                    leading: Icon(Icons.check),
+                                    autoDismiss: true,
+                                    background: Colors.green,
+                                    position: NotificationPosition.bottom
+                                  );
+                                },
                           ),
-                          const SizedBox(width: 8),
-                          TextButton(
-                              child: const Text('Guardar'),
-                              onPressed: inspeccionService.isSaving
-                                  ? null
-                                  : () {
-                                      inspeccionService.indexSelected = i;
-                                      inspeccionService
-                                          .sendInspeccion(allInspecciones[i]);
-                                    }),
+                          IconButton(
+                            icon: Icon(Icons.picture_as_pdf_sharp, color: Colors.red,),
+                            onPressed: inspeccionService.isSaving
+                              ? null
+                              : () async {
+                                  inspeccionService.indexSelected = i;
+                                  Navigator.pushNamed(context, 'pdf_offline', arguments: [allInspecciones[i]]);
+                                },
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.send, color: Colors.green,),
+                            onPressed: inspeccionService.isSaving
+                              ? null
+                              : () {
+                                  inspeccionService.indexSelected = i;
+                                  inspeccionService.sendInspeccion(allInspecciones[i]);
+                                }
+                              ),
                           const SizedBox(width: 8),
                         ],
                       ),
