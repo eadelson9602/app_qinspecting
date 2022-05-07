@@ -15,6 +15,7 @@ class ResumenPreoperacional {
     this.resuPreFotoguia,
     this.vehId,
     this.remolId,
+    this.remolquePlaca,
     this.ciuId,
     this.ciudad,
     this.base,
@@ -34,6 +35,7 @@ class ResumenPreoperacional {
   String? resuPreFotoguia;
   int? vehId;
   int? remolId;
+  String? remolquePlaca;
   int? ciuId;
   String? ciudad;
   String? base;
@@ -59,6 +61,7 @@ class ResumenPreoperacional {
           resuPreFotoguia: json["ResuPre_Fotoguia"],
           vehId: json["Veh_Id"],
           remolId: json["Remol_Id"],
+          remolquePlaca: json["remolquePlaca"],
           ciuId: json["Ciu_Id"],
           ciudad: json["ciudad"],
           base: json["base"],
@@ -78,6 +81,7 @@ class ResumenPreoperacional {
         "ResuPre_Fotoguia": resuPreFotoguia,
         "Veh_Id": vehId,
         "Remol_Id": remolId,
+        "remolquePlaca": remolquePlaca,
         "Ciu_Id": ciuId,
         "ciudad": ciudad,
         "base": base,
