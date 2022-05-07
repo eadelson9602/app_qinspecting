@@ -1,3 +1,4 @@
+import 'package:app_qinspecting/models/departamentos_ciudad.dart';
 import 'package:app_qinspecting/services/login_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -113,6 +114,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
           onChanged: (value) async {
             final resultRemolque = await DBProvider.db.getRemolqueByPlate(value!);
             inspeccionService.resumePreoperacional.remolId = resultRemolque!.idRemolque;
+            inspeccionService.resumePreoperacional.remolquePlaca = value;
             inspeccionProvider.updateRemolqueSelected(resultRemolque);
 
             await inspeccionProvider.listarCategoriaItemsRemolque();
@@ -245,9 +247,10 @@ class _InspeccionFormState extends State<InspeccionForm> {
                   final resultVehiculo = await DBProvider.db.getVehiculoByPlate(value!);
 
                   inspeccionService.resumePreoperacional.vehId = resultVehiculo!.idVehiculo;
+                  inspeccionService.resumePreoperacional.placa = value;
                   inspeccionProvider.updateVehiculoSelected(resultVehiculo);
 
-                  await inspeccionProvider.listarCategoriaItemsVehiculo();
+                  await inspeccionProvider.listarCategoriaItemsVehiculo(resultVehiculo.placa);
                 }
               ),
               _infoVehiculo(),
@@ -290,7 +293,9 @@ class _InspeccionFormState extends State<InspeccionForm> {
                   );
                 }).toList(),
                 onChanged: (value) {
+                  Ciudades ciudad = inspeccionProvider.ciudades.firstWhere((element) => element.value == value);
                   inspeccionService.resumePreoperacional.ciuId = int.parse(value.toString());
+                  inspeccionService.resumePreoperacional.ciudad = ciudad.label;
                 }
               ),
               const SizedBox(
