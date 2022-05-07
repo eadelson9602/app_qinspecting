@@ -1,3 +1,5 @@
+import 'dart:js';
+
 import 'package:app_qinspecting/models/item_inspeccion.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -35,8 +37,8 @@ class InspeccionVehiculoScreen extends StatelessWidget {
           inspeccionProvider.updateSaving(true);
 
           // Si no tiene remolque
-          List<Map> tempRespuestas = [];
-          inspeccionProvider.itemsInspeccion.forEach((element) => tempRespuestas.add(element.toMap()));
+          List<dynamic> tempRespuestas = [];
+          inspeccionProvider.itemsInspeccion.forEach((element) => tempRespuestas.add(element.toJson()));
           inspeccionService.resumePreoperacional.respuestas = tempRespuestas.toString();
           final idEncabezado = await inspeccionProvider.saveInspecicon(inspeccionService.resumePreoperacional);
 

@@ -25,12 +25,12 @@ class InspeccionRemolqueScreen extends StatelessWidget {
         child: Icon(Icons.save),
         onPressed: () async {
           inspeccionProvider.updateSaving(true);
-          List<Map> tempRespuestas = [];
+          List<dynamic> tempRespuestas = [];
         
           inspeccionProvider.itemsInspeccionRemolque.forEach((element) { 
             inspeccionProvider.itemsInspeccion.add(element);
           });
-          inspeccionProvider.itemsInspeccion.forEach((element) => tempRespuestas.add(element.toMap()));
+          inspeccionProvider.itemsInspeccion.forEach((element) => tempRespuestas.add(element.toJson()));
           inspeccionService.resumePreoperacional.respuestas = tempRespuestas.toString();
           final idEncabezado = await inspeccionProvider.saveInspecicon(inspeccionService.resumePreoperacional);
 
