@@ -1,12 +1,12 @@
-// import 'package:printing/printing.dart';
+import 'package:printing/printing.dart';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/providers/providers.dart';
@@ -27,21 +27,28 @@ class PdfScreenOffline extends StatelessWidget {
           if (snapshot.data == null) {
             return LoadingScreen();
           } else {
-            var tempFile = snapshot.data as File;
+             var data = snapshot.data as PdfData;
+          
             return Scaffold(
               appBar: AppBar(
-                title: Text('Preoperacional ${resumenPreoperacional.id}'),
+                title: Text('Preoperacional ${resumenPreoperacional.id}', style: TextStyle(fontSize: 16),),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.share),
+                    onPressed: () async {
+                      await Share.shareFiles([data.file.path]);
+                    },
+                    tooltip: 'Compartir',
+                  )
+                ],
               ),
-              body: Padding(
-                padding: EdgeInsets.only(bottom: 30),
-                child: SfPdfViewer.file(tempFile),
-              ),
-              floatingActionButton: FloatingActionButton(
-                onPressed: () async {
-                  await Share.shareFiles([tempFile.path]);
-                },
-                tooltip: 'Compartir',
-                child: const Icon(Icons.share),
+              body: PdfPreview(
+                build: (format) => data.bytes,
+                canChangePageFormat: false,
+                canChangeOrientation: false,
+                canDebug: false,
+                allowSharing: false,
+                allowPrinting: false,
               ),
             );
           }
@@ -49,7 +56,7 @@ class PdfScreenOffline extends StatelessWidget {
   }
 
   // Genera el pdf
-  Future<File> _generatePdf(
+  Future<PdfData> _generatePdf(
       ResumenPreoperacional infoPdf, LoginService loginService) async {
     // Directory documentsDirectory = await getApplicationDocumentsDirectory();
 
@@ -103,15 +110,16 @@ class PdfScreenOffline extends StatelessWidget {
         bounds: Rect.fromLTWH(0, resultSummary.bounds.bottom, 0, 0));
 
     //Save the PDF document
-    final output = await getTemporaryDirectory();
-    // print(output.path);
-    final pathFile = '${output.path}/${infoPdf.id}.pdf';
+    final outputExternal = await getExternalStorageDirectory();
+    final pathFile = '${outputExternal!.path}/preoperacional ${infoPdf.id}.pdf';
 
-    File(pathFile).writeAsBytes(document.save());
+    await File(pathFile).writeAsBytes(document.save());
+
+    Uint8List bytes = File(pathFile).readAsBytesSync();
     // Dispose the document.
     document.dispose();
 
-    return File(pathFile);
+    return PdfData(bytes: bytes, file: File(pathFile));
   }
 
   PdfPageTemplateElement drawHeader(PdfDocument document,
