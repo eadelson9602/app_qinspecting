@@ -1,4 +1,4 @@
-// import 'package:printing/printing.dart';
+import 'package:printing/printing.dart';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:app_qinspecting/screens/screens.dart';
@@ -8,7 +8,6 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/services/services.dart';
@@ -20,7 +19,7 @@ class PdfScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final params = ModalRoute.of(context)!.settings.arguments as List;
-    final resumenPreoperacional = params[0];
+    final resumenPreoperacional = params[0] as ResumenPreoperacionalServer;
     final inspeccionService = Provider.of<InspeccionService>(context, listen: false);
     final loginService = Provider.of<LoginService>(context, listen: false);
 
@@ -30,18 +29,28 @@ class PdfScreen extends StatelessWidget {
         if (snapshot.data == null) {
           return LoadingScreen();
         } else {
-          var tempFile = snapshot.data as File;
+          var data = snapshot.data as PdfData;
+          
           return Scaffold(
             appBar: AppBar(
-              title: Text('Preoperacional ${resumenPreoperacional.resuPreId}'),
+              title: Text('Preoperacional ${resumenPreoperacional.resuPreId}', style: TextStyle(fontSize: 16),),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.share),
+                  onPressed: () async {
+                    await Share.shareFiles([data.file.path]);
+                  },
+                  tooltip: 'Compartir',
+                )
+              ],
             ),
-            body: SfPdfViewer.file(tempFile),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () async {
-                await Share.shareFiles([tempFile.path]);
-              },
-              tooltip: 'Compartir',
-              child: const Icon(Icons.share),
+            body: PdfPreview(
+              build: (format) => data.bytes,
+              canChangePageFormat: false,
+              canChangeOrientation: false,
+              canDebug: false,
+              allowSharing: false,
+              allowPrinting: false,
             ),
           );
         }
@@ -50,7 +59,7 @@ class PdfScreen extends StatelessWidget {
   }
 
   // Genera el pdf
-  Future<File> _generatePdf(
+  Future<PdfData> _generatePdf(
     ResumenPreoperacionalServer resumenPreoperacional,
     InspeccionService inspeccionService,
     LoginService loginService
@@ -75,7 +84,7 @@ class PdfScreen extends StatelessWidget {
 
     var resFirmaConductor = await get(Uri.parse(infoPdf.firma!));
     var firmaConductor = resFirmaConductor.bodyBytes;
-    var resFirmaAuditor = await get(Uri.parse(infoPdf.firma!));
+    var resFirmaAuditor = await get(Uri.parse(infoPdf.firmaAuditor!));
     var firmaAuditor = resFirmaAuditor.bodyBytes;
 
     //Create a PDF document.
@@ -94,8 +103,7 @@ class PdfScreen extends StatelessWidget {
     document.template.top = header;
 
     //Generate PDF grid.
-    final PdfGrid gridSummary = getGridSummary(
-        infoPdf, pageSize, firmaConductor, firmaAuditor, resumenPreoperacional);
+    final PdfGrid gridSummary = getGridSummary(infoPdf, pageSize, firmaConductor, firmaAuditor, resumenPreoperacional);
 
     final PdfGrid gridAnswers =
         getGridAnswers(infoPdf, pageSize, fotoKilometraje);
@@ -110,14 +118,16 @@ class PdfScreen extends StatelessWidget {
         bounds: Rect.fromLTWH(0, resultSummary.bounds.bottom, 0, 0));
 
     //Save the PDF document
-    final output = await getTemporaryDirectory();
-    final pathFile = '${output.path}/${resumenPreoperacional.consecutivo}.pdf';
+    final outputExternal = await getExternalStorageDirectory();
+    final pathFile = '${outputExternal!.path}/${resumenPreoperacional.consecutivo}.pdf';
 
-    File(pathFile).writeAsBytes(document.save());
+    await File(pathFile).writeAsBytes(document.save());
+
+    Uint8List bytes = File(pathFile).readAsBytesSync();
     // Dispose the document.
     document.dispose();
 
-    return File(pathFile);
+    return PdfData(bytes: bytes, file: File(pathFile));
   }
 
   PdfPageTemplateElement drawHeader(PdfDocument document, Pdf infoPdf,
@@ -208,8 +218,13 @@ class PdfScreen extends StatelessWidget {
     return header;
   }
 
-  PdfGrid getGridSummary(Pdf infoPdf, Size pageSize, firmaConductor,
-      firmaAuditor, ResumenPreoperacionalServer resumenPreoperacional) {
+  PdfGrid getGridSummary(
+    Pdf infoPdf,
+    Size pageSize,
+    firmaConductor,
+    firmaAuditor,
+    ResumenPreoperacionalServer resumenPreoperacional
+  ) {
     //Create a PDF grid
     final PdfGrid gridSummary = PdfGrid();
     //Secify the columns count to the grid.
@@ -249,11 +264,10 @@ class PdfScreen extends StatelessWidget {
     rowSummary2.cells[0].value = 'N°. INSPECCIÓN';
     rowSummary2.cells[1].value = '${infoPdf.consecutivo}';
     rowSummary2.cells[2].value = 'FIRMA CONDUCTOR';
-    rowSummary2.cells[3].style =
-        PdfGridCellStyle(backgroundImage: PdfBitmap(firmaConductor));
+    rowSummary2.cells[3].style = PdfGridCellStyle(backgroundImage: PdfBitmap(firmaConductor));
     rowSummary2.height = 30;
     rowSummary2.cells[4].value = 'FIRMA DE QUIEN INSPECCIONA';
-    rowSummary2.cells[5].value = 'FOTO DE LA FIRMA';
+    rowSummary2.cells[5].value = PdfGridCellStyle(backgroundImage: PdfBitmap(firmaAuditor));
 
     // Styles for table
     gridSummary.style = PdfGridStyle(
