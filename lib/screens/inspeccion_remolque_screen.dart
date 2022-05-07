@@ -25,40 +25,34 @@ class InspeccionRemolqueScreen extends StatelessWidget {
         child: Icon(Icons.save),
         onPressed: () async {
           inspeccionProvider.updateSaving(true);
-          final idEncabezado = await inspeccionProvider
-              .saveInspecicon(inspeccionService.resumePreoperacional);
-          List<Future> respuestas = [];
 
+          inspeccionProvider.itemsInspeccionRemolque.forEach((element) { 
+            inspeccionProvider.itemsInspeccion.add(element);
+          });
+
+          inspeccionService.resumePreoperacional.respuestas = inspeccionProvider.itemsInspeccion.map((element) => element.toJson()).toString();
+          final idEncabezado = await inspeccionProvider.saveInspecicon(inspeccionService.resumePreoperacional);
+
+          List<Future> respuestas = [];
           inspeccionProvider.itemsInspeccion.forEach((categoria) {
             categoria.items.forEach((item) {
               if (item.respuesta != null) {
                 item.fkPreoperacional = idEncabezado;
                 item.base = loginService.selectedEmpresa.nombreBase;
-                respuestas
-                    .add(inspeccionProvider.saveRespuestaInspeccion(item));
+                respuestas.add(inspeccionProvider.saveRespuestaInspeccion(item));
               }
             });
           });
-          inspeccionProvider.itemsInspeccionRemolque.forEach((categoria) {
-            categoria.items.forEach((item) {
-              if (item.respuesta != null) {
-                item.fkPreoperacional = idEncabezado;
-                item.base = loginService.selectedEmpresa.nombreBase;
-                respuestas
-                    .add(inspeccionProvider.saveRespuestaInspeccion(item));
-              }
-            });
-          });
-
           await Future.wait(respuestas);
           inspeccionProvider.updateSaving(false);
           uiProvider.selectedMenuOpt = 0;
           // show a notification at top of screen.
           showSimpleNotification(Text('Inspección realizada'),
-              leading: Icon(Icons.check),
-              autoDismiss: true,
-              background: Colors.green,
-              position: NotificationPosition.bottom);
+            leading: Icon(Icons.check),
+            autoDismiss: true,
+            background: Colors.green,
+            position: NotificationPosition.bottom
+          );
 
           Navigator.pushReplacementNamed(context, 'home');
         },
