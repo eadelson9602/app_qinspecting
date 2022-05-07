@@ -25,20 +25,7 @@ class InspeccionService extends ChangeNotifier {
   DateTimeRange? myDateRange;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  final resumePreoperacional = ResumenPreoperacional(
-    resuPreFecha: '',
-    resuPreUbicExpPre: '',
-    resuPreKilometraje: 0,
-    tanqueGalones: 0,
-    resuPreFotokm: '',
-    persNumeroDoc: 0,
-    resuPreGuia: '',
-    resuPreFotoguia: '',
-    vehId: 0,
-    remolId: 0,
-    ciuId: 0,
-    base: ''
-  );
+  ResumenPreoperacional resumePreoperacional = ResumenPreoperacional();
 
   void clearData (){
     resumePreoperacional.ciuId = 0;
