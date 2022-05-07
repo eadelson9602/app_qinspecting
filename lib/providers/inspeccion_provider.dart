@@ -28,7 +28,7 @@ class InspeccionProvider extends ChangeNotifier {
   int stepStepper = 0;
   int stepStepperRemolque = 0;
 
-  void clearData(){
+  void clearData() {
     vehiculoSelected = null;
     remolqueSelected = null;
     pathFileKilometraje = null;
@@ -110,8 +110,7 @@ class InspeccionProvider extends ChangeNotifier {
   }
 
   listarCiudades(int idDepartamento) async {
-    final resCiudades =
-        await DBProvider.db.getCiudadesByIdDepartamento(idDepartamento);
+    final resCiudades = await DBProvider.db.getCiudadesByIdDepartamento(idDepartamento);
     ciudades = [...resCiudades!];
     notifyListeners();
   }
@@ -134,11 +133,11 @@ class InspeccionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  listarCategoriaItemsVehiculo() async {
-    final resCategorias =
-        await DBProvider.db.getItemsInspectionByPlaca(vehiculoSelected!.placa);
+  Future<List<ItemsVehiculo>> listarCategoriaItemsVehiculo(String placa) async {
+    final resCategorias = await DBProvider.db.getItemsInspectionByPlaca(placa);
     itemsInspeccion = [...resCategorias!];
     notifyListeners();
+    return itemsInspeccion;
   }
 
   listarCategoriaItemsRemolque() async {
@@ -157,8 +156,7 @@ class InspeccionProvider extends ChangeNotifier {
 
   saveRespuestaInspeccion(Item nuevaRespuesta) async {
     notifyListeners();
-    final idRespuesta =
-        await DBProvider.db.nuevoRespuestaInspeccion(nuevaRespuesta);
+    final idRespuesta = await DBProvider.db.nuevoRespuestaInspeccion(nuevaRespuesta);
     notifyListeners();
     return idRespuesta;
   }
