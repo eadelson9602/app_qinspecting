@@ -25,25 +25,26 @@ class InspeccionRemolqueScreen extends StatelessWidget {
         child: Icon(Icons.save),
         onPressed: () async {
           inspeccionProvider.updateSaving(true);
-
+          List<Map> tempRespuestas = [];
+        
           inspeccionProvider.itemsInspeccionRemolque.forEach((element) { 
             inspeccionProvider.itemsInspeccion.add(element);
           });
-
-          inspeccionService.resumePreoperacional.respuestas = inspeccionProvider.itemsInspeccion.map((element) => element.toJson()).toString();
+          inspeccionProvider.itemsInspeccion.forEach((element) => tempRespuestas.add(element.toMap()));
+          inspeccionService.resumePreoperacional.respuestas = tempRespuestas.toString();
           final idEncabezado = await inspeccionProvider.saveInspecicon(inspeccionService.resumePreoperacional);
 
-          List<Future> respuestas = [];
+          List<Future> futureRespuestas = [];
           inspeccionProvider.itemsInspeccion.forEach((categoria) {
             categoria.items.forEach((item) {
               if (item.respuesta != null) {
                 item.fkPreoperacional = idEncabezado;
                 item.base = loginService.selectedEmpresa.nombreBase;
-                respuestas.add(inspeccionProvider.saveRespuestaInspeccion(item));
+                futureRespuestas.add(inspeccionProvider.saveRespuestaInspeccion(item));
               }
             });
           });
-          await Future.wait(respuestas);
+          await Future.wait(futureRespuestas);
           inspeccionProvider.updateSaving(false);
           uiProvider.selectedMenuOpt = 0;
           // show a notification at top of screen.
