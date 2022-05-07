@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 class Pdf {
@@ -20,6 +21,7 @@ class Pdf {
     this.resuPreGuia,
     this.resuPreFotoguia,
     this.firma,
+    this.firmaAuditor,
     this.tvDescripcion,
     this.consecutivo,
     this.remolPlaca,
@@ -55,6 +57,7 @@ class Pdf {
   String? resuPreGuia;
   String? resuPreFotoguia;
   String? firma;
+  String? firmaAuditor;
   String? tvDescripcion;
   String? consecutivo;
   String? remolPlaca;
@@ -94,6 +97,7 @@ class Pdf {
         resuPreGuia: json["resuPreGuia"],
         resuPreFotoguia: json["resuPreFotoguia"],
         firma: json["firma"],
+        firmaAuditor: json["firmaAuditor"],
         tvDescripcion: json["tvDescripcion"],
         consecutivo: json["consecutivo"],
         remolPlaca: json["Remol_Placa"],
@@ -131,6 +135,7 @@ class Pdf {
         "resuPreGuia": resuPreGuia,
         "resuPreFotoguia": resuPreFotoguia,
         "firma": firma,
+        "firmaAuditor": firmaAuditor,
         "tvDescripcion": tvDescripcion,
         "consecutivo": consecutivo,
         "Remol_Placa": remolPlaca,
@@ -218,4 +223,11 @@ class RespuestaInspeccion {
         "respuesta": respuesta,
         "observacion": observacion,
       };
+}
+
+class PdfData {
+  PdfData({required this.file, required this.bytes});
+
+  File file;
+  Uint8List bytes;
 }
