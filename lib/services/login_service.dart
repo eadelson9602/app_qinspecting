@@ -26,7 +26,7 @@ class LoginService extends ChangeNotifier {
     notifyListeners();
 
     Response response;
-    response = await dio.post('https://apis.qinspecting.com/pflutter/new_login',
+    response = await dio.post('https://apis.qinspecting.com/pflutter/login',
         data: json.encode(loginData));
     for (var item in response.data) {
       final tempEmpresa = Empresa.fromMap(item);
