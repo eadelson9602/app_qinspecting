@@ -47,7 +47,7 @@ class LoginService extends ChangeNotifier {
     final usuario = empresa.usuarioUser;
 
     Response response = await dio.get(
-        'https://apis.qinspecting.com/pflutter/list_data_user/$baseEmpresa/$usuario');
+        'https://apis.qinspecting.com/pflutter/get_user_data/$baseEmpresa/$usuario');
 
     final tempUserData = UserData.fromJson(response.toString());
 

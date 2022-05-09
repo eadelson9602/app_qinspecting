@@ -211,12 +211,12 @@ class InspeccionService extends ChangeNotifier {
     try {
       final baseEmpresa = selectedEmpresa.nombreBase;
       await loginService.getUserData(selectedEmpresa);
-      Response response = await dio.get('https://apis.qinspecting.com/pflutter/show_placas_cabezote/$baseEmpresa');
+      Response response = await dio.get('https://apis.qinspecting.com/pflutter/get_placas_cabezote/$baseEmpresa');
       for (var item in response.data) {
         final tempVehiculo = Vehiculo.fromMap(item);
         DBProvider.db.nuevoVehiculo(tempVehiculo);
       }
-      Response responseTrailer = await dio.get('https://apis.qinspecting.com/pflutter/show_placas_trailer/$baseEmpresa');
+      Response responseTrailer = await dio.get('https://apis.qinspecting.com/pflutter/get_placas_trailer/$baseEmpresa');
       for (var item in responseTrailer.data) {
         final tempRemolque = Remolque.fromMap(item);
         DBProvider.db.nuevoRemolque(tempRemolque);
@@ -309,7 +309,7 @@ class InspeccionService extends ChangeNotifier {
           // print(value);
         });
 
-        // show a notification at top of screen.
+        // get a notification at top of screen.
         showSimpleNotification(Text(responseResumen.message!),
           leading: Icon(Icons.check),
           autoDismiss: true,
