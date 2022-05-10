@@ -10,7 +10,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final loginService = Provider.of<LoginService>(context, listen: false);
-    String url = loginService.userDataLogged.persImagen!;
+    String url = loginService.userDataLogged.persImagen;
     return AppBar(
       title: const Text('Qinspecting'),
       backgroundColor: Colors.green,
