@@ -50,7 +50,7 @@ class CustomDrawer extends StatelessWidget {
                 ),
                 onTap: () {
                   uiProvider.selectedMenuOpt = 0;
-                  Navigator.pushReplacementNamed(context, 'home');
+                  Navigator.popAndPushNamed(context, 'home');
                 }),
             // ListTile(
             //     leading: const Icon(Icons.fact_check, color: Colors.green),
@@ -60,33 +60,33 @@ class CustomDrawer extends StatelessWidget {
             //     ),
             //     onTap: () {
             //       uiProvider.selectedMenuOpt = 1;
-            //       Navigator.pushReplacementNamed(context, 'home');
+            //       Navigator.popAndPushNamed(context, 'home');
             //     }),
             ListTile(
               leading: Icon(Icons.send, color: Colors.green),
               title: Text('Enviar inspecciones',
                   style: TextStyle(color: Colors.green)),
               onTap: () =>
-                  Navigator.pushReplacementNamed(context, 'send_pending'),
+                  Navigator.popAndPushNamed(context, 'send_pending'),
             ),
             ListTile(
                 leading: Icon(Icons.gesture, color: Colors.green),
                 title: Text('Firma', style: TextStyle(color: Colors.green)),
                 onTap: () =>
-                    Navigator.pushReplacementNamed(context, 'signature')),
+                    Navigator.popAndPushNamed(context, 'signature')),
             ListTile(
                 leading: Icon(Icons.settings, color: Colors.green),
                 title: Text('Configuración',
                     style: TextStyle(color: Colors.green)),
                 onTap: () =>
-                    Navigator.pushReplacementNamed(context, 'settings')),
+                    Navigator.popAndPushNamed(context, 'settings')),
             ListTile(
                 leading: Icon(Icons.logout, color: Colors.green),
                 title: Text('Cerrar sesión',
                     style: TextStyle(color: Colors.green)),
                 onTap: () {
                   loginService.logout();
-                  Navigator.pushReplacementNamed(context, 'login');
+                  Navigator.popAndPushNamed(context, 'login');
                 })
           ],
         )));
