@@ -428,7 +428,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                     return;
                   }
                   var now = DateTime.now();
-                  var formatter = DateFormat('yyyy-MM-dd hh:mm a');
+                  var formatter = DateFormat('yyyy-MM-dd hh:mm');
                   String formattedDate = formatter.format(now);
                   inspeccionService.resumePreoperacional.resuPreFecha = formattedDate;
                   inspeccionService.resumePreoperacional.persNumeroDoc = loginService.userDataLogged.usuarioUser!;
