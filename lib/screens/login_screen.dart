@@ -181,12 +181,11 @@ class ButtonLogin extends StatelessWidget {
       minWidth: 300,
       child: TextButtonLogin(loginForm: loginForm),
       onPressed: loginForm.isLoading
-          ? null
-          : () async {
-              if (!loginForm.isValidForm()) return;
-              login(
-                  context, loginForm, loginService, storage, inspeccionService);
-            },
+        ? null
+        : () async {
+          if (!loginForm.isValidForm()) return;
+          login(context, loginForm, loginService, storage, inspeccionService);
+        },
     );
   }
 
@@ -203,16 +202,14 @@ class ButtonLogin extends StatelessWidget {
       bool isConnected = await inspeccionService.checkConnection();
 
       if (isConnected) {
-        final tempEmpresas =
-            await loginService.login(loginForm.usuario, loginForm.password);
+        final tempEmpresas = await loginService.login(loginForm.usuario, loginForm.password);
         if (tempEmpresas.isNotEmpty) {
           tempEmpresas.forEach((element) => empresas.add(element));
         }
       } else {
         final userData = await DBProvider.db.getUserById(loginForm.usuario);
         if (userData != null && userData.usuarioContra == loginForm.password) {
-          final tempEmpresas =
-              await DBProvider.db.getAllEmpresasByUsuario(loginForm.usuario);
+          final tempEmpresas = await DBProvider.db.getAllEmpresasByUsuario(loginForm.usuario);
           tempEmpresas!.forEach((element) => empresas.add(element));
           loginService.userDataLogged = userData;
         } else {
@@ -230,40 +227,40 @@ class ButtonLogin extends StatelessWidget {
 
       showModalBottomSheet(
           isScrollControlled: false,
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
           context: context,
           builder: (context) => Container(
-                height: empresas.length > 2 ? 250 : 150,
-                padding: const EdgeInsets.all(20),
-                child: ListView.builder(
-                  itemCount: empresas.length,
-                  itemBuilder: (_, int i) => ListTile(
-                    leading: Container(
-                        width: 50,
-                        height: 50,
-                        child: getImage(empresas[i].rutaLogo.toString())),
-                    title: Text(empresas[i].nombreQi.toString()),
-                    trailing: const Icon(Icons.arrow_right),
-                    onTap: () async {
-                      // Asignamos al servicio la empresa seleccionada
-                      loginService.selectedEmpresa = empresas[i];
-                      // online
-                      if (isConnected) {
-                        await loginService.getUserData(empresas[i]);
-                        Navigator.popAndPushNamed(context, 'get_data');
-                        return;
-                      }
-                      // Offline
-                      await storage.write(
-                          key: 'usuario', value: '${empresas[i].usuarioUser}');
-                      await storage.write(
-                          key: 'idEmpresa', value: '${empresas[i].empId}');
-                      Navigator.pushNamed(context, 'home');
-                    },
-                  ),
+            height: empresas.length > 2 ? 250 : 150,
+            padding: const EdgeInsets.all(20),
+            child: ListView.builder(
+              itemCount: empresas.length,
+              itemBuilder: (_, int i) => ListTile(
+                leading: Container(
+                  width: 50,
+                  height: 50,
+                  child: getImage(empresas[i].rutaLogo.toString())
                 ),
-              ));
+                title: Text(empresas[i].nombreQi.toString()),
+                trailing: const Icon(Icons.arrow_right),
+                onTap: () async {
+                  // Asignamos al servicio la empresa seleccionada
+                  loginService.selectedEmpresa = empresas[i];
+                  // online
+                  if (isConnected) {
+                    await loginService.getUserData(empresas[i]);
+                    Navigator.popAndPushNamed(context, 'get_data');
+                    return;
+                  }
+                  // Offline
+                  await storage.write(
+                      key: 'usuario', value: '${empresas[i].usuarioUser}');
+                  await storage.write(
+                      key: 'idEmpresa', value: '${empresas[i].empId}');
+                  Navigator.pushNamed(context, 'home');
+                },
+              ),
+            ),
+          ));
     } catch (error) {
       showSimpleNotification(
         Text('Error al iniciar sesión'),
