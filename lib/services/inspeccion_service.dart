@@ -167,26 +167,6 @@ class InspeccionService extends ChangeNotifier {
     return itemsInspeccion;
   }
 
-  Future<Respuesta> insertPreoperacional(ResumenPreoperacional inspeccion) async {
-    isLoading = true;
-    notifyListeners();
-    Response response = await dio.post('https://apis.qinspecting.com/pflutter/insert_preoperacional', data: inspeccion.toJson());
-    final resp = Respuesta.fromMap(response.data);
-    isLoading = false;
-    notifyListeners();
-    return resp;
-  }
-
-  Future<Respuesta> insertRespuestasPreoperacional(Item respuesta) async {
-    isLoading = true;
-    notifyListeners();
-    Response response = await dio.post('https://apis.qinspecting.com/pflutter/insert_respuestas_preoperacional', data: respuesta.toJson());
-    final resp = Respuesta.fromMap(response.data);
-    isLoading = false;
-    notifyListeners();
-    return resp;
-  }
-
   Future<Map<String, dynamic>?> uploadImage({required String path, required String company, required String folder}) async {
     try {
       
@@ -284,23 +264,24 @@ class InspeccionService extends ChangeNotifier {
         inspeccion.remolId = inspeccion.remolId != null && inspeccion.remolId != 0 ? inspeccion.remolId : null;
 
         // Guardamos el resumen del preoperacional en el server
-        final responseResumen = await insertPreoperacional(inspeccion);
+        final responseResumen = await dio.post('https://apis.qinspecting.com/pflutter/insert_preoperacional', data: inspeccion.toJson());
+        final resumen = Respuesta.fromMap(responseResumen.data);
         // Consultamos en sqlite las respuestas
         List<Item> respuestas = await inspeccionProvider.cargarTodasRespuestas(inspeccion.id!);
 
         List<Future> Promesas = [];
         respuestas.forEach((element) {
-          element.fkPreoperacional = responseResumen.idInspeccion;
+          element.fkPreoperacional = resumen.idInspeccion;
           if (element.adjunto != null) {
             Promesas.add(uploadImage(path: element.adjunto!, company: 'qinspecting', folder: 'inspecciones')
             .then((response) {
               final responseUpload = ResponseUploadFile.fromMap(response!);
               element.adjunto = responseUpload.path;
 
-              insertRespuestasPreoperacional(element);
+              return dio.post('https://apis.qinspecting.com/pflutter/insert_respuestas_preoperacional', data: element.toJson());
             }));
           } else {
-            Promesas.add(insertRespuestasPreoperacional(element));
+            Promesas.add(dio.post('https://apis.qinspecting.com/pflutter/insert_respuestas_preoperacional', data: element.toJson()));
           }
         });
 
@@ -310,7 +291,7 @@ class InspeccionService extends ChangeNotifier {
         });
 
         // get a notification at top of screen.
-        showSimpleNotification(Text(responseResumen.message!),
+        showSimpleNotification(Text(resumen.message!),
           leading: Icon(Icons.check),
           autoDismiss: true,
           background: Colors.green,
@@ -321,7 +302,7 @@ class InspeccionService extends ChangeNotifier {
         await inspeccionProvider.eliminarRespuestaPreoperacional(inspeccion.id!);
 
         isSaving = false;
-        return responseResumen.toMap();
+        return resumen.toMap();
       } else {
         showSimpleNotification(
           Text('Debe conectarse a internet'),
