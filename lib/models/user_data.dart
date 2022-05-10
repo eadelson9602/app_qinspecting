@@ -24,7 +24,7 @@ class UserData {
       this.persApellidos,
       this.persNombres,
       this.persEmail,
-      this.persImagen,
+      required this.persImagen,
       this.cargId,
       this.cargDescripcion,
       this.usuarioEstado,
@@ -46,7 +46,7 @@ class UserData {
   String? ciuNombre;
   int? dptId;
   String? departamento;
-  DateTime? persFechaNaci;
+  String? persFechaNaci;
   String? persGenero;
   String? persRh;
   String? persArl;
@@ -57,7 +57,7 @@ class UserData {
   String? persApellidos;
   String? persNombres;
   String? persEmail;
-  String? persImagen;
+  String persImagen;
   int? cargId;
   String? cargDescripcion;
   int? usuarioEstado;
@@ -84,7 +84,7 @@ class UserData {
       ciuNombre: json["Ciu_Nombre"],
       dptId: json["Dpt_Id"],
       departamento: json["Departamento"],
-      persFechaNaci: DateTime.parse(json["Pers_FechaNaci"]),
+      persFechaNaci: json["Pers_FechaNaci"],
       persGenero: json["Pers_Genero"],
       persRh: json["Pers_Rh"],
       persArl: json["Pers_Arl"],
@@ -118,8 +118,7 @@ class UserData {
         "Ciu_Nombre": ciuNombre,
         "Dpt_Id": dptId,
         "Departamento": departamento,
-        "Pers_FechaNaci":
-            "${persFechaNaci!.year.toString().padLeft(4, '0')}-${persFechaNaci!.month.toString().padLeft(2, '0')}-${persFechaNaci!.day.toString().padLeft(2, '0')}",
+        "Pers_FechaNaci": persFechaNaci,
         "Pers_Genero": persGenero,
         "Pers_Rh": persRh,
         "Pers_Arl": persArl,
