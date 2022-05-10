@@ -295,7 +295,7 @@ class DBProvider {
     Map<String, dynamic> resumenSave = {
       "placa": nuevoInspeccion.placa,
       "ResuPre_Fecha": nuevoInspeccion.resuPreFecha,
-      "ResuPre_UbicExpPre": nuevoInspeccion.resuPreUbicExpPre,
+      "ResuPre_UbicExpPre": nuevoInspeccion.resuPreUbicExpPre ?? nuevoInspeccion.ciuId,
       "ResuPre_Kilometraje": nuevoInspeccion.resuPreKilometraje,
       "tanque_galones": nuevoInspeccion.tanqueGalones,
       "ResuPre_Fotokm": nuevoInspeccion.resuPreFotokm,
