@@ -8,7 +8,6 @@ import 'package:app_qinspecting/models/models.dart';
 
 class LoginService extends ChangeNotifier {
   var dio = Dio();
-  final List<Empresa> empresas = [];
   bool isLoading = false;
   bool isSaving = false;
   // Create storage
@@ -17,26 +16,23 @@ class LoginService extends ChangeNotifier {
   late Empresa selectedEmpresa;
   late UserData userDataLogged;
 
-  Future<List<Empresa>> login(int user, String password) async {
-    final Map<String, String> loginData = {
-      'user': '$user',
-      'password': password
-    };
+  Future<List<Empresa>> login(int user, String password) async {    
     isLoading = true;
     notifyListeners();
 
-    Response response;
-    response = await dio.post('https://apis.qinspecting.com/pflutter/login',
-        data: json.encode(loginData));
-    for (var item in response.data) {
-      final tempEmpresa = Empresa.fromMap(item);
-      final index =
-          empresas.indexWhere((element) => element.empId == tempEmpresa.empId);
-      if (index == -1) empresas.add(tempEmpresa);
+    final List<Empresa> empresas = [];
+    Response response = await dio.post('https://apis.qinspecting.com/pflutter/login', data: json.encode({
+      'user': '$user',
+      'password': password
+    }));
+    var tempRes = response.data;
+    if(tempRes.runtimeType == List<dynamic>){
+      for (var item in response.data) {
+        empresas.add(Empresa.fromMap(item));
+      }
     }
     isLoading = false;
     notifyListeners();
-
     return empresas;
   }
 
@@ -46,8 +42,7 @@ class LoginService extends ChangeNotifier {
     final baseEmpresa = empresa.nombreBase;
     final usuario = empresa.usuarioUser;
 
-    Response response = await dio.get(
-        'https://apis.qinspecting.com/pflutter/get_user_data/$baseEmpresa/$usuario');
+    Response response = await dio.get('https://apis.qinspecting.com/pflutter/get_user_data/$baseEmpresa/$usuario');
 
     final tempUserData = UserData.fromJson(response.toString());
 
