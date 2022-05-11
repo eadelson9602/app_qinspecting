@@ -44,7 +44,7 @@ class _FormLogin extends StatelessWidget {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       onChanged: () => loginForm.existUser = true,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           Text(
             'Iniciar sesión',
