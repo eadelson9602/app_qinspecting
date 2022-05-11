@@ -218,7 +218,7 @@ class _ButtonLogin extends StatelessWidget {
               leading: Container(
                 width: 50,
                 height: 50,
-                child: getImage(empresas[i].rutaLogo.toString())
+                child: loginForm.getImage(empresas[i].rutaLogo.toString())
               ),
               title: Text(empresas[i].nombreQi.toString()),
               trailing: const Icon(Icons.arrow_right),
@@ -253,23 +253,5 @@ class _ButtonLogin extends StatelessWidget {
     } finally {
       loginForm.isLoading = false;
     }
-  }
-
-  Widget getImage(String? url) {
-    if (url == null || url.contains('svg')) {
-      return const ClipRRect(
-        borderRadius: BorderRadius.all(Radius.circular(50)),
-        child: Image(
-          image: AssetImage('assets/images/no-image.png'),
-          height: 40,
-        ),
-      );
-    }
-    return ClipRRect(
-      borderRadius: BorderRadius.all(Radius.circular(50)),
-      child: FadeInImage(
-          placeholder: const AssetImage('assets/images/loading.gif'),
-          image: NetworkImage(url)),
-    );
   }
 }
