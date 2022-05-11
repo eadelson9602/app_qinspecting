@@ -122,7 +122,7 @@ class _FormLogin extends StatelessWidget {
                 ],
               )
             ),
-          const ButtonLogin(),
+          const _ButtonLogin(),
           TextButton(
             onPressed: () => Navigator.popAndPushNamed(context, 'remember_password'), 
             child: Text('Recuperar contraseña', style: TextStyle(
@@ -137,8 +137,8 @@ class _FormLogin extends StatelessWidget {
   }
 }
 
-class ButtonLogin extends StatelessWidget {
-  const ButtonLogin({
+class _ButtonLogin extends StatelessWidget {
+  const _ButtonLogin({
     Key? key,
   }) : super(key: key);
 
@@ -153,7 +153,7 @@ class ButtonLogin extends StatelessWidget {
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
       minWidth: 300,
-      child: TextButtonLogin(loginForm: loginForm),
+      child: CustomStyleButton(text: loginForm.isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'),
       onPressed: loginForm.isLoading
         ? null
         : () async {
@@ -270,34 +270,6 @@ class ButtonLogin extends StatelessWidget {
       child: FadeInImage(
           placeholder: const AssetImage('assets/images/loading.gif'),
           image: NetworkImage(url)),
-    );
-  }
-}
-
-class TextButtonLogin extends StatelessWidget {
-  const TextButtonLogin({
-    Key? key,
-    required this.loginForm,
-  }) : super(key: key);
-
-  final LoginFormProvider loginForm;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      alignment: AlignmentGeometry.lerp(Alignment.center, Alignment.center, 15),
-      padding: const EdgeInsets.symmetric(vertical: 15),
-      child: Text(
-        loginForm.isLoading ? 'Iniciando sesión...' : 'Iniciar sesión',
-        style: const TextStyle(color: Colors.white, fontSize: 18),
-      ),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(100),
-          gradient: const LinearGradient(colors: [
-            Color.fromRGBO(31, 133, 53, 1),
-            Color.fromRGBO(103, 210, 0, 1)
-          ])),
     );
   }
 }
