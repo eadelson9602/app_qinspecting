@@ -15,3 +15,4 @@ export 'package:app_qinspecting/screens/signature_screen.dart';
 export 'package:app_qinspecting/screens/get_data_screen.dart';
 export 'package:app_qinspecting/screens/pdf_screen.dart';
 export 'package:app_qinspecting/screens/pdf_screen_offline.dart';
+export 'package:app_qinspecting/screens/remember_password_screen.dart';
