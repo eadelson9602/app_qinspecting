@@ -28,6 +28,21 @@ class ProfileScreen extends StatelessWidget {
                 url: perfilForm.userDataLogged?.persImagen,
               ),
               const _PhotoDirectionCard(),
+              Positioned(
+                left: 15,
+                top: 20,
+                child: Opacity(
+                  opacity: 0.5,
+                  child: MaterialButton(
+                    minWidth: 20,
+                    height: 30,
+                    color: Colors.black,
+                    shape: StadiumBorder(),
+                    child: Icon(Icons.arrow_back, color: Colors.white, size: 15),
+                    onPressed: () => Navigator.pop(context, true),
+                  )
+                )
+              ),
             ],
           ),
           const SizedBox(height: 20),
@@ -56,27 +71,27 @@ class _FormProfile extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Container(
-            padding:
-                const EdgeInsets.only(right: 20, left: 20, top: 15, bottom: 40),
+            padding:const EdgeInsets.only(right: 20, left: 20, top: 15, bottom: 40),
             width: double.infinity,
             decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: const [
-                  BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 15,
-                      offset: Offset(0, 5))
-                ]),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: const [
+                BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 15,
+                    offset: Offset(0, 5))
+              ]
+            ),
             child: Form(
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   const Text('Datos personales',
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.black38)),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.black38)),
                   TextFormField(
                     textCapitalization: TextCapitalization.words,
                     autocorrect: false,
@@ -244,12 +259,13 @@ class _PhotoDirectionCard extends StatelessWidget {
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: const [
-              BoxShadow(
-                  color: Colors.black12, blurRadius: 15, offset: Offset(0, 5))
-            ]),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: const [
+            BoxShadow(
+                color: Colors.black12, blurRadius: 15, offset: Offset(0, 5))
+          ]
+        ),
         child: Column(children: [
           Container(
             padding: const EdgeInsets.all(10),
@@ -291,9 +307,8 @@ class _PhotoDirectionCard extends StatelessWidget {
                   ],
                 ),
                 Expanded(
-                    child: ListTile(
-                  title:
-                      Text(perfilForm.userDataLogged!.persNombres.toString()),
+                  child: ListTile(
+                  title: Text(perfilForm.userDataLogged!.persNombres.toString()),
                   subtitle: Text(
                     perfilForm.userDataLogged!.persApellidos.toString(),
                     style: const TextStyle(fontSize: 12),
