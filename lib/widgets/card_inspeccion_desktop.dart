@@ -43,17 +43,17 @@ class CardInspeccionDesktop extends StatelessWidget {
                       onPressed: () => Navigator.pushNamed(context, 'pdf',
                           arguments: [resumenPreoperacional]),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.qr_code_scanner_sharp),
-                      onPressed: () {},
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.edit,
-                        color: Colors.green,
-                      ),
-                      onPressed: () {},
-                    ),
+                    // IconButton(
+                    //   icon: Icon(Icons.qr_code_scanner_sharp),
+                    //   onPressed: () {},
+                    // ),
+                    // IconButton(
+                    //   icon: Icon(
+                    //     Icons.edit,
+                    //     color: Colors.green,
+                    //   ),
+                    //   onPressed: () {},
+                    // ),
                   ],
                 ))
               ],
