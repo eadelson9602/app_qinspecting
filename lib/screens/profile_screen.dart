@@ -17,28 +17,25 @@ class ProfileScreen extends StatelessWidget {
     final perfilForm = Provider.of<PerfilFormProvider>(context);
     perfilForm.userDataLogged = loginService.userDataLogged;
 
-    final inspeccionProvider =
-        Provider.of<InspeccionProvider>(context, listen: false);
+    final inspeccionProvider = Provider.of<InspeccionProvider>(context, listen: false);
     inspeccionProvider.listarDepartamentos();
     return Scaffold(
-        body: SingleChildScrollView(
-            child: Column(children: [
-      Stack(
-        children: [
-          _PortadaProfile(
-            url: perfilForm.userDataLogged?.persImagen,
+      body: SingleChildScrollView(
+        child: Column(children: [
+          Stack(
+            children: [
+              _PortadaProfile(
+                url: perfilForm.userDataLogged?.persImagen,
+              ),
+              const _PhotoDirectionCard(),
+            ],
           ),
-          const _PhotoDirectionCard(),
-        ],
+          const SizedBox(height: 20),
+          const _FormProfile(),
+          const SizedBox(height: 30)
+        ])
       ),
-      const SizedBox(
-        height: 20,
-      ),
-      const _FormProfile(),
-      const SizedBox(
-        height: 30,
-      ),
-    ])));
+    );
   }
 }
 
