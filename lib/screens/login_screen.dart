@@ -1,5 +1,6 @@
 import 'package:app_qinspecting/models/empresa.dart';
 import 'package:app_qinspecting/screens/screens.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
@@ -15,60 +16,13 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _sizeScreen = MediaQuery.of(context).size;
     final inspeccionService = Provider.of<InspeccionService>(context);
     if (inspeccionService.isLoading) return LoadingScreen();
     return Scaffold(
       body: AuthBackground(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              SizedBox(
-                height: _sizeScreen.height * 0.01,
-              ),
-              const HeaderLogo(),
-              SizedBox(
-                height: _sizeScreen.height * 0.10,
-              ),
-              const Text(
-                'Iniciar Sesión',
-                style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 25,
-                    fontWeight: FontWeight.w800),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              ChangeNotifierProvider(
-                create: (_) => LoginFormProvider(),
-                child: const _FormLogin(),
-              ),
-              const SizedBox(
-                height: 50,
-              ),
-              const Text(
-                'Recuperar contraseña',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-              SizedBox(
-                height: _sizeScreen.height * 0.10,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                      onPressed: () {},
-                      icon: const Image(
-                          image: AssetImage('assets/icons/facebook.png'))),
-                  IconButton(
-                      onPressed: () {},
-                      icon: const Image(
-                          image: AssetImage('assets/icons/instagram.png'))),
-                ],
-              )
-            ],
-          ),
+        child: ChangeNotifierProvider(
+          create: (_) => LoginFormProvider(),
+          child: const _FormLogin(),
         ),
       ),
     );
@@ -83,81 +37,95 @@ class _FormLogin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loginForm = Provider.of<LoginFormProvider>(context);
-    return Padding(
+    return Container(
       padding: const EdgeInsets.symmetric(horizontal: 30),
       child: Form(
-          key: loginForm.formKey,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          onChanged: () => loginForm.existUser = true,
-          child: Column(
-            children: [
-              TextFormField(
-                autocorrect: false,
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value!.isEmpty) return 'Ingrese su usuario';
-                  return null;
-                },
-                onChanged: (value) =>
-                    value.isEmpty ? '' : loginForm.usuario = int.parse(value),
-                decoration: InputDecorations.authInputDecorations(
+      key: loginForm.formKey,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      onChanged: () => loginForm.existUser = true,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Iniciar sesión',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 25,
+              fontWeight: FontWeight.w800
+            ),
+          ),
+          Container(
+            // color: Colors.red,
+            height: 180,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                TextFormField(
+                  autocorrect: false,
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value!.isEmpty) return 'Ingrese su usuario';
+                    return null;
+                  },
+                  onChanged: (value) => value.isEmpty ? '' : loginForm.usuario = int.parse(value),
+                  decoration: InputDecorations.authInputDecorations(
                     hintText: '',
                     labelText: 'Usuario',
-                    prefixIcon: Icons.person),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              TextFormField(
-                autocorrect: false,
-                obscureText: loginForm.obscureText,
-                keyboardType: TextInputType.text,
-                onChanged: (value) => loginForm.password = value,
-                validator: (value) {
-                  if (value!.isEmpty) return 'Ingrese su contraseña';
-                  return null;
-                },
-                decoration: InputDecorations.authInputDecorations(
+                    prefixIcon: Icons.person
+                  ),
+                ),
+                TextFormField(
+                  autocorrect: false,
+                  obscureText: loginForm.obscureText,
+                  keyboardType: TextInputType.text,
+                  onChanged: (value) => loginForm.password = value,
+                  validator: (value) {
+                    if (value!.isEmpty) return 'Ingrese su contraseña';
+                    return null;
+                  },
+                  decoration: InputDecorations.authInputDecorations(
                     hintText: '******',
                     labelText: 'Contraseña',
                     prefixIcon: Icons.lock_outline_sharp,
                     suffixIcon: IconButton(
-                        onPressed: () {
-                          loginForm.updateObscureText(
-                              loginForm.obscureText ? false : true);
-                        },
-                        icon: Icon(
-                          loginForm.obscureText
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                          color: Colors.green,
-                        ))),
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              if (!loginForm.existUser)
-                Container(
-                    width: double.infinity,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.warning,
-                          color: Colors.red,
-                        ),
-                        Text(
-                          'Usuario o contraseña inválida',
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      ],
-                    )),
-              const SizedBox(
-                height: 30,
-              ),
-              const ButtonLogin()
-            ],
-          )),
+                      onPressed: () => loginForm.updateObscureText(loginForm.obscureText ? false : true),
+                      icon: Icon(
+                        loginForm.obscureText ? Icons.visibility : Icons.visibility_off,
+                        color: Colors.green,
+                      )
+                    )
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (!loginForm.existUser)
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.warning,
+                    color: Colors.red,
+                  ),
+                  Text(
+                    'Usuario o contraseña inválida',
+                    style: TextStyle(color: Colors.red)
+                  ),
+                ],
+              )
+            ),
+          const ButtonLogin(),
+          TextButton(
+            onPressed: () => Navigator.popAndPushNamed(context, 'remember_password'), 
+            child: Text('Recuperar contraseña', style: TextStyle(
+              color: Colors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.w800
+            ))
+          )
+        ],
+      )),
     );
   }
 }
@@ -171,8 +139,7 @@ class ButtonLogin extends StatelessWidget {
   Widget build(BuildContext context) {
     final loginForm = Provider.of<LoginFormProvider>(context);
     final loginService = Provider.of<LoginService>(context, listen: false);
-    final inspeccionService =
-        Provider.of<InspeccionService>(context, listen: false);
+    final inspeccionService = Provider.of<InspeccionService>(context, listen: false);
     final storage = new FlutterSecureStorage();
 
     return MaterialButton(
@@ -205,6 +172,9 @@ class ButtonLogin extends StatelessWidget {
         final tempEmpresas = await loginService.login(loginForm.usuario, loginForm.password);
         if (tempEmpresas.isNotEmpty) {
           tempEmpresas.forEach((element) => empresas.add(element));
+        } else {
+          loginForm.existUser = false;
+          return;
         }
       } else {
         final userData = await DBProvider.db.getUserById(loginForm.usuario);
@@ -212,10 +182,12 @@ class ButtonLogin extends StatelessWidget {
           final tempEmpresas = await DBProvider.db.getAllEmpresasByUsuario(loginForm.usuario);
           tempEmpresas!.forEach((element) => empresas.add(element));
           loginService.userDataLogged = userData;
+        } else if (userData != null && userData.usuarioContra != loginForm.password){
+          loginForm.existUser = false;
+          return;
         } else {
           showSimpleNotification(
-            Text(
-                'Recuerde iniciar sesión con conexión, para ingresar en offline'),
+            Text('Recuerde iniciar sesión con conexión, para ingresar en offline'),
             leading: Icon(Icons.info),
             autoDismiss: true,
             background: Colors.orange,
@@ -226,42 +198,43 @@ class ButtonLogin extends StatelessWidget {
       }
 
       showModalBottomSheet(
-          isScrollControlled: false,
-          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-          context: context,
-          builder: (context) => Container(
-            height: empresas.length > 2 ? 250 : 150,
-            padding: const EdgeInsets.all(20),
-            child: ListView.builder(
-              itemCount: empresas.length,
-              itemBuilder: (_, int i) => ListTile(
-                leading: Container(
-                  width: 50,
-                  height: 50,
-                  child: getImage(empresas[i].rutaLogo.toString())
-                ),
-                title: Text(empresas[i].nombreQi.toString()),
-                trailing: const Icon(Icons.arrow_right),
-                onTap: () async {
-                  // Asignamos al servicio la empresa seleccionada
-                  loginService.selectedEmpresa = empresas[i];
-                  // online
-                  if (isConnected) {
-                    await loginService.getUserData(empresas[i]);
-                    Navigator.popAndPushNamed(context, 'get_data');
-                    return;
-                  }
-                  // Offline
-                  await storage.write(
-                      key: 'usuario', value: '${empresas[i].usuarioUser}');
-                  await storage.write(
-                      key: 'idEmpresa', value: '${empresas[i].empId}');
-                  Navigator.pushNamed(context, 'home');
-                },
+        isScrollControlled: false,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        context: context,
+        builder: (context) => Container(
+          height: empresas.length > 2 ? 250 : 150,
+          padding: const EdgeInsets.all(20),
+          child: ListView.builder(
+            itemCount: empresas.length,
+            itemBuilder: (_, int i) => ListTile(
+              leading: Container(
+                width: 50,
+                height: 50,
+                child: getImage(empresas[i].rutaLogo.toString())
               ),
+              title: Text(empresas[i].nombreQi.toString()),
+              trailing: const Icon(Icons.arrow_right),
+              onTap: () async {
+                // Asignamos al servicio la empresa seleccionada
+                loginService.selectedEmpresa = empresas[i];
+                // online
+                if (isConnected) {
+                  await loginService.getUserData(empresas[i]);
+                  Navigator.popAndPushNamed(context, 'get_data');
+                  return;
+                }
+                // Offline
+                await storage.write(
+                    key: 'usuario', value: '${empresas[i].usuarioUser}');
+                await storage.write(
+                    key: 'idEmpresa', value: '${empresas[i].empId}');
+                Navigator.pushNamed(context, 'home');
+              },
             ),
-          ));
-    } catch (error) {
+          ),
+        )
+      );
+    } on DioError catch (_) {
       showSimpleNotification(
         Text('Error al iniciar sesión'),
         leading: Icon(Icons.check),
