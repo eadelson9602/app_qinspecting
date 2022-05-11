@@ -6,12 +6,37 @@ class AuthBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: double.infinity,
-      child: Stack(
-        children: [const _BubleBox(), child],
-      ),
+    final _sizeScreen = MediaQuery.of(context).size;
+    return Stack(
+      children: [
+        const _BubleBox(),
+        SingleChildScrollView(
+          child: Container(
+            height: _sizeScreen.height * 0.9,
+            margin: EdgeInsets.only(top: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const _HeaderLogo(),
+                child,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Image(image: AssetImage('assets/icons/facebook.png'))
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Image(image: AssetImage('assets/icons/instagram.png'))
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        )
+      ]
     );
   }
 }
@@ -79,19 +104,17 @@ class _Bubble extends StatelessWidget {
   }
 }
 
-class HeaderLogo extends StatelessWidget {
-  const HeaderLogo({Key? key}) : super(key: key);
+class _HeaderLogo extends StatelessWidget {
+  const _HeaderLogo({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Container(
         width: double.infinity,
-        height: 60,
-        margin: const EdgeInsets.only(top: 60),
         child: const Image(
           image: AssetImage('assets/images/logo.png'),
-          height: 70,
+          height: 60,
         ),
       ),
     );
