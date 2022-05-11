@@ -211,30 +211,20 @@ class _FormProfile extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 8.0),
                       child: Row(
                         children: [
-                          Expanded(
-                            child: RadioListTile<String>(
-                              title: const Text('Masculino'),
-                              activeColor: Colors.green,
-                              value: 'MASCULINO',
-                              groupValue: perfilForm.userDataLogged?.persGenero
-                                  .toString(),
-                              onChanged: (value) {
-                                perfilForm.updateGenero(value.toString());
-                              },
-                            ),
+                          Radio(
+                            activeColor: Colors.green,
+                            groupValue: perfilForm.userDataLogged?.persGenero.toString(),
+                            value: 'MASCULINO',
+                            onChanged: (value) => perfilForm.updateGenero(value.toString()),
                           ),
-                          Expanded(
-                            child: RadioListTile<String>(
-                              title: const Text('Femenino'),
-                              activeColor: Colors.green,
-                              value: 'FEMENINO',
-                              groupValue: perfilForm.userDataLogged?.persGenero
-                                  .toString(),
-                              onChanged: (value) {
-                                perfilForm.updateGenero(value.toString());
-                              },
-                            ),
+                          Text('Masculino'),
+                          Radio(
+                            activeColor: Colors.red,
+                            groupValue: perfilForm.userDataLogged?.persGenero.toString(),
+                            value: 'FEMENINO',
+                            onChanged: (value) => perfilForm.updateGenero(value.toString()),
                           ),
+                          Text('Femenino'),
                         ],
                       ),
                     ),
