@@ -68,18 +68,17 @@ class LoginService extends ChangeNotifier {
 
   Future logout() async {
     await storage.delete(key: 'usuario');
+    await storage.delete(key: 'idEmpresa');
   }
 
   Future<String> readToken() async {
     final userData = await storage.read(key: 'usuario') ?? '';
     String idEmpresa = await storage.read(key: 'idEmpresa') ?? '';
     if (userData.isNotEmpty && idEmpresa.isNotEmpty) {
-      final tempDataUser =
-          await DBProvider.db.getUserById(int.parse(userData)) as UserData;
+      final tempDataUser = await DBProvider.db.getUserById(int.parse(userData)) as UserData;
       userDataLogged = tempDataUser;
 
-      final tempDataEmp =
-          await DBProvider.db.getEmpresaById(int.parse(idEmpresa)) as Empresa;
+      final tempDataEmp = await DBProvider.db.getEmpresaById(int.parse(idEmpresa)) as Empresa;
       selectedEmpresa = tempDataEmp;
     }
     return userData;
