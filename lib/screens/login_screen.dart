@@ -18,12 +18,21 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final inspeccionService = Provider.of<InspeccionService>(context);
     if (inspeccionService.isLoading) return LoadingScreen();
+    final PageController controller = PageController();
     return Scaffold(
-      body: AuthBackground(
-        child: ChangeNotifierProvider(
-          create: (_) => LoginFormProvider(),
-          child: const _FormLogin(),
-        ),
+      body: PageView(
+        controller: controller,
+        children: [
+          AuthBackground(
+            child: ChangeNotifierProvider(
+              create: (_) => LoginFormProvider(),
+              child: const _FormLogin(),
+            ),
+          ),
+          Center(
+            child: Text('Second Page'),
+          ),
+        ],
       ),
     );
   }
@@ -157,11 +166,12 @@ class ButtonLogin extends StatelessWidget {
   }
 
   void login(
-      BuildContext context,
-      LoginFormProvider loginForm,
-      LoginService loginService,
-      FlutterSecureStorage storage,
-      InspeccionService inspeccionService) async {
+    BuildContext context,
+    LoginFormProvider loginForm,
+    LoginService loginService,
+    FlutterSecureStorage storage,
+    InspeccionService inspeccionService
+  ) async {
     try {
       loginForm.isLoading = true;
       FocusScope.of(context).unfocus();
