@@ -29,9 +29,7 @@ class LoginScreen extends StatelessWidget {
               child: const _FormLogin(),
             ),
           ),
-          Center(
-            child: Text('Second Page'),
-          ),
+          RememberPasswordScreen(),
         ],
       ),
     );
