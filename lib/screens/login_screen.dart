@@ -17,11 +17,12 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inspeccionService = Provider.of<InspeccionService>(context);
+    final loginService = Provider.of<LoginService>(context, listen: false);
     if (inspeccionService.isLoading) return LoadingScreen();
-    final PageController controller = PageController();
+
     return Scaffold(
       body: PageView(
-        controller: controller,
+        controller: loginService.pageController,
         children: [
           AuthBackground(
             child: ChangeNotifierProvider(
@@ -44,6 +45,7 @@ class _FormLogin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loginForm = Provider.of<LoginFormProvider>(context);
+    final loginService = Provider.of<LoginService>(context, listen: false);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 30),
       child: Form(
@@ -124,7 +126,7 @@ class _FormLogin extends StatelessWidget {
             ),
           const _ButtonLogin(),
           TextButton(
-            onPressed: () => Navigator.popAndPushNamed(context, 'remember_password'), 
+            onPressed: () => loginService.pageController.nextPage(duration: Duration(microseconds: 1000), curve: Curves.bounceIn), 
             child: Text('Recuperar contraseña', style: TextStyle(
               color: Colors.black,
               fontSize: 16,
