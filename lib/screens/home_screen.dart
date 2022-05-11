@@ -40,35 +40,52 @@ class _HomeScreenState extends State<HomeScreen> {
           })
     ];
 
-    return Scaffold(
-      appBar: CustomAppBar(),
-      drawer: CustomDrawer(),
-      body: SafeArea(
-          child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: _widgetOptions.elementAt(_selectedIndex),
-      )),
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Escritorio',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.app_registration_sharp),
-            label: 'Inspecciones',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.green,
-        onTap: (int index) {
-          if (index == 1 && loginService.userDataLogged.firmaId == 0) {
-            Navigator.popAndPushNamed(context, 'signature');
-          } else {
-            _onItemTapped(index);
-          }
-        },
+    return WillPopScope(
+      onWillPop: _onWillPopScope,
+      child: Scaffold(
+        appBar: CustomAppBar(),
+        drawer: CustomDrawer(),
+        body: SafeArea(
+            child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: _widgetOptions.elementAt(_selectedIndex),
+        )),
+        bottomNavigationBar: BottomNavigationBar(
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Escritorio',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.app_registration_sharp),
+              label: 'Inspecciones',
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.green,
+          onTap: (int index) {
+            if (index == 1 && loginService.userDataLogged.firmaId == 0) {
+              Navigator.popAndPushNamed(context, 'signature');
+            } else {
+              _onItemTapped(index);
+            }
+          },
+        ),
       ),
+    );
+  }
+
+  Future<bool> _onWillPopScope() async {
+    return await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Icon(Icons.warning, color: Colors.orange,),
+        content: Text('¿Seguro que quieres salir de la aplicación?', textAlign: TextAlign.center),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('NO')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: Text('SI', style: TextStyle(color: Colors.red))),
+        ],
+      )
     );
   }
 }
