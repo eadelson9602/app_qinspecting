@@ -10,6 +10,7 @@ class LoginService extends ChangeNotifier {
   var dio = Dio();
   bool isLoading = false;
   bool isSaving = false;
+  PageController pageController = PageController(initialPage: 0);
   // Create storage
   final storage = new FlutterSecureStorage();
 
@@ -34,6 +35,36 @@ class LoginService extends ChangeNotifier {
     isLoading = false;
     notifyListeners();
     return empresas;
+  }
+
+  Future<List<Empresa>> rememberData(int user) async {    
+    isLoading = true;
+    notifyListeners();
+
+    final List<Empresa> empresas = [];
+    Response response = await dio.post('https://apis.qinspecting.com/pflutter/remember_data', data: json.encode({
+      'usuario': '$user'
+    }));
+    var tempRes = response.data;
+    if(tempRes.runtimeType == List<dynamic>){
+      for (var item in response.data) {
+        empresas.add(Empresa.fromMap(item));
+      }
+    }
+    isLoading = false;
+    notifyListeners();
+    return empresas;
+  }
+
+  Future<Map<String, dynamic>> sendEmailRememberData(Empresa empresa) async {    
+    isLoading = true;
+    notifyListeners();
+
+    Response response = await dio.post('https://apis.qinspecting.com/pflutter/send_email_remember_data', data: empresa.toJson());
+    
+    isLoading = false;
+    notifyListeners();
+    return response.data;
   }
 
   Future<UserData> getUserData(Empresa empresa) async {
