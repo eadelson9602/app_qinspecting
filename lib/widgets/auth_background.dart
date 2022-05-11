@@ -18,7 +18,10 @@ class AuthBackground extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const _HeaderLogo(),
-                child,
+                Container(
+                  height: _sizeScreen.height * 0.60,
+                  child: child
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
