@@ -84,9 +84,9 @@ class CustomDrawer extends StatelessWidget {
                 leading: Icon(Icons.logout, color: Colors.green),
                 title: Text('Cerrar sesión',
                     style: TextStyle(color: Colors.green)),
-                onTap: () {
-                  loginService.logout();
-                  Navigator.popAndPushNamed(context, 'login');
+                onTap: () async {
+                  await loginService.logout();
+                  Navigator.pushReplacementNamed(context, 'login');
                 })
           ],
         )));
