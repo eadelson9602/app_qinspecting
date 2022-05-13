@@ -17,13 +17,20 @@ class LoginService extends ChangeNotifier {
   late Empresa selectedEmpresa;
   late UserData userDataLogged;
 
+  String baseUrl = 'https://apis.qinspecting.com/pflutter';
+  Options options = Options(
+    headers: {
+      'x-access-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIzNDU2Nzg5LCJpYXQiOjE2NTI0MDg5NTcsImV4cCI6MTY1MjQ5NTM1N30.ufyCwGVWC9x6vmYusL-9GhgrabBlbM3rDuWw98wnHe0'
+    }
+  );
+
   Future<List<Empresa>> login(int user, String password) async {    
     isLoading = true;
     notifyListeners();
 
     final List<Empresa> empresas = [];
-    Response response = await dio.post('https://apis.qinspecting.com/pflutter/login', data: json.encode({
-      'user': '$user',
+    Response response = await dio.post('${baseUrl}/login', options: options, data: json.encode({
+      'usuario': '$user',
       'password': password
     }));
     var tempRes = response.data;
@@ -42,7 +49,7 @@ class LoginService extends ChangeNotifier {
     notifyListeners();
 
     final List<Empresa> empresas = [];
-    Response response = await dio.post('https://apis.qinspecting.com/pflutter/remember_data', data: json.encode({
+    Response response = await dio.post('${baseUrl}/remember_data', data: json.encode({
       'usuario': '$user'
     }));
     var tempRes = response.data;
@@ -60,7 +67,7 @@ class LoginService extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    Response response = await dio.post('https://apis.qinspecting.com/pflutter/send_email_remember_data', data: empresa.toJson());
+    Response response = await dio.post('${baseUrl}/send_email_remember_data', options: options, data: empresa.toJson());
     
     isLoading = false;
     notifyListeners();
@@ -73,7 +80,7 @@ class LoginService extends ChangeNotifier {
     final baseEmpresa = empresa.nombreBase;
     final usuario = empresa.usuarioUser;
 
-    Response response = await dio.get('https://apis.qinspecting.com/pflutter/get_user_data/$baseEmpresa/$usuario');
+    Response response = await dio.get('${baseUrl}/get_user_data/$baseEmpresa/$usuario', options: options);
 
     final tempUserData = UserData.fromJson(response.toString());
 
