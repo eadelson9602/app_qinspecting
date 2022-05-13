@@ -27,6 +27,13 @@ class InspeccionService extends ChangeNotifier {
 
   ResumenPreoperacional resumePreoperacional = ResumenPreoperacional();
 
+  String baseUrl = 'https://apis.qinspecting.com/pflutter';
+  Options options = Options(
+    headers: {
+      'x-access-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIzNDU2Nzg5LCJpYXQiOjE2NTI0MDg5NTcsImV4cCI6MTY1MjQ5NTM1N30.ufyCwGVWC9x6vmYusL-9GhgrabBlbM3rDuWw98wnHe0'
+    }
+  );
+
   void clearData (){
     resumePreoperacional.ciuId = 0;
     resumePreoperacional.resuPreKilometraje = 0;
@@ -52,7 +59,7 @@ class InspeccionService extends ChangeNotifier {
 
     if (connectivityResult) {
       try {
-        Response response = await dio.get('https://apis.qinspecting.com/pflutter/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.usuarioUser}');
+        Response response = await dio.get('${baseUrl}/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.usuarioUser}');
         List<ResumenPreoperacionalServer> tempData = [];
         for (var item in response.data) {
           tempData.add(ResumenPreoperacionalServer.fromMap(item));
@@ -87,7 +94,7 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
 
-    Response response = await dio.get('https://apis.qinspecting.com/pflutter/list_departments/$baseEmpresa');
+    Response response = await dio.get('${baseUrl}/list_departments/$baseEmpresa');
     departamentos.clear();
     for (var item in response.data) {
       final tempDepartamento = Departamentos.fromMap(item);
@@ -104,7 +111,7 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
 
-    Response response = await dio.get('https://apis.qinspecting.com/pflutter/list_city/$baseEmpresa');
+    Response response = await dio.get('${baseUrl}/list_city/$baseEmpresa');
     ciudades.clear();
     for (var item in response.data) {
       final tempCiudad = Ciudades.fromMap(item);
@@ -121,7 +128,7 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
 
-    Response response = await dio.get('https://apis.qinspecting.com/pflutter/show_placas_cabezote/$baseEmpresa');
+    Response response = await dio.get('${baseUrl}/show_placas_cabezote/$baseEmpresa');
     vehiculos.clear();
     for (var item in response.data) {
       final tempVehiculo = Vehiculo.fromMap(item);
@@ -138,7 +145,7 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
 
-    Response response = await dio.get('https://apis.qinspecting.com/pflutter/show_placas_trailer/$baseEmpresa');
+    Response response = await dio.get('${baseUrl}/show_placas_trailer/$baseEmpresa');
     remolques.clear();
     for (var item in response.data) {
       final tempRemolque = Remolque.fromMap(item);
@@ -155,7 +162,7 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
 
-    Response response = await dio.get('https://apis.qinspecting.com/pflutter/list_items_x_placa/$baseEmpresa');
+    Response response = await dio.get('${baseUrl}/list_items_x_placa/$baseEmpresa');
     itemsInspeccion.clear();
     for (var item in response.data) {
       final tempItem = ItemInspeccion.fromMap(item);
@@ -172,7 +179,7 @@ class InspeccionService extends ChangeNotifier {
       
       var fileName = (path.split('/').last);
       var formData = FormData.fromMap({'files': await MultipartFile.fromFile('${path}', filename: '${fileName}')});
-      Response response = await dio.post('https://apis.qinspecting.com/pflutter/upload_file/${company}/${folder}', data: formData);
+      Response response = await dio.post('${baseUrl}/upload_file/${company}/${folder}', data: formData);
       final resp = ResponseUploadFile.fromMap(response.data);
       
       return resp.toMap();
@@ -191,33 +198,33 @@ class InspeccionService extends ChangeNotifier {
     try {
       final baseEmpresa = selectedEmpresa.nombreBase;
       await loginService.getUserData(selectedEmpresa);
-      Response response = await dio.get('https://apis.qinspecting.com/pflutter/get_placas_cabezote/$baseEmpresa');
+      Response response = await dio.get('${baseUrl}/get_placas_cabezote/$baseEmpresa');
       for (var item in response.data) {
         final tempVehiculo = Vehiculo.fromMap(item);
         DBProvider.db.nuevoVehiculo(tempVehiculo);
       }
-      Response responseTrailer = await dio.get('https://apis.qinspecting.com/pflutter/get_placas_trailer/$baseEmpresa');
+      Response responseTrailer = await dio.get('${baseUrl}/get_placas_trailer/$baseEmpresa');
       for (var item in responseTrailer.data) {
         final tempRemolque = Remolque.fromMap(item);
         DBProvider.db.nuevoRemolque(tempRemolque);
       }
-      Response responseDepartamentos = await dio.get('https://apis.qinspecting.com/pflutter/list_departments/$baseEmpresa');
+      Response responseDepartamentos = await dio.get('${baseUrl}/list_departments/$baseEmpresa');
       for (var item in responseDepartamentos.data) {
         final tempDepartamento = Departamentos.fromMap(item);
         DBProvider.db.nuevoDepartamento(tempDepartamento);
       }
-      Response responseCiudades = await dio.get('https://apis.qinspecting.com/pflutter/list_city/$baseEmpresa');
+      Response responseCiudades = await dio.get('${baseUrl}/list_city/$baseEmpresa');
       for (var item in responseCiudades.data) {
         final tempCiudad = Ciudades.fromMap(item);
         DBProvider.db.nuevaCiudad(tempCiudad);
       }
-      Response responseItems = await dio.get('https://apis.qinspecting.com/pflutter/list_items_x_placa/$baseEmpresa');
+      Response responseItems = await dio.get('${baseUrl}/list_items_x_placa/$baseEmpresa');
       for (var item in responseItems.data) {
         final tempItem = ItemInspeccion.fromMap(item);
         DBProvider.db.nuevoItem(tempItem);
       }
 
-      Response responseTipodoc = await dio.get('https://apis.qinspecting.com/pflutter/list_type_documents/$baseEmpresa');
+      Response responseTipodoc = await dio.get('${baseUrl}/list_type_documents/$baseEmpresa');
       for (var item in responseTipodoc.data) {
         final tempTipoDoc = TipoDocumentos.fromMap(item);
         DBProvider.db.nuevoTipoDocumento(tempTipoDoc);
@@ -264,7 +271,7 @@ class InspeccionService extends ChangeNotifier {
         inspeccion.remolId = inspeccion.remolId != null && inspeccion.remolId != 0 ? inspeccion.remolId : null;
 
         // Guardamos el resumen del preoperacional en el server
-        final responseResumen = await dio.post('https://apis.qinspecting.com/pflutter/insert_preoperacional', data: inspeccion.toJson());
+        final responseResumen = await dio.post('${baseUrl}/insert_preoperacional', data: inspeccion.toJson());
         final resumen = Respuesta.fromMap(responseResumen.data);
         // Consultamos en sqlite las respuestas
         List<Item> respuestas = await inspeccionProvider.cargarTodasRespuestas(inspeccion.id!);
@@ -278,10 +285,10 @@ class InspeccionService extends ChangeNotifier {
               final responseUpload = ResponseUploadFile.fromMap(response!);
               element.adjunto = responseUpload.path;
 
-              return dio.post('https://apis.qinspecting.com/pflutter/insert_respuestas_preoperacional', data: element.toJson());
+              return dio.post('${baseUrl}/insert_respuestas_preoperacional', data: element.toJson());
             }));
           } else {
-            Promesas.add(dio.post('https://apis.qinspecting.com/pflutter/insert_respuestas_preoperacional', data: element.toJson()));
+            Promesas.add(dio.post('${baseUrl}/insert_respuestas_preoperacional', data: element.toJson()));
           }
         });
 
@@ -333,7 +340,7 @@ class InspeccionService extends ChangeNotifier {
   }
 
   Future<Pdf> detatilPdf(Empresa empresaSelected, ResumenPreoperacionalServer inspeccion) async {
-    Response response = await dio.get('https://apis.qinspecting.com/pflutter/inspeccion/${empresaSelected.nombreBase}/${inspeccion.resuPreId}');
+    Response response = await dio.get('${baseUrl}/inspeccion/${empresaSelected.nombreBase}/${inspeccion.resuPreId}');
 
     List<Future> promesas = [];
 
