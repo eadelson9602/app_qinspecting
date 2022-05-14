@@ -18,11 +18,37 @@ class LoginService extends ChangeNotifier {
   late UserData userDataLogged;
 
   String baseUrl = 'https://apis.qinspecting.com/pflutter';
-  Options options = Options(
-    headers: {
-      'x-access-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIzNDU2Nzg5LCJpYXQiOjE2NTI0MDg5NTcsImV4cCI6MTY1MjQ5NTM1N30.ufyCwGVWC9x6vmYusL-9GhgrabBlbM3rDuWw98wnHe0'
+  Options options = Options();
+
+  Future<Map<dynamic, dynamic>> getToken(int user, String password) async {
+    try {
+      isLoading = true;
+      notifyListeners();
+
+      Response response = await dio.post('${baseUrl}/get_token', options: options, data: json.encode({
+        'usuario': '$user',
+        'password': password
+      }));
+      Map<dynamic, dynamic> resGetToken = response.data;
+      if(resGetToken.containsKey('token')){
+        // Guardamos el token el el storage del dispositivo
+        await storage.write(key: 'token', value: response.data['token']);
+        options.headers = {
+          "x-access-token" : response.data['token']
+        };
+      }
+      
+      return resGetToken;
+    } on DioError catch (error) {
+      return {
+        "message": "No hemos podido obtener el token",
+        "error": error.message
+      };
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
-  );
+  }
 
   Future<List<Empresa>> login(int user, String password) async {    
     isLoading = true;
@@ -67,7 +93,7 @@ class LoginService extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    Response response = await dio.post('${baseUrl}/send_email_remember_data', options: options, data: empresa.toJson());
+    Response response = await dio.post('${baseUrl}/send_email_remember_data', data: empresa.toJson());
     
     isLoading = false;
     notifyListeners();
@@ -100,33 +126,35 @@ class LoginService extends ChangeNotifier {
   }
 
   Future logout() async {
-    await storage.delete(key: 'usuario');
-    await storage.delete(key: 'idEmpresa');
+    await storage.deleteAll();
   }
 
   Future<String> readToken() async {
-    final userData = await storage.read(key: 'usuario') ?? '';
+    // await storage.deleteAll();
+    String idUsuario = await storage.read(key: 'usuario') ?? '';
     String idEmpresa = await storage.read(key: 'idEmpresa') ?? '';
-    if (userData.isNotEmpty && idEmpresa.isNotEmpty) {
-      final tempDataUser = await DBProvider.db.getUserById(int.parse(userData)) as UserData;
+    String token = await storage.read(key: 'token') ?? '';
+    if (idUsuario.isNotEmpty && idEmpresa.isNotEmpty && token.isNotEmpty) {
+      options.headers = {
+        "x-access-token": token
+      };
+      final tempDataUser = await DBProvider.db.getUserById(int.parse(idUsuario)) as UserData;
       userDataLogged = tempDataUser;
 
       final tempDataEmp = await DBProvider.db.getEmpresaById(int.parse(idEmpresa)) as Empresa;
       selectedEmpresa = tempDataEmp;
     }
-    return userData;
+    return idUsuario;
   }
 
   Future<Map<String, dynamic>> assingDataUserLogged() async {
     String usuario = await storage.read(key: 'usuario') ?? '';
     String idEmpresa = await storage.read(key: 'idEmpresa') ?? '';
     if (usuario.isNotEmpty && idEmpresa.isNotEmpty) {
-      final tempDataUser =
-          await DBProvider.db.getUserById(int.parse(usuario)) as UserData;
+      final tempDataUser = await DBProvider.db.getUserById(int.parse(usuario)) as UserData;
       userDataLogged = tempDataUser;
 
-      final tempDataEmp =
-          await DBProvider.db.getEmpresaById(int.parse(idEmpresa)) as Empresa;
+      final tempDataEmp = await DBProvider.db.getEmpresaById(int.parse(idEmpresa)) as Empresa;
       selectedEmpresa = tempDataEmp;
     }
 
