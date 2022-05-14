@@ -198,6 +198,11 @@ class InspeccionService extends ChangeNotifier {
 
   Future<bool> getData(Empresa selectedEmpresa) async {
     try {
+      // Buscamos en el storage el token y lo asignamos a la instancia para poderlo usar en todas las peticiones de este servicio
+      String token = await storage.read(key: 'token') ?? '';
+      loginService.options.headers = {
+        "x-access-token": token
+      };
       final baseEmpresa = selectedEmpresa.nombreBase;
       await loginService.getUserData(selectedEmpresa);
       Response response = await dio.get('${loginService.baseUrl}/get_placas_cabezote/$baseEmpresa', options: loginService.options);
