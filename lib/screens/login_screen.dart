@@ -179,9 +179,15 @@ class _ButtonLogin extends StatelessWidget {
       bool isConnected = await inspeccionService.checkConnection();
 
       if (isConnected) {
-        final tempEmpresas = await loginService.login(loginForm.usuario, loginForm.password);
-        if (tempEmpresas.isNotEmpty) {
-          tempEmpresas.forEach((element) => empresas.add(element));
+        final resGetToken = await loginService.getToken(loginForm.usuario, loginForm.password);
+        if(resGetToken.containsKey('token')){
+          final tempEmpresas = await loginService.login(loginForm.usuario, loginForm.password);
+          if (tempEmpresas.isNotEmpty) {
+            tempEmpresas.forEach((element) => empresas.add(element));
+          } else {
+            loginForm.existUser = false;
+            return;
+          }
         } else {
           loginForm.existUser = false;
           return;
