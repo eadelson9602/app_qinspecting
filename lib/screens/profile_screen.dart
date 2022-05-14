@@ -353,10 +353,22 @@ class _PortadaProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _screenSize = MediaQuery.of(context).size;
+    final inspeccionService = Provider.of<InspeccionService>(context, listen: false);
     return SizedBox(
       width: double.infinity,
       height: _screenSize.height * 0.3,
-      child: Opacity(opacity: 0.9, child: getImage(url)),
+      child: Opacity(
+        opacity: 0.9,
+        child: FutureBuilder(
+          future: inspeccionService.checkConnection(),
+          builder: (context, snapshot){
+            if(snapshot.data == true){
+              return getImage(url);
+            }
+            return Image(image: AssetImage('assets/images/loading-2.gif'));
+          },
+        )
+      ),
     );
   }
 
