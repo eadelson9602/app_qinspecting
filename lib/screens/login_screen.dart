@@ -226,7 +226,7 @@ class _ButtonLogin extends StatelessWidget {
               leading: Container(
                 width: 50,
                 height: 50,
-                child: loginForm.getImage(empresas[i].rutaLogo.toString())
+                child: isConnected ? loginForm.getImage(empresas[i].rutaLogo.toString()) : Image(image: AssetImage('assets/images/loading-2.gif'))
               ),
               title: Text(empresas[i].nombreQi.toString()),
               trailing: const Icon(Icons.arrow_right),
