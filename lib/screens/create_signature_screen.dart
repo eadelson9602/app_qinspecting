@@ -104,12 +104,13 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
                           position: NotificationPosition.bottom);
                       Navigator.pop(context);
                     }
-                  } on DioError catch (e) {
-                    showSimpleNotification(Text('Error al guardar firma'),
-                        leading: Icon(Icons.check),
-                        autoDismiss: true,
-                        background: Colors.orange,
-                        position: NotificationPosition.bottom);
+                  } on DioError catch (_) {
+                    showSimpleNotification(Text('No se ha podido guardar la firma'),
+                      leading: Icon(Icons.check),
+                      autoDismiss: true,
+                      background: Colors.orange,
+                      position: NotificationPosition.bottom
+                    );
                   }
                 }
               },
