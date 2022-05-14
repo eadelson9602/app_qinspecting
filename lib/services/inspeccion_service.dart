@@ -67,7 +67,8 @@ class InspeccionService extends ChangeNotifier {
 
         listInspections = [...tempData];
         return true;
-      } on DioError catch (error) {        
+      } on DioError catch (error) {
+        print(error.response!.data);     
         showSimpleNotification(
           Text('No hemos podido obtener las inspecciones'),
           leading: Icon(Icons.wifi_tethering_error_rounded_outlined),
@@ -75,7 +76,7 @@ class InspeccionService extends ChangeNotifier {
           background: Colors.orange,
           position: NotificationPosition.bottom,
         );
-        return Future.error(error.toString());
+        return Future.error(error.response!.data);
       }
     } else {
       showSimpleNotification(
@@ -183,14 +184,15 @@ class InspeccionService extends ChangeNotifier {
       final resp = ResponseUploadFile.fromMap(response.data);
       
       return resp.toMap();
-    } catch (error) {
+    } on DioError catch (error) {
+      print(error.response!.data);
       showSimpleNotification(Text('No se ha podido subir la foto al servidor'),
         leading: Icon(Icons.check),
         autoDismiss: true,
         background: Colors.orange,
         position: NotificationPosition.bottom
       );
-      return Future.error(error);
+      return Future.error(error.response!.data);
     }
   }
 
@@ -231,14 +233,15 @@ class InspeccionService extends ChangeNotifier {
       }
 
       return true;
-    } catch (error) {
+    } on DioError catch (error) {
+      print(error.response!.data);
       showSimpleNotification(Text('No se ha podido obtener datos iniciales'),
           leading: Icon(Icons.check),
           autoDismiss: true,
           background: Colors.orange,
           position: NotificationPosition.bottom);
 
-      Future.error(error);
+      Future.error(error.response!.data);
       return false;
     }
   }
@@ -270,7 +273,7 @@ class InspeccionService extends ChangeNotifier {
         inspeccion.remolId = inspeccion.remolId != null && inspeccion.remolId != 0 ? inspeccion.remolId : null;
 
         // Guardamos el resumen del preoperacional en el server
-        final responseResumen = await dio.post('${loginService.baseUrl}/insert_preoperacional', data: inspeccion.toJson());
+        final responseResumen = await dio.post('${loginService.baseUrl}/insert_preoperacional', options: loginService.options, data: inspeccion.toJson());
         final resumen = Respuesta.fromMap(responseResumen.data);
         // Consultamos en sqlite las respuestas
         List<Item> respuestas = await inspeccionProvider.cargarTodasRespuestas(inspeccion.id!);
@@ -284,10 +287,10 @@ class InspeccionService extends ChangeNotifier {
               final responseUpload = ResponseUploadFile.fromMap(response!);
               element.adjunto = responseUpload.path;
 
-              return dio.post('${loginService.baseUrl}/insert_respuestas_preoperacional', data: element.toJson());
+              return dio.post('${loginService.baseUrl}/insert_respuestas_preoperacional', options: loginService.options, data: element.toJson());
             }));
           } else {
-            Promesas.add(dio.post('${loginService.baseUrl}/insert_respuestas_preoperacional', data: element.toJson()));
+            Promesas.add(dio.post('${loginService.baseUrl}/insert_respuestas_preoperacional', options: loginService.options, data: element.toJson()));
           }
         });
 
@@ -323,18 +326,17 @@ class InspeccionService extends ChangeNotifier {
           "idInspeccion": 0
         };
       }
-    } catch (error) {
+    } on DioError catch (error) {
+      print(error.response!.data);
       showSimpleNotification(Text('No se ha podido guardar la inspección'),
         leading: Icon(Icons.check),
         autoDismiss: true,
         background: Colors.orange,
         position: NotificationPosition.bottom
       );
-      return {
-        "message": 'No se ha podido guardar la inspección',
-        "ok": false,
-        "idInspeccion": 0
-      };
+      return Future.error(error.response!.data);
+    } finally {
+      isSaving = false;
     }
   }
 
