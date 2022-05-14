@@ -1,6 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' show get;
 
 import 'package:app_qinspecting/models/models.dart';
@@ -9,9 +10,8 @@ import 'package:app_qinspecting/services/services.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 class InspeccionService extends ChangeNotifier {
-  final loginService = LoginService();
   final dio = Dio();
-
+  final loginService = LoginService();
   bool isLoading = false;
   bool isSaving = false;
   final List<Departamentos> departamentos = [];
@@ -24,15 +24,9 @@ class InspeccionService extends ChangeNotifier {
   int indexSelected = 0;
   DateTimeRange? myDateRange;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
   ResumenPreoperacional resumePreoperacional = ResumenPreoperacional();
+  final storage = new FlutterSecureStorage();
 
-  String baseUrl = 'https://apis.qinspecting.com/pflutter';
-  Options options = Options(
-    headers: {
-      'x-access-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIzNDU2Nzg5LCJpYXQiOjE2NTI0MDg5NTcsImV4cCI6MTY1MjQ5NTM1N30.ufyCwGVWC9x6vmYusL-9GhgrabBlbM3rDuWw98wnHe0'
-    }
-  );
 
   void clearData (){
     resumePreoperacional.ciuId = 0;
@@ -59,7 +53,13 @@ class InspeccionService extends ChangeNotifier {
 
     if (connectivityResult) {
       try {
-        Response response = await dio.get('${baseUrl}/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.usuarioUser}');
+        // Buscamos en el storage el token y lo asignamos a la instancia para poderlo usar en todas las peticiones de este servicio
+        String token = await storage.read(key: 'token') ?? '';
+        loginService.options.headers = {
+          "x-access-token": token
+        };
+
+        Response response = await dio.get('${loginService.baseUrl}/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.usuarioUser}', options: loginService.options);
         List<ResumenPreoperacionalServer> tempData = [];
         for (var item in response.data) {
           tempData.add(ResumenPreoperacionalServer.fromMap(item));
@@ -67,7 +67,7 @@ class InspeccionService extends ChangeNotifier {
 
         listInspections = [...tempData];
         return true;
-      } catch (error) {
+      } on DioError catch (error) {        
         showSimpleNotification(
           Text('No hemos podido obtener las inspecciones'),
           leading: Icon(Icons.wifi_tethering_error_rounded_outlined),
@@ -94,7 +94,7 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
 
-    Response response = await dio.get('${baseUrl}/list_departments/$baseEmpresa');
+    Response response = await dio.get('${loginService.baseUrl}/list_departments/$baseEmpresa', options: loginService.options);
     departamentos.clear();
     for (var item in response.data) {
       final tempDepartamento = Departamentos.fromMap(item);
@@ -111,7 +111,7 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
 
-    Response response = await dio.get('${baseUrl}/list_city/$baseEmpresa');
+    Response response = await dio.get('${loginService.baseUrl}/list_city/$baseEmpresa');
     ciudades.clear();
     for (var item in response.data) {
       final tempCiudad = Ciudades.fromMap(item);
@@ -128,7 +128,7 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
 
-    Response response = await dio.get('${baseUrl}/show_placas_cabezote/$baseEmpresa');
+    Response response = await dio.get('${loginService.baseUrl}/show_placas_cabezote/$baseEmpresa', options: loginService.options);
     vehiculos.clear();
     for (var item in response.data) {
       final tempVehiculo = Vehiculo.fromMap(item);
@@ -145,7 +145,7 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
 
-    Response response = await dio.get('${baseUrl}/show_placas_trailer/$baseEmpresa');
+    Response response = await dio.get('${loginService.baseUrl}/show_placas_trailer/$baseEmpresa', options: loginService.options);
     remolques.clear();
     for (var item in response.data) {
       final tempRemolque = Remolque.fromMap(item);
@@ -162,7 +162,7 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
 
-    Response response = await dio.get('${baseUrl}/list_items_x_placa/$baseEmpresa');
+    Response response = await dio.get('${loginService.baseUrl}/list_items_x_placa/$baseEmpresa', options: loginService.options);
     itemsInspeccion.clear();
     for (var item in response.data) {
       final tempItem = ItemInspeccion.fromMap(item);
@@ -179,7 +179,7 @@ class InspeccionService extends ChangeNotifier {
       
       var fileName = (path.split('/').last);
       var formData = FormData.fromMap({'files': await MultipartFile.fromFile('${path}', filename: '${fileName}')});
-      Response response = await dio.post('${baseUrl}/upload_file/${company}/${folder}', data: formData);
+      Response response = await dio.post('${loginService.baseUrl}/upload_file/${company}/${folder}', data: formData, options: loginService.options);
       final resp = ResponseUploadFile.fromMap(response.data);
       
       return resp.toMap();
@@ -198,33 +198,33 @@ class InspeccionService extends ChangeNotifier {
     try {
       final baseEmpresa = selectedEmpresa.nombreBase;
       await loginService.getUserData(selectedEmpresa);
-      Response response = await dio.get('${baseUrl}/get_placas_cabezote/$baseEmpresa');
+      Response response = await dio.get('${loginService.baseUrl}/get_placas_cabezote/$baseEmpresa', options: loginService.options);
       for (var item in response.data) {
         final tempVehiculo = Vehiculo.fromMap(item);
         DBProvider.db.nuevoVehiculo(tempVehiculo);
       }
-      Response responseTrailer = await dio.get('${baseUrl}/get_placas_trailer/$baseEmpresa');
+      Response responseTrailer = await dio.get('${loginService.baseUrl}/get_placas_trailer/$baseEmpresa', options: loginService.options);
       for (var item in responseTrailer.data) {
         final tempRemolque = Remolque.fromMap(item);
         DBProvider.db.nuevoRemolque(tempRemolque);
       }
-      Response responseDepartamentos = await dio.get('${baseUrl}/list_departments/$baseEmpresa');
+      Response responseDepartamentos = await dio.get('${loginService.baseUrl}/list_departments/$baseEmpresa', options: loginService.options);
       for (var item in responseDepartamentos.data) {
         final tempDepartamento = Departamentos.fromMap(item);
         DBProvider.db.nuevoDepartamento(tempDepartamento);
       }
-      Response responseCiudades = await dio.get('${baseUrl}/list_city/$baseEmpresa');
+      Response responseCiudades = await dio.get('${loginService.baseUrl}/list_city/$baseEmpresa', options: loginService.options);
       for (var item in responseCiudades.data) {
         final tempCiudad = Ciudades.fromMap(item);
         DBProvider.db.nuevaCiudad(tempCiudad);
       }
-      Response responseItems = await dio.get('${baseUrl}/list_items_x_placa/$baseEmpresa');
+      Response responseItems = await dio.get('${loginService.baseUrl}/list_items_x_placa/$baseEmpresa', options: loginService.options);
       for (var item in responseItems.data) {
         final tempItem = ItemInspeccion.fromMap(item);
         DBProvider.db.nuevoItem(tempItem);
       }
 
-      Response responseTipodoc = await dio.get('${baseUrl}/list_type_documents/$baseEmpresa');
+      Response responseTipodoc = await dio.get('${loginService.baseUrl}/list_type_documents/$baseEmpresa', options: loginService.options);
       for (var item in responseTipodoc.data) {
         final tempTipoDoc = TipoDocumentos.fromMap(item);
         DBProvider.db.nuevoTipoDocumento(tempTipoDoc);
@@ -232,7 +232,6 @@ class InspeccionService extends ChangeNotifier {
 
       return true;
     } catch (error) {
-      // print('Error al subir foto ${error}');
       showSimpleNotification(Text('No se ha podido obtener datos iniciales'),
           leading: Icon(Icons.check),
           autoDismiss: true,
@@ -271,7 +270,7 @@ class InspeccionService extends ChangeNotifier {
         inspeccion.remolId = inspeccion.remolId != null && inspeccion.remolId != 0 ? inspeccion.remolId : null;
 
         // Guardamos el resumen del preoperacional en el server
-        final responseResumen = await dio.post('${baseUrl}/insert_preoperacional', data: inspeccion.toJson());
+        final responseResumen = await dio.post('${loginService.baseUrl}/insert_preoperacional', data: inspeccion.toJson());
         final resumen = Respuesta.fromMap(responseResumen.data);
         // Consultamos en sqlite las respuestas
         List<Item> respuestas = await inspeccionProvider.cargarTodasRespuestas(inspeccion.id!);
@@ -285,10 +284,10 @@ class InspeccionService extends ChangeNotifier {
               final responseUpload = ResponseUploadFile.fromMap(response!);
               element.adjunto = responseUpload.path;
 
-              return dio.post('${baseUrl}/insert_respuestas_preoperacional', data: element.toJson());
+              return dio.post('${loginService.baseUrl}/insert_respuestas_preoperacional', data: element.toJson());
             }));
           } else {
-            Promesas.add(dio.post('${baseUrl}/insert_respuestas_preoperacional', data: element.toJson()));
+            Promesas.add(dio.post('${loginService.baseUrl}/insert_respuestas_preoperacional', data: element.toJson()));
           }
         });
 
@@ -340,7 +339,7 @@ class InspeccionService extends ChangeNotifier {
   }
 
   Future<Pdf> detatilPdf(Empresa empresaSelected, ResumenPreoperacionalServer inspeccion) async {
-    Response response = await dio.get('${baseUrl}/inspeccion/${empresaSelected.nombreBase}/${inspeccion.resuPreId}');
+    Response response = await dio.get('${loginService.baseUrl}/inspeccion/${empresaSelected.nombreBase}/${inspeccion.resuPreId}', options: loginService.options);
 
     List<Future> promesas = [];
 
