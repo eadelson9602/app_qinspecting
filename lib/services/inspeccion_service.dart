@@ -79,13 +79,13 @@ class InspeccionService extends ChangeNotifier {
         return Future.error(error.response!.data);
       }
     } else {
-      showSimpleNotification(
-        Text('Sin conexión a internet'),
-        leading: Icon(Icons.wifi_tethering_error_rounded_outlined),
-        autoDismiss: true,
-        background: Colors.orange,
-        position: NotificationPosition.bottom,
-      );
+      // showSimpleNotification(
+      //   Text('Sin conexión a internet'),
+      //   leading: Icon(Icons.wifi_tethering_error_rounded_outlined),
+      //   autoDismiss: true,
+      //   background: Colors.orange,
+      //   position: NotificationPosition.bottom,
+      // );
       return false;
     }
   }
