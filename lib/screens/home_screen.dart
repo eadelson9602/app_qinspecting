@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/providers/providers.dart';
@@ -83,9 +86,17 @@ class _HomeScreenState extends State<HomeScreen> {
         content: Text('¿Seguro que quieres salir de la aplicación?', textAlign: TextAlign.center),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: Text('NO')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: Text('SI', style: TextStyle(color: Colors.red))),
+          TextButton(onPressed: () async {
+            if(Platform.isAndroid){
+              await SystemChannels.platform.invokeMethod('SystemNavigator.pop');            
+            } else if (Platform.isIOS) {
+              exit(0);
+            }
+            // Navigator.pop(context, true);
+          }, child: Text('SI', style: TextStyle(color: Colors.red))),
         ],
       )
     );
   }
+  
 }
