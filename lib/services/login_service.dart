@@ -125,8 +125,9 @@ class LoginService extends ChangeNotifier {
     return tempUserData;
   }
 
-  Future logout() async {
+  Future<bool> logout() async {
     await storage.deleteAll();
+    return true;
   }
 
   Future<String> readToken() async {
