@@ -55,8 +55,8 @@ android {
         // minSdkVersion flutter.minSdkVersion
         minSdkVersion 18
         targetSdkVersion flutter.targetSdkVersion
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
+        versionCode 2
+        versionName "1.0.1"
     }
 
    signingConfigs {
@@ -70,6 +70,11 @@ android {
    buildTypes {
        release {
            signingConfig signingConfigs.release
+
+            minifyEnabled true
+            useProguard true
+
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
        }
    }
 }
