@@ -67,41 +67,42 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
                       // File('my_firma.png').writeAsBytes(data);
 
                       final dir = await getExternalStorageDirectory();
-                      final myImagePath =
-                          '${dir!.path}/${loginService.userDataLogged.usuarioUser}.png';
+                      final myImagePath = '${dir!.path}/${loginService.userDataLogged.usuarioUser}.png';
                       File imageFile = File(myImagePath);
                       if (!await imageFile.exists()) {
                         imageFile.create(recursive: true);
                       }
                       imageFile.writeAsBytesSync(data);
                       // Se envia la foto de la firma al servidor
-                      Map<String, dynamic>? responseUploadFirma =
-                          await inspeccionService.uploadImage(
-                              path: myImagePath,
-                              company: 'qinspecting',
-                              folder: 'firmas');
+                      Map<String, dynamic>? responseUploadFirma = await inspeccionService.uploadImage(
+                        path: myImagePath,
+                        company: 'qinspecting',
+                        folder: 'firmas'
+                      );
 
                       Map dataFirmaSave = {
                         "base": loginService.selectedEmpresa.nombreBase,
                         "Firma_Id": null,
                         "Firma_acep_Ptd": "SI",
                         "Firma_Firma": responseUploadFirma?['path'],
-                        "Pers_NumeroDoc":
-                            loginService.userDataLogged.usuarioUser
+                        "Pers_NumeroDoc": loginService.userDataLogged.usuarioUser
                       };
-                      Map responseSaveFirma =
-                          await firmaService.insertSignature(dataFirmaSave);
-                      // show a notification at top of screen.
+                      Map responseSaveFirma = await firmaService.insertSignature(dataFirmaSave);
+                      // Actualizamos estado de firma en local
+                      loginService.userDataLogged.firmaId = 1;
+                      // restablecemos valor de variables
                       inspeccionService.isSaving = false;
                       firmaService.updateTerminos('NO');
                       firmaService.updateTabIndex(0);
-                      print(responseSaveFirma['message']!);
+                      
+                      // show a notification at top of screen.
                       showSimpleNotification(
-                          Text(responseSaveFirma['message']!),
-                          leading: Icon(Icons.check),
-                          autoDismiss: true,
-                          background: Colors.green,
-                          position: NotificationPosition.bottom);
+                        Text(responseSaveFirma['message']!),
+                        leading: Icon(Icons.check),
+                        autoDismiss: true,
+                        background: Colors.green,
+                        position: NotificationPosition.bottom
+                      );
                       Navigator.pop(context);
                     }
                   } on DioError catch (_) {
