@@ -30,14 +30,14 @@ class MyStatelessWidget extends StatelessWidget {
           builder: (context, snapshot) {
             if (snapshot.data == true) {
               return FutureBuilder(
-                  future:
-                      firmaService.getInfoFirma(loginService.selectedEmpresa),
+                  future: firmaService.getInfoFirma(loginService.selectedEmpresa),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(child: CircularProgressIndicator());
                     } else {
                       if (snapshot.data != null) {
                         final Firma dataFirma = snapshot.data as Firma;
+                        print(dataFirma.firma);
                         return CardFirma(
                           infoFirma: dataFirma,
                         );
@@ -47,9 +47,7 @@ class MyStatelessWidget extends StatelessWidget {
                             SizedBox(
                               height: 50.0,
                             ),
-                            Image(
-                                image: AssetImage(
-                                    'assets/images/boot_signature_2.gif')),
+                            Image(image: AssetImage('assets/images/boot_signature_2.gif')),
                             SizedBox(
                               width: 250,
                               child: DefaultTextStyle(
@@ -116,15 +114,20 @@ class CardFirma extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(infoFirma.firma);
     return Padding(
       padding: const EdgeInsets.all(15),
       child: Container(
         child: Column(
           children: [
             ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child:
-                    Image(height: 270, image: NetworkImage(infoFirma.firma!))),
+              borderRadius: BorderRadius.circular(10),
+              child: FadeInImage(
+                placeholder: const AssetImage('assets/images/loading-2.gif'),
+                image: NetworkImage(infoFirma.firma.toString()),
+                fit: BoxFit.cover,
+              )
+            ),
             SizedBox(height: 10),
             Divider(
               height: 15,
