@@ -67,7 +67,7 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
                       // File('my_firma.png').writeAsBytes(data);
 
                       final dir = await getExternalStorageDirectory();
-                      final myImagePath = '${dir!.path}/${loginService.userDataLogged.usuarioUser}.png';
+                      final myImagePath = '${dir!.path}/${loginService.selectedEmpresa.nombreBase}_${loginService.userDataLogged.usuarioUser}.png';
                       File imageFile = File(myImagePath);
                       if (!await imageFile.exists()) {
                         imageFile.create(recursive: true);
