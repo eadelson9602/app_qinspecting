@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/providers/providers.dart';
@@ -381,11 +382,19 @@ class _PortadaProfile extends StatelessWidget {
     }
 
     if (picture.startsWith('http')) {
-      return FadeInImage(
-        placeholder: const AssetImage('assets/images/loading-2.gif'),
-        image: NetworkImage(url.toString()),
-        fit: BoxFit.cover,
-      );
+      if(!picture.contains('.svg')){
+        return FadeInImage(
+          placeholder: const AssetImage('assets/images/loading-2.gif'),
+          image: NetworkImage(url.toString()),
+          fit: BoxFit.cover,
+        );
+      } else {
+        return SvgPicture.network(
+          picture,
+          semanticsLabel: 'A shark?!',
+          placeholderBuilder: (BuildContext context) => Image(image: AssetImage('assets/images/loading-2.gif')),
+        );
+      }
     }
 
     return Image.file(
