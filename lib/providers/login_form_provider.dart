@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class LoginFormProvider extends ChangeNotifier {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -25,7 +26,7 @@ class LoginFormProvider extends ChangeNotifier {
   }
 
   Widget getImage(String? url) {
-    if (url == null || url.contains('svg')) {
+    if (url == null) {
       return const ClipRRect(
         borderRadius: BorderRadius.all(Radius.circular(50)),
         child: Image(
@@ -33,11 +34,17 @@ class LoginFormProvider extends ChangeNotifier {
           height: 40,
         ),
       );
+    } else if ( url.contains('svg') ) {
+      return SvgPicture.network(
+        url,
+        semanticsLabel: 'A shark?!',
+        placeholderBuilder: (BuildContext context) => Image(image: AssetImage('assets/images/loading-2.gif')),
+      );
     }
     return ClipRRect(
       borderRadius: BorderRadius.all(Radius.circular(50)),
       child: FadeInImage(
-          placeholder: const AssetImage('assets/images/loading.gif'),
+          placeholder: const AssetImage('assets/images/loading-2.gif'),
           image: NetworkImage(url)),
     );
   }
