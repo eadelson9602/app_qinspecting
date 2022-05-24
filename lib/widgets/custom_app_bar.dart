@@ -1,3 +1,4 @@
+import 'package:app_qinspecting/providers/login_form_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -10,6 +11,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final loginService = Provider.of<LoginService>(context, listen: false);
+    final loginForm = Provider.of<LoginFormProvider>(context, listen: false);
     final inspeccionService = Provider.of<InspeccionService>(context, listen: false);
     String url = loginService.userDataLogged.persImagen;
     return AppBar(
@@ -25,11 +27,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 future: inspeccionService.checkConnection(),
                 builder: (context, snapshot) {
                   if(snapshot.data == true){
-                    return FadeInImage(
-                      placeholder: const AssetImage('assets/images/loading-2.gif'),
-                      image: NetworkImage(url.toString()),
-                      fit: BoxFit.cover,
-                      height: 40
+
+                    return Container(
+                      height: 40,
+                      child: loginForm.getImage(url)
                     );
                   }
                   return Image(image: AssetImage('assets/images/loading-2.gif'));
