@@ -259,7 +259,7 @@ class InspeccionService extends ChangeNotifier {
         // Se envia la foto del kilometraje al servidor
         Map<String, dynamic>? responseUploadKilometraje = await uploadImage(
           path: inspeccion.resuPreFotokm!,
-          company: 'qinspecting',
+          company: loginService.selectedEmpresa.nombreQi!,
           folder: 'inspecciones'
         );
         inspeccion.resuPreFotokm = responseUploadKilometraje?['path'];
@@ -268,7 +268,7 @@ class InspeccionService extends ChangeNotifier {
         if (inspeccion.resuPreGuia?.isNotEmpty ?? false) {
           Map<String, dynamic>? responseUploadGuia = await uploadImage(
             path: inspeccion.resuPreFotoguia!,
-            company: 'qinspecting',
+            company: loginService.selectedEmpresa.nombreQi!,
             folder: 'inspecciones'
           );
           inspeccion.resuPreFotoguia = responseUploadGuia?['path'];
@@ -287,7 +287,7 @@ class InspeccionService extends ChangeNotifier {
         respuestas.forEach((element) {
           element.fkPreoperacional = resumen.idInspeccion;
           if (element.adjunto != null) {
-            Promesas.add(uploadImage(path: element.adjunto!, company: 'qinspecting', folder: 'inspecciones')
+            Promesas.add(uploadImage(path: element.adjunto!, company: loginService.selectedEmpresa.nombreQi!, folder: 'inspecciones')
             .then((response) {
               final responseUpload = ResponseUploadFile.fromMap(response!);
               element.adjunto = responseUpload.path;

@@ -76,7 +76,7 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
                       // Se envia la foto de la firma al servidor
                       Map<String, dynamic>? responseUploadFirma = await inspeccionService.uploadImage(
                         path: myImagePath,
-                        company: 'qinspecting',
+                        company: loginService.selectedEmpresa.nombreQi!,
                         folder: 'firmas'
                       );
 
