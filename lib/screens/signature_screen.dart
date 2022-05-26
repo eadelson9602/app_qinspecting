@@ -114,44 +114,49 @@ class CardFirma extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sizeScreen = MediaQuery.of(context).size;
     print(infoFirma.firma);
     return Padding(
       padding: const EdgeInsets.all(15),
       child: Container(
-        child: Column(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: FadeInImage(
-                placeholder: const AssetImage('assets/images/loading-2.gif'),
-                image: NetworkImage(infoFirma.firma.toString()),
-                fit: BoxFit.cover,
-              )
-            ),
-            SizedBox(height: 10),
-            Divider(
-              height: 15,
-            ),
-            ListTile(
-              leading: Icon(Icons.person_outline),
-              title: Text('Usuario',
-                  style: TextStyle(color: Colors.black87, fontSize: 16)),
-              subtitle: Text('${infoFirma.usuario}'),
-            ),
-            ListTile(
-              leading: Icon(Icons.fact_check_outlined),
-              title: Text('Aceptó términos y condiciones?',
-                  style: TextStyle(color: Colors.black87, fontSize: 16)),
-              subtitle: Text('${infoFirma.terminosCondiciones}'),
-            ),
-            ListTile(
-              leading: Icon(Icons.date_range),
-              title: Text('Fecha de realización',
-                  style: TextStyle(color: Colors.black87, fontSize: 16)),
-              subtitle: Text('${infoFirma.fechaFirma}'),
-            ),
-            SizedBox(height: 10),
-          ],
+        height: sizeScreen.height * 1,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: FadeInImage(
+                  placeholder: const AssetImage('assets/images/loading-2.gif'),
+                  image: NetworkImage(infoFirma.firma.toString()),
+                  fit: BoxFit.cover,
+                  height: sizeScreen.height * 0.4,
+                )
+              ),
+              SizedBox(height: 10),
+              Divider(
+                height: 15,
+              ),
+              ListTile(
+                leading: Icon(Icons.person_outline),
+                title: Text('Usuario',
+                    style: TextStyle(color: Colors.black87, fontSize: 16)),
+                subtitle: Text('${infoFirma.usuario}'),
+              ),
+              ListTile(
+                leading: Icon(Icons.fact_check_outlined),
+                title: Text('Aceptó términos y condiciones?',
+                    style: TextStyle(color: Colors.black87, fontSize: 16)),
+                subtitle: Text('${infoFirma.terminosCondiciones}'),
+              ),
+              ListTile(
+                leading: Icon(Icons.date_range),
+                title: Text('Fecha de realización',
+                    style: TextStyle(color: Colors.black87, fontSize: 16)),
+                subtitle: Text('${infoFirma.fechaFirma}'),
+              ),
+              SizedBox(height: 10),
+            ],
+          ),
         ),
       ),
     );
