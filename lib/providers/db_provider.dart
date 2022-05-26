@@ -335,9 +335,9 @@ class DBProvider {
     return res;
   }
 
-  Future<List<ResumenPreoperacional>?> getAllInspections() async {
+  Future<List<ResumenPreoperacional>?> getAllInspections(int idUsuario) async {
     final db = await database;
-    final res = await db?.query('ResumenPreoperacional');
+    final res = await db?.query('ResumenPreoperacional', whereArgs: [idUsuario], where: 'Pers_NumeroDoc = ?');
 
     return res!.isNotEmpty
         ? res.map((s) => ResumenPreoperacional.fromMap(s)).toList()
