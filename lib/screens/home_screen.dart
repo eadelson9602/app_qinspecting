@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -33,14 +33,14 @@ class _HomeScreenState extends State<HomeScreen> {
     List<Widget> _widgetOptions = [
       DesktopScreen(),
       FutureBuilder(
-          future: inspeccionProvider.listarDataInit(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return LoadingScreen();
-            } else {
-              return InspeccionForm();
-            }
-          })
+        future: inspeccionProvider.listarDataInit(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return LoadingScreen();
+          } else {
+            return InspeccionForm();
+          }
+        })
     ];
 
     return WillPopScope(
@@ -49,10 +49,11 @@ class _HomeScreenState extends State<HomeScreen> {
         appBar: CustomAppBar(),
         drawer: CustomDrawer(),
         body: SafeArea(
-            child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: _widgetOptions.elementAt(_selectedIndex),
-        )),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: _widgetOptions.elementAt(_selectedIndex),
+          )
+        ),
         bottomNavigationBar: BottomNavigationBar(
           items: [
             BottomNavigationBarItem(
@@ -92,11 +93,63 @@ class _HomeScreenState extends State<HomeScreen> {
             } else if (Platform.isIOS) {
               exit(0);
             }
-            // Navigator.pop(context, true);
           }, child: Text('SI', style: TextStyle(color: Colors.red))),
         ],
       )
     );
   }
   
+}
+
+
+class DesktopScreen extends StatelessWidget {
+  const DesktopScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final loginService = Provider.of<LoginService>(context, listen: false);
+    final inspeccionService = Provider.of<InspeccionService>(context, listen: false);
+    final sizeScreen = MediaQuery.of(context).size;
+    final inspeccionProvider = Provider.of<InspeccionProvider>(context, listen: false);
+
+    inspeccionService.clearData();
+    inspeccionProvider.clearData();
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          height: 10,
+        ),
+        FutureBuilder(
+          future: inspeccionService.getLatesInspections(loginService.selectedEmpresa),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Container(
+                height: 355,
+                child: Center(
+                  child: CircularProgressIndicator()
+                )
+              );
+            } else if (snapshot.data != false) {
+              return Container(
+                height: 355,
+                child: Swiper(
+                  layout: SwiperLayout.STACK,
+                  itemHeight: sizeScreen.height * 1,
+                  itemWidth: sizeScreen.height * 0.5,
+                  itemBuilder: (BuildContext context, int i) {
+                    return CardInspeccionDesktop(resumenPreoperacional: inspeccionService.listInspections[i]);
+                  },
+                  itemCount: inspeccionService.listInspections.length,
+                ),
+              );
+            } else {
+              return NoInternet();
+            }
+          }
+        ),
+      ],
+    );
+  }
 }

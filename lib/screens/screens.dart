@@ -1,6 +1,5 @@
 export 'package:app_qinspecting/screens/check_auth_screen.dart';
 export 'package:app_qinspecting/screens/create_signature_screen.dart';
-export 'package:app_qinspecting/screens/desktop_screen.dart';
 export 'package:app_qinspecting/screens/home_screen.dart';
 export 'package:app_qinspecting/screens/inspeccion_form_screen.dart';
 export 'package:app_qinspecting/screens/inspeccion_remolque_screen.dart';
