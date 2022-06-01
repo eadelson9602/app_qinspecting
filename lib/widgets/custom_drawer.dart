@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/services/services.dart';
-import '../providers/providers.dart';
+import 'package:app_qinspecting/providers/providers.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({Key? key}) : super(key: key);
