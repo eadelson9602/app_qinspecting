@@ -113,9 +113,8 @@ class _InspeccionFormState extends State<InspeccionForm> {
           }).toList(),
           onChanged: (value) async {
             final resultRemolque = await DBProvider.db.getRemolqueByPlate(value!);
-            inspeccionService.resumePreoperacional.remolId = resultRemolque!.idRemolque;
             inspeccionService.resumePreoperacional.remolquePlaca = value;
-            inspeccionProvider.updateRemolqueSelected(resultRemolque);
+            inspeccionProvider.updateRemolqueSelected(resultRemolque!);
 
             await inspeccionProvider.listarCategoriaItemsRemolque();
           }
@@ -137,7 +136,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                 shape: Border(bottom: BorderSide(color: Colors.green)),
                 title: Text('Marca del remolque', style: TextStyle(fontSize: 15)),
                 subtitle: Text(
-                  inspeccionProvider.remolqueSelected!.marca.toString(),
+                  inspeccionProvider.remolqueSelected!.nombreMarca.toString(),
                   style: TextStyle(fontSize: 15)
                 )
               ),
@@ -155,7 +154,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                 shape: Border(bottom: BorderSide(color: Colors.green)),
                 title: Text('Matrícula del remolque', style: TextStyle(fontSize: 15)),
                 subtitle: Text(
-                  inspeccionProvider.remolqueSelected!.matricula .toString(),
+                  inspeccionProvider.remolqueSelected!.numeroMatricula .toString(),
                   style: TextStyle(fontSize: 15)
                 )
               ),
@@ -186,7 +185,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                 shape: Border(bottom: BorderSide(color: Colors.green)),
                 title: Text('Marca del cabezote', style: TextStyle(fontSize: 15)),
                 subtitle: Text(
-                  inspeccionProvider.vehiculoSelected!.marca.toString(), style: TextStyle(fontSize: 15)
+                  inspeccionProvider.vehiculoSelected!.nombreMarca, style: TextStyle(fontSize: 15)
                 ),
               ),
               ListTile(
@@ -245,10 +244,8 @@ class _InspeccionFormState extends State<InspeccionForm> {
                 }).toList(),
                 onChanged: (value) async {
                   final resultVehiculo = await DBProvider.db.getVehiculoByPlate(value!);
-
-                  inspeccionService.resumePreoperacional.vehId = resultVehiculo!.idVehiculo;
                   inspeccionService.resumePreoperacional.placa = value;
-                  inspeccionProvider.updateVehiculoSelected(resultVehiculo);
+                  inspeccionProvider.updateVehiculoSelected(resultVehiculo!);
 
                   await inspeccionProvider.listarCategoriaItemsVehiculo(resultVehiculo.placa);
                 }
@@ -431,7 +428,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                   var formatter = DateFormat('yyyy-MM-dd hh:mm');
                   String formattedDate = formatter.format(now);
                   inspeccionService.resumePreoperacional.resuPreFecha = formattedDate;
-                  inspeccionService.resumePreoperacional.persNumeroDoc = loginService.userDataLogged.usuarioUser!;
+                  inspeccionService.resumePreoperacional.persNumeroDoc = loginService.userDataLogged.numeroDocumento!;
                   Navigator.pushNamed(context, 'inspeccion_vehiculo');
                 },
               ),

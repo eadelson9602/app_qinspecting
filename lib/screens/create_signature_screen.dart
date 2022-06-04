@@ -67,7 +67,7 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
                       // File('my_firma.png').writeAsBytes(data);
 
                       final dir = await getExternalStorageDirectory();
-                      final myImagePath = '${dir!.path}/${loginService.selectedEmpresa.nombreBase}_${loginService.userDataLogged.usuarioUser}.png';
+                      final myImagePath = '${dir!.path}/${loginService.selectedEmpresa.nombreBase}_${loginService.userDataLogged.numeroDocumento}.png';
                       File imageFile = File(myImagePath);
                       if (!await imageFile.exists()) {
                         imageFile.create(recursive: true);
@@ -85,7 +85,7 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
                         "Firma_Id": null,
                         "Firma_acep_Ptd": "SI",
                         "Firma_Firma": responseUploadFirma?['path'],
-                        "Pers_NumeroDoc": loginService.userDataLogged.usuarioUser
+                        "Pers_NumeroDoc": loginService.userDataLogged.numeroDocumento
                       };
                       Map responseSaveFirma = await firmaService.insertSignature(dataFirmaSave);
                       // Actualizamos estado de firma en local

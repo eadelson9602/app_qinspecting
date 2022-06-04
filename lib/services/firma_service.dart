@@ -54,7 +54,7 @@ class FirmaService extends ChangeNotifier {
       loginService.options.headers = {
         "x-access-token": token
       };
-      Response response = await dio.get('${loginService.baseUrl}/get_info_firma/${empresaSelected.nombreBase}/${empresaSelected.usuarioUser}', options: loginService.options);
+      Response response = await dio.get('${loginService.baseUrl}/get_info_firma/${empresaSelected.nombreBase}/${empresaSelected.numeroDocumento}', options: loginService.options);
 
       return response.data.toString().isNotEmpty ? Firma.fromMap(response.data) : null;
     } on DioError catch (error) {

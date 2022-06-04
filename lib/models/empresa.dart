@@ -8,18 +8,16 @@ class Empresa {
   Empresa(
       {this.nombreBase,
       this.autCreateCap,
-      this.usuarioUser,
-      this.usuarioContra,
-      this.completeName,
-      this.persApellidos,
-      this.persNombres,
-      this.persCelular,
-      this.persEmail,
-      this.cargDescripcion,
-      this.persImagen,
-      this.empId,
-      this.rolId,
-      this.cantF,
+      this.numeroDocumento,
+      this.password,
+      this.apellidos,
+      this.nombres,
+      this.numeroCelular,
+      this.email,
+      this.nombreCargo,
+      this.urlFoto,
+      this.idEmpresa,
+      this.idRol,
       this.razonSocial,
       this.nombreQi,
       this.urlQi,
@@ -27,17 +25,16 @@ class Empresa {
 
   String? nombreBase;
   int? autCreateCap;
-  int? usuarioUser;
-  String? usuarioContra;
-  String? completeName;
-  String? persApellidos;
-  String? persNombres;
-  String? persCelular;
-  String? persEmail;
-  String? cargDescripcion;
-  String? persImagen;
-  int? empId;
-  int? rolId;
+  int? numeroDocumento;
+  String? password;
+  String? apellidos;
+  String? nombres;
+  String? numeroCelular;
+  String? email;
+  String? nombreCargo;
+  String? urlFoto;
+  int? idEmpresa;
+  int? idRol;
   int? cantF;
   String? razonSocial;
   String? nombreQi;
@@ -49,62 +46,56 @@ class Empresa {
   String toJson() => json.encode(toMap());
 
   factory Empresa.fromMap(Map<String, dynamic> json) => Empresa(
-        nombreBase: json["nombre_base"],
-        autCreateCap: json["aut_create_cap"],
-        usuarioUser: json["UsuarioUser"],
-        usuarioContra: json["Usuario_Contra"],
-        completeName: json["Complete_Name"],
-        persApellidos: json["Pers_Apellidos"],
-        persNombres: json["Pers_Nombres"],
-        persCelular: json["Pers_Celular"],
-        persEmail: json["Pers_Email"],
-        cargDescripcion: json["Carg_Descripcion"],
-        persImagen: json["Pers_Imagen"],
-        empId: json["Emp_Id"],
-        rolId: json["Rol_Id"],
-        cantF: json["CantF"],
-        razonSocial: json["Razon_social"],
-        nombreQi: json["nombre_QI"],
-        urlQi: json["url_QI"],
-        rutaLogo: json["ruta_logo"],
+        nombreBase: json["nombreBase"],
+        autCreateCap: json["autCreateCap"],
+        numeroDocumento: json["numeroDocumento"],
+        password: json["password"],
+        apellidos: json["apellidos"],
+        nombres: json["nombres"],
+        numeroCelular: json["numeroCelular"],
+        email: json["email"],
+        nombreCargo: json["Carg_Descripcion"],
+        urlFoto: json["Pers_Imagen"],
+        idEmpresa: json["idEmpresa"],
+        idRol: json["idRol"],
+        razonSocial: json["razonSocial"],
+        nombreQi: json["nombreQi"],
+        urlQi: json["urlQi"],
+        rutaLogo: json["rutaLogo"],
       );
 
   Map<String, dynamic> toMap() => {
-        "nombre_base": nombreBase,
-        "aut_create_cap": autCreateCap,
-        "UsuarioUser": usuarioUser,
-        "Usuario_Contra": usuarioContra,
-        "Complete_Name": completeName,
-        "Pers_Apellidos": persApellidos,
-        "Pers_Nombres": persNombres,
-        "Pers_Celular": persCelular,
-        "Pers_Email": persEmail,
-        "Carg_Descripcion": cargDescripcion,
-        "Pers_Imagen": persImagen,
-        "Emp_Id": empId,
-        "Rol_Id": rolId,
-        "CantF": cantF,
-        "Razon_social": razonSocial,
-        "nombre_QI": nombreQi,
-        "url_QI": urlQi,
-        "ruta_logo": rutaLogo,
+        "nombreBase": nombreBase,
+        "autCreateCap": autCreateCap,
+        "numeroDocumento": numeroDocumento,
+        "password": password,
+        "apellidos": apellidos,
+        "nombres": nombres,
+        "numeroCelular": numeroCelular,
+        "email": email,
+        "Carg_Descripcion": nombreCargo,
+        "Pers_Imagen": urlFoto,
+        "idEmpresa": idEmpresa,
+        "idRol": idRol,
+        "razonSocial": razonSocial,
+        "nombreQi": nombreQi,
+        "urlQi": urlQi,
+        "rutaLogo": rutaLogo,
       };
   // Crea una copia del modelo
   Empresa copy() => Empresa(
       nombreBase: nombreBase,
       autCreateCap: autCreateCap,
-      usuarioUser: usuarioUser,
-      usuarioContra: usuarioContra,
-      completeName: completeName,
-      persApellidos: persApellidos,
-      persNombres: persNombres,
-      persCelular: persCelular,
-      persEmail: persEmail,
-      cargDescripcion: cargDescripcion,
-      persImagen: persImagen,
-      empId: empId,
-      rolId: rolId,
-      cantF: cantF,
+      numeroDocumento: numeroDocumento,
+      password: password,
+      apellidos: apellidos,
+      nombres: nombres,
+      numeroCelular: numeroCelular,
+      email: email,
+      nombreCargo: nombreCargo,
+      urlFoto: urlFoto,
+      idEmpresa: idEmpresa,
+      idRol: idRol,
       razonSocial: razonSocial,
       nombreQi: nombreQi,
       urlQi: urlQi,

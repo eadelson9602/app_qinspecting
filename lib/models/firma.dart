@@ -3,17 +3,17 @@ import 'dart:convert';
 class Firma {
   Firma({
     required this.idFirma,
-    this.fechaFirma,
+    this.fechaControl,
     this.terminosCondiciones,
     this.firma,
-    this.usuario,
+    this.fkNumeroDoc,
   });
 
   int idFirma;
-  String? fechaFirma;
+  String? fechaControl;
   String? terminosCondiciones;
   String? firma;
-  int? usuario;
+  int? fkNumeroDoc;
 
   factory Firma.fromJson(String str) => Firma.fromMap(json.decode(str));
 
@@ -21,17 +21,17 @@ class Firma {
 
   factory Firma.fromMap(Map<String, dynamic> json) => Firma(
         idFirma: json["idFirma"],
-        fechaFirma: json["fechaFirma"],
+        fechaControl: json["fechaControl"],
         terminosCondiciones: json["terminosCondiciones"],
         firma: json["firma"],
-        usuario: json["usuario"],
+        fkNumeroDoc: json["fkNumeroDoc"],
       );
 
   Map<String, dynamic> toMap() => {
         "idFirma": idFirma,
-        "fechaFirma": fechaFirma,
+        "fechaControl": fechaControl,
         "terminosCondiciones": terminosCondiciones,
         "firma": firma,
-        "usuario": usuario,
+        "fkNumeroDoc": fkNumeroDoc,
       };
 }

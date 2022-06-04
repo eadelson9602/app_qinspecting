@@ -227,7 +227,7 @@ class PdfScreenOffline extends StatelessWidget {
     rowSummary.cells[2].value = '''TIPO DE VEHÍCULO:
     PENDIENTE''';
     rowSummary.cells[3].value = '''MARCA/LÍNEA/MODELO:
-    ${infoVehiculo.marca} / ${infoVehiculo.modelo}''';
+    ${infoVehiculo.nombreMarca} / ${infoVehiculo.modelo}''';
     rowSummary.cells[3].columnSpan = 2;
     rowSummary.cells[5].value = '''¿TANQUEO?
     ${infoPdf.tanqueGalones != null || infoPdf.tanqueGalones != 0 ? 'SI' : 'NO'}''';
@@ -236,7 +236,7 @@ class PdfScreenOffline extends StatelessWidget {
     rowSummary1.cells[0].value = '''KILOMETRAJE:
     ${infoPdf.resuPreKilometraje}''';
     rowSummary1.cells[1].value = '''NOMBRE QUIEN REALIZÓ LA INSPECCIÓN:
-    ${loginService.userDataLogged.persNombres}''';
+    ${loginService.userDataLogged.nombres}''';
     rowSummary1.cells[1].columnSpan = 2;
     rowSummary1.cells[3].value = '''PLACA VEHÍCULO:
     ${infoPdf.placa}''';

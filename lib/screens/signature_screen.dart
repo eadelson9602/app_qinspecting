@@ -140,7 +140,7 @@ class CardFirma extends StatelessWidget {
                 leading: Icon(Icons.person_outline),
                 title: Text('Usuario',
                     style: TextStyle(color: Colors.black87, fontSize: 16)),
-                subtitle: Text('${infoFirma.usuario}'),
+                subtitle: Text('${infoFirma.fkNumeroDoc}'),
               ),
               ListTile(
                 leading: Icon(Icons.fact_check_outlined),
@@ -152,7 +152,7 @@ class CardFirma extends StatelessWidget {
                 leading: Icon(Icons.date_range),
                 title: Text('Fecha de realización',
                     style: TextStyle(color: Colors.black87, fontSize: 16)),
-                subtitle: Text('${infoFirma.fechaFirma}'),
+                subtitle: Text('${infoFirma.fechaControl}'),
               ),
               SizedBox(height: 10),
             ],

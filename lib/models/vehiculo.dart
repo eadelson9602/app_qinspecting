@@ -2,20 +2,18 @@ import 'dart:convert';
 
 class Vehiculo {
   Vehiculo({
-    required this.idVehiculo,
     required this.placa,
-    required this.idTipoVehiculo,
+    required this.idTpVehiculo,
     required this.modelo,
-    required this.marca,
+    required this.nombreMarca,
     required this.color,
     this.licenciaTransito,
   });
 
-  int idVehiculo;
   String placa;
-  int idTipoVehiculo;
+  int idTpVehiculo;
   int modelo;
-  String marca;
+  String nombreMarca;
   String color;
   int? licenciaTransito;
 
@@ -24,22 +22,20 @@ class Vehiculo {
   String toJson() => json.encode(toMap());
 
   factory Vehiculo.fromMap(Map<String, dynamic> json) => Vehiculo(
-        idVehiculo: json["id_vehiculo"],
         placa: json["placa"],
-        idTipoVehiculo: json["id_tipo_vehiculo"],
+        idTpVehiculo: json["idTpVehiculo"],
         modelo: json["modelo"],
-        marca: json["marca"],
+        nombreMarca: json["nombreMarca"],
         color: json["color"],
-        licenciaTransito: json["licencia_transito"],
+        licenciaTransito: json["licenciaTransito"],
       );
 
   Map<String, dynamic> toMap() => {
-        "id_vehiculo": idVehiculo,
-        "placa": placa,
-        "id_tipo_vehiculo": idTipoVehiculo,
-        "modelo": modelo,
-        "marca": marca,
-        "color": color,
-        "licencia_transito": licenciaTransito,
-      };
+    "placa": placa,
+    "idTpVehiculo": idTpVehiculo,
+    "modelo": modelo,
+    "nombreMarca": nombreMarca,
+    "color": color,
+    "licenciaTransito": licenciaTransito,
+  };
 }

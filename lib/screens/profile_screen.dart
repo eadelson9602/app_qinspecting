@@ -26,7 +26,7 @@ class ProfileScreen extends StatelessWidget {
           Stack(
             children: [
               _PortadaProfile(
-                url: perfilForm.userDataLogged?.persImagen,
+                url: perfilForm.userDataLogged?.urlFoto,
               ),
               const _PhotoDirectionCard(),
               Positioned(
@@ -66,7 +66,7 @@ class _FormProfile extends StatelessWidget {
   Widget build(BuildContext context) {
     final perfilForm = Provider.of<PerfilFormProvider>(context);
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
-    inspeccionProvider.listarCiudades(perfilForm.userDataLogged!.dptId!);
+    inspeccionProvider.listarCiudades(perfilForm.userDataLogged!.idTipoDocumento!);
     inspeccionProvider.listarTipoDocs();
     return Container(
         width: double.infinity,
@@ -96,7 +96,7 @@ class _FormProfile extends StatelessWidget {
                   TextFormField(
                     textCapitalization: TextCapitalization.words,
                     autocorrect: false,
-                    initialValue: perfilForm.userDataLogged?.persNombres,
+                    initialValue: perfilForm.userDataLogged?.nombres,
                     keyboardType: TextInputType.text,
                     validator: (value) {
                       if (value!.isEmpty) return 'Ingrese nombres';
@@ -113,7 +113,7 @@ class _FormProfile extends StatelessWidget {
                   TextFormField(
                     textCapitalization: TextCapitalization.words,
                     autocorrect: false,
-                    initialValue: perfilForm.userDataLogged?.persApellidos,
+                    initialValue: perfilForm.userDataLogged?.apellidos,
                     keyboardType: TextInputType.text,
                     validator: (value) {
                       if (value!.isEmpty) return 'Ingrese apellidos';
@@ -132,7 +132,7 @@ class _FormProfile extends StatelessWidget {
                           prefixIcon: Icons.map,
                           hintText: '',
                           labelText: 'Departamento de expedición'),
-                      value: perfilForm.userDataLogged?.dptId,
+                      value: perfilForm.userDataLogged?.fkIdDepartamento,
                       items: inspeccionProvider.departamentos.map((e) {
                         return DropdownMenuItem(
                           child: Text(e.label),
@@ -140,7 +140,7 @@ class _FormProfile extends StatelessWidget {
                         );
                       }).toList(),
                       onChanged: (value) {
-                        perfilForm.userDataLogged?.persLugarExpDoc = null;
+                        perfilForm.userDataLogged?.lugarExpDocumento = null;
                         inspeccionProvider.listarCiudades(value!);
                       }),
                   const SizedBox(
@@ -151,7 +151,7 @@ class _FormProfile extends StatelessWidget {
                           prefixIcon: Icons.location_city,
                           hintText: '',
                           labelText: 'Ciudad de expedición'),
-                      value: perfilForm.userDataLogged?.persLugarExpDoc,
+                      value: perfilForm.userDataLogged?.lugarExpDocumento,
                       items: inspeccionProvider.ciudades.map((e) {
                         return DropdownMenuItem(
                           child: Text(e.label),
@@ -167,7 +167,7 @@ class _FormProfile extends StatelessWidget {
                           prefixIcon: Icons.assignment_ind,
                           hintText: '',
                           labelText: 'Tipo documento'),
-                      value: perfilForm.userDataLogged?.tipoDocId,
+                      value: perfilForm.userDataLogged?.idTipoDocumento,
                       items: inspeccionProvider.tipoDocumentos.map((e) {
                         return DropdownMenuItem(
                           child: Text(e.label!),
@@ -203,7 +203,7 @@ class _FormProfile extends StatelessWidget {
                     type: DateTimePickerType.date,
                     dateMask: 'd MMM, yyyy',
                     initialValue:
-                        perfilForm.userDataLogged?.persFechaNaci.toString(),
+                        perfilForm.userDataLogged?.fechaNacimiento.toString(),
                     firstDate: DateTime(1900),
                     decoration: InputDecorations.authInputDecorations(
                         hintText: '',
@@ -226,14 +226,14 @@ class _FormProfile extends StatelessWidget {
                         children: [
                           Radio(
                             activeColor: Colors.green,
-                            groupValue: perfilForm.userDataLogged?.persGenero.toString(),
+                            groupValue: perfilForm.userDataLogged?.genero.toString(),
                             value: 'MASCULINO',
                             onChanged: (value) => perfilForm.updateGenero(value.toString()),
                           ),
                           Text('Masculino'),
                           Radio(
                             activeColor: Colors.red,
-                            groupValue: perfilForm.userDataLogged?.persGenero.toString(),
+                            groupValue: perfilForm.userDataLogged?.genero.toString(),
                             value: 'FEMENINO',
                             onChanged: (value) => perfilForm.updateGenero(value.toString()),
                           ),
@@ -283,7 +283,7 @@ class _PhotoDirectionCard extends StatelessWidget {
                         width: 80,
                         height: 80,
                         child: _PortadaProfile(
-                          url: perfilForm.userDataLogged?.persImagen,
+                          url: perfilForm.userDataLogged?.urlFoto,
                         ),
                       ),
                     ),
@@ -309,9 +309,9 @@ class _PhotoDirectionCard extends StatelessWidget {
                 ),
                 Expanded(
                   child: ListTile(
-                  title: Text(perfilForm.userDataLogged!.persNombres.toString()),
+                  title: Text(perfilForm.userDataLogged!.nombres.toString()),
                   subtitle: Text(
-                    perfilForm.userDataLogged!.persApellidos.toString(),
+                    perfilForm.userDataLogged!.apellidos.toString(),
                     style: const TextStyle(fontSize: 12),
                   ),
                 ))
@@ -327,16 +327,16 @@ class _PhotoDirectionCard extends StatelessWidget {
             leading: const Icon(Icons.map_sharp),
             title: Text(perfilForm.userDataLogged!.departamento.toString()),
             subtitle: Text(
-              perfilForm.userDataLogged!.ciuNombre.toString(),
+              perfilForm.userDataLogged!.nombreCiudad.toString(),
               style: const TextStyle(fontSize: 12),
             ),
           ),
           ListTile(
             dense: true,
             leading: const Icon(Icons.business),
-            title: Text(perfilForm.userDataLogged!.persDireccion.toString()),
+            title: Text(perfilForm.userDataLogged!.direccion.toString()),
             subtitle: Text(
-              perfilForm.userDataLogged!.ciuNombre.toString(),
+              perfilForm.userDataLogged!.nombreCiudad.toString(),
               style: const TextStyle(fontSize: 12),
             ),
           )

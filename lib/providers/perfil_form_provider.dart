@@ -13,7 +13,7 @@ class PerfilFormProvider extends ChangeNotifier {
   }
 
   updateGenero(String value) {
-    userDataLogged?.persGenero = value;
+    userDataLogged?.genero = value;
     notifyListeners();
   }
 

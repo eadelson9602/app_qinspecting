@@ -27,7 +27,7 @@ class TerminosCondiciones extends StatelessWidget {
             textAlign: TextAlign.start,
           ),
           Text(
-            '${loginService.userDataLogged.persNombres}',
+            '${loginService.userDataLogged.nombres}',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 18,

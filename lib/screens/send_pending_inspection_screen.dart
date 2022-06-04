@@ -15,7 +15,7 @@ class SendPendingInspectionScree extends StatelessWidget {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
     final inspeccionService = Provider.of<InspeccionService>(context);
     final loginService = Provider.of<LoginService>(context);
-    inspeccionProvider.cargarTodosInspecciones(loginService.userDataLogged.usuarioUser!);
+    inspeccionProvider.cargarTodosInspecciones(loginService.userDataLogged.numeroDocumento!);
     final allInspecciones = inspeccionProvider.allInspecciones;
 
     return Scaffold(

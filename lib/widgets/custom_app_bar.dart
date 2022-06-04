@@ -13,7 +13,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     final loginService = Provider.of<LoginService>(context, listen: false);
     final loginForm = Provider.of<LoginFormProvider>(context, listen: false);
     final inspeccionService = Provider.of<InspeccionService>(context, listen: false);
-    String url = loginService.userDataLogged.persImagen;
+    String url = loginService.userDataLogged.urlFoto;
     return AppBar(
       title: const Text('Qinspecting'),
       backgroundColor: Colors.green,

@@ -10,6 +10,7 @@ class ItemInspeccion {
     required this.idItem,
     required this.item,
   });
+
   String id;
   String placa;
   String tipoVehiculo;
@@ -44,6 +45,7 @@ class ItemInspeccion {
       };
 }
 
+// Items de inspeccionados, se usa para mostrar las respuestas de la inspección en el pdf
 class ItemsVehiculo {
   ItemsVehiculo({
     required this.idCategoria,

@@ -31,13 +31,13 @@ class DBProvider {
         CREATE TABLE ResumenPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, ResuPre_Fecha TEXT, ResuPre_UbicExpPre TEXT, ResuPre_Kilometraje NUMERIC, tanque_galones NUMERIC, ResuPre_Fotokm TEXT, Pers_NumeroDoc NUMERIC, ResuPre_guia TEXT, ResuPre_Fotoguia TEXT, Veh_Id NUMERIC, Remol_Id NUMERIC, remolquePlaca TEXT, Ciu_Id NUMERIC, ciudad TEXT, respuestas TEXT, base TEXT);
       ''');
       await db.execute('''
-        CREATE TABLE RespuestasPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, idCategoria INTEGER, id_item INTEGER, item TEXT, respuesta TEXT, adjunto TEXT, observaciones TEXT, base TEXT, fk_preoperacional INTEGER, CONSTRAINT fk_preoperacional FOREIGN KEY (Id) REFERENCES ResumenPreoperacional(Id) ON DELETE CASCADE) ;
+        CREATE TABLE RespuestasPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, idCategoria INTEGER, idItem INTEGER, item TEXT, respuesta TEXT, adjunto TEXT, observaciones TEXT, base TEXT, fk_preoperacional INTEGER, CONSTRAINT fk_preoperacional FOREIGN KEY (Id) REFERENCES ResumenPreoperacional(Id) ON DELETE CASCADE) ;
       ''');
       await db.execute('''
-        CREATE TABLE Empresas( Emp_Id INTEGER PRIMARY KEY, aut_create_cap INTEGER, Rol_Id INTEGER, CantF INTEGER, nombre_QI TEXT, nombre_base TEXT, ruta_logo TEXT, url_QI TEXT, Razon_social TEXT, Pers_Imagen TEXT, Carg_Descripcion TEXT, Pers_Email TEXT, Usuario_Contra TEXT, Complete_Name TEXT, Pers_Apellidos TEXT, Pers_Nombres TEXT, Pers_Celular TEXT, UsuarioUser INTEGER );
+        CREATE TABLE Empresas(idEmpresa INTEGER PRIMARY KEY, nombreBase TEXT, autCreateCap NUMERIC, numeroDocumento TEXT, password TEXT, apellidos TEXT, nombres TEXT, numeroCelular TEXT, email TEXT, nombreCargo TEXT, urlFoto TEXT, idRol NUMERIC, tieneFirma NUMERIC, razonSocial TEXT, nombreQi TEXT, urlQi TEXT, rutaLogo TEXT);
       ''');
       await db.execute('''
-        CREATE TABLE DataUsuario( id INTEGER PRIMARY KEY, UsuarioUser INTEGER, Usuario_Contra TEXT, Pers_LugarExpDoc INTEGER, Ciu_Nombre TEXT, Dpt_Id INTEGER, Departamento TEXT, Pers_FechaNaci TEXT, Pers_Genero TEXT, Pers_Rh TEXT, Pers_Arl TEXT, Pers_Eps TEXT, Pers_Afp TEXT, Pers_Celular TEXT, Pers_Direccion TEXT, Pers_Apellidos TEXT, Pers_Nombres TEXT, Pers_Email TEXT, Pers_Imagen TEXT, Carg_id INTEGER, Carg_Descripcion TEXT, Usuario_Estado INTEGER, estado INTEGER, TipoDoc_Id INTEGER, TipoDoc_Descrip TEXT, Rol_Id INTEGER, Rol_Nombre TEXT, Rol_Descripcion TEXT, DocCond_Id INTEGER, DocCond_Lice_Cond INTEGER, DocCond_CatLiceCond TEXT, Firma_Id NUMBER);
+        CREATE TABLE personal(id INTEGER PRIMARY KEY AUTOINCREMENT, numeroDocumento NUMERIC, password TEXT, lugarExpDocumento NUMERIC, nombreCiudad TEXT, fkIdDepartamento NUMERIC, departamento TEXT, fechaNacimiento TEXT, genero TEXT, rh TEXT, arl TEXT, eps TEXT, afp TEXT, numeroCelular TEXT, direccion TEXT, apellidos TEXT, nombres TEXT, email TEXT, urlFoto TEXT, idCargo NUMERIC, nombreCargo TEXT, estadoPersonal NUMERIC, idTipoDocumento NUMERIC, nombreTipoDocumento TEXT, rolId NUMERIC, rolNombre TEXT, rolDescripcion TEXT, idFirma NUMERIC);
       ''');
       await db.execute('''
         CREATE TABLE TipoDocumentos(value INTEGER PRIMARY KEY, label TEXT);
@@ -49,13 +49,13 @@ class DBProvider {
         CREATE TABLE Ciudades(value INTEGER PRIMARY KEY, label TEXT, id_departamento INTEGER, CONSTRAINT fk_departamento FOREIGN KEY (id_departamento) REFERENCES Departamentos(Dpt_Id));
       ''');
       await db.execute('''
-        CREATE TABLE Vehiculos(id_vehiculo INTEGER PRIMARY KEY, placa TEXT, id_tipo_vehiculo INTEGER, modelo INTEGER, marca TEXT, color TEXT, licencia_transito INTEGER);
+        CREATE TABLE Vehiculos(idVehiculo INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, idTpVehiculo INTEGER, modelo INTEGER, nombreMarca TEXT, color TEXT, licenciaTransito INTEGER);
       ''');
       await db.execute('''
-        CREATE TABLE Remolques(id_remolque INTEGER PRIMARY KEY, placa TEXT, id_tipo_vehiculo INTEGER, modelo INTEGER, marca TEXT, color TEXT, matricula INTEGER, numero_ejes INTEGER);
+        CREATE TABLE Remolques(idRemolque INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, idTpVehiculo INTEGER, modelo INTEGER, nombreMarca TEXT, color TEXT, matricula INTEGER, numeroEjes INTEGER);
       ''');
       await db.execute('''
-        CREATE TABLE ItemsInspeccion(id TEXT PRIMARY KEY, placa TEXT, tipo_vehiculo INTEGER, id_categoria INTEGER, categoria TEXT, id_item, item TEXT);
+        CREATE TABLE ItemsInspeccion(id TEXT PRIMARY KEY AUTOINCREMENT, placa TEXT, idTpVehiculo INTEGER, idCategoria INTEGER, categoria TEXT, idItem, item TEXT);
       ''');
     });
   }
@@ -71,7 +71,7 @@ class DBProvider {
   Future<Empresa?> getEmpresaById(int id) async {
     final db = await database;
     final res =
-        await db?.query('Empresas', where: 'Emp_Id = ?', whereArgs: [id]);
+        await db?.query('Empresas', where: 'idEmpresa = ?', whereArgs: [id]);
     return res!.isNotEmpty ? Empresa.fromMap(res.first) : null;
   }
 
@@ -85,7 +85,7 @@ class DBProvider {
   Future<List<Empresa>?> getAllEmpresasByUsuario(int usuario) async {
     final db = await database;
     final res = await db
-        ?.query('Empresas', where: 'UsuarioUser = ?', whereArgs: [usuario]);
+        ?.query('Empresas', where: 'numeroDocumento = ?', whereArgs: [usuario]);
 
     return res!.isNotEmpty ? res.map((s) => Empresa.fromMap(s)).toList() : [];
   }
@@ -93,7 +93,7 @@ class DBProvider {
   Future<int?> deleteEmpresa(int id) async {
     final db = await database;
     final res =
-        await db?.delete('Empresas', where: 'Emp_Id= ?', whereArgs: [id]);
+        await db?.delete('Empresas', where: 'idEmpresa= ?', whereArgs: [id]);
 
     return res;
   }
@@ -108,21 +108,20 @@ class DBProvider {
   // CONSULTAS PARA USER DATA
   Future<int?> nuevoUser(UserData nuevoUser) async {
     final db = await database;
-    final res = await db?.insert('DataUsuario', nuevoUser.toMap(),
+    final res = await db?.insert('personal', nuevoUser.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
     return res;
   }
 
   Future<UserData?> getUserById(int id) async {
     final db = await database;
-    final res =
-        await db?.query('DataUsuario', where: 'id = ?', whereArgs: [id]);
+    final res = await db?.query('personal', where: 'id = ?', whereArgs: [id]);
     return res!.isNotEmpty ? UserData.fromMap(res.first) : null;
   }
 
   Future<int?> updateUser(UserData nuevoDatosUsuario) async {
     final db = await database;
-    final res = await db?.update('DataUsuario', nuevoDatosUsuario.toMap(),
+    final res = await db?.update('personal', nuevoDatosUsuario.toMap(),
         where: 'id= ?', whereArgs: [nuevoDatosUsuario.id]);
     return res;
   }
@@ -202,20 +201,6 @@ class DBProvider {
     return res;
   }
 
-  Future<Vehiculo?> getVehiculoById(int id) async {
-    final db = await database;
-    final res =
-        await db?.query('Vehiculos', where: 'id_vehiculo = ?', whereArgs: [id]);
-    return res!.isNotEmpty ? Vehiculo.fromMap(res.first) : null;
-  }
-
-  Future<Remolque?> getRemolqueById(int id) async {
-    final db = await database;
-    final res =
-        await db?.query('Remolques', where: 'id_remolque = ?', whereArgs: [id]);
-    return res!.isNotEmpty ? Remolque.fromMap(res.first) : null;
-  }
-
   Future<Vehiculo?> getVehiculoByPlate(String placa) async {
     final db = await database;
     final res =
@@ -255,7 +240,7 @@ class DBProvider {
   Future<ItemInspeccion?> getItemById(String id) async {
     final db = await database;
     final res = await db
-        ?.query('ItemsInspeccion', where: 'id_item = ?', whereArgs: [id]);
+        ?.query('ItemsInspeccion', where: 'idItem = ?', whereArgs: [id]);
     return res!.isNotEmpty ? ItemInspeccion.fromMap(res.first) : null;
   }
 
@@ -271,7 +256,7 @@ class DBProvider {
   Future<List<ItemsVehiculo>?> getItemsInspectionByPlaca(String placa) async {
     final db = await database;
     final res = await db?.rawQuery('''
-      SELECT  id_categoria,categoria,('['|| GROUP_CONCAT( ( '{"id_item":"'|| id_item || '"'|| ',"item":"'|| item|| '"}' ) )|| ']' ) as items  from ItemsInspeccion  WHERE placa='${placa}' GROUP BY id_categoria
+      SELECT  idCategoria, categoria, ('['|| GROUP_CONCAT( ( '{"idItem":"'|| idItem || '"'|| ',"item":"'|| item|| '"}' ) )|| ']' ) as items  from ItemsInspeccion  WHERE placa='${placa}' GROUP BY idCategoria
     ''');
     List<Map<String, dynamic>> lsitItems = [];
 
@@ -279,7 +264,7 @@ class DBProvider {
       var json = jsonDecode(categoria['items'].toString());
 
       Map<String, dynamic> tempData = {
-        "id_categoria": categoria['id_categoria'],
+        "idCategoria": categoria['idCategoria'],
         "categoria": categoria['categoria'],
         "items": json,
       };
@@ -337,7 +322,8 @@ class DBProvider {
 
   Future<List<ResumenPreoperacional>?> getAllInspections(int idUsuario) async {
     final db = await database;
-    final res = await db?.query('ResumenPreoperacional', whereArgs: [idUsuario], where: 'Pers_NumeroDoc = ?');
+    final res = await db?.query('ResumenPreoperacional',
+        whereArgs: [idUsuario], where: 'Pers_NumeroDoc = ?');
 
     return res!.isNotEmpty
         ? res.map((s) => ResumenPreoperacional.fromMap(s)).toList()

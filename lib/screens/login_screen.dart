@@ -194,11 +194,11 @@ class _ButtonLogin extends StatelessWidget {
         }
       } else {
         final userData = await DBProvider.db.getUserById(loginForm.usuario);
-        if (userData != null && userData.usuarioContra == loginForm.password) {
+        if (userData != null && userData.password == loginForm.password) {
           final tempEmpresas = await DBProvider.db.getAllEmpresasByUsuario(loginForm.usuario);
           tempEmpresas!.forEach((element) => empresas.add(element));
           loginService.userDataLogged = userData;
-        } else if (userData != null && userData.usuarioContra != loginForm.password){
+        } else if (userData != null && userData.password != loginForm.password){
           loginForm.existUser = false;
           return;
         } else {
@@ -240,10 +240,8 @@ class _ButtonLogin extends StatelessWidget {
                   return;
                 }
                 // Offline
-                await storage.write(
-                    key: 'usuario', value: '${empresas[i].usuarioUser}');
-                await storage.write(
-                    key: 'idEmpresa', value: '${empresas[i].empId}');
+                await storage.write(key: 'usuario', value: '${empresas[i].numeroDocumento}');
+                await storage.write(key: 'idEmpresa', value: '${empresas[i].idEmpresa}');
                 Navigator.pushNamed(context, 'home');
               },
             ),

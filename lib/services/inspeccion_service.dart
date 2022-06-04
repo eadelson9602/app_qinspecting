@@ -59,7 +59,7 @@ class InspeccionService extends ChangeNotifier {
           "x-access-token": token
         };
 
-        Response response = await dio.get('${loginService.baseUrl}/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.usuarioUser}', options: loginService.options);
+        Response response = await dio.get('${loginService.baseUrl}/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.numeroDocumento}', options: loginService.options);
         List<ResumenPreoperacionalServer> tempData = [];
         for (var item in response.data) {
           tempData.add(ResumenPreoperacionalServer.fromMap(item));

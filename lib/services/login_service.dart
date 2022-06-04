@@ -14,8 +14,8 @@ class LoginService extends ChangeNotifier {
   // Create storage
   final storage = new FlutterSecureStorage();
 
-  late Empresa selectedEmpresa;
-  late UserData userDataLogged;
+  Empresa selectedEmpresa = Empresa();
+  UserData userDataLogged = UserData(urlFoto: '');
 
   String baseUrl = 'https://apis.qinspecting.com/pflutter';
   Options options = Options();
@@ -104,15 +104,15 @@ class LoginService extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
     final baseEmpresa = empresa.nombreBase;
-    final usuario = empresa.usuarioUser;
+    final usuario = empresa.numeroDocumento;
 
     Response response = await dio.get('${baseUrl}/get_user_data/$baseEmpresa/$usuario', options: options);
 
     final tempUserData = UserData.fromJson(response.toString());
 
-    await storage.write(key: 'usuario', value: '${empresa.usuarioUser}');
+    await storage.write(key: 'usuario', value: '${empresa.numeroDocumento}');
 
-    await storage.write(key: 'idEmpresa', value: '${empresa.empId}');
+    await storage.write(key: 'idEmpresa', value: '${empresa.idEmpresa}');
 
     userDataLogged = tempUserData;
 
