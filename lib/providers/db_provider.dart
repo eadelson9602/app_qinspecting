@@ -37,7 +37,7 @@ class DBProvider {
         CREATE TABLE Empresas(idEmpresa INTEGER PRIMARY KEY, nombreBase TEXT, autCreateCap NUMERIC, numeroDocumento TEXT, password TEXT, apellidos TEXT, nombres TEXT, numeroCelular TEXT, email TEXT, nombreCargo TEXT, urlFoto TEXT, idRol NUMERIC, tieneFirma NUMERIC, razonSocial TEXT, nombreQi TEXT, urlQi TEXT, rutaLogo TEXT);
       ''');
       await db.execute('''
-        CREATE TABLE personal(id INTEGER PRIMARY KEY AUTOINCREMENT, numeroDocumento NUMERIC, password TEXT, lugarExpDocumento NUMERIC, nombreCiudad TEXT, fkIdDepartamento NUMERIC, departamento TEXT, fechaNacimiento TEXT, genero TEXT, rh TEXT, arl TEXT, eps TEXT, afp TEXT, numeroCelular TEXT, direccion TEXT, apellidos TEXT, nombres TEXT, email TEXT, urlFoto TEXT, idCargo NUMERIC, nombreCargo TEXT, estadoPersonal NUMERIC, idTipoDocumento NUMERIC, nombreTipoDocumento TEXT, rolId NUMERIC, rolNombre TEXT, rolDescripcion TEXT, idFirma NUMERIC);
+        CREATE TABLE personal(id INTEGER PRIMARY KEY AUTOINCREMENT, empresa TEXT UNIQUE, numeroDocumento TEXT, password TEXT, lugarExpDocumento NUMERIC, nombreCiudad TEXT, fkIdDepartamento NUMERIC, departamento TEXT, fechaNacimiento TEXT, genero TEXT, rh TEXT, arl TEXT, eps TEXT, afp TEXT, numeroCelular TEXT, direccion TEXT, apellidos TEXT, nombres TEXT, email TEXT, urlFoto TEXT, idCargo NUMERIC, nombreCargo TEXT, estadoPersonal NUMERIC, idTipoDocumento NUMERIC, nombreTipoDocumento TEXT, rolId NUMERIC, rolNombre TEXT, rolDescripcion TEXT, idFirma NUMERIC);
       ''');
       await db.execute('''
         CREATE TABLE TipoDocumentos(value INTEGER PRIMARY KEY, label TEXT);
@@ -49,13 +49,13 @@ class DBProvider {
         CREATE TABLE Ciudades(value INTEGER PRIMARY KEY, label TEXT, id_departamento INTEGER, CONSTRAINT fk_departamento FOREIGN KEY (id_departamento) REFERENCES Departamentos(Dpt_Id));
       ''');
       await db.execute('''
-        CREATE TABLE Vehiculos(idVehiculo INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, idTpVehiculo INTEGER, modelo INTEGER, nombreMarca TEXT, color TEXT, licenciaTransito INTEGER);
+        CREATE TABLE Vehiculos(idVehiculo INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, idTpVehiculo INTEGER, modelo INTEGER, nombreMarca TEXT, color TEXT, licenciaTransito NUMERIC);
       ''');
       await db.execute('''
-        CREATE TABLE Remolques(idRemolque INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, idTpVehiculo INTEGER, modelo INTEGER, nombreMarca TEXT, color TEXT, matricula INTEGER, numeroEjes INTEGER);
+        CREATE TABLE Remolques(idRemolque INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, idTpVehiculo INTEGER, modelo INTEGER, nombreMarca TEXT, color TEXT, numeroMatricula NUMERIC, numeroEjes INTEGER);
       ''');
       await db.execute('''
-        CREATE TABLE ItemsInspeccion(id TEXT PRIMARY KEY AUTOINCREMENT, placa TEXT, idTpVehiculo INTEGER, idCategoria INTEGER, categoria TEXT, idItem, item TEXT);
+        CREATE TABLE ItemsInspeccion(id TEXT PRIMARY KEY, placa TEXT, tipoVehiculo INTEGER, idCategoria INTEGER, categoria TEXT, idItem, item TEXT);
       ''');
     });
   }
@@ -108,28 +108,25 @@ class DBProvider {
   // CONSULTAS PARA USER DATA
   Future<int?> nuevoUser(UserData nuevoUser) async {
     final db = await database;
-    final res = await db?.insert('personal', nuevoUser.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace);
+    final res = await db?.insert('personal', nuevoUser.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
     return res;
   }
 
-  Future<UserData?> getUserById(int id) async {
+  Future<UserData?> getUserById(String id) async {
     final db = await database;
-    final res = await db?.query('personal', where: 'id = ?', whereArgs: [id]);
+    final res = await db?.query('personal', where: 'numeroDocumento = ?', whereArgs: [id]);
     return res!.isNotEmpty ? UserData.fromMap(res.first) : null;
   }
 
   Future<int?> updateUser(UserData nuevoDatosUsuario) async {
     final db = await database;
-    final res = await db?.update('personal', nuevoDatosUsuario.toMap(),
-        where: 'id= ?', whereArgs: [nuevoDatosUsuario.id]);
+    final res = await db?.update('personal', nuevoDatosUsuario.toMap(), where: 'numeroDocumento= ?', whereArgs: [nuevoDatosUsuario.id]);
     return res;
   }
 
   Future<int?> nuevoTipoDocumento(TipoDocumentos nuevoTipoDoc) async {
     final db = await database;
-    final res = await db?.insert('TipoDocumentos', nuevoTipoDoc.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace);
+    final res = await db?.insert('TipoDocumentos', nuevoTipoDoc.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
     return res;
   }
 
@@ -175,8 +172,7 @@ class DBProvider {
 
   Future<Ciudades?> getCiudadById(int id) async {
     final db = await database;
-    final res =
-        await db?.query('Ciudades', where: 'value = ?', whereArgs: [id]);
+    final res = await db?.query('Ciudades', where: 'value = ?', whereArgs: [id]);
     return res!.isNotEmpty ? Ciudades.fromMap(res.first) : null;
   }
 
@@ -320,10 +316,9 @@ class DBProvider {
     return res;
   }
 
-  Future<List<ResumenPreoperacional>?> getAllInspections(int idUsuario) async {
+  Future<List<ResumenPreoperacional>?> getAllInspections(String idUsuario) async {
     final db = await database;
-    final res = await db?.query('ResumenPreoperacional',
-        whereArgs: [idUsuario], where: 'Pers_NumeroDoc = ?');
+    final res = await db?.query('ResumenPreoperacional', whereArgs: [idUsuario], where: 'Pers_NumeroDoc = ?');
 
     return res!.isNotEmpty
         ? res.map((s) => ResumenPreoperacional.fromMap(s)).toList()

@@ -89,7 +89,7 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
                       };
                       Map responseSaveFirma = await firmaService.insertSignature(dataFirmaSave);
                       // Actualizamos estado de firma en local
-                      loginService.userDataLogged.firmaId = 1;
+                      loginService.userDataLogged.idFirma = 1;
                       // restablecemos valor de variables
                       inspeccionService.isSaving = false;
                       firmaService.updateTerminos('NO');

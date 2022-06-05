@@ -25,7 +25,7 @@ class Empresa {
 
   String? nombreBase;
   int? autCreateCap;
-  int? numeroDocumento;
+  String? numeroDocumento;
   String? password;
   String? apellidos;
   String? nombres;
@@ -54,8 +54,8 @@ class Empresa {
         nombres: json["nombres"],
         numeroCelular: json["numeroCelular"],
         email: json["email"],
-        nombreCargo: json["Carg_Descripcion"],
-        urlFoto: json["Pers_Imagen"],
+        nombreCargo: json["nombreCargo"],
+        urlFoto: json["urlFoto"],
         idEmpresa: json["idEmpresa"],
         idRol: json["idRol"],
         razonSocial: json["razonSocial"],
@@ -73,8 +73,8 @@ class Empresa {
         "nombres": nombres,
         "numeroCelular": numeroCelular,
         "email": email,
-        "Carg_Descripcion": nombreCargo,
-        "Pers_Imagen": urlFoto,
+        "nombreCargo": nombreCargo,
+        "urlFoto": urlFoto,
         "idEmpresa": idEmpresa,
         "idRol": idRol,
         "razonSocial": razonSocial,

@@ -30,7 +30,7 @@ class ResumenPreoperacional {
   int? resuPreKilometraje;
   int? tanqueGalones;
   String? resuPreFotokm;
-  int? persNumeroDoc;
+  String? persNumeroDoc;
   String? resuPreGuia;
   String? resuPreFotoguia;
   int? vehId;

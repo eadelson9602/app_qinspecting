@@ -68,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
           currentIndex: _selectedIndex,
           selectedItemColor: Colors.green,
           onTap: (int index) {
-            if (index == 1 && loginService.userDataLogged.firmaId == 0) {
+            if (index == 1 && loginService.userDataLogged.idFirma == 0) {
               Navigator.popAndPushNamed(context, 'signature');
             } else {
               _onItemTapped(index);

@@ -21,7 +21,7 @@ class Remolque {
   int modelo;
   int idTpVehiculo;
   String? numeroMatricula;
-  int numeroEjes;
+  int? numeroEjes;
 
   factory Remolque.fromJson(String str) => Remolque.fromMap(json.decode(str));
 

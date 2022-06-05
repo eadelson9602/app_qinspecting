@@ -193,7 +193,7 @@ class _ButtonLogin extends StatelessWidget {
           return;
         }
       } else {
-        final userData = await DBProvider.db.getUserById(loginForm.usuario);
+        final userData = await DBProvider.db.getUserById('${loginForm.usuario}');
         if (userData != null && userData.password == loginForm.password) {
           final tempEmpresas = await DBProvider.db.getAllEmpresasByUsuario(loginForm.usuario);
           tempEmpresas!.forEach((element) => empresas.add(element));

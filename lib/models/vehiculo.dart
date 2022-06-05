@@ -15,7 +15,7 @@ class Vehiculo {
   int modelo;
   String nombreMarca;
   String color;
-  int? licenciaTransito;
+  String? licenciaTransito;
 
   factory Vehiculo.fromJson(String str) => Vehiculo.fromMap(json.decode(str));
 

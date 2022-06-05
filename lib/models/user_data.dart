@@ -33,11 +33,12 @@ class UserData {
     this.rolId,
     this.rolNombre,
     this.rolDescripcion,
-    this.firmaId
+    this.idFirma,
+    this.empresa
   });
 
   int? id;
-  int? numeroDocumento;
+  String? numeroDocumento;
   String? password;
   int? lugarExpDocumento;
   String? nombreCiudad;
@@ -67,7 +68,8 @@ class UserData {
   int? docCondId;
   int? docCondLiceCond;
   String? docCondCatLiceCond;
-  int? firmaId;
+  int? idFirma;
+  String? empresa;
 
   factory UserData.fromJson(String str) => UserData.fromMap(json.decode(str));
 
@@ -99,9 +101,10 @@ class UserData {
     idTipoDocumento: json["idTipoDocumento"],
     nombreTipoDocumento: json["nombreTipoDocumento"],
     rolId: json["rolId"],
-    rolNombre: json["Rol_Nombre"],
-    rolDescripcion: json["Rol_Descripcion"],
-    firmaId: json["Firma_Id"]
+    rolNombre: json["rolNombre"],
+    rolDescripcion: json["rolDescripcion"],
+    idFirma: json["idFirma"],
+    empresa: json["empresa"]
   );
 
   Map<String, dynamic> toMap() => {
@@ -130,9 +133,10 @@ class UserData {
     "idTipoDocumento": idTipoDocumento,
     "nombreTipoDocumento": nombreTipoDocumento,
     "rolId": rolId,
-    "Rol_Nombre": rolNombre,
-    "Rol_Descripcion": rolDescripcion,
-    "Firma_Id": firmaId
+    "rolNombre": rolNombre,
+    "rolDescripcion": rolDescripcion,
+    "idFirma": idFirma,
+    "empresa": empresa
   };
 }
 

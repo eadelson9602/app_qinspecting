@@ -107,7 +107,7 @@ class LoginService extends ChangeNotifier {
     final usuario = empresa.numeroDocumento;
 
     Response response = await dio.get('${baseUrl}/get_user_data/$baseEmpresa/$usuario', options: options);
-
+        
     final tempUserData = UserData.fromJson(response.toString());
 
     await storage.write(key: 'usuario', value: '${empresa.numeroDocumento}');
@@ -115,6 +115,8 @@ class LoginService extends ChangeNotifier {
     await storage.write(key: 'idEmpresa', value: '${empresa.idEmpresa}');
 
     userDataLogged = tempUserData;
+
+    tempUserData.empresa = empresa.nombreQi;
 
     DBProvider.db.nuevoUser(tempUserData);
     DBProvider.db.nuevaEmpresa(empresa);
@@ -139,7 +141,8 @@ class LoginService extends ChangeNotifier {
       options.headers = {
         "x-access-token": token
       };
-      final tempDataUser = await DBProvider.db.getUserById(int.parse(idUsuario)) as UserData;
+      final tempDataUser = await DBProvider.db.getUserById(idUsuario) as UserData;
+      print(tempDataUser.apellidos);
       userDataLogged = tempDataUser;
 
       final tempDataEmp = await DBProvider.db.getEmpresaById(int.parse(idEmpresa)) as Empresa;
@@ -152,7 +155,7 @@ class LoginService extends ChangeNotifier {
     String usuario = await storage.read(key: 'usuario') ?? '';
     String idEmpresa = await storage.read(key: 'idEmpresa') ?? '';
     if (usuario.isNotEmpty && idEmpresa.isNotEmpty) {
-      final tempDataUser = await DBProvider.db.getUserById(int.parse(usuario)) as UserData;
+      final tempDataUser = await DBProvider.db.getUserById(usuario) as UserData;
       userDataLogged = tempDataUser;
 
       final tempDataEmp = await DBProvider.db.getEmpresaById(int.parse(idEmpresa)) as Empresa;
