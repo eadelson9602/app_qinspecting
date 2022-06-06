@@ -13,8 +13,8 @@ class SendPendingInspectionScree extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
-    final inspeccionService = Provider.of<InspeccionService>(context);
-    final loginService = Provider.of<LoginService>(context);
+    final inspeccionService = Provider.of<InspeccionService>(context, listen: false);
+    final loginService = Provider.of<LoginService>(context, listen: false);
     inspeccionProvider.cargarTodosInspecciones(loginService.userDataLogged.numeroDocumento!);
     final allInspecciones = inspeccionProvider.allInspecciones;
 
@@ -29,9 +29,11 @@ class SendPendingInspectionScree extends StatelessWidget {
                 child: Text('Sin inspecciones pendientes por sincronizar'),
               )
             : ContentCardInspectionPending(
-                allInspecciones: allInspecciones,
-                inspeccionService: inspeccionService,
-                inspeccionProvider: inspeccionProvider),
+              allInspecciones: allInspecciones,
+              inspeccionService: inspeccionService,
+              inspeccionProvider: inspeccionProvider,
+              loginService: loginService
+            ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       // floatingActionButton: FloatingActionButton(
@@ -59,12 +61,14 @@ class ContentCardInspectionPending extends StatelessWidget {
     required this.allInspecciones,
     required this.inspeccionService,
     required this.inspeccionProvider,
+    required this.loginService
   }) : super(key: key);
 
   final List<ResumenPreoperacional> allInspecciones;
   final InspeccionService inspeccionService;
   final InspeccionProvider inspeccionProvider;
-
+  final LoginService loginService;
+  
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -128,7 +132,7 @@ class ContentCardInspectionPending extends StatelessWidget {
                               ? null
                               : () {
                                   inspeccionService.indexSelected = i;
-                                  inspeccionService.sendInspeccion(allInspecciones[i]);
+                                  inspeccionService.sendInspeccion(allInspecciones[i], loginService.selectedEmpresa);
                                 }
                               ),
                           const SizedBox(width: 8),

@@ -28,7 +28,7 @@ class DBProvider {
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       await db.execute('''
-        CREATE TABLE ResumenPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, fechaPreoperacional TEXT, ciudaGpsPreope TEXT, kilometrajePreope NUMERIC, cantTanqueoGalones NUMERIC, urlFotoKm TEXT, usuarioPreoperacional NUMERIC, guiaPreoperacional TEXT, urlFotoGuia TEXT, idVehiculoPreo NUMERIC, idRemolquePreo NUMERIC, remolquePlaca TEXT, idCiudadPreop NUMERIC, ciudad TEXT, respuestas TEXT, base TEXT);
+        CREATE TABLE ResumenPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, fechaPreoperacional TEXT, ciudaGpsPreope TEXT, kilometrajePreope NUMERIC, cantTanqueoGalones NUMERIC, urlFotoKm TEXT, usuarioPreoperacional TEXT, guiaPreoperacional TEXT, urlFotoGuia TEXT, idVehiculoPreo NUMERIC, idRemolquePreo NUMERIC, remolquePlaca TEXT, idCiudadPreop NUMERIC, ciudad TEXT, respuestas TEXT, base TEXT);
       ''');
       await db.execute('''
         CREATE TABLE RespuestasPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, idCategoria INTEGER, idItem INTEGER, item TEXT, respuesta TEXT, adjunto TEXT, observaciones TEXT, base TEXT, fk_preoperacional INTEGER, CONSTRAINT fk_preoperacional FOREIGN KEY (Id) REFERENCES ResumenPreoperacional(Id) ON DELETE CASCADE) ;
@@ -318,7 +318,7 @@ class DBProvider {
 
   Future<List<ResumenPreoperacional>?> getAllInspections(String idUsuario) async {
     final db = await database;
-    final res = await db?.query('ResumenPreoperacional', whereArgs: [idUsuario], where: 'Pers_NumeroDoc = ?');
+    final res = await db?.query('ResumenPreoperacional', whereArgs: [idUsuario], where: 'usuarioPreoperacional = ?');
 
     return res!.isNotEmpty
         ? res.map((s) => ResumenPreoperacional.fromMap(s)).toList()

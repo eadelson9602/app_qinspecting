@@ -142,7 +142,6 @@ class LoginService extends ChangeNotifier {
         "x-access-token": token
       };
       final tempDataUser = await DBProvider.db.getUserById(idUsuario) as UserData;
-      print(tempDataUser.apellidos);
       userDataLogged = tempDataUser;
 
       final tempDataEmp = await DBProvider.db.getEmpresaById(int.parse(idEmpresa)) as Empresa;

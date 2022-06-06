@@ -118,7 +118,7 @@ class Item {
     "respuesta": respuesta,
     "adjunto": adjunto,
     "observaciones": observaciones,
-    "fk_preoperacional": fkPreoperacional,
+    "fkPreoperacional": fkPreoperacional,
     "base": base,
   };
 }

@@ -100,4 +100,7 @@ class Empresa {
       nombreQi: nombreQi,
       urlQi: urlQi,
       rutaLogo: rutaLogo);
+
+  @override
+  String toString() => '{"nombreBase": $nombreBase, "autCreateCap": $autCreateCap, "numeroDocumento": $numeroDocumento, "password": $password, "apellidos": $apellidos, "nombres": $nombres, "numeroCelular": $numeroCelular, "email": $email, "nombreCargo": $nombreCargo, "urlFoto": $urlFoto, "idEmpresa": $idEmpresa, "idRol": $idRol, "razonSocial": $razonSocial, "nombreQi": $nombreQi, "urlQi": $urlQi, "rutaLogo": $rutaLogo}';
 }

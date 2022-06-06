@@ -180,7 +180,7 @@ class InspeccionService extends ChangeNotifier {
       
       var fileName = (path.split('/').last);
       var formData = FormData.fromMap({'files': await MultipartFile.fromFile('${path}', filename: '${fileName}')});
-      Response response = await dio.post('${loginService.baseUrl}/upload_file/${company}/${folder}', data: formData, options: loginService.options);
+      Response response = await dio.post('${loginService.baseUrl}/upload_file/${company.toLowerCase()}/${folder}', data: formData, options: loginService.options);
       final resp = ResponseUploadFile.fromMap(response.data);
       
       return resp.toMap();
@@ -251,7 +251,7 @@ class InspeccionService extends ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>> sendInspeccion(ResumenPreoperacional inspeccion) async {
+  Future<Map<String, dynamic>> sendInspeccion(ResumenPreoperacional inspeccion, Empresa selectedEmpresa) async {
     try {
       final connectivityResult = await checkConnection();
       if (connectivityResult) {
@@ -259,7 +259,7 @@ class InspeccionService extends ChangeNotifier {
         // Se envia la foto del kilometraje al servidor
         Map<String, dynamic>? responseUploadKilometraje = await uploadImage(
           path: inspeccion.urlFotoKm!,
-          company: loginService.selectedEmpresa.nombreQi!,
+          company: '${selectedEmpresa.nombreQi}',
           folder: 'inspecciones'
         );
         inspeccion.urlFotoKm = responseUploadKilometraje?['path'];
@@ -268,7 +268,7 @@ class InspeccionService extends ChangeNotifier {
         if (inspeccion.guiaPreoperacional?.isNotEmpty ?? false) {
           Map<String, dynamic>? responseUploadGuia = await uploadImage(
             path: inspeccion.urlFotoGuia!,
-            company: loginService.selectedEmpresa.nombreQi!,
+            company: selectedEmpresa.nombreQi!,
             folder: 'inspecciones'
           );
           inspeccion.urlFotoGuia = responseUploadGuia?['path'];
@@ -287,7 +287,7 @@ class InspeccionService extends ChangeNotifier {
         respuestas.forEach((element) {
           element.fkPreoperacional = resumen.idInspeccion;
           if (element.adjunto != null) {
-            Promesas.add(uploadImage(path: element.adjunto!, company: loginService.selectedEmpresa.nombreQi!, folder: 'inspecciones')
+            Promesas.add(uploadImage(path: element.adjunto!, company: selectedEmpresa.nombreQi!, folder: 'inspecciones')
             .then((response) {
               final responseUpload = ResponseUploadFile.fromMap(response!);
               element.adjunto = responseUpload.path;
