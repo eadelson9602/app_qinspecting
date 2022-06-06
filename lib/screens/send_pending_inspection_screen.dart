@@ -92,7 +92,7 @@ class ContentCardInspectionPending extends StatelessWidget {
                     children: [
                       ListTile(
                         title: Text('Inspección No. ${i + 1}'),
-                        subtitle: Text('Realizado el ${allInspecciones[i].resuPreFecha}'),
+                        subtitle: Text('Realizado el ${allInspecciones[i].fechaPreoperacional}'),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,

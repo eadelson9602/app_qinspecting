@@ -40,7 +40,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                   autocorrect: false,
                   keyboardType: TextInputType.text,
                   onChanged: (value) {
-                    inspeccionService.resumePreoperacional.resuPreGuia = value;
+                    inspeccionService.resumePreoperacional.guiaPreoperacional = value;
                   },
                   validator: (value) {
                     if (value!.isEmpty) return 'Ingrese la guía de transporte';
@@ -73,8 +73,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                               return;
                             }
 
-                            inspeccionService.resumePreoperacional
-                                .resuPreFotoguia = photo.path;
+                            inspeccionService.resumePreoperacional.urlFotoGuia = photo.path;
                             inspeccionProvider.updateImageGuia(photo.path);
                           },
                           icon: Icon(
@@ -291,7 +290,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                 }).toList(),
                 onChanged: (value) {
                   Ciudades ciudad = inspeccionProvider.ciudades.firstWhere((element) => element.value == value);
-                  inspeccionService.resumePreoperacional.ciuId = int.parse(value.toString());
+                  inspeccionService.resumePreoperacional.idCiudadPreop = int.parse(value.toString());
                   inspeccionService.resumePreoperacional.ciudad = ciudad.label;
                 }
               ),
@@ -306,8 +305,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                   return null;
                 },
                 onChanged: (value) {
-                  inspeccionService.resumePreoperacional.resuPreKilometraje =
-                      value.isEmpty ? 0 : int.parse(value);
+                  inspeccionService.resumePreoperacional.kilometrajePreope = value.isEmpty ? 0 : int.parse(value);
                 },
                 decoration: InputDecorations.authInputDecorations(
                     hintText: '',
@@ -333,7 +331,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                           if (photo == null) {
                             return;
                           }
-                          inspeccionService.resumePreoperacional.resuPreFotokm = photo.path;
+                          inspeccionService.resumePreoperacional.urlFotoKm = photo.path;
                           inspeccionProvider.updateSelectedImage(photo.path);
                         }
                       },
@@ -382,7 +380,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                     return null;
                   },
                   onChanged: (value) {
-                    inspeccionService.resumePreoperacional.tanqueGalones = value.isEmpty ? 0 : int.parse(value);
+                    inspeccionService.resumePreoperacional.cantTanqueoGalones = value.isEmpty ? 0 : int.parse(value);
                   },
                   decoration: InputDecorations.authInputDecorations(
                     hintText: '',
@@ -427,8 +425,8 @@ class _InspeccionFormState extends State<InspeccionForm> {
                   var now = DateTime.now();
                   var formatter = DateFormat('yyyy-MM-dd hh:mm');
                   String formattedDate = formatter.format(now);
-                  inspeccionService.resumePreoperacional.resuPreFecha = formattedDate;
-                  inspeccionService.resumePreoperacional.persNumeroDoc = loginService.userDataLogged.numeroDocumento!;
+                  inspeccionService.resumePreoperacional.fechaPreoperacional = formattedDate;
+                  inspeccionService.resumePreoperacional.usuarioPreoperacional = loginService.userDataLogged.numeroDocumento!;
                   Navigator.pushNamed(context, 'inspeccion_vehiculo');
                 },
               ),

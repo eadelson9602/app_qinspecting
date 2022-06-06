@@ -29,9 +29,9 @@ class InspeccionService extends ChangeNotifier {
 
 
   void clearData (){
-    resumePreoperacional.ciuId = 0;
-    resumePreoperacional.resuPreKilometraje = 0;
-    resumePreoperacional.vehId = 0;
+    resumePreoperacional.idCiudadPreop = 0;
+    resumePreoperacional.kilometrajePreope = 0;
+    resumePreoperacional.idVehiculoPreo = 0;
   }
 
   Future<bool> checkConnection() async {
@@ -258,24 +258,24 @@ class InspeccionService extends ChangeNotifier {
         isSaving = true;
         // Se envia la foto del kilometraje al servidor
         Map<String, dynamic>? responseUploadKilometraje = await uploadImage(
-          path: inspeccion.resuPreFotokm!,
+          path: inspeccion.urlFotoKm!,
           company: loginService.selectedEmpresa.nombreQi!,
           folder: 'inspecciones'
         );
-        inspeccion.resuPreFotokm = responseUploadKilometraje?['path'];
+        inspeccion.urlFotoKm = responseUploadKilometraje?['path'];
 
         // Se envia la foto de la guia si tiene
-        if (inspeccion.resuPreGuia?.isNotEmpty ?? false) {
+        if (inspeccion.guiaPreoperacional?.isNotEmpty ?? false) {
           Map<String, dynamic>? responseUploadGuia = await uploadImage(
-            path: inspeccion.resuPreFotoguia!,
+            path: inspeccion.urlFotoGuia!,
             company: loginService.selectedEmpresa.nombreQi!,
             folder: 'inspecciones'
           );
-          inspeccion.resuPreFotoguia = responseUploadGuia?['path'];
+          inspeccion.urlFotoGuia = responseUploadGuia?['path'];
         }
 
         // Asignamos el id del remolque si tiene
-        inspeccion.remolId = inspeccion.remolId != null && inspeccion.remolId != 0 ? inspeccion.remolId : null;
+        inspeccion.idRemolquePreo = inspeccion.idRemolquePreo != null && inspeccion.idRemolquePreo != 0 ? inspeccion.idRemolquePreo : null;
 
         // Guardamos el resumen del preoperacional en el server
         final responseResumen = await dio.post('${loginService.baseUrl}/insert_preoperacional', options: loginService.options, data: inspeccion.toJson());

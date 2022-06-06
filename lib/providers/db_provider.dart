@@ -28,7 +28,7 @@ class DBProvider {
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       await db.execute('''
-        CREATE TABLE ResumenPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, ResuPre_Fecha TEXT, ResuPre_UbicExpPre TEXT, ResuPre_Kilometraje NUMERIC, tanque_galones NUMERIC, ResuPre_Fotokm TEXT, Pers_NumeroDoc NUMERIC, ResuPre_guia TEXT, ResuPre_Fotoguia TEXT, Veh_Id NUMERIC, Remol_Id NUMERIC, remolquePlaca TEXT, Ciu_Id NUMERIC, ciudad TEXT, respuestas TEXT, base TEXT);
+        CREATE TABLE ResumenPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, fechaPreoperacional TEXT, ciudaGpsPreope TEXT, kilometrajePreope NUMERIC, cantTanqueoGalones NUMERIC, urlFotoKm TEXT, usuarioPreoperacional NUMERIC, guiaPreoperacional TEXT, urlFotoGuia TEXT, idVehiculoPreo NUMERIC, idRemolquePreo NUMERIC, remolquePlaca TEXT, idCiudadPreop NUMERIC, ciudad TEXT, respuestas TEXT, base TEXT);
       ''');
       await db.execute('''
         CREATE TABLE RespuestasPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, idCategoria INTEGER, idItem INTEGER, item TEXT, respuesta TEXT, adjunto TEXT, observaciones TEXT, base TEXT, fk_preoperacional INTEGER, CONSTRAINT fk_preoperacional FOREIGN KEY (Id) REFERENCES ResumenPreoperacional(Id) ON DELETE CASCADE) ;
@@ -178,8 +178,8 @@ class DBProvider {
 
   Future<List<Ciudades>?> getCiudadesByIdDepartamento(int id) async {
     final db = await database;
-    final res = await db
-        ?.query('Ciudades', where: 'id_departamento = ?', whereArgs: [id]);
+    print(id);
+    final res = await db?.query('Ciudades', where: 'id_departamento = ?', whereArgs: [id]);
     return res!.isNotEmpty ? res.map((s) => Ciudades.fromMap(s)).toList() : [];
   }
 
@@ -252,7 +252,7 @@ class DBProvider {
   Future<List<ItemsVehiculo>?> getItemsInspectionByPlaca(String placa) async {
     final db = await database;
     final res = await db?.rawQuery('''
-      SELECT  idCategoria, categoria, ('['|| GROUP_CONCAT( ( '{"idItem":"'|| idItem || '"'|| ',"item":"'|| item|| '"}' ) )|| ']' ) as items  from ItemsInspeccion  WHERE placa='${placa}' GROUP BY idCategoria
+      SELECT idCategoria, categoria, ('['|| GROUP_CONCAT( ( '{"idItem":"'|| idItem || '"'|| ',"item":"'|| item|| '"}' ) )|| ']' ) AS items FROM ItemsInspeccion WHERE placa='${placa}' GROUP BY idCategoria
     ''');
     List<Map<String, dynamic>> lsitItems = [];
 
@@ -275,18 +275,18 @@ class DBProvider {
     final db = await database;
     Map<String, dynamic> resumenSave = {
       "placa": nuevoInspeccion.placa,
-      "ResuPre_Fecha": nuevoInspeccion.resuPreFecha,
-      "ResuPre_UbicExpPre": nuevoInspeccion.resuPreUbicExpPre ?? nuevoInspeccion.ciuId,
-      "ResuPre_Kilometraje": nuevoInspeccion.resuPreKilometraje,
-      "tanque_galones": nuevoInspeccion.tanqueGalones,
-      "ResuPre_Fotokm": nuevoInspeccion.resuPreFotokm,
-      "Pers_NumeroDoc": nuevoInspeccion.persNumeroDoc,
-      "ResuPre_guia": nuevoInspeccion.resuPreGuia,
-      "ResuPre_Fotoguia": nuevoInspeccion.resuPreFotoguia,
-      "Veh_Id": nuevoInspeccion.vehId,
-      "Remol_Id": nuevoInspeccion.remolId,
+      "fechaPreoperacional": nuevoInspeccion.fechaPreoperacional,
+      "ciudaGpsPreope": nuevoInspeccion.ciudaGpsPreope ?? nuevoInspeccion.idCiudadPreop,
+      "kilometrajePreope": nuevoInspeccion.kilometrajePreope,
+      "cantTanqueoGalones": nuevoInspeccion.cantTanqueoGalones,
+      "urlFotoKm": nuevoInspeccion.urlFotoKm,
+      "usuarioPreoperacional": nuevoInspeccion.usuarioPreoperacional,
+      "guiaPreoperacional": nuevoInspeccion.guiaPreoperacional,
+      "urlFotoGuia": nuevoInspeccion.urlFotoGuia,
+      "idVehiculoPreo": nuevoInspeccion.idVehiculoPreo,
+      "idRemolquePreo": nuevoInspeccion.idRemolquePreo,
       "remolquePlaca": nuevoInspeccion.remolquePlaca,
-      "Ciu_Id": nuevoInspeccion.ciuId,
+      "idCiudadPreop": nuevoInspeccion.idCiudadPreop,
       "ciudad": nuevoInspeccion.ciudad,
       "respuestas": nuevoInspeccion.respuestas,
       "base": nuevoInspeccion.base,

@@ -5,18 +5,18 @@ class ResumenPreoperacional {
     this.id,
     this.placa,
     this.resuPreId,
-    this.resuPreFecha,
-    this.resuPreUbicExpPre,
-    this.resuPreKilometraje,
-    this.tanqueGalones,
-    this.resuPreFotokm,
-    this.persNumeroDoc,
-    this.resuPreGuia,
-    this.resuPreFotoguia,
-    this.vehId,
-    this.remolId,
+    this.fechaPreoperacional,
+    this.ciudaGpsPreope,
+    this.kilometrajePreope,
+    this.cantTanqueoGalones,
+    this.urlFotoKm,
+    this.usuarioPreoperacional,
+    this.guiaPreoperacional,
+    this.urlFotoGuia,
+    this.idVehiculoPreo,
+    this.idRemolquePreo,
     this.remolquePlaca,
-    this.ciuId,
+    this.idCiudadPreop,
     this.ciudad,
     this.base,
     this.respuestas,
@@ -25,68 +25,68 @@ class ResumenPreoperacional {
   int? id;
   String? placa;
   int? resuPreId;
-  String? resuPreFecha;
-  String? resuPreUbicExpPre;
-  int? resuPreKilometraje;
-  int? tanqueGalones;
-  String? resuPreFotokm;
-  String? persNumeroDoc;
-  String? resuPreGuia;
-  String? resuPreFotoguia;
-  int? vehId;
-  int? remolId;
+  String? fechaPreoperacional;
+  String? ciudaGpsPreope;
+  int? kilometrajePreope;
+  int? cantTanqueoGalones;
+  String? urlFotoKm;
+  String? usuarioPreoperacional;
+  String? guiaPreoperacional;
+  String? urlFotoGuia;
+  int? idVehiculoPreo;
+  int? idRemolquePreo;
   String? remolquePlaca;
-  int? ciuId;
+  int? idCiudadPreop;
   String? ciudad;
   String? base;
   String? respuestas;
 
-  factory ResumenPreoperacional.fromJson(String str) =>
-      ResumenPreoperacional.fromMap(json.decode(str));
+  factory ResumenPreoperacional.fromJson(String str) => ResumenPreoperacional.fromMap(json.decode(str));
 
   String toJson() => json.encode(toMap());
 
   factory ResumenPreoperacional.fromMap(Map<String, dynamic> json) =>
-      ResumenPreoperacional(
-          id: json["Id"],
-          placa: json["placa"],
-          resuPreId: json["ResuPre_Id"],
-          resuPreFecha: json["ResuPre_Fecha"],
-          resuPreUbicExpPre: json["ResuPre_UbicExpPre"],
-          resuPreKilometraje: json["ResuPre_Kilometraje"],
-          tanqueGalones: json["tanque_galones"],
-          resuPreFotokm: json["ResuPre_Fotokm"] == null ? null : json["ResuPre_Fotokm"],
-          persNumeroDoc: json["Pers_NumeroDoc"],
-          resuPreGuia: json["ResuPre_guia"],
-          resuPreFotoguia: json["ResuPre_Fotoguia"],
-          vehId: json["Veh_Id"],
-          remolId: json["Remol_Id"],
-          remolquePlaca: json["remolquePlaca"],
-          ciuId: json["Ciu_Id"],
-          ciudad: json["ciudad"],
-          base: json["base"],
-          respuestas: json["respuestas"]);
+    ResumenPreoperacional(
+      id: json["Id"],
+      placa: json["placa"],
+      resuPreId: json["resuPreId"],
+      fechaPreoperacional: json["fechaPreoperacional"],
+      ciudaGpsPreope: json["ciudaGpsPreope"],
+      kilometrajePreope: json["kilometrajePreope"],
+      cantTanqueoGalones: json["cantTanqueoGalones"],
+      urlFotoKm: json["urlFotoKm"] == null ? null : json["urlFotoKm"],
+      usuarioPreoperacional: json["usuarioPreoperacional"],
+      guiaPreoperacional: json["guiaPreoperacional"],
+      urlFotoGuia: json["urlFotoGuia"],
+      idVehiculoPreo: json["idVehiculoPreo"],
+      idRemolquePreo: json["idRemolquePreo"],
+      remolquePlaca: json["remolquePlaca"],
+      idCiudadPreop: json["idCiudadPreop"],
+      ciudad: json["ciudad"],
+      base: json["base"],
+      respuestas: json["respuestas"]
+    );
 
   Map<String, dynamic> toMap() => {
-        "Id": id,
-        "placa": placa,
-        "ResuPre_Id": resuPreId,
-        "ResuPre_Fecha": resuPreFecha,
-        "ResuPre_UbicExpPre": resuPreUbicExpPre,
-        "ResuPre_Kilometraje": resuPreKilometraje,
-        "tanque_galones": tanqueGalones,
-        "ResuPre_Fotokm": resuPreFotokm == null ? null : resuPreFotokm,
-        "Pers_NumeroDoc": persNumeroDoc,
-        "ResuPre_guia": resuPreGuia,
-        "ResuPre_Fotoguia": resuPreFotoguia,
-        "Veh_Id": vehId,
-        "Remol_Id": remolId,
-        "remolquePlaca": remolquePlaca,
-        "Ciu_Id": ciuId,
-        "ciudad": ciudad,
-        "base": base,
-        "respuestas": respuestas
-      };
+    "Id": id,
+    "placa": placa,
+    "resuPreId": resuPreId,
+    "fechaPreoperacional": fechaPreoperacional,
+    "ciudaGpsPreope": ciudaGpsPreope,
+    "kilometrajePreope": kilometrajePreope,
+    "cantTanqueoGalones": cantTanqueoGalones,
+    "urlFotoKm": urlFotoKm == null ? null : urlFotoKm,
+    "usuarioPreoperacional": usuarioPreoperacional,
+    "guiaPreoperacional": guiaPreoperacional,
+    "urlFotoGuia": urlFotoGuia,
+    "idVehiculoPreo": idVehiculoPreo,
+    "idRemolquePreo": idRemolquePreo,
+    "remolquePlaca": remolquePlaca,
+    "idCiudadPreop": idCiudadPreop,
+    "ciudad": ciudad,
+    "base": base,
+    "respuestas": respuestas
+  };
 }
 
 class Respuesta {
