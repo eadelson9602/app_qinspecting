@@ -82,10 +82,10 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
 
                       Map dataFirmaSave = {
                         "base": loginService.selectedEmpresa.nombreBase,
-                        "Firma_Id": null,
-                        "Firma_acep_Ptd": "SI",
-                        "Firma_Firma": responseUploadFirma?['path'],
-                        "Pers_NumeroDoc": loginService.userDataLogged.numeroDocumento
+                        "idFirma": null,
+                        "terminosCondiciones": "SI",
+                        "firma": responseUploadFirma?['path'],
+                        "fkNumeroDoc": loginService.userDataLogged.numeroDocumento
                       };
                       Map responseSaveFirma = await firmaService.insertSignature(dataFirmaSave);
                       // Actualizamos estado de firma en local
