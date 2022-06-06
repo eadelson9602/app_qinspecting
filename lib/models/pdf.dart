@@ -63,7 +63,7 @@ class Pdf {
   String? remolPlaca;
   String? vehPlaca;
   String? resuPreFecha;
-  int? cc;
+  String? cc;
   String? conductor;
   String? mlm;
   String? rutaLogo;
