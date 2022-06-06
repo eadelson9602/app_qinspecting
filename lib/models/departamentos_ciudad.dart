@@ -51,4 +51,7 @@ class Ciudades {
         "label": label,
         "id_departamento": idDepartamento,
       };
+
+  @override
+  String toString() => '{value: $value, label: $label, idDepartamento: $idDepartamento}';
 }

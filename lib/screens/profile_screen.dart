@@ -14,8 +14,8 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loginService = Provider.of<LoginService>(context);
-    final perfilForm = Provider.of<PerfilFormProvider>(context);
+    final loginService = Provider.of<LoginService>(context, listen:  false);
+    final perfilForm = Provider.of<PerfilFormProvider>(context, listen: false);
     perfilForm.userDataLogged = loginService.userDataLogged;
 
     final inspeccionProvider = Provider.of<InspeccionProvider>(context, listen: false);
@@ -64,9 +64,9 @@ class _FormProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final perfilForm = Provider.of<PerfilFormProvider>(context);
-    final inspeccionProvider = Provider.of<InspeccionProvider>(context);
-    inspeccionProvider.listarCiudades(perfilForm.userDataLogged!.idTipoDocumento!);
+    final perfilForm = Provider.of<PerfilFormProvider>(context, listen: false);
+    final inspeccionProvider = Provider.of<InspeccionProvider>(context, listen: false);
+    inspeccionProvider.listarCiudades(perfilForm.userDataLogged!.fkIdDepartamento!);
     inspeccionProvider.listarTipoDocs();
     return Container(
         width: double.infinity,
