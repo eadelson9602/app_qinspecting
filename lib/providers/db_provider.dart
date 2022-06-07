@@ -31,7 +31,7 @@ class DBProvider {
         CREATE TABLE ResumenPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, fechaPreoperacional TEXT, ciudaGpsPreope TEXT, kilometrajePreope NUMERIC, cantTanqueoGalones NUMERIC, urlFotoKm TEXT, usuarioPreoperacional TEXT, guiaPreoperacional TEXT, urlFotoGuia TEXT, idVehiculoPreo NUMERIC, idRemolquePreo NUMERIC, remolquePlaca TEXT, idCiudadPreop NUMERIC, ciudad TEXT, respuestas TEXT, base TEXT);
       ''');
       await db.execute('''
-        CREATE TABLE RespuestasPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, idCategoria INTEGER, idItem INTEGER, item TEXT, respuesta TEXT, adjunto TEXT, observaciones TEXT, base TEXT, fk_preoperacional INTEGER, CONSTRAINT fk_preoperacional FOREIGN KEY (Id) REFERENCES ResumenPreoperacional(Id) ON DELETE CASCADE) ;
+        CREATE TABLE RespuestasPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, idCategoria INTEGER, idItem INTEGER, item TEXT, respuesta TEXT, adjunto TEXT, observaciones TEXT, base TEXT, fkPreoperacional INTEGER, CONSTRAINT fkPreoperacional FOREIGN KEY (Id) REFERENCES ResumenPreoperacional(Id) ON DELETE CASCADE) ;
       ''');
       await db.execute('''
         CREATE TABLE Empresas(idEmpresa INTEGER PRIMARY KEY, nombreBase TEXT, autCreateCap NUMERIC, numeroDocumento TEXT, password TEXT, apellidos TEXT, nombres TEXT, numeroCelular TEXT, email TEXT, nombreCargo TEXT, urlFoto TEXT, idRol NUMERIC, tieneFirma NUMERIC, razonSocial TEXT, nombreQi TEXT, urlQi TEXT, rutaLogo TEXT);
@@ -49,7 +49,7 @@ class DBProvider {
         CREATE TABLE Ciudades(value INTEGER PRIMARY KEY, label TEXT, id_departamento INTEGER, CONSTRAINT fk_departamento FOREIGN KEY (id_departamento) REFERENCES Departamentos(Dpt_Id));
       ''');
       await db.execute('''
-        CREATE TABLE Vehiculos(idVehiculo INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, idTpVehiculo INTEGER, modelo INTEGER, nombreMarca TEXT, color TEXT, licenciaTransito NUMERIC);
+        CREATE TABLE Vehiculos(idVehiculo INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT UNIQUE, idTpVehiculo INTEGER, modelo INTEGER, nombreMarca TEXT, color TEXT, licenciaTransito NUMERIC);
       ''');
       await db.execute('''
         CREATE TABLE Remolques(idRemolque INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, idTpVehiculo INTEGER, modelo INTEGER, nombreMarca TEXT, color TEXT, numeroMatricula NUMERIC, numeroEjes INTEGER);
@@ -312,7 +312,7 @@ class DBProvider {
   Future<int?> deleteRespuestaPreoperacional(int idResumen) async {
     final db = await database;
     final res = await db?.delete('RespuestasPreoperacional',
-        where: 'fk_preoperacional = ?', whereArgs: [idResumen]);
+        where: 'fkPreoperacional = ?', whereArgs: [idResumen]);
     return res;
   }
 
@@ -325,10 +325,10 @@ class DBProvider {
         : [];
   }
 
-  Future<List<Item>?> getAllRespuestasByIdResumen(int fk_preoperacional) async {
+  Future<List<Item>?> getAllRespuestasByIdResumen(int fkPreoperacional) async {
     final db = await database;
     final res = await db?.query('RespuestasPreoperacional',
-        where: 'fk_preoperacional = ?', whereArgs: [fk_preoperacional]);
+        where: 'fkPreoperacional = ?', whereArgs: [fkPreoperacional]);
 
     return res!.isNotEmpty ? res.map((s) => Item.fromMap(s)).toList() : [];
   }

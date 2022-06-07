@@ -356,24 +356,26 @@ class PdfScreen extends StatelessWidget {
 
     DateTime fechaHoy = DateTime.now();
     //Add rows
-    infoPdf.detalle.last.respuestas.add(RespuestaInspeccion(
+    if(infoPdf.detalle.length > 0){
+      infoPdf.detalle.last.respuestas.add(RespuestaInspeccion(
         idItem: -1,
         item: 'Kilometraje',
         foto: infoPdf.fotoKm,
-        fotoConverted: fotoKilometraje));
-
-    infoPdf.detalle.forEach((categoria) {
-      // Dibujas las categorias
-      final PdfGridRow row = grid.rows.add();
-      row.cells[0].value = categoria.categoria;
-      row.cells[0].columnSpan = 7;
-      row.cells[0].style =
-          PdfGridCellStyle(backgroundBrush: PdfBrushes.lightGray);
-      // Dibuja los items
-      categoria.respuestas.forEach((respuesta) {
-        addRows(grid, infoPdf, respuesta, formatColumns, fechaHoy);
+        fotoConverted: fotoKilometraje)
+      );
+      infoPdf.detalle.forEach((categoria) {
+        // Dibujas las categorias
+        final PdfGridRow row = grid.rows.add();
+        row.cells[0].value = categoria.categoria;
+        row.cells[0].columnSpan = 7;
+        row.cells[0].style = PdfGridCellStyle(backgroundBrush: PdfBrushes.lightGray);
+        // Dibuja los items
+        categoria.respuestas.forEach((respuesta) {
+          addRows(grid, infoPdf, respuesta, formatColumns, fechaHoy);
+        });
       });
-    });
+    }
+
     return grid;
   }
 
