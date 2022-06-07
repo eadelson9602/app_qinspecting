@@ -29,9 +29,9 @@ class InspeccionService extends ChangeNotifier {
 
 
   void clearData (){
-    resumePreoperacional.idCiudadPreop = 0;
-    resumePreoperacional.kilometrajePreope = 0;
-    resumePreoperacional.idVehiculoPreo = 0;
+    resumePreoperacional.idCiudad = 0;
+    resumePreoperacional.kilometraje = 0;
+    resumePreoperacional.placaVehiculo = 0;
   }
 
   Future<bool> checkConnection() async {
@@ -273,9 +273,6 @@ class InspeccionService extends ChangeNotifier {
           );
           inspeccion.urlFotoGuia = responseUploadGuia?['path'];
         }
-
-        // Asignamos el id del remolque si tiene
-        inspeccion.idRemolquePreo = inspeccion.idRemolquePreo != null && inspeccion.idRemolquePreo != 0 ? inspeccion.idRemolquePreo : null;
 
         // Guardamos el resumen del preoperacional en el server
         final responseResumen = await dio.post('${loginService.baseUrl}/insert_preoperacional', options: loginService.options, data: inspeccion.toJson());

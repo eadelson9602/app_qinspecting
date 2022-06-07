@@ -112,7 +112,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
           }).toList(),
           onChanged: (value) async {
             final resultRemolque = await DBProvider.db.getRemolqueByPlate(value!);
-            inspeccionService.resumePreoperacional.remolquePlaca = value;
+            inspeccionService.resumePreoperacional.placaRemolque = value;
             inspeccionProvider.updateRemolqueSelected(resultRemolque!);
 
             await inspeccionProvider.listarCategoriaItemsRemolque();
@@ -290,7 +290,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                 }).toList(),
                 onChanged: (value) {
                   Ciudades ciudad = inspeccionProvider.ciudades.firstWhere((element) => element.value == value);
-                  inspeccionService.resumePreoperacional.idCiudadPreop = int.parse(value.toString());
+                  inspeccionService.resumePreoperacional.idCiudad = int.parse(value.toString());
                   inspeccionService.resumePreoperacional.ciudad = ciudad.label;
                 }
               ),
@@ -305,7 +305,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                   return null;
                 },
                 onChanged: (value) {
-                  inspeccionService.resumePreoperacional.kilometrajePreope = value.isEmpty ? 0 : int.parse(value);
+                  inspeccionService.resumePreoperacional.kilometraje = value.isEmpty ? 0 : int.parse(value);
                 },
                 decoration: InputDecorations.authInputDecorations(
                     hintText: '',

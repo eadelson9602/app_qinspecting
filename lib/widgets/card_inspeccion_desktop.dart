@@ -119,7 +119,7 @@ class CardInspeccionDesktop extends StatelessWidget {
                     ),
                     Expanded(
                       child: Text(
-                        '${resumenPreoperacional.resuPreFecha}',
+                        '${resumenPreoperacional.fechaPreoperacional}',
                         textAlign: TextAlign.end,
                       ),
                     ),

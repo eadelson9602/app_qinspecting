@@ -28,7 +28,7 @@ class DBProvider {
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       await db.execute('''
-        CREATE TABLE ResumenPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, fechaPreoperacional TEXT, ciudaGpsPreope TEXT, kilometrajePreope NUMERIC, cantTanqueoGalones NUMERIC, urlFotoKm TEXT, usuarioPreoperacional TEXT, guiaPreoperacional TEXT, urlFotoGuia TEXT, idVehiculoPreo NUMERIC, idRemolquePreo NUMERIC, remolquePlaca TEXT, idCiudadPreop NUMERIC, ciudad TEXT, respuestas TEXT, base TEXT);
+        CREATE TABLE ResumenPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, fechaPreoperacional TEXT, ciudadGps TEXT, kilometraje NUMERIC, cantTanqueoGalones NUMERIC, urlFotoKm TEXT, usuarioPreoperacional TEXT, guiaPreoperacional TEXT, urlFotoGuia TEXT, placaVehiculo TEXT, placaRemolque TEXT, idCiudad NUMERIC, ciudad TEXT, respuestas TEXT, base TEXT);
       ''');
       await db.execute('''
         CREATE TABLE RespuestasPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, idCategoria INTEGER, idItem INTEGER, item TEXT, respuesta TEXT, adjunto TEXT, observaciones TEXT, base TEXT, fkPreoperacional INTEGER, CONSTRAINT fkPreoperacional FOREIGN KEY (Id) REFERENCES ResumenPreoperacional(Id) ON DELETE CASCADE) ;
@@ -276,17 +276,16 @@ class DBProvider {
     Map<String, dynamic> resumenSave = {
       "placa": nuevoInspeccion.placa,
       "fechaPreoperacional": nuevoInspeccion.fechaPreoperacional,
-      "ciudaGpsPreope": nuevoInspeccion.ciudaGpsPreope ?? nuevoInspeccion.idCiudadPreop,
-      "kilometrajePreope": nuevoInspeccion.kilometrajePreope,
+      "ciudadGps": nuevoInspeccion.ciudadGps ?? nuevoInspeccion.idCiudad,
+      "kilometraje": nuevoInspeccion.kilometraje,
       "cantTanqueoGalones": nuevoInspeccion.cantTanqueoGalones,
       "urlFotoKm": nuevoInspeccion.urlFotoKm,
       "usuarioPreoperacional": nuevoInspeccion.usuarioPreoperacional,
       "guiaPreoperacional": nuevoInspeccion.guiaPreoperacional,
       "urlFotoGuia": nuevoInspeccion.urlFotoGuia,
-      "idVehiculoPreo": nuevoInspeccion.idVehiculoPreo,
-      "idRemolquePreo": nuevoInspeccion.idRemolquePreo,
-      "remolquePlaca": nuevoInspeccion.remolquePlaca,
-      "idCiudadPreop": nuevoInspeccion.idCiudadPreop,
+      "placaVehiculo": nuevoInspeccion.placaVehiculo,
+      "placaRemolque": nuevoInspeccion.placaRemolque,
+      "idCiudad": nuevoInspeccion.idCiudad,
       "ciudad": nuevoInspeccion.ciudad,
       "respuestas": nuevoInspeccion.respuestas,
       "base": nuevoInspeccion.base,

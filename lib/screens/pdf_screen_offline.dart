@@ -234,14 +234,14 @@ class PdfScreenOffline extends StatelessWidget {
 
     PdfGridRow rowSummary1 = gridSummary.headers[1];
     rowSummary1.cells[0].value = '''KILOMETRAJE:
-    ${infoPdf.kilometrajePreope}''';
+    ${infoPdf.kilometraje}''';
     rowSummary1.cells[1].value = '''NOMBRE QUIEN REALIZÓ LA INSPECCIÓN:
     ${loginService.userDataLogged.nombres}''';
     rowSummary1.cells[1].columnSpan = 2;
     rowSummary1.cells[3].value = '''PLACA VEHÍCULO:
     ${infoPdf.placa}''';
     rowSummary1.cells[4].value = '''PLACA REMOLQUE:
-    ${infoPdf.remolquePlaca != null ? infoPdf.remolquePlaca : ''}''';
+    ${infoPdf.placaRemolque != null ? infoPdf.placaRemolque : ''}''';
     rowSummary1.cells[5].value = '''ESTADO:
     PENDIENTE''';
 
@@ -382,7 +382,7 @@ class PdfScreenOffline extends StatelessWidget {
     // Une las celdas de respuestas S, N, B, M y Observaciones para mostrar el kilometraje al final del pdf
     if (respuesta.idItem == '-1') {
       row.cells[1].columnSpan = 5;
-      row.cells[1].value = '${infoPdf.kilometrajePreope} KM';
+      row.cells[1].value = '${infoPdf.kilometraje} KM';
       row.cells[1].style.stringFormat = formatColumns;
     }
     row.cells[5].style.stringFormat = formatColumns;

@@ -9,8 +9,8 @@ class Pdf {
     this.versionFormtPreope,
     this.auditor,
     this.tanque,
-    this.resuPreGuia,
-    this.resuPreFotoguia,
+    this.numeroGuia,
+    this.urlFotoGuia,
     this.firma,
     this.firmaAuditor,
     this.tvDescripcion,
@@ -20,7 +20,7 @@ class Pdf {
     this.docConductor,
     this.docVehiculos,
     this.resuPreFecha,
-    this.cc,
+    this.numeroDocumento,
     this.conductor,
     this.mlm,
     this.rutaLogo,
@@ -34,8 +34,8 @@ class Pdf {
   String? versionFormtPreope;
   String? auditor;
   String? tanque;
-  String? resuPreGuia;
-  String? resuPreFotoguia;
+  String? numeroGuia;
+  String? urlFotoGuia;
   String? firma;
   String? firmaAuditor;
   String? tvDescripcion;
@@ -45,7 +45,7 @@ class Pdf {
   String? docConductor;
   String? docVehiculos;
   String? resuPreFecha;
-  String? cc;
+  String? numeroDocumento;
   String? conductor;
   String? mlm;
   String? rutaLogo;
@@ -63,8 +63,8 @@ class Pdf {
     versionFormtPreope: json["versionFormtPreope"],
     auditor: json["auditor"],
     tanque: json["tanque"],
-    resuPreGuia: json["resuPreGuia"],
-    resuPreFotoguia: json["resuPreFotoguia"],
+    numeroGuia: json["numeroGuia"],
+    urlFotoGuia: json["urlFotoGuia"],
     firma: json["firma"],
     firmaAuditor: json["firmaAuditor"],
     tvDescripcion: json["tvDescripcion"],
@@ -74,7 +74,7 @@ class Pdf {
     docConductor: json["docConductor"],
     docVehiculos: json["docVehiculos"],
     resuPreFecha: json["resuPreFecha"],
-    cc: json["cc"],
+    numeroDocumento: json["numeroDocumento"],
     conductor: json["conductor"],
     mlm: json["mlm"],
     rutaLogo: json["rutaLogo"],
@@ -89,8 +89,8 @@ class Pdf {
     "versionFormtPreope": versionFormtPreope,
     "auditor": auditor,
     "tanque": tanque,
-    "resuPreGuia": resuPreGuia,
-    "resuPreFotoguia": resuPreFotoguia,
+    "numeroGuia": numeroGuia,
+    "urlFotoGuia": urlFotoGuia,
     "firma": firma,
     "firmaAuditor": firmaAuditor,
     "tvDescripcion": tvDescripcion,
@@ -98,7 +98,7 @@ class Pdf {
     "placaRemolque": placaRemolque,
     "placaVehiculo": placaVehiculo,
     "resuPreFecha": resuPreFecha,
-    "cc": cc,
+    "numeroDocumento": numeroDocumento,
     "conductor": conductor,
     "mlm": mlm,
     "rutaLogo": rutaLogo,

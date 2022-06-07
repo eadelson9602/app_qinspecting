@@ -6,17 +6,16 @@ class ResumenPreoperacional {
     this.placa,
     this.resuPreId,
     this.fechaPreoperacional,
-    this.ciudaGpsPreope,
-    this.kilometrajePreope,
+    this.ciudadGps,
+    this.kilometraje,
     this.cantTanqueoGalones,
     this.urlFotoKm,
     this.usuarioPreoperacional,
     this.guiaPreoperacional,
     this.urlFotoGuia,
-    this.idVehiculoPreo,
-    this.idRemolquePreo,
-    this.remolquePlaca,
-    this.idCiudadPreop,
+    this.placaVehiculo,
+    this.placaRemolque,
+    this.idCiudad,
     this.ciudad,
     this.base,
     this.respuestas,
@@ -26,17 +25,16 @@ class ResumenPreoperacional {
   String? placa;
   int? resuPreId;
   String? fechaPreoperacional;
-  String? ciudaGpsPreope;
-  int? kilometrajePreope;
+  String? ciudadGps;
+  int? kilometraje;
   int? cantTanqueoGalones;
   String? urlFotoKm;
   String? usuarioPreoperacional;
   String? guiaPreoperacional;
   String? urlFotoGuia;
-  int? idVehiculoPreo;
-  int? idRemolquePreo;
-  String? remolquePlaca;
-  int? idCiudadPreop;
+  int? placaVehiculo;
+  String? placaRemolque;
+  int? idCiudad;
   String? ciudad;
   String? base;
   String? respuestas;
@@ -51,17 +49,16 @@ class ResumenPreoperacional {
       placa: json["placa"],
       resuPreId: json["resuPreId"],
       fechaPreoperacional: json["fechaPreoperacional"],
-      ciudaGpsPreope: json["ciudaGpsPreope"],
-      kilometrajePreope: json["kilometrajePreope"],
+      ciudadGps: json["ciudadGps"],
+      kilometraje: json["kilometraje"],
       cantTanqueoGalones: json["cantTanqueoGalones"],
       urlFotoKm: json["urlFotoKm"] == null ? null : json["urlFotoKm"],
       usuarioPreoperacional: json["usuarioPreoperacional"],
       guiaPreoperacional: json["guiaPreoperacional"],
       urlFotoGuia: json["urlFotoGuia"],
-      idVehiculoPreo: json["idVehiculoPreo"],
-      idRemolquePreo: json["idRemolquePreo"],
-      remolquePlaca: json["remolquePlaca"],
-      idCiudadPreop: json["idCiudadPreop"],
+      placaVehiculo: json["placaVehiculo"],
+      placaRemolque: json["placaRemolque"],
+      idCiudad: json["idCiudad"],
       ciudad: json["ciudad"],
       base: json["base"],
       respuestas: json["respuestas"]
@@ -72,17 +69,16 @@ class ResumenPreoperacional {
     "placa": placa,
     "resuPreId": resuPreId,
     "fechaPreoperacional": fechaPreoperacional,
-    "ciudaGpsPreope": ciudaGpsPreope,
-    "kilometrajePreope": kilometrajePreope,
+    "ciudadGps": ciudadGps,
+    "kilometraje": kilometraje,
     "cantTanqueoGalones": cantTanqueoGalones,
     "urlFotoKm": urlFotoKm == null ? null : urlFotoKm,
     "usuarioPreoperacional": usuarioPreoperacional,
     "guiaPreoperacional": guiaPreoperacional,
     "urlFotoGuia": urlFotoGuia,
-    "idVehiculoPreo": idVehiculoPreo,
-    "idRemolquePreo": idRemolquePreo,
-    "remolquePlaca": remolquePlaca,
-    "idCiudadPreop": idCiudadPreop,
+    "placaVehiculo": placaVehiculo,
+    "placaRemolque": placaRemolque,
+    "idCiudad": idCiudad,
     "ciudad": ciudad,
     "base": base,
     "respuestas": respuestas
@@ -147,13 +143,13 @@ class ResponseUploadFile {
 class ResumenPreoperacionalServer {
   ResumenPreoperacionalServer({
     this.consecutivo,
-    this.resuPreFecha,
+    this.fechaPreoperacional,
     this.creado,
     this.hora,
     this.detalle,
     this.resuPreId,
     this.tanqueo,
-    this.resuPreGuia,
+    this.numeroGuia,
     this.grave,
     this.moderada,
     this.estado,
@@ -162,13 +158,13 @@ class ResumenPreoperacionalServer {
   });
 
   String? consecutivo;
-  String? resuPreFecha;
+  String? fechaPreoperacional;
   String? creado;
   String? hora;
   String? detalle;
   int? resuPreId;
   String? tanqueo;
-  String? resuPreGuia;
+  String? numeroGuia;
   int? grave;
   int? moderada;
   String? estado;
@@ -183,13 +179,13 @@ class ResumenPreoperacionalServer {
   factory ResumenPreoperacionalServer.fromMap(Map<String, dynamic> json) =>
       ResumenPreoperacionalServer(
         consecutivo: json["consecutivo"],
-        resuPreFecha: json["resuPreFecha"],
+        fechaPreoperacional: json["fechaPreoperacional"],
         creado: json["creado"],
         hora: json["hora"],
         detalle: json["detalle"],
         resuPreId: json["resuPreId"],
         tanqueo: json["tanqueo"],
-        resuPreGuia: json["resuPreGuia"] == null ? null : json["resuPreGuia"],
+        numeroGuia: json["numeroGuia"] == null ? null : json["numeroGuia"],
         grave: json["grave"],
         moderada: json["moderada"] == null ? null : json["moderada"],
         estado: json["estado"],
@@ -199,13 +195,13 @@ class ResumenPreoperacionalServer {
 
   Map<String, dynamic> toMap() => {
         "consecutivo": consecutivo,
-        "resuPreFecha": resuPreFecha,
+        "fechaPreoperacional": fechaPreoperacional,
         "creado": creado,
         "hora": hora,
         "detalle": detalle,
         "resuPreId": resuPreId,
         "tanqueo": tanqueo,
-        "resuPreGuia": resuPreGuia == null ? null : resuPreGuia,
+        "numeroGuia": numeroGuia == null ? null : numeroGuia,
         "grave": grave,
         "moderada": moderada == null ? null : moderada,
         "estado": estado,
