@@ -254,9 +254,9 @@ class PdfScreen extends StatelessWidget {
     ${infoPdf.conductor}''';
     rowSummary1.cells[1].columnSpan = 2;
     rowSummary1.cells[3].value = '''PLACA VEHÍCULO:
-    ${infoPdf.vehPlaca}''';
+    ${infoPdf.placaVehiculo}''';
     rowSummary1.cells[4].value = '''PLACA REMOLQUE:
-    ${infoPdf.remolPlaca}''';
+    ${infoPdf.placaRemolque}''';
     rowSummary1.cells[5].value = '''ESTADO:
     ${resumenPreoperacional.estado}''';
 
@@ -405,64 +405,63 @@ class PdfScreen extends StatelessWidget {
 
     row.cells[5].style.stringFormat = formatColumns;
 
-    if (respuesta.idItem == 1 && infoPdf.fechaVencLicCond != '') {
-      // 1, "Licencia de Tránsito"
-      row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.fechaVencLicCond}';
+    // if (respuesta.idItem == 1 && infoPdf.fechaVencLicCond != '') {
+    //   // 1, "Licencia de Tránsito"
+    //   row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.fechaVencLicCond}';
 
-      DateTime tempDate = DateTime.parse(infoPdf.fechaVencLicCond!);
-      final difference = tempDate.difference(fechaHoy).inDays;
-      row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
-          ? PdfBrushes.orange
-          : PdfBrushes.red;
-    } else if (respuesta.idItem == 3 && infoPdf.fechaFinSoat != '') {
-      //3, "Soat"
-      row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.fechaFinSoat}';
+    //   DateTime tempDate = DateTime.parse(infoPdf.fechaVencLicCond!);
+    //   final difference = tempDate.difference(fechaHoy).inDays;
+    //   row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
+    //       ? PdfBrushes.orange
+    //       : PdfBrushes.red;
+    // } else if (respuesta.idItem == 3 && infoPdf.fechaFinSoat != '') {
+    //   //3, "Soat"
+    //   row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.fechaFinSoat}';
 
-      DateTime tempDate = DateTime.parse(infoPdf.fechaFinSoat!);
-      final difference = tempDate.difference(fechaHoy).inDays;
-      row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
-          ? PdfBrushes.orange
-          : PdfBrushes.red;
-    } else if (respuesta.idItem == 4 && infoPdf.fechaFinPoExtra != '') {
-      //4, "Póliza Contra Actual"
-      row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.fechaFinPoExtra}';
+    //   DateTime tempDate = DateTime.parse(infoPdf.fechaFinSoat!);
+    //   final difference = tempDate.difference(fechaHoy).inDays;
+    //   row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
+    //       ? PdfBrushes.orange
+    //       : PdfBrushes.red;
+    // } else if (respuesta.idItem == 4 && infoPdf.fechaFinPoExtra != '') {
+    //   //4, "Póliza Contra Actual"
+    //   row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.fechaFinPoExtra}';
 
-      DateTime tempDate = DateTime.parse(infoPdf.fechaFinPoExtra!);
-      final difference = tempDate.difference(fechaHoy).inDays;
-      row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
-          ? PdfBrushes.orange
-          : PdfBrushes.red;
-    } else if (respuesta.idItem == 5 && infoPdf.rcHidroFechaFin != '') {
-      //5, "Póliza Extracontractual (Hidrocarburos)"
-      row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.rcHidroFechaFin}';
+    //   DateTime tempDate = DateTime.parse(infoPdf.fechaFinPoExtra!);
+    //   final difference = tempDate.difference(fechaHoy).inDays;
+    //   row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
+    //       ? PdfBrushes.orange
+    //       : PdfBrushes.red;
+    // } else if (respuesta.idItem == 5 && infoPdf.rcHidroFechaFin != '') {
+    //   //5, "Póliza Extracontractual (Hidrocarburos)"
+    //   row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.rcHidroFechaFin}';
 
-      DateTime tempDate = DateTime.parse(infoPdf.rcHidroFechaFin!);
-      final difference = tempDate.difference(fechaHoy).inDays;
-      row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
-          ? PdfBrushes.orange
-          : PdfBrushes.red;
-    } else if (respuesta.idItem == 6 && infoPdf.fechaFinReTec != '') {
-      //6, "Certificado de Revisión Técnico mecánica  y de Gases"
-      row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.fechaFinReTec}';
+    //   DateTime tempDate = DateTime.parse(infoPdf.rcHidroFechaFin!);
+    //   final difference = tempDate.difference(fechaHoy).inDays;
+    //   row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
+    //       ? PdfBrushes.orange
+    //       : PdfBrushes.red;
+    // } else if (respuesta.idItem == 6 && infoPdf.fechaFinReTec != '') {
+    //   //6, "Certificado de Revisión Técnico mecánica  y de Gases"
+    //   row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.fechaFinReTec}';
 
-      DateTime tempDate = DateTime.parse(infoPdf.fechaFinReTec!);
-      final difference = tempDate.difference(fechaHoy).inDays;
-      row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
-          ? PdfBrushes.orange
-          : PdfBrushes.red;
-    } else if (respuesta.idItem == 7 && infoPdf.fechaFinQr != '') {
-      //7, "Revisión Luz Negra 5° Rueda"
-      row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.fechaFinQr}';
+    //   DateTime tempDate = DateTime.parse(infoPdf.fechaFinReTec!);
+    //   final difference = tempDate.difference(fechaHoy).inDays;
+    //   row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
+    //       ? PdfBrushes.orange
+    //       : PdfBrushes.red;
+    // } else if (respuesta.idItem == 7 && infoPdf.fechaFinQr != '') {
+    //   //7, "Revisión Luz Negra 5° Rueda"
+    //   row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.fechaFinQr}';
 
-      DateTime tempDate = DateTime.parse(infoPdf.fechaFinQr!);
-      final difference = tempDate.difference(fechaHoy).inDays;
-      row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
-          ? PdfBrushes.orange
-          : PdfBrushes.red;
-    } else {
-      row.cells[5].value =
-          '${respuesta.observacion == null ? '' : respuesta.observacion}';
-    }
+    //   DateTime tempDate = DateTime.parse(infoPdf.fechaFinQr!);
+    //   final difference = tempDate.difference(fechaHoy).inDays;
+    //   row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
+    //       ? PdfBrushes.orange
+    //       : PdfBrushes.red;
+    // } else {
+    // }
+    row.cells[5].value = '${respuesta.observacion == null ? '' : respuesta.observacion}';
     if (respuesta.foto == null) {
       row.cells[6].value = '';
     } else {
