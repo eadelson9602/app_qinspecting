@@ -79,7 +79,7 @@ class PdfScreen extends StatelessWidget {
     var responseLogoQi = await get(Uri.parse('https://qinspecting.com/img/Qi.png'));
     var logoQi = responseLogoQi.bodyBytes;
 
-    var responseKilometraje = await get(Uri.parse(infoPdf.fotoKm!));
+    var responseKilometraje = await get(Uri.parse(infoPdf.urlFotoKm!));
     var fotoKilometraje = responseKilometraje.bodyBytes;
 
     var resFirmaConductor = await get(Uri.parse(infoPdf.firma!));
@@ -360,7 +360,7 @@ class PdfScreen extends StatelessWidget {
       infoPdf.detalle.last.respuestas.add(RespuestaInspeccion(
         idItem: -1,
         item: 'Kilometraje',
-        foto: infoPdf.fotoKm,
+        foto: infoPdf.urlFotoKm,
         fotoConverted: fotoKilometraje)
       );
       infoPdf.detalle.forEach((categoria) {

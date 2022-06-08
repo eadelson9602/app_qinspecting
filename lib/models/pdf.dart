@@ -25,7 +25,7 @@ class Pdf {
     this.mlm,
     this.rutaLogo,
     this.kilometraje,
-    this.fotoKm,
+    this.urlFotoKm,
     required this.detalle,
   });
 
@@ -42,15 +42,15 @@ class Pdf {
   String? consecutivo;
   String? placaRemolque;
   String? placaVehiculo;
-  String? docConductor;
-  String? docVehiculos;
+  List<Documento>? docConductor;
+  List<Documento>? docVehiculos;
   String? resuPreFecha;
   String? numeroDocumento;
   String? conductor;
   String? mlm;
   String? rutaLogo;
   int? kilometraje;
-  String? fotoKm;
+  String? urlFotoKm;
   List<Detalle> detalle;
 
   factory Pdf.fromJson(String str) => Pdf.fromMap(json.decode(str));
@@ -71,15 +71,15 @@ class Pdf {
     consecutivo: json["consecutivo"],
     placaRemolque: json["placaRemolque"],
     placaVehiculo: json["placaVehiculo"],
-    docConductor: json["docConductor"],
-    docVehiculos: json["docVehiculos"],
+    docConductor: List<Documento>.from(json["docConductor"].map((x) => Documento.fromMap(x))),
+    docVehiculos: List<Documento>.from(json["docVehiculos"].map((x) => Documento.fromMap(x))),
     resuPreFecha: json["resuPreFecha"],
     numeroDocumento: json["numeroDocumento"],
     conductor: json["conductor"],
     mlm: json["mlm"],
     rutaLogo: json["rutaLogo"],
     kilometraje: json["kilometraje"],
-    fotoKm: json["fotoKm"],
+    urlFotoKm: json["urlFotoKm"],
     detalle: List<Detalle>.from(json["detalle"].map((x) => Detalle.fromMap(x))),
   );
 
@@ -103,8 +103,45 @@ class Pdf {
     "mlm": mlm,
     "rutaLogo": rutaLogo,
     "kilometraje": kilometraje,
-    "fotoKm": fotoKm,
+    "urlFotoKm": urlFotoKm,
     "detalle": List<dynamic>.from(detalle.map((x) => x.toMap())),
+  };
+}
+
+
+class Documento {
+  Documento({
+    this.urlDocumento,
+    required this.fkIdDocumento,
+    required this.numeroRegistro,
+    required this.nombreDocumento,
+    this.fechaVencimiento
+  });
+
+  String?  urlDocumento;
+  int  fkIdDocumento;
+  String  numeroRegistro;
+  String  nombreDocumento;
+  String?  fechaVencimiento;
+
+  factory Documento.fromJson(String str) => Documento.fromMap(json.decode(str));
+
+  String toJson() => json.encode(toMap());
+
+  factory Documento.fromMap(Map<String, dynamic> json) => Documento(
+    urlDocumento: json['urlDocumento'],
+    fkIdDocumento: json['fkIdDocumento'],
+    numeroRegistro: json['numeroRegistro'],
+    nombreDocumento: json['nombreDocumento'],
+    fechaVencimiento: json['fechaVencimiento']
+  );
+
+  Map<String, dynamic> toMap() => {
+    "urlDocumento": urlDocumento,
+    "fkIdDocumento": fkIdDocumento,
+    "numeroRegistro": numeroRegistro,
+    "nombreDocumento": nombreDocumento,
+    "fechaVencimiento": fechaVencimiento
   };
 }
 
