@@ -237,7 +237,7 @@ class PdfScreen extends StatelessWidget {
 
     PdfGridRow rowSummary = gridSummary.headers[0];
     rowSummary.cells[0].value = '''CIUDAD Y FECHA: 
-    ${infoPdf.resuPreFecha}''';
+    ${infoPdf.fechaPreoperacional}''';
     rowSummary.cells[0].columnSpan = 2;
     rowSummary.cells[2].value = '''TIPO DE VEHÍCULO:
     ${infoPdf.tvDescripcion}''';
@@ -405,63 +405,24 @@ class PdfScreen extends StatelessWidget {
 
     row.cells[5].style.stringFormat = formatColumns;
 
-    // if (respuesta.idItem == 1 && infoPdf.fechaVencLicCond != '') {
-    //   // 1, "Licencia de Tránsito"
-    //   row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.fechaVencLicCond}';
-
-    //   DateTime tempDate = DateTime.parse(infoPdf.fechaVencLicCond!);
-    //   final difference = tempDate.difference(fechaHoy).inDays;
-    //   row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
-    //       ? PdfBrushes.orange
-    //       : PdfBrushes.red;
-    // } else if (respuesta.idItem == 3 && infoPdf.fechaFinSoat != '') {
-    //   //3, "Soat"
-    //   row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.fechaFinSoat}';
-
-    //   DateTime tempDate = DateTime.parse(infoPdf.fechaFinSoat!);
-    //   final difference = tempDate.difference(fechaHoy).inDays;
-    //   row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
-    //       ? PdfBrushes.orange
-    //       : PdfBrushes.red;
-    // } else if (respuesta.idItem == 4 && infoPdf.fechaFinPoExtra != '') {
-    //   //4, "Póliza Contra Actual"
-    //   row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.fechaFinPoExtra}';
-
-    //   DateTime tempDate = DateTime.parse(infoPdf.fechaFinPoExtra!);
-    //   final difference = tempDate.difference(fechaHoy).inDays;
-    //   row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
-    //       ? PdfBrushes.orange
-    //       : PdfBrushes.red;
-    // } else if (respuesta.idItem == 5 && infoPdf.rcHidroFechaFin != '') {
-    //   //5, "Póliza Extracontractual (Hidrocarburos)"
-    //   row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.rcHidroFechaFin}';
-
-    //   DateTime tempDate = DateTime.parse(infoPdf.rcHidroFechaFin!);
-    //   final difference = tempDate.difference(fechaHoy).inDays;
-    //   row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
-    //       ? PdfBrushes.orange
-    //       : PdfBrushes.red;
-    // } else if (respuesta.idItem == 6 && infoPdf.fechaFinReTec != '') {
-    //   //6, "Certificado de Revisión Técnico mecánica  y de Gases"
-    //   row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.fechaFinReTec}';
-
-    //   DateTime tempDate = DateTime.parse(infoPdf.fechaFinReTec!);
-    //   final difference = tempDate.difference(fechaHoy).inDays;
-    //   row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
-    //       ? PdfBrushes.orange
-    //       : PdfBrushes.red;
-    // } else if (respuesta.idItem == 7 && infoPdf.fechaFinQr != '') {
-    //   //7, "Revisión Luz Negra 5° Rueda"
-    //   row.cells[5].value = 'Fecha de Vencimiento: ${infoPdf.fechaFinQr}';
-
-    //   DateTime tempDate = DateTime.parse(infoPdf.fechaFinQr!);
-    //   final difference = tempDate.difference(fechaHoy).inDays;
-    //   row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
-    //       ? PdfBrushes.orange
-    //       : PdfBrushes.red;
-    // } else {
-    // }
-    row.cells[5].value = '${respuesta.observacion == null ? '' : respuesta.observacion}';
+    if (
+      respuesta.idItem == 1 && respuesta.fechaVencimiento != null || 
+      respuesta.idItem == 3 && respuesta.fechaVencimiento != null || 
+      respuesta.idItem == 4 && respuesta.fechaVencimiento != null || 
+      respuesta.idItem == 5 && respuesta.fechaVencimiento != null || 
+      respuesta.idItem == 6 && respuesta.fechaVencimiento != null || 
+      respuesta.idItem == 7 && respuesta.fechaVencimiento != null
+    ) {
+      // 1, "Licencia de Tránsito"
+      row.cells[5].value = 'Fecha de Vencimiento: ${respuesta.fechaVencimiento}';
+      DateTime tempDate = DateTime.parse('${respuesta.fechaVencimiento}');
+      final difference = tempDate.difference(fechaHoy).inDays;
+      row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
+          ? PdfBrushes.orange
+          : PdfBrushes.red;
+    } else {
+      row.cells[5].value = '${respuesta.observacion == null ? '' : respuesta.observacion}';
+    }
     if (respuesta.foto == null) {
       row.cells[6].value = '';
     } else {

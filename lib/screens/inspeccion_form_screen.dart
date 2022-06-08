@@ -244,6 +244,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                 onChanged: (value) async {
                   final resultVehiculo = await DBProvider.db.getVehiculoByPlate(value!);
                   inspeccionService.resumePreoperacional.placa = value;
+                  inspeccionService.resumePreoperacional.placaVehiculo = value;
                   inspeccionProvider.updateVehiculoSelected(resultVehiculo!);
 
                   await inspeccionProvider.listarCategoriaItemsVehiculo(resultVehiculo.placa);

@@ -31,7 +31,7 @@ class InspeccionService extends ChangeNotifier {
   void clearData (){
     resumePreoperacional.idCiudad = 0;
     resumePreoperacional.kilometraje = 0;
-    resumePreoperacional.placaVehiculo = 0;
+    resumePreoperacional.placaVehiculo = '';
   }
 
   Future<bool> checkConnection() async {

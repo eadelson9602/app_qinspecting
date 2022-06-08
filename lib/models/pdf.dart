@@ -19,7 +19,7 @@ class Pdf {
     this.placaVehiculo,
     this.docConductor,
     this.docVehiculos,
-    this.resuPreFecha,
+    this.fechaPreoperacional,
     this.numeroDocumento,
     this.conductor,
     this.mlm,
@@ -44,7 +44,7 @@ class Pdf {
   String? placaVehiculo;
   List<Documento>? docConductor;
   List<Documento>? docVehiculos;
-  String? resuPreFecha;
+  String? fechaPreoperacional;
   String? numeroDocumento;
   String? conductor;
   String? mlm;
@@ -73,7 +73,7 @@ class Pdf {
     placaVehiculo: json["placaVehiculo"],
     docConductor: List<Documento>.from(json["docConductor"].map((x) => Documento.fromMap(x))),
     docVehiculos: List<Documento>.from(json["docVehiculos"].map((x) => Documento.fromMap(x))),
-    resuPreFecha: json["resuPreFecha"],
+    fechaPreoperacional: json["fechaPreoperacional"],
     numeroDocumento: json["numeroDocumento"],
     conductor: json["conductor"],
     mlm: json["mlm"],
@@ -97,7 +97,7 @@ class Pdf {
     "consecutivo": consecutivo,
     "placaRemolque": placaRemolque,
     "placaVehiculo": placaVehiculo,
-    "resuPreFecha": resuPreFecha,
+    "fechaPreoperacional": fechaPreoperacional,
     "numeroDocumento": numeroDocumento,
     "conductor": conductor,
     "mlm": mlm,
@@ -180,7 +180,8 @@ class RespuestaInspeccion {
     this.idItem,
     this.observacion,
     this.respuesta,
-    this.fotoConverted
+    this.fotoConverted,
+    this.fechaVencimiento
   });
 
   String? foto;
@@ -189,6 +190,7 @@ class RespuestaInspeccion {
   int? idItem;
   String? respuesta;
   String? observacion;
+  String? fechaVencimiento;
 
   factory RespuestaInspeccion.fromJson(String str) =>
       RespuestaInspeccion.fromMap(json.decode(str));
@@ -203,6 +205,7 @@ class RespuestaInspeccion {
       idItem: json["idItem"],
       respuesta: json["respuesta"],
       observacion: json["observacion"],
+      fechaVencimiento: json["fechaVencimiento"]
     );
 
   Map<String, dynamic> toMap() => {
@@ -212,6 +215,7 @@ class RespuestaInspeccion {
     "idItem": idItem,
     "respuesta": respuesta,
     "observacion": observacion,
+    "fechaVencimiento": fechaVencimiento,
   };
 }
 

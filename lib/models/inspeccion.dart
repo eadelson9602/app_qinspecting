@@ -32,7 +32,7 @@ class ResumenPreoperacional {
   String? usuarioPreoperacional;
   String? guiaPreoperacional;
   String? urlFotoGuia;
-  int? placaVehiculo;
+  String? placaVehiculo;
   String? placaRemolque;
   int? idCiudad;
   String? ciudad;
