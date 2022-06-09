@@ -12,7 +12,7 @@ class SendPendingInspectionScree extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final inspeccionProvider = Provider.of<InspeccionProvider>(context, listen: false);
+    final inspeccionProvider = Provider.of<InspeccionProvider>(context, listen: true);
     final inspeccionService = Provider.of<InspeccionService>(context, listen: false);
     final loginService = Provider.of<LoginService>(context, listen: false);
     final allInspecciones = inspeccionProvider.allInspecciones;
@@ -35,7 +35,7 @@ class SendPendingInspectionScree extends StatelessWidget {
               allInspecciones: allInspecciones,
               inspeccionService: inspeccionService,
               inspeccionProvider: inspeccionProvider,
-              loginService: loginService
+              selectedEmpresa: loginService.selectedEmpresa
             )
           );
         },
@@ -66,13 +66,13 @@ class ContentCardInspectionPending extends StatelessWidget {
     required this.allInspecciones,
     required this.inspeccionService,
     required this.inspeccionProvider,
-    required this.loginService
+    required this.selectedEmpresa
   }) : super(key: key);
 
   final List<ResumenPreoperacional> allInspecciones;
   final InspeccionService inspeccionService;
   final InspeccionProvider inspeccionProvider;
-  final LoginService loginService;
+  final Empresa selectedEmpresa;
   
   @override
   Widget build(BuildContext context) {
@@ -137,7 +137,7 @@ class ContentCardInspectionPending extends StatelessWidget {
                               ? null
                               : () {
                                   inspeccionService.indexSelected = i;
-                                  inspeccionService.sendInspeccion(allInspecciones[i], loginService.selectedEmpresa);
+                                  inspeccionService.sendInspeccion(allInspecciones[i], selectedEmpresa);
                                 }
                               ),
                           const SizedBox(width: 8),

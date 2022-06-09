@@ -173,16 +173,14 @@ class InspeccionProvider extends ChangeNotifier {
     return respuestas;
   }
 
-  eliminarResumenPreoperacional(int idResumen) async {
-    final respuestas =
-        await DBProvider.db.deleteResumenPreoperacional(idResumen);
+  Future<int?> eliminarResumenPreoperacional(int idResumen) async {
+    final respuestas = await DBProvider.db.deleteResumenPreoperacional(idResumen);
     notifyListeners();
     return respuestas;
   }
 
-  eliminarRespuestaPreoperacional(int idResumen) async {
-    final respuestas =
-        await DBProvider.db.deleteRespuestaPreoperacional(idResumen);
+  Future<int?> eliminarRespuestaPreoperacional(int idResumen) async {
+    final respuestas = await DBProvider.db.deleteRespuestaPreoperacional(idResumen);
     notifyListeners();
     return respuestas;
   }
