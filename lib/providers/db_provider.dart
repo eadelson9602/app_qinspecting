@@ -49,7 +49,7 @@ class DBProvider {
         CREATE TABLE Ciudades(value INTEGER PRIMARY KEY, label TEXT, id_departamento INTEGER, CONSTRAINT fk_departamento FOREIGN KEY (id_departamento) REFERENCES Departamentos(Dpt_Id));
       ''');
       await db.execute('''
-        CREATE TABLE Vehiculos(idVehiculo INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT UNIQUE, idTpVehiculo INTEGER, modelo INTEGER, nombreMarca TEXT, color TEXT, licenciaTransito NUMERIC);
+        CREATE TABLE Vehiculos(idVehiculo INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT UNIQUE, idTpVehiculo INTEGER, modelo INTEGER, nombreMarca TEXT, color TEXT, licenciaTransito TEXT);
       ''');
       await db.execute('''
         CREATE TABLE Remolques(idRemolque INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, idTpVehiculo INTEGER, modelo INTEGER, nombreMarca TEXT, color TEXT, numeroMatricula NUMERIC, numeroEjes INTEGER);
@@ -315,9 +315,9 @@ class DBProvider {
     return res;
   }
 
-  Future<List<ResumenPreoperacional>?> getAllInspections(String idUsuario) async {
+  Future<List<ResumenPreoperacional>?> getAllInspections(String idUsuario, String base) async {
     final db = await database;
-    final res = await db?.query('ResumenPreoperacional', whereArgs: [idUsuario], where: 'usuarioPreoperacional = ?');
+    final res = await db?.query('ResumenPreoperacional', where: 'usuarioPreoperacional = ? AND base = ?', whereArgs: [idUsuario, base]);
 
     return res!.isNotEmpty
         ? res.map((s) => ResumenPreoperacional.fromMap(s)).toList()

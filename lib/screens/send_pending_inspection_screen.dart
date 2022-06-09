@@ -12,28 +12,33 @@ class SendPendingInspectionScree extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final inspeccionProvider = Provider.of<InspeccionProvider>(context);
+    final inspeccionProvider = Provider.of<InspeccionProvider>(context, listen: false);
     final inspeccionService = Provider.of<InspeccionService>(context, listen: false);
     final loginService = Provider.of<LoginService>(context, listen: false);
-    inspeccionProvider.cargarTodosInspecciones(loginService.userDataLogged.numeroDocumento!);
     final allInspecciones = inspeccionProvider.allInspecciones;
 
     return Scaffold(
       appBar: CustomAppBar(),
       drawer: CustomDrawer(),
-      body: Container(
-        height: double.infinity,
-        padding: EdgeInsets.only(top: 5, left: 10, right: 10, bottom: 50),
-        child: allInspecciones.length == 0
-            ? Center(
-                child: Text('Sin inspecciones pendientes por sincronizar'),
-              )
-            : ContentCardInspectionPending(
+      body: FutureBuilder(
+        future: inspeccionProvider.cargarTodosInspecciones(loginService.userDataLogged.numeroDocumento!, loginService.selectedEmpresa.nombreBase!),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.data == null) {
+            return Center(
+              child: Text('Sin inspecciones pendientes por sincronizar'),
+            );
+          }
+          return Container(
+            height: double.infinity,
+            padding: EdgeInsets.only(top: 5, left: 10, right: 10, bottom: 50),
+            child: ContentCardInspectionPending(
               allInspecciones: allInspecciones,
               inspeccionService: inspeccionService,
               inspeccionProvider: inspeccionProvider,
               loginService: loginService
-            ),
+            )
+          );
+        },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       // floatingActionButton: FloatingActionButton(
