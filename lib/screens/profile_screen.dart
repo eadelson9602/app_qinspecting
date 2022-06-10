@@ -20,6 +20,8 @@ class ProfileScreen extends StatelessWidget {
 
     final inspeccionProvider = Provider.of<InspeccionProvider>(context, listen: false);
     inspeccionProvider.listarDepartamentos();
+    inspeccionProvider.listarCiudades(perfilForm.userDataLogged!.fkIdDepartamento!);
+    inspeccionProvider.listarTipoDocs();
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(children: [
@@ -66,8 +68,6 @@ class _FormProfile extends StatelessWidget {
   Widget build(BuildContext context) {
     final perfilForm = Provider.of<PerfilFormProvider>(context, listen: false);
     final inspeccionProvider = Provider.of<InspeccionProvider>(context, listen: false);
-    inspeccionProvider.listarCiudades(perfilForm.userDataLogged!.fkIdDepartamento!);
-    inspeccionProvider.listarTipoDocs();
     return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -185,7 +185,7 @@ class _FormProfile extends StatelessWidget {
                       FilteringTextInputFormatter.allow(
                           RegExp(r'^(\d+)?\.?\d{0}'))
                     ],
-                    initialValue: perfilForm.userDataLogged?.id.toString(),
+                    initialValue: '${perfilForm.userDataLogged!.numeroDocumento}',
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value!.isEmpty) return 'Ingrese número de documento';
