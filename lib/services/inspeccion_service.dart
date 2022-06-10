@@ -48,6 +48,11 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateSaving(bool value) {
+    isSaving = value;
+    notifyListeners();
+  }
+
   Future<bool> getLatesInspections(Empresa selectedEmpresa) async {
     final connectivityResult = await checkConnection();
 
@@ -255,7 +260,6 @@ class InspeccionService extends ChangeNotifier {
     try {
       final connectivityResult = await checkConnection();
       if (connectivityResult) {
-        isSaving = true;
         // Se envia la foto del kilometraje al servidor
         Map<String, dynamic>? responseUploadKilometraje = await uploadImage(
           path: inspeccion.urlFotoKm!,
@@ -313,6 +317,7 @@ class InspeccionService extends ChangeNotifier {
         await inspeccionProvider.eliminarRespuestaPreoperacional(inspeccion.id!);
 
         isSaving = false;
+        notifyListeners();
         return resumen.toMap();
       } else {
         showSimpleNotification(

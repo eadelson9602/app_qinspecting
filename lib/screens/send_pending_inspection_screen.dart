@@ -13,32 +13,28 @@ class SendPendingInspectionScree extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context, listen: true);
-    final inspeccionService = Provider.of<InspeccionService>(context, listen: false);
     final loginService = Provider.of<LoginService>(context, listen: false);
     final allInspecciones = inspeccionProvider.allInspecciones;
+    inspeccionProvider.cargarTodosInspecciones(
+      loginService.userDataLogged.numeroDocumento!,
+      loginService.selectedEmpresa.nombreBase!
+    );
 
     return Scaffold(
       appBar: CustomAppBar(),
       drawer: CustomDrawer(),
-      body: FutureBuilder(
-        future: inspeccionProvider.cargarTodosInspecciones(loginService.userDataLogged.numeroDocumento!, loginService.selectedEmpresa.nombreBase!),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.data == null) {
-            return Center(
-              child: Text('Sin inspecciones pendientes por sincronizar'),
-            );
-          }
-          return Container(
-            height: double.infinity,
-            padding: EdgeInsets.only(top: 5, left: 10, right: 10, bottom: 50),
-            child: ContentCardInspectionPending(
-              allInspecciones: allInspecciones,
-              inspeccionService: inspeccionService,
-              inspeccionProvider: inspeccionProvider,
-              selectedEmpresa: loginService.selectedEmpresa
-            )
-          );
-        },
+      body: allInspecciones.length == 0 ? 
+        Center(
+          child: Text('Sin inspecciones pendientes por sincronizar'),
+        ) : 
+        Container(
+          height: double.infinity,
+          padding: EdgeInsets.only(top: 5, left: 10, right: 10, bottom: 50),
+          child: ContentCardInspectionPending(
+            allInspecciones: allInspecciones,
+            inspeccionProvider: inspeccionProvider,
+            selectedEmpresa: loginService.selectedEmpresa
+          )
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       // floatingActionButton: FloatingActionButton(
@@ -64,18 +60,17 @@ class ContentCardInspectionPending extends StatelessWidget {
   const ContentCardInspectionPending({
     Key? key,
     required this.allInspecciones,
-    required this.inspeccionService,
     required this.inspeccionProvider,
     required this.selectedEmpresa
   }) : super(key: key);
 
   final List<ResumenPreoperacional> allInspecciones;
-  final InspeccionService inspeccionService;
   final InspeccionProvider inspeccionProvider;
   final Empresa selectedEmpresa;
   
   @override
   Widget build(BuildContext context) {
+    final inspeccionService = Provider.of<InspeccionService>(context, listen: true);
     return ListView.builder(
         itemCount: allInspecciones.length,
         itemBuilder: (_, int i) {
@@ -135,9 +130,10 @@ class ContentCardInspectionPending extends StatelessWidget {
                             icon: Icon(Icons.send, color: Colors.green,),
                             onPressed: inspeccionService.isSaving
                               ? null
-                              : () {
+                              : () async {
                                   inspeccionService.indexSelected = i;
-                                  inspeccionService.sendInspeccion(allInspecciones[i], selectedEmpresa);
+                                  inspeccionService.updateSaving(true);
+                                  await inspeccionService.sendInspeccion(allInspecciones[i], selectedEmpresa);
                                 }
                               ),
                           const SizedBox(width: 8),
