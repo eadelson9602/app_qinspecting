@@ -133,7 +133,7 @@ class DesktopScreen extends StatelessWidget {
               );
             } else if (snapshot.data != false) {
               return Container(
-                height: 355,
+                height: 400,
                 child: Swiper(
                   layout: SwiperLayout.STACK,
                   itemHeight: sizeScreen.height * 1,

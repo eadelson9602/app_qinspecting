@@ -85,6 +85,21 @@ class CardInspeccionDesktop extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
+                      child: Text('Detalle',
+                          style: TextStyle(color: Colors.black54)),
+                    ),
+                    Expanded(
+                      child: Text(
+                        '${resumenPreoperacional.detalle}',
+                        textAlign: TextAlign.end,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
                       child: Text('Persona responsable',
                           style: TextStyle(color: Colors.black54)),
                     ),
