@@ -17,11 +17,6 @@ class ProfileScreen extends StatelessWidget {
     final loginService = Provider.of<LoginService>(context, listen:  false);
     final perfilForm = Provider.of<PerfilFormProvider>(context, listen: false);
     perfilForm.userDataLogged = loginService.userDataLogged;
-
-    final inspeccionProvider = Provider.of<InspeccionProvider>(context, listen: false);
-    inspeccionProvider.listarDepartamentos();
-    inspeccionProvider.listarCiudades(perfilForm.userDataLogged!.fkIdDepartamento!);
-    inspeccionProvider.listarTipoDocs();
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(children: [
@@ -67,7 +62,10 @@ class _FormProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final perfilForm = Provider.of<PerfilFormProvider>(context, listen: false);
-    final inspeccionProvider = Provider.of<InspeccionProvider>(context, listen: false);
+    final inspeccionProvider = Provider.of<InspeccionProvider>(context);
+    inspeccionProvider.listarDepartamentos();
+    inspeccionProvider.listarCiudades(perfilForm.userDataLogged!.fkIdDepartamento!);
+    inspeccionProvider.listarTipoDocs();
     return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -127,6 +125,8 @@ class _FormProfile extends StatelessWidget {
                   const SizedBox(
                     height: 10,
                   ),
+                  if(inspeccionProvider.departamentos.length == 0)
+                    LinearProgressIndicator(),
                   DropdownButtonFormField<int>(
                       decoration: InputDecorations.authInputDecorations(
                           prefixIcon: Icons.map,
@@ -146,6 +146,8 @@ class _FormProfile extends StatelessWidget {
                   const SizedBox(
                     height: 10,
                   ),
+                  if(inspeccionProvider.ciudades.length == 0)
+                    LinearProgressIndicator(),
                   DropdownButtonFormField<int>(
                       decoration: InputDecorations.authInputDecorations(
                           prefixIcon: Icons.location_city,
@@ -162,6 +164,8 @@ class _FormProfile extends StatelessWidget {
                   const SizedBox(
                     height: 10,
                   ),
+                  if(inspeccionProvider.tipoDocumentos.length == 0)
+                    LinearProgressIndicator(),
                   DropdownButtonFormField(
                       decoration: InputDecorations.authInputDecorations(
                           prefixIcon: Icons.assignment_ind,
