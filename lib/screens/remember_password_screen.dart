@@ -70,7 +70,7 @@ class _FormLogin extends StatelessWidget {
           ),
           const _ButtonRememberAccount(),
           TextButton(
-            onPressed: () => loginService.pageController.nextPage(duration: Duration(microseconds: 1000), curve: Curves.bounceIn),
+            onPressed: () => loginService.pageController.previousPage(duration: Duration(microseconds: 1000), curve: Curves.bounceIn),
             child: Text('Iniciar sesión', style: TextStyle(
               color: Colors.black,
               fontSize: 16,
