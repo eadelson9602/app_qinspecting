@@ -33,7 +33,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       child: loginForm.getImage(url)
                     );
                   }
-                  return Image(image: AssetImage('assets/images/loading-2.gif'));
+                  return Image(image: AssetImage('assets/images/boot_signature.gif'));
                 },
               ),
             ),
