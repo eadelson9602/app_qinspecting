@@ -6,6 +6,7 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:signature/signature.dart';
+import 'package:app_qinspecting/providers/providers.dart';
 
 import 'package:app_qinspecting/screens/loading_screen.dart';
 import 'package:app_qinspecting/services/services.dart';
@@ -89,7 +90,8 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
                       };
                       Map responseSaveFirma = await firmaService.insertSignature(dataFirmaSave);
                       // Actualizamos estado de firma en local
-                      loginService.userDataLogged.idFirma = 1;
+                      loginService.userDataLogged.idFirma = responseSaveFirma['insertId'];
+                      DBProvider.db.updateUser(loginService.userDataLogged);
                       // restablecemos valor de variables
                       inspeccionService.isSaving = false;
                       firmaService.updateTerminos('NO');
