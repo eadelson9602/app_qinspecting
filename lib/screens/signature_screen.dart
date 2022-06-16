@@ -37,7 +37,6 @@ class MyStatelessWidget extends StatelessWidget {
                     } else {
                       if (snapshot.data != null) {
                         final Firma dataFirma = snapshot.data as Firma;
-                        print(dataFirma.firma);
                         return CardFirma(
                           infoFirma: dataFirma,
                         );
