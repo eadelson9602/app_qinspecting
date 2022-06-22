@@ -163,23 +163,6 @@ class InspeccionService extends ChangeNotifier {
     return remolques;
   }
 
-  Future<List<ItemInspeccion>> getItemsInspeccion(Empresa empresaSelected) async {
-    isLoading = true;
-    notifyListeners();
-    final baseEmpresa = empresaSelected.nombreBase;
-
-    Response response = await dio.get('${loginService.baseUrl}/list_items_x_placa/$baseEmpresa', options: loginService.options);
-    itemsInspeccion.clear();
-    for (var item in response.data) {
-      final tempItem = ItemInspeccion.fromMap(item);
-      itemsInspeccion.add(tempItem);
-      DBProvider.db.nuevoItem(tempItem);
-    }
-    isLoading = false;
-    notifyListeners();
-    return itemsInspeccion;
-  }
-
   Future<Map<String, dynamic>?> uploadImage({required String path, required String company, required String folder}) async {
     try {
       
@@ -266,10 +249,11 @@ class InspeccionService extends ChangeNotifier {
           company: '${selectedEmpresa.nombreQi}',
           folder: 'inspecciones'
         );
+        print(inspeccion.toJson());
         inspeccion.urlFotoKm = responseUploadKilometraje?['path'];
 
         // Se envia la foto de la guia si tiene
-        if (inspeccion.guiaPreoperacional?.isNotEmpty ?? false) {
+        if (inspeccion.numeroGuia?.isNotEmpty ?? false) {
           Map<String, dynamic>? responseUploadGuia = await uploadImage(
             path: inspeccion.urlFotoGuia!,
             company: selectedEmpresa.nombreQi!,
@@ -312,9 +296,6 @@ class InspeccionService extends ChangeNotifier {
           background: Colors.green,
           position: NotificationPosition.bottom
         );
-
-        await inspeccionProvider.eliminarResumenPreoperacional(inspeccion.id!);
-        await inspeccionProvider.eliminarRespuestaPreoperacional(inspeccion.id!);
 
         isSaving = false;
         notifyListeners();

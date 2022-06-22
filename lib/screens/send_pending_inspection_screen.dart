@@ -134,6 +134,8 @@ class ContentCardInspectionPending extends StatelessWidget {
                                   inspeccionService.indexSelected = i;
                                   inspeccionService.updateSaving(true);
                                   await inspeccionService.sendInspeccion(allInspecciones[i], selectedEmpresa);
+                                  await inspeccionProvider.eliminarResumenPreoperacional(allInspecciones[i].id!);
+                                  await inspeccionProvider.eliminarRespuestaPreoperacional(allInspecciones[i].id!);
                                 }
                               ),
                           const SizedBox(width: 8),

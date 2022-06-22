@@ -13,6 +13,7 @@ class Remolque {
     required this.idTpVehiculo,
     this.numeroMatricula,
     required this.numeroEjes,
+    required this.base,
   });
 
   String placa;
@@ -22,28 +23,31 @@ class Remolque {
   int idTpVehiculo;
   String? numeroMatricula;
   int? numeroEjes;
+  String base;
 
   factory Remolque.fromJson(String str) => Remolque.fromMap(json.decode(str));
 
   String toJson() => json.encode(toMap());
 
   factory Remolque.fromMap(Map<String, dynamic> json) => Remolque(
-    placa: json["placa"],
-    color: json["color"],
-    nombreMarca: json["nombreMarca"],
-    modelo: json["modelo"],
-    idTpVehiculo: json["idTpVehiculo"],
-    numeroMatricula: json["numeroMatricula"],
-    numeroEjes: json["numeroEjes"],
-  );
+        placa: json["placa"],
+        color: json["color"],
+        nombreMarca: json["nombreMarca"],
+        modelo: json["modelo"],
+        idTpVehiculo: json["idTpVehiculo"],
+        numeroMatricula: json["numeroMatricula"],
+        numeroEjes: json["numeroEjes"],
+        base: json["base"]
+      );
 
   Map<String, dynamic> toMap() => {
-    "placa": placa,
-    "color": color,
-    "nombreMarca": nombreMarca,
-    "modelo": modelo,
-    "idTpVehiculo": idTpVehiculo,
-    "numeroMatricula": numeroMatricula,
-    "numeroEjes": numeroEjes,
-  };
+        "placa": placa,
+        "color": color,
+        "nombreMarca": nombreMarca,
+        "modelo": modelo,
+        "idTpVehiculo": idTpVehiculo,
+        "numeroMatricula": numeroMatricula,
+        "numeroEjes": numeroEjes,
+        "base": base
+      };
 }

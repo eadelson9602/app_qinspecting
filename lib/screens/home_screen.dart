@@ -33,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
     List<Widget> _widgetOptions = [
       DesktopScreen(),
       FutureBuilder(
-        future: inspeccionProvider.listarDataInit(),
+        future: inspeccionProvider.listarDataInit(loginService.selectedEmpresa.nombreBase!),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return LoadingScreen();

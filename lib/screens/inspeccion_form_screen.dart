@@ -32,6 +32,9 @@ class _InspeccionFormState extends State<InspeccionForm> {
 
     inspeccionService.resumePreoperacional.base = loginService.selectedEmpresa.nombreBase!;
 
+    inspeccionProvider.listarDepartamentos();
+    inspeccionProvider.listarVehiculos(loginService.selectedEmpresa.nombreBase!);
+
     Widget _guiaTransporte() {
       return inspeccionProvider.tieneGuia
           ? Column(
@@ -40,7 +43,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                   autocorrect: false,
                   keyboardType: TextInputType.text,
                   onChanged: (value) {
-                    inspeccionService.resumePreoperacional.guiaPreoperacional = value;
+                    inspeccionService.resumePreoperacional.numeroGuia = value;
                   },
                   validator: (value) {
                     if (value!.isEmpty) return 'Ingrese la guía de transporte';
@@ -360,7 +363,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                 activeColor: Colors.green,
                 onChanged: (value) {
                   inspeccionProvider.updateTieneRemolque(value);
-                  inspeccionProvider.listarRemolques();
+                  inspeccionProvider.listarRemolques(loginService.selectedEmpresa.nombreBase!);
                 }
               ),
               SwitchListTile.adaptive(

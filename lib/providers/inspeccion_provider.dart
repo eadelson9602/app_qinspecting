@@ -94,8 +94,8 @@ class InspeccionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> listarDataInit() async {
-    final resVehiculos = await DBProvider.db.getAllVehiculos();
+  Future<bool> listarDataInit(String base) async {
+    final resVehiculos = await DBProvider.db.getAllVehiculos(base);
     vehiculos = [...resVehiculos!];
 
     final resDepartamentos = await DBProvider.db.getAllDepartamentos();
@@ -121,14 +121,14 @@ class InspeccionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  listarVehiculos() async {
-    final resVehiculos = await DBProvider.db.getAllVehiculos();
+  listarVehiculos(String base) async {
+    final resVehiculos = await DBProvider.db.getAllVehiculos(base);
     vehiculos = [...resVehiculos!];
     notifyListeners();
   }
 
-  listarRemolques() async {
-    final resRemolques = await DBProvider.db.getAllRemolques();
+  listarRemolques(String base) async {
+    final resRemolques = await DBProvider.db.getAllRemolques(base);
     remolques = [...resRemolques!];
     notifyListeners();
   }

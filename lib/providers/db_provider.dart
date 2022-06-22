@@ -28,7 +28,7 @@ class DBProvider {
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       await db.execute('''
-        CREATE TABLE ResumenPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, fechaPreoperacional TEXT, ciudadGps TEXT, kilometraje NUMERIC, cantTanqueoGalones NUMERIC, urlFotoKm TEXT, usuarioPreoperacional TEXT, guiaPreoperacional TEXT, urlFotoGuia TEXT, placaVehiculo TEXT, placaRemolque TEXT, idCiudad NUMERIC, ciudad TEXT, respuestas TEXT, base TEXT);
+        CREATE TABLE ResumenPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, fechaPreoperacional TEXT, ciudadGps TEXT, kilometraje NUMERIC, cantTanqueoGalones NUMERIC, urlFotoKm TEXT, usuarioPreoperacional TEXT, numeroGuia TEXT, urlFotoGuia TEXT, placaVehiculo TEXT, placaRemolque TEXT, idCiudad NUMERIC, ciudad TEXT, respuestas TEXT, base TEXT);
       ''');
       await db.execute('''
         CREATE TABLE RespuestasPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, idCategoria INTEGER, idItem INTEGER, item TEXT, respuesta TEXT, adjunto TEXT, observaciones TEXT, base TEXT, fkPreoperacional INTEGER, CONSTRAINT fkPreoperacional FOREIGN KEY (Id) REFERENCES ResumenPreoperacional(Id) ON DELETE CASCADE) ;
@@ -49,13 +49,13 @@ class DBProvider {
         CREATE TABLE Ciudades(value INTEGER PRIMARY KEY, label TEXT, id_departamento INTEGER, CONSTRAINT fk_departamento FOREIGN KEY (id_departamento) REFERENCES Departamentos(Dpt_Id));
       ''');
       await db.execute('''
-        CREATE TABLE Vehiculos(idVehiculo INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT UNIQUE, idTpVehiculo INTEGER, modelo INTEGER, nombreMarca TEXT, color TEXT, licenciaTransito TEXT);
+        CREATE TABLE Vehiculos(idVehiculo INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT UNIQUE, idTpVehiculo INTEGER, modelo INTEGER, nombreMarca TEXT, color TEXT, licenciaTransito TEXT, base TEXT);
       ''');
       await db.execute('''
-        CREATE TABLE Remolques(idRemolque INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT UNIQUE, idTpVehiculo INTEGER, modelo INTEGER, nombreMarca TEXT, color TEXT, numeroMatricula NUMERIC, numeroEjes INTEGER);
+        CREATE TABLE Remolques(idRemolque INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT UNIQUE, idTpVehiculo INTEGER, modelo INTEGER, nombreMarca TEXT, color TEXT, numeroMatricula NUMERIC, numeroEjes INTEGER, base TEXT);
       ''');
       await db.execute('''
-        CREATE TABLE ItemsInspeccion(id TEXT PRIMARY KEY, placa TEXT, tipoVehiculo INTEGER, idCategoria INTEGER, categoria TEXT, idItem, item TEXT);
+        CREATE TABLE ItemsInspeccion(id TEXT PRIMARY KEY, placa TEXT, tipoVehiculo INTEGER, idCategoria INTEGER, categoria TEXT, idItem, item TEXT, base TEXT);
       ''');
     });
   }
@@ -216,24 +216,24 @@ class DBProvider {
     return res!.isNotEmpty ? Remolque.fromMap(res.first) : null;
   }
 
-  Future<List<Vehiculo>?> getAllVehiculos() async {
+  Future<List<Vehiculo>?> getAllVehiculos(String base) async {
     final db = await database;
-    final res = await db?.query('Vehiculos');
+    final res = await db?.query('Vehiculos', where: 'base = ?', whereArgs: [base]);
 
     return res!.isNotEmpty ? res.map((s) => Vehiculo.fromMap(s)).toList() : [];
   }
 
-  Future<List<Remolque>?> getAllRemolques() async {
+  Future<List<Remolque>?> getAllRemolques(String base) async {
     final db = await database;
-    final res = await db?.query('Remolques');
+    final res = await db?.query('Remolques', where: 'base = ?', whereArgs: [base]);
 
     return res!.isNotEmpty ? res.map((s) => Remolque.fromMap(s)).toList() : [];
   }
 
-  Future<int?> nuevoItem(ItemInspeccion nuevoVehiculo) async {
+  Future<int?> nuevoItem(ItemInspeccion nuevoItem) async {
     final db = await database;
 
-    final res = await db?.insert('ItemsInspeccion', nuevoVehiculo.toMap(),
+    final res = await db?.insert('ItemsInspeccion', nuevoItem.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
     return res;
   }
@@ -245,9 +245,9 @@ class DBProvider {
     return res!.isNotEmpty ? ItemInspeccion.fromMap(res.first) : null;
   }
 
-  Future<List<ItemInspeccion>?> getAllItems() async {
+  Future<List<ItemInspeccion>?> getAllItems(String base) async {
     final db = await database;
-    final res = await db?.query('ItemsInspeccion');
+    final res = await db?.query('ItemsInspeccion', where: 'base = ?', whereArgs: [base]);
 
     return res!.isNotEmpty
         ? res.map((s) => ItemInspeccion.fromMap(s)).toList()
@@ -286,7 +286,7 @@ class DBProvider {
       "cantTanqueoGalones": nuevoInspeccion.cantTanqueoGalones,
       "urlFotoKm": nuevoInspeccion.urlFotoKm,
       "usuarioPreoperacional": nuevoInspeccion.usuarioPreoperacional,
-      "guiaPreoperacional": nuevoInspeccion.guiaPreoperacional,
+      "numeroGuia": nuevoInspeccion.numeroGuia,
       "urlFotoGuia": nuevoInspeccion.urlFotoGuia,
       "placaVehiculo": nuevoInspeccion.placaVehiculo,
       "placaRemolque": nuevoInspeccion.placaRemolque,

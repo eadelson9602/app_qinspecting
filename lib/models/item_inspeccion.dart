@@ -9,6 +9,7 @@ class ItemInspeccion {
     required this.categoria,
     required this.idItem,
     required this.item,
+    required this.base
   });
 
   String id;
@@ -18,6 +19,7 @@ class ItemInspeccion {
   String categoria;
   int idItem;
   String item;
+  String base;
 
   factory ItemInspeccion.fromJson(String str) =>
       ItemInspeccion.fromMap(json.decode(str));
@@ -32,6 +34,7 @@ class ItemInspeccion {
         categoria: json["categoria"],
         idItem: json["idItem"],
         item: json["item"],
+        base: json["base"]
       );
 
   Map<String, dynamic> toMap() => {
@@ -42,6 +45,7 @@ class ItemInspeccion {
         "categoria": categoria,
         "idItem": idItem,
         "item": item,
+        "base": base
       };
 }
 

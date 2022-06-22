@@ -11,7 +11,7 @@ class ResumenPreoperacional {
     this.cantTanqueoGalones,
     this.urlFotoKm,
     this.usuarioPreoperacional,
-    this.guiaPreoperacional,
+    this.numeroGuia,
     this.urlFotoGuia,
     this.placaVehiculo,
     this.placaRemolque,
@@ -30,7 +30,7 @@ class ResumenPreoperacional {
   int? cantTanqueoGalones;
   String? urlFotoKm;
   String? usuarioPreoperacional;
-  String? guiaPreoperacional;
+  String? numeroGuia;
   String? urlFotoGuia;
   String? placaVehiculo;
   String? placaRemolque;
@@ -54,7 +54,7 @@ class ResumenPreoperacional {
       cantTanqueoGalones: json["cantTanqueoGalones"],
       urlFotoKm: json["urlFotoKm"] == null ? null : json["urlFotoKm"],
       usuarioPreoperacional: json["usuarioPreoperacional"],
-      guiaPreoperacional: json["guiaPreoperacional"],
+      numeroGuia: json["numeroGuia"],
       urlFotoGuia: json["urlFotoGuia"],
       placaVehiculo: json["placaVehiculo"],
       placaRemolque: json["placaRemolque"],
@@ -74,7 +74,7 @@ class ResumenPreoperacional {
     "cantTanqueoGalones": cantTanqueoGalones,
     "urlFotoKm": urlFotoKm == null ? null : urlFotoKm,
     "usuarioPreoperacional": usuarioPreoperacional,
-    "guiaPreoperacional": guiaPreoperacional,
+    "numeroGuia": numeroGuia,
     "urlFotoGuia": urlFotoGuia,
     "placaVehiculo": placaVehiculo,
     "placaRemolque": placaRemolque,

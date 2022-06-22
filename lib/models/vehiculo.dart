@@ -7,6 +7,7 @@ class Vehiculo {
     required this.modelo,
     required this.nombreMarca,
     required this.color,
+    required this.base,
     this.licenciaTransito,
   });
 
@@ -16,6 +17,7 @@ class Vehiculo {
   String nombreMarca;
   String color;
   String? licenciaTransito;
+  String base;
 
   factory Vehiculo.fromJson(String str) => Vehiculo.fromMap(json.decode(str));
 
@@ -28,6 +30,7 @@ class Vehiculo {
         nombreMarca: json["nombreMarca"],
         color: json["color"],
         licenciaTransito: json["licenciaTransito"],
+        base: json["base"]
       );
 
   Map<String, dynamic> toMap() => {
@@ -37,5 +40,6 @@ class Vehiculo {
     "nombreMarca": nombreMarca,
     "color": color,
     "licenciaTransito": licenciaTransito,
+    "base": base,
   };
 }
