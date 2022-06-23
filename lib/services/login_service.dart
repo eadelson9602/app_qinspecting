@@ -141,26 +141,27 @@ class LoginService extends ChangeNotifier {
       options.headers = {
         "x-access-token": token
       };
-      final tempDataUser = await DBProvider.db.getUserById(idUsuario) as UserData;
-      userDataLogged = tempDataUser;
 
       final tempDataEmp = await DBProvider.db.getEmpresaById(int.parse(idEmpresa)) as Empresa;
       selectedEmpresa = tempDataEmp;
+
+      final tempDataUser = await DBProvider.db.getUser(idUsuario, tempDataEmp.password!, tempDataEmp.nombreBase!);
+      userDataLogged = tempDataUser;
     }
     return idUsuario;
   }
 
   Future<Map<String, dynamic>> assingDataUserLogged() async {
-    String usuario = await storage.read(key: 'usuario') ?? '';
+    String idUsuario = await storage.read(key: 'usuario') ?? '';
     String idEmpresa = await storage.read(key: 'idEmpresa') ?? '';
-    if (usuario.isNotEmpty && idEmpresa.isNotEmpty) {
-      final tempDataUser = await DBProvider.db.getUserById(usuario) as UserData;
-      userDataLogged = tempDataUser;
-
+    if (idUsuario.isNotEmpty && idEmpresa.isNotEmpty) {
       final tempDataEmp = await DBProvider.db.getEmpresaById(int.parse(idEmpresa)) as Empresa;
       selectedEmpresa = tempDataEmp;
+
+      final tempDataUser = await DBProvider.db.getUser(idUsuario, tempDataEmp.password!, tempDataEmp.nombreBase!);
+      userDataLogged = tempDataUser;
     }
 
-    return {"usuario": usuario, "idEmpresa": idEmpresa};
+    return {"usuario": idUsuario, "idEmpresa": idEmpresa};
   }
 }

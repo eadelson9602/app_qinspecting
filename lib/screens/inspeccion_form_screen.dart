@@ -32,9 +32,6 @@ class _InspeccionFormState extends State<InspeccionForm> {
 
     inspeccionService.resumePreoperacional.base = loginService.selectedEmpresa.nombreBase!;
 
-    inspeccionProvider.listarDepartamentos();
-    inspeccionProvider.listarVehiculos(loginService.selectedEmpresa.nombreBase!);
-
     Widget _guiaTransporte() {
       return inspeccionProvider.tieneGuia
           ? Column(

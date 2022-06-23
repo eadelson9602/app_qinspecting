@@ -28,16 +28,16 @@ class DBProvider {
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       await db.execute('''
-        CREATE TABLE ResumenPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, fechaPreoperacional TEXT, ciudadGps TEXT, kilometraje NUMERIC, cantTanqueoGalones NUMERIC, urlFotoKm TEXT, usuarioPreoperacional TEXT, numeroGuia TEXT, urlFotoGuia TEXT, placaVehiculo TEXT, placaRemolque TEXT, idCiudad NUMERIC, ciudad TEXT, respuestas TEXT, base TEXT);
+        CREATE TABLE ResumenPreoperacional(id INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, fechaPreoperacional TEXT, ciudadGps TEXT, kilometraje NUMERIC, cantTanqueoGalones NUMERIC, urlFotoKm TEXT, usuarioPreoperacional TEXT, numeroGuia TEXT, urlFotoGuia TEXT, placaVehiculo TEXT, placaRemolque TEXT, idCiudad NUMERIC, ciudad TEXT, respuestas TEXT, base TEXT);
       ''');
       await db.execute('''
-        CREATE TABLE RespuestasPreoperacional(Id INTEGER PRIMARY KEY AUTOINCREMENT, idCategoria INTEGER, idItem INTEGER, item TEXT, respuesta TEXT, adjunto TEXT, observaciones TEXT, base TEXT, fkPreoperacional INTEGER, CONSTRAINT fkPreoperacional FOREIGN KEY (Id) REFERENCES ResumenPreoperacional(Id) ON DELETE CASCADE) ;
+        CREATE TABLE RespuestasPreoperacional(id INTEGER PRIMARY KEY AUTOINCREMENT, idCategoria INTEGER, idItem INTEGER, item TEXT, respuesta TEXT, adjunto TEXT, observaciones TEXT, base TEXT, fkPreoperacional INTEGER, CONSTRAINT fkPreoperacional FOREIGN KEY (id) REFERENCES ResumenPreoperacional(id) ON DELETE CASCADE) ;
       ''');
       await db.execute('''
-        CREATE TABLE Empresas(idEmpresa INTEGER PRIMARY KEY, nombreBase TEXT, autCreateCap NUMERIC, numeroDocumento TEXT, password TEXT, apellidos TEXT, nombres TEXT, numeroCelular TEXT, email TEXT, nombreCargo TEXT, urlFoto TEXT, idRol NUMERIC, tieneFirma NUMERIC, razonSocial TEXT, nombreQi TEXT, urlQi TEXT, rutaLogo TEXT);
+        CREATE TABLE Empresas(id INTEGER PRIMARY KEY AUTOINCREMENT, idEmpresa INTEGER, nombreBase TEXT UNIQUE, autCreateCap NUMERIC, numeroDocumento TEXT, password TEXT, apellidos TEXT, nombres TEXT, numeroCelular TEXT, email TEXT, nombreCargo TEXT, urlFoto TEXT, idRol NUMERIC, tieneFirma NUMERIC, razonSocial TEXT, nombreQi TEXT, urlQi TEXT, rutaLogo TEXT);
       ''');
       await db.execute('''
-        CREATE TABLE personal(id INTEGER PRIMARY KEY AUTOINCREMENT, empresa TEXT UNIQUE, numeroDocumento TEXT, password TEXT, lugarExpDocumento NUMERIC, nombreCiudad TEXT, fkIdDepartamento NUMERIC, departamento TEXT, fechaNacimiento TEXT, genero TEXT, rh TEXT, arl TEXT, eps TEXT, afp TEXT, numeroCelular TEXT, direccion TEXT, apellidos TEXT, nombres TEXT, email TEXT, urlFoto TEXT, idCargo NUMERIC, nombreCargo TEXT, estadoPersonal NUMERIC, idTipoDocumento NUMERIC, nombreTipoDocumento TEXT, rolId NUMERIC, rolNombre TEXT, rolDescripcion TEXT, idFirma NUMERIC);
+        CREATE TABLE personal(id INTEGER PRIMARY KEY AUTOINCREMENT, empresa TEXT UNIQUE, numeroDocumento TEXT, password TEXT, lugarExpDocumento NUMERIC, nombreCiudad TEXT, fkIdDepartamento NUMERIC, departamento TEXT, fechaNacimiento TEXT, genero TEXT, rh TEXT, arl TEXT, eps TEXT, afp TEXT, numeroCelular TEXT, direccion TEXT, apellidos TEXT, nombres TEXT, email TEXT, urlFoto TEXT, idCargo NUMERIC, nombreCargo TEXT, estadoPersonal NUMERIC, idTipoDocumento NUMERIC, nombreTipoDocumento TEXT, rolId NUMERIC, rolNombre TEXT, rolDescripcion TEXT, idFirma NUMERIC, base TEXT);
       ''');
       await db.execute('''
         CREATE TABLE TipoDocumentos(value INTEGER PRIMARY KEY, label TEXT);
@@ -63,6 +63,7 @@ class DBProvider {
   // Forma corta
   Future<int?> nuevaEmpresa(Empresa nuevaEmpresa) async {
     final db = await database;
+    print(nuevaEmpresa.toJson());
     final res = await db?.insert('Empresas', nuevaEmpresa.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
     return res;
@@ -82,10 +83,12 @@ class DBProvider {
     return res!.isNotEmpty ? res.map((s) => Empresa.fromMap(s)).toList() : [];
   }
 
-  Future<List<Empresa>?> getAllEmpresasByUsuario(int usuario) async {
+  Future<List<Empresa>?> getAllEmpresasByUsuario(
+      String usuario, password) async {
     final db = await database;
-    final res = await db
-        ?.query('Empresas', where: 'numeroDocumento = ?', whereArgs: [usuario]);
+    final res = await db?.query('Empresas',
+        where: 'numeroDocumento = ? AND password = ?',
+        whereArgs: [usuario, password]);
 
     return res!.isNotEmpty ? res.map((s) => Empresa.fromMap(s)).toList() : [];
   }
@@ -113,17 +116,20 @@ class DBProvider {
     return res;
   }
 
-  Future<UserData?> getUserById(String id) async {
+  Future<UserData> getUser(
+      String numeroDocumento, String password, String base) async {
     final db = await database;
-    final res = await db
-        ?.query('personal', where: 'numeroDocumento = ?', whereArgs: [id]);
-    return res!.isNotEmpty ? UserData.fromMap(res.first) : null;
+    final res = await db?.query('personal',
+        where: 'numeroDocumento = ? AND password = ? AND base = ?',
+        whereArgs: [numeroDocumento, password, base]);
+    return UserData.fromMap(res!.first);
   }
 
   Future<int?> updateUser(UserData nuevoDatosUsuario) async {
     final db = await database;
     final res = await db?.update('personal', nuevoDatosUsuario.toMap(),
-        where: 'numeroDocumento= ?', whereArgs: [nuevoDatosUsuario.id]);
+        where: 'numeroDocumento= ? AND base = ?',
+        whereArgs: [nuevoDatosUsuario.id, nuevoDatosUsuario.base]);
     return res;
   }
 
@@ -218,14 +224,16 @@ class DBProvider {
 
   Future<List<Vehiculo>?> getAllVehiculos(String base) async {
     final db = await database;
-    final res = await db?.query('Vehiculos', where: 'base = ?', whereArgs: [base]);
+    final res =
+        await db?.query('Vehiculos', where: 'base = ?', whereArgs: [base]);
 
     return res!.isNotEmpty ? res.map((s) => Vehiculo.fromMap(s)).toList() : [];
   }
 
   Future<List<Remolque>?> getAllRemolques(String base) async {
     final db = await database;
-    final res = await db?.query('Remolques', where: 'base = ?', whereArgs: [base]);
+    final res =
+        await db?.query('Remolques', where: 'base = ?', whereArgs: [base]);
 
     return res!.isNotEmpty ? res.map((s) => Remolque.fromMap(s)).toList() : [];
   }
@@ -247,7 +255,8 @@ class DBProvider {
 
   Future<List<ItemInspeccion>?> getAllItems(String base) async {
     final db = await database;
-    final res = await db?.query('ItemsInspeccion', where: 'base = ?', whereArgs: [base]);
+    final res = await db
+        ?.query('ItemsInspeccion', where: 'base = ?', whereArgs: [base]);
 
     return res!.isNotEmpty
         ? res.map((s) => ItemInspeccion.fromMap(s)).toList()
@@ -309,7 +318,7 @@ class DBProvider {
   Future<int?> deleteResumenPreoperacional(int idResumen) async {
     final db = await database;
     final res = await db?.delete('ResumenPreoperacional',
-        where: 'Id = ?', whereArgs: [idResumen]);
+        where: 'id = ?', whereArgs: [idResumen]);
     return res;
   }
 
