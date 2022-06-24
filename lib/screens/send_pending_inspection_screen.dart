@@ -69,17 +69,30 @@ class ContentCardInspectionPending extends StatelessWidget {
               Container(
                 padding: EdgeInsets.all(20),
                 child: Column(children: [
-                  Image(
-                    image: AssetImage('assets/images/loading_3.gif'),
-                    // fit: BoxFit.cover,
-                    height: 50,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(100),
+                    child: Image(
+                      image: AssetImage('assets/images/loading_3.gif'),
+                      // fit: BoxFit.cover,
+                      height: 50,
+                    ),
                   ),
                   SizedBox(
-                    width: 30,
+                    width: 10,
+                  ),
+                  Center(
+                    child: Text(
+                      'Por favor NO cierre y no se salga de la app, mientras se este enviando la inspección',
+                      textAlign: TextAlign.center,
+                    )
+                  ),
+                  SizedBox(
+                    height: 10,
                   ),
                   LinearProgressIndicator(),
-                ]),
-              )
+                ]
+              ),
+            )
             : Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [

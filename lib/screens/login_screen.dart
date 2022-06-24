@@ -229,15 +229,15 @@ class _ButtonLogin extends StatelessWidget {
                         width: 50,
                         height: 50,
                         child: isConnected
-                            ? loginForm
-                                .getImage(empresas[i].rutaLogo.toString())
-                            : ClipRRect(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(100)),
-                                child: Image(
-                                    fit: BoxFit.cover,
-                                    image: AssetImage(
-                                        'assets/images/loading_4.gif')))),
+                          ? loginForm.getImage(empresas[i].rutaLogo.toString())
+                          : ClipRRect(
+                              borderRadius: BorderRadius.circular(100),
+                              child: Image(
+                                  fit: BoxFit.cover,
+                                  image: AssetImage('assets/images/loading_4.gif')
+                                  )
+                                )
+                              ),
                     title: Text(empresas[i].nombreQi.toString()),
                     trailing: const Icon(Icons.arrow_right),
                     onTap: () async {
