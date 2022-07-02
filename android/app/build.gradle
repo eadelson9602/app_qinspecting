@@ -48,15 +48,11 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        // minSdkVersion 26
-        // targetSdkVersion 30
         applicationId "com.qinspecting.appears"
-        // minSdkVersion flutter.minSdkVersion
-        minSdkVersion 18
+        minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
-        versionCode 1
-        versionName "1.0.0"
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
     }
 
    signingConfigs {
