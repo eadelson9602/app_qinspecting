@@ -139,13 +139,13 @@ class InspeccionProvider extends ChangeNotifier {
     final resCategorias = await DBProvider.db.getItemsInspectionByPlaca(placa);
     itemsInspeccion = [...resCategorias!];
     notifyListeners();
-    return itemsInspeccion;
+    return resCategorias;
   }
 
-  listarCategoriaItemsRemolque() async {
-    final resCategorias = await DBProvider.db.getItemsInspectionByPlaca(remolqueSelected!.placa);
+  Future<List<ItemsVehiculo>> listarCategoriaItemsRemolque(String placa) async {
+    final resCategorias = await DBProvider.db.getItemsInspectionByPlaca(placa);
     itemsInspeccionRemolque = [...resCategorias!];
-    notifyListeners();
+    return resCategorias.isEmpty ? [] : resCategorias;
   }
 
   saveInspecicon(ResumenPreoperacional nuevoInspeccion) async {

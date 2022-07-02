@@ -115,7 +115,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
             inspeccionService.resumePreoperacional.placaRemolque = value;
             inspeccionProvider.updateRemolqueSelected(resultRemolque!);
 
-            await inspeccionProvider.listarCategoriaItemsRemolque();
+            await inspeccionProvider.listarCategoriaItemsRemolque(value);
           }
         ),
         if(inspeccionProvider.remolqueSelected != null)

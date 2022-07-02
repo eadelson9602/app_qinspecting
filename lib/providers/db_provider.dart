@@ -196,15 +196,25 @@ class DBProvider {
 
   Future<int?> nuevoVehiculo(Vehiculo nuevoVehiculo) async {
     final db = await database;
-    final res = await db?.insert('Vehiculos', nuevoVehiculo.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace);
+    final res = await db?.insert('Vehiculos', nuevoVehiculo.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    return res;
+  }
+
+  Future<int?> clearsVehiculos() async {
+    final db = await database;
+    final res = await db?.delete('Vehiculos');
+    return res;
+  }
+
+  Future<int?> clearsRemolques() async {
+    final db = await database;
+    final res = await db?.delete('Remolques');
     return res;
   }
 
   Future<int?> nuevoRemolque(Remolque nuevoRemolque) async {
     final db = await database;
-    final res = await db?.insert('Remolques', nuevoRemolque.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace);
+    final res = await db?.insert('Remolques', nuevoRemolque.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
     return res;
   }
 

@@ -1,11 +1,12 @@
-import 'package:app_qinspecting/models/empresa.dart';
-import 'package:app_qinspecting/screens/screens.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter/services.dart';
 
+import 'package:app_qinspecting/models/empresa.dart';
+import 'package:app_qinspecting/screens/screens.dart';
 import 'package:app_qinspecting/ui/input_decorations.dart';
 import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/services/services.dart';
@@ -71,6 +72,7 @@ class _FormLogin extends StatelessWidget {
                     TextFormField(
                       autocorrect: false,
                       keyboardType: TextInputType.number,
+                      inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
                       validator: (value) {
                         if (value!.isEmpty) return 'Ingrese su usuario';
                         return null;

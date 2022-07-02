@@ -136,11 +136,14 @@ class InspeccionService extends ChangeNotifier {
 
     Response response = await dio.get('${loginService.baseUrl}/show_placas_cabezote/$baseEmpresa', options: loginService.options);
     vehiculos.clear();
+    DBProvider.db.clearsVehiculos();
+    List<Future> futures = [];
     for (var item in response.data) {
       final tempVehiculo = Vehiculo.fromMap(item);
       vehiculos.add(tempVehiculo);
-      DBProvider.db.nuevoVehiculo(tempVehiculo);
+      futures.add(DBProvider.db.nuevoVehiculo(tempVehiculo));
     }
+    await Future.wait(futures);
     isLoading = false;
     notifyListeners();
     return vehiculos;
@@ -153,11 +156,14 @@ class InspeccionService extends ChangeNotifier {
 
     Response response = await dio.get('${loginService.baseUrl}/show_placas_trailer/$baseEmpresa', options: loginService.options);
     remolques.clear();
+    DBProvider.db.clearsRemolques();
+    List<Future> futures = [];
     for (var item in response.data) {
       final tempRemolque = Remolque.fromMap(item);
       remolques.add(tempRemolque);
-      DBProvider.db.nuevoRemolque(tempRemolque);
+      futures.add(DBProvider.db.nuevoRemolque(tempRemolque));
     }
+    await Future.wait(futures);
     isLoading = false;
     notifyListeners();
     return remolques;

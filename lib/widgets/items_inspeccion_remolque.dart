@@ -23,8 +23,7 @@ class _ItemsInspeccionarStateRemolque extends State<ItemsInspeccionarRemolque> {
       List<Step> stepsInspeccion = [];
       for (int i = 0; i < itemsInspeccionar.length; i++) {
         stepsInspeccion.add(Step(
-            isActive:
-                inspeccionProvider.stepStepperRemolque >= i ? true : false,
+            isActive: inspeccionProvider.stepStepperRemolque >= i ? true : false,
             title: Text(itemsInspeccionar[i].categoria),
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,10 +180,8 @@ class _ItemsInspeccionarStateRemolque extends State<ItemsInspeccionarRemolque> {
           children: [
             if (inspeccionProvider.stepStepperRemolque > 0)
               MaterialButton(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(100)),
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
                 onPressed: details.onStepCancel,
                 child: Container(
                   child: Row(
