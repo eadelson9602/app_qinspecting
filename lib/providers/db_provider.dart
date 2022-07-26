@@ -69,10 +69,10 @@ class DBProvider {
     return res;
   }
 
-  Future<Empresa?> getEmpresaById(int id) async {
+  Future<Empresa?> getEmpresaById(String base) async {
     final db = await database;
     final res =
-        await db?.query('Empresas', where: 'idEmpresa = ?', whereArgs: [id]);
+        await db?.query('Empresas', where: 'nombreBase = ?', whereArgs: [base]);
     return res!.isNotEmpty ? Empresa.fromMap(res.first) : null;
   }
 
@@ -122,6 +122,7 @@ class DBProvider {
     final res = await db?.query('personal',
         where: 'numeroDocumento = ? AND password = ? AND base = ?',
         whereArgs: [numeroDocumento, password, base]);
+    print('$numeroDocumento, $password, $base');
     return UserData.fromMap(res!.first);
   }
 
@@ -196,7 +197,8 @@ class DBProvider {
 
   Future<int?> nuevoVehiculo(Vehiculo nuevoVehiculo) async {
     final db = await database;
-    final res = await db?.insert('Vehiculos', nuevoVehiculo.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    final res = await db?.insert('Vehiculos', nuevoVehiculo.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
     return res;
   }
 
@@ -214,7 +216,8 @@ class DBProvider {
 
   Future<int?> nuevoRemolque(Remolque nuevoRemolque) async {
     final db = await database;
-    final res = await db?.insert('Remolques', nuevoRemolque.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    final res = await db?.insert('Remolques', nuevoRemolque.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
     return res;
   }
 

@@ -18,6 +18,7 @@ class LoginService extends ChangeNotifier {
   UserData userDataLogged = UserData(urlFoto: '');
 
   String baseUrl = 'https://apis.qinspecting.com/pflutter';
+  // String baseUrl = 'http://192.168.20.3:3012';
   Options options = Options();
 
   Future<Map<dynamic, dynamic>> getToken(int user, String password) async {
@@ -112,7 +113,7 @@ class LoginService extends ChangeNotifier {
 
     await storage.write(key: 'usuario', value: '${empresa.numeroDocumento}');
 
-    await storage.write(key: 'idEmpresa', value: '${empresa.idEmpresa}');
+    await storage.write(key: 'nombreBase', value: '${empresa.nombreBase}');
 
     userDataLogged = tempUserData;
 
@@ -135,14 +136,14 @@ class LoginService extends ChangeNotifier {
   Future<String> readToken() async {
     // await storage.deleteAll();
     String idUsuario = await storage.read(key: 'usuario') ?? '';
-    String idEmpresa = await storage.read(key: 'idEmpresa') ?? '';
+    String nombreBase = await storage.read(key: 'nombreBase') ?? '';
     String token = await storage.read(key: 'token') ?? '';
-    if (idUsuario.isNotEmpty && idEmpresa.isNotEmpty && token.isNotEmpty) {
+    if (idUsuario.isNotEmpty && nombreBase.isNotEmpty && token.isNotEmpty) {
       options.headers = {
         "x-access-token": token
       };
 
-      final tempDataEmp = await DBProvider.db.getEmpresaById(int.parse(idEmpresa)) as Empresa;
+      final tempDataEmp = await DBProvider.db.getEmpresaById(nombreBase) as Empresa;
       selectedEmpresa = tempDataEmp;
 
       final tempDataUser = await DBProvider.db.getUser(idUsuario, tempDataEmp.password!, tempDataEmp.nombreBase!);
@@ -153,15 +154,15 @@ class LoginService extends ChangeNotifier {
 
   Future<Map<String, dynamic>> assingDataUserLogged() async {
     String idUsuario = await storage.read(key: 'usuario') ?? '';
-    String idEmpresa = await storage.read(key: 'idEmpresa') ?? '';
-    if (idUsuario.isNotEmpty && idEmpresa.isNotEmpty) {
-      final tempDataEmp = await DBProvider.db.getEmpresaById(int.parse(idEmpresa)) as Empresa;
+    String nombreBase = await storage.read(key: 'nombreBase') ?? '';
+    if (idUsuario.isNotEmpty && nombreBase.isNotEmpty) {
+      final tempDataEmp = await DBProvider.db.getEmpresaById(nombreBase) as Empresa;
       selectedEmpresa = tempDataEmp;
 
       final tempDataUser = await DBProvider.db.getUser(idUsuario, tempDataEmp.password!, tempDataEmp.nombreBase!);
       userDataLogged = tempDataUser;
     }
 
-    return {"usuario": idUsuario, "idEmpresa": idEmpresa};
+    return {"usuario": idUsuario, "nombreBase": nombreBase};
   }
 }

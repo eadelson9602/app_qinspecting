@@ -255,7 +255,6 @@ class InspeccionService extends ChangeNotifier {
           company: '${selectedEmpresa.nombreQi}',
           folder: 'inspecciones'
         );
-        print(inspeccion.toJson());
         inspeccion.urlFotoKm = responseUploadKilometraje?['path'];
 
         // Se envia la foto de la guia si tiene
