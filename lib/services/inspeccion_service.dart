@@ -73,7 +73,7 @@ class InspeccionService extends ChangeNotifier {
         listInspections = [...tempData];
         return true;
       } on DioError catch (error) {
-        print(error.response!.data);     
+        print(error.response?.data);     
         showSimpleNotification(
           Text('No hemos podido obtener las inspecciones'),
           leading: Icon(Icons.wifi_tethering_error_rounded_outlined),
@@ -81,7 +81,7 @@ class InspeccionService extends ChangeNotifier {
           background: Colors.orange,
           position: NotificationPosition.bottom,
         );
-        return Future.error(error.response!.data);
+        return Future.error(error);
       }
     } else {
       // showSimpleNotification(
@@ -320,14 +320,14 @@ class InspeccionService extends ChangeNotifier {
         };
       }
     } on DioError catch (error) {
-      print(error.response!.data);
+      print(error.response?.data);
       showSimpleNotification(Text('No se ha podido guardar la inspección'),
         leading: Icon(Icons.check),
         autoDismiss: true,
         background: Colors.orange,
         position: NotificationPosition.bottom
       );
-      return Future.error(error.response!.data);
+      return Future.error(error.response?.data);
     } finally {
       isSaving = false;
     }
