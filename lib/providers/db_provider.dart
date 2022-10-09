@@ -52,7 +52,7 @@ class DBProvider {
         CREATE TABLE Vehiculos(idVehiculo INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT UNIQUE, idTpVehiculo INTEGER, modelo INTEGER, nombreMarca TEXT, color TEXT, licenciaTransito TEXT, base TEXT);
       ''');
       await db.execute('''
-        CREATE TABLE Remolques(idRemolque INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT UNIQUE, idTpVehiculo INTEGER, modelo INTEGER, nombreMarca TEXT, color TEXT, numeroMatricula NUMERIC, numeroEjes INTEGER, base TEXT);
+        CREATE TABLE Remolques(idRemolque INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT UNIQUE, idTpVehiculo INTEGER, modelo INTEGER, nombreMarca TEXT, color TEXT, numeroMatricula TEXT, numeroEjes INTEGER, base TEXT);
       ''');
       await db.execute('''
         CREATE TABLE ItemsInspeccion(id TEXT PRIMARY KEY, placa TEXT, tipoVehiculo INTEGER, idCategoria INTEGER, categoria TEXT, idItem, item TEXT, base TEXT);
