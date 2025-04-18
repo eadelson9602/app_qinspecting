@@ -2,19 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Necesito permiso para acceder a la ubicación</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Necesito permiso para acceder a la ubicación</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Necesito permiso para acceder a la biblioteca de fotos</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Necesito permiso para acceder a la cámara</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Necesito permiso para acceder al micrófono</string>
-	<key>com.apple.security.network.client</key>
-	<string>Necesito permiso para acceder a conexión a internet</string>
-
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -26,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>Qinspecting</string>
+	<string>app_qinspecting</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -54,7 +41,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 </dict>
 </plist>

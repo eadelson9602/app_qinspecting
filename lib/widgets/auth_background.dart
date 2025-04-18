@@ -7,40 +7,40 @@ class AuthBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _sizeScreen = MediaQuery.of(context).size;
-    return Stack(
-      children: [
-        const _BubleBox(),
-        SingleChildScrollView(
-          child: Container(
-            height: _sizeScreen.height * 0.9,
-            margin: EdgeInsets.only(top: 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const _HeaderLogo(),
-                Container(
-                  height: _sizeScreen.height * 0.60,
-                  child: child
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Image(image: AssetImage('assets/icons/facebook.png'))
+    return Stack(children: [
+      const _BubleBox(),
+      SingleChildScrollView(
+        child: Container(
+          height: _sizeScreen.height * 0.9,
+          margin: EdgeInsets.only(top: 20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const _HeaderLogo(),
+              Container(height: _sizeScreen.height * 0.60, child: child),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Image(
+                      image: AssetImage('assets/icons/facebook.png'),
+                      height: 30,
                     ),
-                    IconButton(
+                  ),
+                  IconButton(
                       onPressed: () {},
-                      icon: const Image(image: AssetImage('assets/icons/instagram.png'))
-                    ),
-                  ],
-                )
-              ],
-            ),
+                      icon: const Image(
+                        image: AssetImage('assets/icons/instagram.png'),
+                        height: 30,
+                      )),
+                ],
+              )
+            ],
           ),
-        )
-      ]
-    );
+        ),
+      )
+    ]);
   }
 }
 

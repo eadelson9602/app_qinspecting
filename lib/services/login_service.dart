@@ -26,21 +26,18 @@ class LoginService extends ChangeNotifier {
       isLoading = true;
       notifyListeners();
 
-      Response response = await dio.post('${baseUrl}/get_token', options: options, data: json.encode({
-        'usuario': '$user',
-        'password': password
-      }));
+      Response response = await dio.post('${baseUrl}/get_token',
+          options: options,
+          data: json.encode({'usuario': '$user', 'password': password}));
       Map<dynamic, dynamic> resGetToken = response.data;
-      if(resGetToken.containsKey('token')){
+      if (resGetToken.containsKey('token')) {
         // Guardamos el token el el storage del dispositivo
         await storage.write(key: 'token', value: response.data['token']);
-        options.headers = {
-          "x-access-token" : response.data['token']
-        };
+        options.headers = {"x-access-token": response.data['token']};
       }
-      
+
       return resGetToken;
-    } on DioError catch (error) {
+    } on DioException catch (error) {
       return {
         "message": "No hemos podido obtener el token",
         "error": error.message
@@ -51,17 +48,16 @@ class LoginService extends ChangeNotifier {
     }
   }
 
-  Future<List<Empresa>> login(int user, String password) async {    
+  Future<List<Empresa>> login(int user, String password) async {
     isLoading = true;
     notifyListeners();
 
     final List<Empresa> empresas = [];
-    Response response = await dio.post('${baseUrl}/login', options: options, data: json.encode({
-      'usuario': '$user',
-      'password': password
-    }));
+    Response response = await dio.post('${baseUrl}/login',
+        options: options,
+        data: json.encode({'usuario': '$user', 'password': password}));
     var tempRes = response.data;
-    if(tempRes.runtimeType == List<dynamic>){
+    if (tempRes.runtimeType == List<dynamic>) {
       for (var item in response.data) {
         empresas.add(Empresa.fromMap(item));
       }
@@ -71,16 +67,15 @@ class LoginService extends ChangeNotifier {
     return empresas;
   }
 
-  Future<List<Empresa>> rememberData(int user) async {    
+  Future<List<Empresa>> rememberData(int user) async {
     isLoading = true;
     notifyListeners();
 
     final List<Empresa> empresas = [];
-    Response response = await dio.post('${baseUrl}/remember_data', data: json.encode({
-      'usuario': '$user'
-    }));
+    Response response = await dio.post('${baseUrl}/remember_data',
+        data: json.encode({'usuario': '$user'}));
     var tempRes = response.data;
-    if(tempRes.runtimeType == List<dynamic>){
+    if (tempRes.runtimeType == List<dynamic>) {
       for (var item in response.data) {
         empresas.add(Empresa.fromMap(item));
       }
@@ -90,12 +85,13 @@ class LoginService extends ChangeNotifier {
     return empresas;
   }
 
-  Future<Map<String, dynamic>> sendEmailRememberData(Empresa empresa) async {    
+  Future<Map<String, dynamic>> sendEmailRememberData(Empresa empresa) async {
     isLoading = true;
     notifyListeners();
 
-    Response response = await dio.post('${baseUrl}/send_email_remember_data', data: empresa.toJson());
-    
+    Response response = await dio.post('${baseUrl}/send_email_remember_data',
+        data: empresa.toJson());
+
     isLoading = false;
     notifyListeners();
     return response.data;
@@ -107,8 +103,10 @@ class LoginService extends ChangeNotifier {
     final baseEmpresa = empresa.nombreBase;
     final usuario = empresa.numeroDocumento;
 
-    Response response = await dio.get('${baseUrl}/get_user_data/$baseEmpresa/$usuario', options: options);
-        
+    Response response = await dio.get(
+        '${baseUrl}/get_user_data/$baseEmpresa/$usuario',
+        options: options);
+
     final tempUserData = UserData.fromJson(response.toString());
 
     await storage.write(key: 'usuario', value: '${empresa.numeroDocumento}');
@@ -139,14 +137,14 @@ class LoginService extends ChangeNotifier {
     String nombreBase = await storage.read(key: 'nombreBase') ?? '';
     String token = await storage.read(key: 'token') ?? '';
     if (idUsuario.isNotEmpty && nombreBase.isNotEmpty && token.isNotEmpty) {
-      options.headers = {
-        "x-access-token": token
-      };
+      options.headers = {"x-access-token": token};
 
-      final tempDataEmp = await DBProvider.db.getEmpresaById(nombreBase) as Empresa;
+      final tempDataEmp =
+          await DBProvider.db.getEmpresaById(nombreBase) as Empresa;
       selectedEmpresa = tempDataEmp;
 
-      final tempDataUser = await DBProvider.db.getUser(idUsuario, tempDataEmp.password!, tempDataEmp.nombreBase!);
+      final tempDataUser = await DBProvider.db
+          .getUser(idUsuario, tempDataEmp.password!, tempDataEmp.nombreBase!);
       userDataLogged = tempDataUser;
     }
     return idUsuario;
@@ -156,10 +154,12 @@ class LoginService extends ChangeNotifier {
     String idUsuario = await storage.read(key: 'usuario') ?? '';
     String nombreBase = await storage.read(key: 'nombreBase') ?? '';
     if (idUsuario.isNotEmpty && nombreBase.isNotEmpty) {
-      final tempDataEmp = await DBProvider.db.getEmpresaById(nombreBase) as Empresa;
+      final tempDataEmp =
+          await DBProvider.db.getEmpresaById(nombreBase) as Empresa;
       selectedEmpresa = tempDataEmp;
 
-      final tempDataUser = await DBProvider.db.getUser(idUsuario, tempDataEmp.password!, tempDataEmp.nombreBase!);
+      final tempDataUser = await DBProvider.db
+          .getUser(idUsuario, tempDataEmp.password!, tempDataEmp.nombreBase!);
       userDataLogged = tempDataUser;
     }
 

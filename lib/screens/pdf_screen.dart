@@ -20,67 +20,78 @@ class PdfScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final params = ModalRoute.of(context)!.settings.arguments as List;
     final resumenPreoperacional = params[0] as ResumenPreoperacionalServer;
-    final inspeccionService = Provider.of<InspeccionService>(context, listen: false);
+    final inspeccionService =
+        Provider.of<InspeccionService>(context, listen: false);
     final loginService = Provider.of<LoginService>(context, listen: false);
 
     return FutureBuilder(
-      future: _generatePdf(resumenPreoperacional, inspeccionService, loginService),
-      builder: (context, snapshot) {
-        if (snapshot.data == null) {
-          return LoadingScreen();
-        } else {
-          var data = snapshot.data as PdfData;
-          
-          return Scaffold(
-            appBar: AppBar(
-              title: Text('Preoperacional ${resumenPreoperacional.resuPreId}', style: TextStyle(fontSize: 16),),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.share),
-                  onPressed: () async {
-                    await Share.shareFiles([data.file.path]);
-                  },
-                  tooltip: 'Compartir',
-                )
-              ],
-            ),
-            body: PdfPreview(
-              build: (format) => data.bytes,
-              canChangePageFormat: false,
-              canChangeOrientation: false,
-              canDebug: false,
-              allowSharing: false,
-              allowPrinting: false,
-            ),
-          );
-        }
-      }
-    );
+        future: _generatePdf(
+            resumenPreoperacional, inspeccionService, loginService),
+        builder: (context, snapshot) {
+          if (snapshot.data == null) {
+            return LoadingScreen();
+          } else {
+            var data = snapshot.data as PdfData;
+
+            return Scaffold(
+              appBar: AppBar(
+                title: Text(
+                  'Preoperacional ${resumenPreoperacional.resuPreId}',
+                  style: TextStyle(fontSize: 16),
+                ),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.share),
+                    onPressed: () async {
+                      await Share.shareXFiles([XFile(data.file.path)]);
+                    },
+                    tooltip: 'Compartir',
+                  )
+                ],
+              ),
+              body: PdfPreview(
+                build: (format) => data.bytes,
+                canChangePageFormat: false,
+                canChangeOrientation: false,
+                canDebug: false,
+                allowSharing: false,
+                allowPrinting: false,
+              ),
+            );
+          }
+        });
   }
 
   // Genera el pdf
   Future<PdfData> _generatePdf(
-    ResumenPreoperacionalServer resumenPreoperacional,
-    InspeccionService inspeccionService,
-    LoginService loginService
-  ) async {
-    Pdf infoPdf = await inspeccionService.detatilPdf(loginService.selectedEmpresa, resumenPreoperacional).then((data) => data, onError: (e) {
+      ResumenPreoperacionalServer resumenPreoperacional,
+      InspeccionService inspeccionService,
+      LoginService loginService) async {
+    Pdf infoPdf = await inspeccionService
+        .detatilPdf(loginService.selectedEmpresa, resumenPreoperacional)
+        .then((data) => data, onError: (e) {
       showSimpleNotification(Text('Error al obtener detalle pdf'),
-        leading: Icon(Icons.check),
-        autoDismiss: true,
-        background: Colors.orange,
-        position: NotificationPosition.bottom
-      );
+          leading: Icon(Icons.check),
+          autoDismiss: true,
+          background: Colors.orange,
+          position: NotificationPosition.bottom);
     });
 
     var responseLogoCliente = await get(Uri.parse(infoPdf.rutaLogo!));
     var logoCliente = responseLogoCliente.bodyBytes;
 
-    var responseLogoQi = await get(Uri.parse('https://qinspecting.com/img/Qi.png'));
+    var responseLogoQi =
+        await get(Uri.parse('https://qinspecting.com/img/Qi.png'));
     var logoQi = responseLogoQi.bodyBytes;
 
     var responseKilometraje = await get(Uri.parse(infoPdf.urlFotoKm!));
     var fotoKilometraje = responseKilometraje.bodyBytes;
+
+    var responseCabezote = await get(Uri.parse(infoPdf.urlFotoKm!));
+    var fotoCabezote = responseCabezote.bodyBytes;
+
+    var responseRemolque = await get(Uri.parse(infoPdf.urlFotoRemolque!));
+    var fotoRemolque = responseRemolque.bodyBytes;
 
     var resFirmaConductor = await get(Uri.parse(infoPdf.firma!));
     var firmaConductor = resFirmaConductor.bodyBytes;
@@ -103,10 +114,11 @@ class PdfScreen extends StatelessWidget {
     document.template.top = header;
 
     //Generate PDF grid.
-    final PdfGrid gridSummary = getGridSummary(infoPdf, pageSize, firmaConductor, firmaAuditor, resumenPreoperacional);
+    final PdfGrid gridSummary = getGridSummary(
+        infoPdf, pageSize, firmaConductor, firmaAuditor, resumenPreoperacional);
 
-    final PdfGrid gridAnswers =
-        getGridAnswers(infoPdf, pageSize, fotoKilometraje);
+    final PdfGrid gridAnswers = getGridAnswers(
+        infoPdf, pageSize, fotoKilometraje, fotoCabezote, fotoRemolque);
 
     //Draw grid
     PdfLayoutResult resultSummary = gridSummary.draw(
@@ -119,9 +131,12 @@ class PdfScreen extends StatelessWidget {
 
     //Save the PDF document
     final outputExternal = await getExternalStorageDirectory();
-    final pathFile = '${outputExternal!.path}/${resumenPreoperacional.consecutivo}.pdf';
+    final pathFile =
+        '${outputExternal!.path}/${resumenPreoperacional.consecutivo}.pdf';
 
-    await File(pathFile).writeAsBytes(document.save());
+    final pdf = await document.save();
+
+    await File(pathFile).writeAsBytes(pdf);
 
     Uint8List bytes = File(pathFile).readAsBytesSync();
     // Dispose the document.
@@ -218,13 +233,8 @@ class PdfScreen extends StatelessWidget {
     return header;
   }
 
-  PdfGrid getGridSummary(
-    Pdf infoPdf,
-    Size pageSize,
-    firmaConductor,
-    firmaAuditor,
-    ResumenPreoperacionalServer resumenPreoperacional
-  ) {
+  PdfGrid getGridSummary(Pdf infoPdf, Size pageSize, firmaConductor,
+      firmaAuditor, ResumenPreoperacionalServer resumenPreoperacional) {
     //Create a PDF grid
     final PdfGrid gridSummary = PdfGrid();
     //Secify the columns count to the grid.
@@ -264,10 +274,12 @@ class PdfScreen extends StatelessWidget {
     rowSummary2.cells[0].value = 'N°. INSPECCIÓN';
     rowSummary2.cells[1].value = '${infoPdf.consecutivo}';
     rowSummary2.cells[2].value = 'FIRMA CONDUCTOR';
-    rowSummary2.cells[3].style = PdfGridCellStyle(backgroundImage: PdfBitmap(firmaConductor));
+    rowSummary2.cells[3].style =
+        PdfGridCellStyle(backgroundImage: PdfBitmap(firmaConductor));
     rowSummary2.height = 30;
     rowSummary2.cells[4].value = 'FIRMA DE QUIEN INSPECCIONA';
-    rowSummary2.cells[5].value = PdfGridCellStyle(backgroundImage: PdfBitmap(firmaAuditor));
+    rowSummary2.cells[5].value =
+        PdfGridCellStyle(backgroundImage: PdfBitmap(firmaAuditor));
 
     // Styles for table
     gridSummary.style = PdfGridStyle(
@@ -297,8 +309,8 @@ class PdfScreen extends StatelessWidget {
   }
 
   //Create PDF grid and return
-  PdfGrid getGridAnswers(
-      Pdf infoPdf, Size pageSize, Uint8List fotoKilometraje) {
+  PdfGrid getGridAnswers(Pdf infoPdf, Size pageSize, Uint8List fotoKilometraje,
+      Uint8List fotoCabezote, Uint8List fotoRemolque) {
     //Create a PDF grid
     final PdfGrid grid = PdfGrid();
     //Secify the columns count to the grid.
@@ -356,19 +368,32 @@ class PdfScreen extends StatelessWidget {
 
     DateTime fechaHoy = DateTime.now();
     //Add rows
-    if(infoPdf.detalle.length > 0){
+    if (infoPdf.detalle.length > 0) {
       infoPdf.detalle.last.respuestas.add(RespuestaInspeccion(
-        idItem: -1,
-        item: 'Kilometraje',
-        foto: infoPdf.urlFotoKm,
-        fotoConverted: fotoKilometraje)
-      );
+          idItem: -1,
+          item: 'Kilometraje',
+          foto: infoPdf.urlFotoKm,
+          fotoConverted: fotoKilometraje));
+
+      infoPdf.detalle.last.respuestas.add(RespuestaInspeccion(
+          idItem: -2,
+          item: 'Cabezote',
+          foto: infoPdf.urlFotoCabezote,
+          fotoConverted: fotoCabezote));
+
+      infoPdf.detalle.last.respuestas.add(RespuestaInspeccion(
+          idItem: -3,
+          item: 'Remolque',
+          foto: infoPdf.urlFotoRemolque,
+          fotoConverted: fotoRemolque));
+
       infoPdf.detalle.forEach((categoria) {
         // Dibujas las categorias
         final PdfGridRow row = grid.rows.add();
         row.cells[0].value = categoria.categoria;
         row.cells[0].columnSpan = 7;
-        row.cells[0].style = PdfGridCellStyle(backgroundBrush: PdfBrushes.lightGray);
+        row.cells[0].style =
+            PdfGridCellStyle(backgroundBrush: PdfBrushes.lightGray);
         // Dibuja los items
         categoria.respuestas.forEach((respuesta) {
           addRows(grid, infoPdf, respuesta, formatColumns, fechaHoy);
@@ -403,30 +428,41 @@ class PdfScreen extends StatelessWidget {
       row.cells[1].style.stringFormat = formatColumns;
     }
 
+    if (respuesta.idItem == -2) {
+      row.cells[1].columnSpan = 5;
+      row.cells[1].style.stringFormat = formatColumns;
+    }
+
+    if (respuesta.idItem == -3) {
+      row.cells[1].columnSpan = 5;
+      row.cells[1].style.stringFormat = formatColumns;
+    }
+
     row.cells[5].style.stringFormat = formatColumns;
 
-    if (
-      respuesta.idItem == 1 && respuesta.fechaVencimiento != null || 
-      respuesta.idItem == 3 && respuesta.fechaVencimiento != null || 
-      respuesta.idItem == 4 && respuesta.fechaVencimiento != null || 
-      respuesta.idItem == 5 && respuesta.fechaVencimiento != null || 
-      respuesta.idItem == 6 && respuesta.fechaVencimiento != null || 
-      respuesta.idItem == 7 && respuesta.fechaVencimiento != null
-    ) {
+    if (respuesta.idItem == 1 && respuesta.fechaVencimiento != null ||
+        respuesta.idItem == 3 && respuesta.fechaVencimiento != null ||
+        respuesta.idItem == 4 && respuesta.fechaVencimiento != null ||
+        respuesta.idItem == 5 && respuesta.fechaVencimiento != null ||
+        respuesta.idItem == 6 && respuesta.fechaVencimiento != null ||
+        respuesta.idItem == 7 && respuesta.fechaVencimiento != null) {
       // 1, "Licencia de Tránsito"
-      row.cells[5].value = 'Fecha de Vencimiento: ${respuesta.fechaVencimiento}';
+      row.cells[5].value =
+          'Fecha de Vencimiento: ${respuesta.fechaVencimiento}';
       DateTime tempDate = DateTime.parse('${respuesta.fechaVencimiento}');
       final difference = tempDate.difference(fechaHoy).inDays;
       row.cells[5].style.backgroundBrush = difference <= 15 && difference > 0
           ? PdfBrushes.orange
           : PdfBrushes.red;
     } else {
-      row.cells[5].value = '${respuesta.observacion == null ? '' : respuesta.observacion}';
+      row.cells[5].value =
+          '${respuesta.observacion == null ? '' : respuesta.observacion}';
     }
     if (respuesta.foto == null) {
       row.cells[6].value = '';
     } else {
-      row.cells[6].style = PdfGridCellStyle(backgroundImage: PdfBitmap(respuesta.fotoConverted!));
+      row.cells[6].style = PdfGridCellStyle(
+          backgroundImage: PdfBitmap(respuesta.fotoConverted!));
       row.height = 40;
     }
   }

@@ -27,16 +27,18 @@ class InspeccionService extends ChangeNotifier {
   ResumenPreoperacional resumePreoperacional = ResumenPreoperacional();
   final storage = new FlutterSecureStorage();
 
-
-  void clearData (){
+  void clearData() {
     resumePreoperacional.idCiudad = 0;
     resumePreoperacional.kilometraje = 0;
     resumePreoperacional.placaVehiculo = '';
   }
 
   Future<bool> checkConnection() async {
-    final connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+    final List<ConnectivityResult> connectivityResult =
+        await (Connectivity().checkConnectivity());
+
+    if (connectivityResult.contains(ConnectivityResult.mobile) ||
+        connectivityResult.contains(ConnectivityResult.wifi)) {
       return true;
     } else {
       return false;
@@ -60,11 +62,11 @@ class InspeccionService extends ChangeNotifier {
       try {
         // Buscamos en el storage el token y lo asignamos a la instancia para poderlo usar en todas las peticiones de este servicio
         String token = await storage.read(key: 'token') ?? '';
-        loginService.options.headers = {
-          "x-access-token": token
-        };
+        loginService.options.headers = {"x-access-token": token};
 
-        Response response = await dio.get('${loginService.baseUrl}/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.numeroDocumento}', options: loginService.options);
+        Response response = await dio.get(
+            '${loginService.baseUrl}/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.numeroDocumento}',
+            options: loginService.options);
         List<ResumenPreoperacionalServer> tempData = [];
         for (var item in response.data) {
           tempData.add(ResumenPreoperacionalServer.fromMap(item));
@@ -72,8 +74,8 @@ class InspeccionService extends ChangeNotifier {
 
         listInspections = [...tempData];
         return true;
-      } on DioError catch (error) {
-        print(error.response?.data);     
+      } on DioException catch (error) {
+        print(error.response?.data);
         showSimpleNotification(
           Text('No hemos podido obtener las inspecciones'),
           leading: Icon(Icons.wifi_tethering_error_rounded_outlined),
@@ -100,7 +102,9 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
 
-    Response response = await dio.get('${loginService.baseUrl}/list_departments/$baseEmpresa', options: loginService.options);
+    Response response = await dio.get(
+        '${loginService.baseUrl}/list_departments/$baseEmpresa',
+        options: loginService.options);
     departamentos.clear();
     for (var item in response.data) {
       final tempDepartamento = Departamentos.fromMap(item);
@@ -117,7 +121,8 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
 
-    Response response = await dio.get('${loginService.baseUrl}/list_city/$baseEmpresa');
+    Response response =
+        await dio.get('${loginService.baseUrl}/list_city/$baseEmpresa');
     ciudades.clear();
     for (var item in response.data) {
       final tempCiudad = Ciudades.fromMap(item);
@@ -134,7 +139,9 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
 
-    Response response = await dio.get('${loginService.baseUrl}/show_placas_cabezote/$baseEmpresa', options: loginService.options);
+    Response response = await dio.get(
+        '${loginService.baseUrl}/show_placas_cabezote/$baseEmpresa',
+        options: loginService.options);
     vehiculos.clear();
     DBProvider.db.clearsVehiculos();
     List<Future> futures = [];
@@ -154,7 +161,9 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
     final baseEmpresa = empresaSelected.nombreBase;
 
-    Response response = await dio.get('${loginService.baseUrl}/show_placas_trailer/$baseEmpresa', options: loginService.options);
+    Response response = await dio.get(
+        '${loginService.baseUrl}/show_placas_trailer/$baseEmpresa',
+        options: loginService.options);
     remolques.clear();
     DBProvider.db.clearsRemolques();
     List<Future> futures = [];
@@ -169,23 +178,30 @@ class InspeccionService extends ChangeNotifier {
     return remolques;
   }
 
-  Future<Map<String, dynamic>?> uploadImage({required String path, required String company, required String folder}) async {
+  Future<Map<String, dynamic>?> uploadImage(
+      {required String path,
+      required String company,
+      required String folder}) async {
     try {
-      
       var fileName = (path.split('/').last);
-      var formData = FormData.fromMap({'files': await MultipartFile.fromFile('${path}', filename: '${fileName}')});
-      Response response = await dio.post('${loginService.baseUrl}/upload_file/${company.toLowerCase()}/${folder}', data: formData, options: loginService.options);
+      var formData = FormData.fromMap({
+        'files':
+            await MultipartFile.fromFile('${path}', filename: '${fileName}')
+      });
+      Response response = await dio.post(
+          '${loginService.baseUrl}/upload_file/${company.toLowerCase()}/${folder}',
+          data: formData,
+          options: loginService.options);
       final resp = ResponseUploadFile.fromMap(response.data);
-      
+
       return resp.toMap();
-    } on DioError catch (error) {
+    } on DioException catch (error) {
       print(error.response!.data);
       showSimpleNotification(Text('No se ha podido subir la foto al servidor'),
-        leading: Icon(Icons.check),
-        autoDismiss: true,
-        background: Colors.orange,
-        position: NotificationPosition.bottom
-      );
+          leading: Icon(Icons.check),
+          autoDismiss: true,
+          background: Colors.orange,
+          position: NotificationPosition.bottom);
       return Future.error(error.response!.data);
     }
   }
@@ -194,45 +210,55 @@ class InspeccionService extends ChangeNotifier {
     try {
       // Buscamos en el storage el token y lo asignamos a la instancia para poderlo usar en todas las peticiones de este servicio
       String token = await storage.read(key: 'token') ?? '';
-      loginService.options.headers = {
-        "x-access-token": token
-      };
+      loginService.options.headers = {"x-access-token": token};
       final baseEmpresa = selectedEmpresa.nombreBase;
       await loginService.getUserData(selectedEmpresa);
-      Response response = await dio.get('${loginService.baseUrl}/get_placas_cabezote/$baseEmpresa', options: loginService.options);
+      Response response = await dio.get(
+          '${loginService.baseUrl}/get_placas_cabezote/$baseEmpresa',
+          options: loginService.options);
       for (var item in response.data) {
         final tempVehiculo = Vehiculo.fromMap(item);
         DBProvider.db.nuevoVehiculo(tempVehiculo);
       }
-      Response responseTrailer = await dio.get('${loginService.baseUrl}/get_placas_trailer/$baseEmpresa', options: loginService.options);
+      Response responseTrailer = await dio.get(
+          '${loginService.baseUrl}/get_placas_trailer/$baseEmpresa',
+          options: loginService.options);
       for (var item in responseTrailer.data) {
         final tempRemolque = Remolque.fromMap(item);
         DBProvider.db.nuevoRemolque(tempRemolque);
       }
-      Response responseDepartamentos = await dio.get('${loginService.baseUrl}/list_departments/$baseEmpresa', options: loginService.options);
+      Response responseDepartamentos = await dio.get(
+          '${loginService.baseUrl}/list_departments/$baseEmpresa',
+          options: loginService.options);
       for (var item in responseDepartamentos.data) {
         final tempDepartamento = Departamentos.fromMap(item);
         DBProvider.db.nuevoDepartamento(tempDepartamento);
       }
-      Response responseCiudades = await dio.get('${loginService.baseUrl}/list_city/$baseEmpresa', options: loginService.options);
+      Response responseCiudades = await dio.get(
+          '${loginService.baseUrl}/list_city/$baseEmpresa',
+          options: loginService.options);
       for (var item in responseCiudades.data) {
         final tempCiudad = Ciudades.fromMap(item);
         DBProvider.db.nuevaCiudad(tempCiudad);
       }
-      Response responseItems = await dio.get('${loginService.baseUrl}/list_items_x_placa/$baseEmpresa', options: loginService.options);
+      Response responseItems = await dio.get(
+          '${loginService.baseUrl}/list_items_x_placa/$baseEmpresa',
+          options: loginService.options);
       for (var item in responseItems.data) {
         final tempItem = ItemInspeccion.fromMap(item);
         DBProvider.db.nuevoItem(tempItem);
       }
 
-      Response responseTipodoc = await dio.get('${loginService.baseUrl}/list_type_documents/$baseEmpresa', options: loginService.options);
+      Response responseTipodoc = await dio.get(
+          '${loginService.baseUrl}/list_type_documents/$baseEmpresa',
+          options: loginService.options);
       for (var item in responseTipodoc.data) {
         final tempTipoDoc = TipoDocumentos.fromMap(item);
         DBProvider.db.nuevoTipoDocumento(tempTipoDoc);
       }
 
       return true;
-    } on DioError catch (error) {
+    } on DioException catch (error) {
       print(error.response!.data);
       showSimpleNotification(Text('No se ha podido obtener datos iniciales'),
           leading: Icon(Icons.check),
@@ -245,47 +271,78 @@ class InspeccionService extends ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>> sendInspeccion(ResumenPreoperacional inspeccion, Empresa selectedEmpresa) async {
+  Future<Map<String, dynamic>> sendInspeccion(
+      ResumenPreoperacional inspeccion, Empresa selectedEmpresa) async {
     try {
       final connectivityResult = await checkConnection();
       if (connectivityResult) {
         // Se envia la foto del kilometraje al servidor
         Map<String, dynamic>? responseUploadKilometraje = await uploadImage(
-          path: inspeccion.urlFotoKm!,
-          company: '${selectedEmpresa.nombreQi}',
-          folder: 'inspecciones'
-        );
+            path: inspeccion.urlFotoKm!,
+            company: '${selectedEmpresa.nombreQi}',
+            folder: 'inspecciones');
         inspeccion.urlFotoKm = responseUploadKilometraje?['path'];
 
         // Se envia la foto de la guia si tiene
         if (inspeccion.numeroGuia?.isNotEmpty ?? false) {
           Map<String, dynamic>? responseUploadGuia = await uploadImage(
-            path: inspeccion.urlFotoGuia!,
-            company: selectedEmpresa.nombreQi!,
-            folder: 'inspecciones'
-          );
+              path: inspeccion.urlFotoGuia!,
+              company: selectedEmpresa.nombreQi!,
+              folder: 'inspecciones');
           inspeccion.urlFotoGuia = responseUploadGuia?['path'];
         }
 
+        // Se envia la foto del cabezote si tiene
+        if (resumePreoperacional.urlFotoCabezote?.isNotEmpty ?? false) {
+          Map<String, dynamic>? responseUploaCabezote = await uploadImage(
+              path: resumePreoperacional.urlFotoCabezote!,
+              company: selectedEmpresa.nombreQi!,
+              folder: 'inspecciones');
+          inspeccion.urlFotoCabezote = responseUploaCabezote?['path'];
+        }
+
+        // Se envia la foto del remolque si tiene
+        if (resumePreoperacional.urlFotoRemolque?.isNotEmpty ?? false) {
+          Map<String, dynamic>? responseUploaRemolque = await uploadImage(
+              path: resumePreoperacional.urlFotoRemolque!,
+              company: selectedEmpresa.nombreQi!,
+              folder: 'inspecciones');
+          inspeccion.urlFotoRemolque = responseUploaRemolque?['path'];
+        }
+
         // Guardamos el resumen del preoperacional en el server
-        final responseResumen = await dio.post('${loginService.baseUrl}/insert_preoperacional', options: loginService.options, data: inspeccion.toJson());
+        final responseResumen = await dio.post(
+            '${loginService.baseUrl}/insert_preoperacional',
+            options: loginService.options,
+            data: inspeccion.toJson());
         final resumen = Respuesta.fromMap(responseResumen.data);
+
         // Consultamos en sqlite las respuestas
-        List<Item> respuestas = await inspeccionProvider.cargarTodasRespuestas(inspeccion.id!);
+        List<Item> respuestas =
+            await inspeccionProvider.cargarTodasRespuestas(inspeccion.id!);
 
         List<Future> Promesas = [];
         respuestas.forEach((element) {
           element.fkPreoperacional = resumen.idInspeccion;
           if (element.adjunto != null) {
-            Promesas.add(uploadImage(path: element.adjunto!, company: selectedEmpresa.nombreQi!, folder: 'inspecciones')
-            .then((response) {
+            Promesas.add(uploadImage(
+                    path: element.adjunto!,
+                    company: selectedEmpresa.nombreQi!,
+                    folder: 'inspecciones')
+                .then((response) {
               final responseUpload = ResponseUploadFile.fromMap(response!);
               element.adjunto = responseUpload.path;
 
-              return dio.post('${loginService.baseUrl}/insert_respuestas_preoperacional', options: loginService.options, data: element.toJson());
+              return dio.post(
+                  '${loginService.baseUrl}/insert_respuestas_preoperacional',
+                  options: loginService.options,
+                  data: element.toJson());
             }));
           } else {
-            Promesas.add(dio.post('${loginService.baseUrl}/insert_respuestas_preoperacional', options: loginService.options, data: element.toJson()));
+            Promesas.add(dio.post(
+                '${loginService.baseUrl}/insert_respuestas_preoperacional',
+                options: loginService.options,
+                data: element.toJson()));
           }
         });
 
@@ -296,11 +353,10 @@ class InspeccionService extends ChangeNotifier {
 
         // get a notification at top of screen.
         showSimpleNotification(Text(resumen.message!),
-          leading: Icon(Icons.check),
-          autoDismiss: true,
-          background: Colors.green,
-          position: NotificationPosition.bottom
-        );
+            leading: Icon(Icons.check),
+            autoDismiss: true,
+            background: Colors.green,
+            position: NotificationPosition.bottom);
 
         isSaving = false;
         notifyListeners();
@@ -319,26 +375,29 @@ class InspeccionService extends ChangeNotifier {
           "idInspeccion": 0
         };
       }
-    } on DioError catch (error) {
+    } on DioException catch (error) {
       print(error.response?.data);
       showSimpleNotification(Text('No se ha podido guardar la inspección'),
-        leading: Icon(Icons.check),
-        autoDismiss: true,
-        background: Colors.orange,
-        position: NotificationPosition.bottom
-      );
+          leading: Icon(Icons.check),
+          autoDismiss: true,
+          background: Colors.orange,
+          position: NotificationPosition.bottom);
       return Future.error(error.response?.data);
     } finally {
       isSaving = false;
     }
   }
 
-  Future<Pdf> detatilPdf(Empresa empresaSelected, ResumenPreoperacionalServer inspeccion) async {
-    Response response = await dio.get('${loginService.baseUrl}/inspeccion/${empresaSelected.nombreBase}/${inspeccion.resuPreId}', options: loginService.options);
+  Future<Pdf> detatilPdf(
+      Empresa empresaSelected, ResumenPreoperacionalServer inspeccion) async {
+    Response response = await dio.get(
+        '${loginService.baseUrl}/inspeccion/${empresaSelected.nombreBase}/${inspeccion.resuPreId}',
+        options: loginService.options);
 
     List<Future> promesas = [];
 
     Pdf temData = Pdf.fromJson(response.toString());
+
     temData.detalle.forEach((categoria) {
       categoria.respuestas.forEach((respuesta) {
         if (respuesta.foto != null) {
@@ -349,7 +408,8 @@ class InspeccionService extends ChangeNotifier {
       });
     });
 
-    List<dynamic> responseFile = await Future.wait(promesas).then((value) => value);
+    List<dynamic> responseFile =
+        await Future.wait(promesas).then((value) => value);
 
     temData.detalle.forEach((categoria) {
       categoria.respuestas.forEach((respuesta) {

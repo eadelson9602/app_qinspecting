@@ -68,52 +68,56 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
                       // File('my_firma.png').writeAsBytes(data);
 
                       final dir = await getExternalStorageDirectory();
-                      final myImagePath = '${dir!.path}/${loginService.selectedEmpresa.nombreBase}_${loginService.userDataLogged.numeroDocumento}.png';
+                      final myImagePath =
+                          '${dir!.path}/${loginService.selectedEmpresa.nombreBase}_${loginService.userDataLogged.numeroDocumento}.png';
                       File imageFile = File(myImagePath);
                       if (!await imageFile.exists()) {
                         imageFile.create(recursive: true);
                       }
                       imageFile.writeAsBytesSync(data);
                       // Se envia la foto de la firma al servidor
-                      Map<String, dynamic>? responseUploadFirma = await inspeccionService.uploadImage(
-                        path: myImagePath,
-                        company: loginService.selectedEmpresa.nombreQi!.toLowerCase(),
-                        folder: 'firmas'
-                      );
+                      Map<String, dynamic>? responseUploadFirma =
+                          await inspeccionService.uploadImage(
+                              path: myImagePath,
+                              company: loginService.selectedEmpresa.nombreQi!
+                                  .toLowerCase(),
+                              folder: 'firmas');
 
                       Map dataFirmaSave = {
                         "base": loginService.selectedEmpresa.nombreBase,
                         "idFirma": null,
                         "terminosCondiciones": "SI",
                         "firma": responseUploadFirma?['path'],
-                        "fkNumeroDoc": loginService.userDataLogged.numeroDocumento
+                        "fkNumeroDoc":
+                            loginService.userDataLogged.numeroDocumento
                       };
-                      Map responseSaveFirma = await firmaService.insertSignature(dataFirmaSave);
+                      Map responseSaveFirma =
+                          await firmaService.insertSignature(dataFirmaSave);
                       // Actualizamos estado de firma en local
-                      loginService.userDataLogged.idFirma = responseSaveFirma['insertId'];
+                      loginService.userDataLogged.idFirma =
+                          responseSaveFirma['insertId'];
                       DBProvider.db.updateUser(loginService.userDataLogged);
                       // restablecemos valor de variables
                       inspeccionService.isSaving = false;
                       firmaService.updateTerminos('NO');
                       firmaService.updateTabIndex(0);
-                      
+
                       // show a notification at top of screen.
                       showSimpleNotification(
-                        Text(responseSaveFirma['message']!),
-                        leading: Icon(Icons.check),
-                        autoDismiss: true,
-                        background: Colors.green,
-                        position: NotificationPosition.bottom
-                      );
+                          Text(responseSaveFirma['message']!),
+                          leading: Icon(Icons.check),
+                          autoDismiss: true,
+                          background: Colors.green,
+                          position: NotificationPosition.bottom);
                       Navigator.pop(context);
                     }
-                  } on DioError catch (_) {
-                    showSimpleNotification(Text('No se ha podido guardar la firma'),
-                      leading: Icon(Icons.check),
-                      autoDismiss: true,
-                      background: Colors.orange,
-                      position: NotificationPosition.bottom
-                    );
+                  } on DioException catch (_) {
+                    showSimpleNotification(
+                        Text('No se ha podido guardar la firma'),
+                        leading: Icon(Icons.check),
+                        autoDismiss: true,
+                        background: Colors.orange,
+                        position: NotificationPosition.bottom);
                   }
                 }
               },

@@ -27,16 +27,19 @@ class PdfScreenOffline extends StatelessWidget {
           if (snapshot.data == null) {
             return LoadingScreen();
           } else {
-             var data = snapshot.data as PdfData;
-          
+            var data = snapshot.data as PdfData;
+
             return Scaffold(
               appBar: AppBar(
-                title: Text('Preoperacional ${resumenPreoperacional.id}', style: TextStyle(fontSize: 16),),
+                title: Text(
+                  'Preoperacional ${resumenPreoperacional.id}',
+                  style: TextStyle(fontSize: 16),
+                ),
                 actions: [
                   IconButton(
                     icon: const Icon(Icons.share),
                     onPressed: () async {
-                      await Share.shareFiles([data.file.path]);
+                      await Share.shareXFiles([XFile(data.file.path)]);
                     },
                     tooltip: 'Compartir',
                   )
@@ -67,17 +70,17 @@ class PdfScreenOffline extends StatelessWidget {
       // Tranformamor el elemento a una instancia de ItemsVehiculo
       final data = ItemsVehiculo.fromMap(element);
       // Filtramos los items que tienen respuesta
-      final tempRespuestas = data.items.where((item) => item.respuesta != null).toList();
+      final tempRespuestas =
+          data.items.where((item) => item.respuesta != null).toList();
       // Si hay respuestas los pusheamos al array de respuestas
-      if(tempRespuestas.length > 0){
+      if (tempRespuestas.length > 0) {
         respuestas.add(data);
       }
     });
 
     final infoVehiculo = await DBProvider.db.getVehiculoByPlate(infoPdf.placa!);
 
-    var fotoKilometraje =
-        PdfBitmap(File(infoPdf.urlFotoKm!).readAsBytesSync());
+    // print('CABEZOTE 1 ${infoPdf.urlFotoRemolque}');
 
     // var firmaConductor = PdfBitmap(File(resumenPreoperacional.resuPreFotokm!).readAsBytesSync());
     // var firmaAuditor = PdfBitmap(File(resumenPreoperacional.resuPreFotokm!).readAsBytesSync());
@@ -97,8 +100,7 @@ class PdfScreenOffline extends StatelessWidget {
     final PdfGrid gridSummary =
         getGridSummary(infoPdf, pageSize, infoVehiculo!, loginService);
 
-    final PdfGrid gridAnswers =
-        getGridAnswers(infoPdf, pageSize, fotoKilometraje, respuestas);
+    final PdfGrid gridAnswers = getGridAnswers(infoPdf, pageSize, respuestas);
 
     //Draw grid
     PdfLayoutResult resultSummary = gridSummary.draw(
@@ -113,7 +115,9 @@ class PdfScreenOffline extends StatelessWidget {
     final outputExternal = await getExternalStorageDirectory();
     final pathFile = '${outputExternal!.path}/preoperacional ${infoPdf.id}.pdf';
 
-    await File(pathFile).writeAsBytes(document.save());
+    final pdf = await document.save();
+
+    await File(pathFile).writeAsBytes(pdf);
 
     Uint8List bytes = File(pathFile).readAsBytesSync();
     // Dispose the document.
@@ -283,7 +287,7 @@ class PdfScreenOffline extends StatelessWidget {
 
   //Create PDF grid and return
   PdfGrid getGridAnswers(ResumenPreoperacional infoPdf, Size pageSize,
-      PdfBitmap fotoKilometraje, List<ItemsVehiculo> respuestas) {
+      List<ItemsVehiculo> respuestas) {
     //Create a PDF grid
     final PdfGrid grid = PdfGrid();
     //Secify the columns count to the grid.
@@ -347,6 +351,21 @@ class PdfScreenOffline extends StatelessWidget {
       adjunto: infoPdf.urlFotoKm,
     ));
 
+    print('KM ${infoPdf.urlFotoKm}');
+    print('CABEZOTE ${infoPdf.urlFotoRemolque}');
+    print('REMOLQUE ${infoPdf.urlFotoRemolque}');
+    respuestas.last.items.add(Item(
+      idItem: '-2',
+      item: 'Cabezote',
+      adjunto: infoPdf.urlFotoCabezote,
+    ));
+
+    respuestas.last.items.add(Item(
+      idItem: '-2',
+      item: 'Remolque',
+      adjunto: infoPdf.urlFotoRemolque,
+    ));
+
     respuestas.forEach((element) {
       // Dibujas las categorias
       final PdfGridRow row = grid.rows.add();
@@ -385,6 +404,17 @@ class PdfScreenOffline extends StatelessWidget {
       row.cells[1].value = '${infoPdf.kilometraje} KM';
       row.cells[1].style.stringFormat = formatColumns;
     }
+
+    if (respuesta.idItem == '-2') {
+      row.cells[1].columnSpan = 5;
+      row.cells[1].style.stringFormat = formatColumns;
+    }
+
+    if (respuesta.idItem == '-3') {
+      row.cells[1].columnSpan = 5;
+      row.cells[1].style.stringFormat = formatColumns;
+    }
+
     row.cells[5].style.stringFormat = formatColumns;
     row.cells[5].value =
         '${respuesta.observaciones == null ? '' : respuesta.observaciones}';

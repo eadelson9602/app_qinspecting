@@ -29,12 +29,15 @@ class FirmaService extends ChangeNotifier {
       isLoading = true;
       notifyListeners();
 
-      Response response = await dio.post('${loginService.baseUrl}/insert_signature', options: loginService.options, data: jsonEncode(firma));
+      Response response = await dio.post(
+          '${loginService.baseUrl}/insert_signature',
+          options: loginService.options,
+          data: jsonEncode(firma));
 
       isLoading = false;
       notifyListeners();
       return response.data;
-    } on DioError catch (error) {
+    } on DioException catch (error) {
       print(error.response!.data);
       showSimpleNotification(
         Text('No hemos podido obtener la firma'),
@@ -51,13 +54,15 @@ class FirmaService extends ChangeNotifier {
     try {
       // Buscamos en el storage el token y lo asignamos a la instancia para poderlo usar en todas las peticiones de este servicio
       String token = await storage.read(key: 'token') ?? '';
-      loginService.options.headers = {
-        "x-access-token": token
-      };
-      Response response = await dio.get('${loginService.baseUrl}/get_info_firma/${empresaSelected.nombreBase}/${empresaSelected.numeroDocumento}', options: loginService.options);
+      loginService.options.headers = {"x-access-token": token};
+      Response response = await dio.get(
+          '${loginService.baseUrl}/get_info_firma/${empresaSelected.nombreBase}/${empresaSelected.numeroDocumento}',
+          options: loginService.options);
 
-      return response.data.toString().isNotEmpty ? Firma.fromMap(response.data) : null;
-    } on DioError catch (error) {
+      return response.data.toString().isNotEmpty
+          ? Firma.fromMap(response.data)
+          : null;
+    } on DioException catch (error) {
       showSimpleNotification(
         Text('No hemos podido obtener la firma'),
         leading: Icon(Icons.wifi_tethering_error_rounded_outlined),

@@ -28,7 +28,7 @@ class DBProvider {
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       await db.execute('''
-        CREATE TABLE ResumenPreoperacional(id INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, fechaPreoperacional TEXT, ciudadGps TEXT, kilometraje NUMERIC, cantTanqueoGalones NUMERIC, urlFotoKm TEXT, usuarioPreoperacional TEXT, numeroGuia TEXT, urlFotoGuia TEXT, placaVehiculo TEXT, placaRemolque TEXT, idCiudad NUMERIC, ciudad TEXT, respuestas TEXT, base TEXT);
+        CREATE TABLE ResumenPreoperacional(id INTEGER PRIMARY KEY AUTOINCREMENT, placa TEXT, fechaPreoperacional TEXT, ciudadGps TEXT, kilometraje NUMERIC, cantTanqueoGalones NUMERIC, urlFotoKm TEXT, usuarioPreoperacional TEXT, numeroGuia TEXT, urlFotoGuia TEXT, urlFotoCabezote TEXT, urlFotoRemolque TEXT, placaVehiculo TEXT, placaRemolque TEXT, idCiudad NUMERIC, ciudad TEXT, respuestas TEXT, base TEXT);
       ''');
       await db.execute('''
         CREATE TABLE RespuestasPreoperacional(id INTEGER PRIMARY KEY AUTOINCREMENT, idCategoria INTEGER, idItem INTEGER, item TEXT, respuesta TEXT, adjunto TEXT, observaciones TEXT, base TEXT, fkPreoperacional INTEGER, CONSTRAINT fkPreoperacional FOREIGN KEY (id) REFERENCES ResumenPreoperacional(id) ON DELETE CASCADE) ;
@@ -300,6 +300,9 @@ class DBProvider {
 
   Future<int?> nuevoInspeccion(ResumenPreoperacional nuevoInspeccion) async {
     final db = await database;
+    print('urlFotoCabezote ${nuevoInspeccion.urlFotoCabezote}');
+    print('urlFotoRemolque ${nuevoInspeccion.urlFotoRemolque}');
+
     Map<String, dynamic> resumenSave = {
       "placa": nuevoInspeccion.placa,
       "fechaPreoperacional": nuevoInspeccion.fechaPreoperacional,
@@ -310,6 +313,8 @@ class DBProvider {
       "usuarioPreoperacional": nuevoInspeccion.usuarioPreoperacional,
       "numeroGuia": nuevoInspeccion.numeroGuia,
       "urlFotoGuia": nuevoInspeccion.urlFotoGuia,
+      "urlFotoCabezote": nuevoInspeccion.urlFotoCabezote,
+      "urlFotoRemolque": nuevoInspeccion.urlFotoRemolque,
       "placaVehiculo": nuevoInspeccion.placaVehiculo,
       "placaRemolque": nuevoInspeccion.placaRemolque,
       "idCiudad": nuevoInspeccion.idCiudad,

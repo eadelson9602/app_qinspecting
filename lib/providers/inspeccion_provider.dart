@@ -22,8 +22,12 @@ class InspeccionProvider extends ChangeNotifier {
   List<ItemsVehiculo> itemsInspeccionRemolque = [];
   List<ResumenPreoperacional> allInspecciones = [];
   File? pictureKilometraje; //Archivo que se sube al server
+  File? pictureCabezote; //Archivo que se sube al server
+  File? pictureRemolque; //Archivo que se sube al server
   File? pictureGuia; //Archivo que se sube al server
   String? pathFileKilometraje;
+  String? pathFileCabezote;
+  String? pathFileRemolque;
   String? pathFileGuia;
   int stepStepper = 0;
   int stepStepperRemolque = 0;
@@ -32,6 +36,8 @@ class InspeccionProvider extends ChangeNotifier {
     vehiculoSelected = null;
     remolqueSelected = null;
     pathFileKilometraje = null;
+    pathFileCabezote = null;
+    pathFileRemolque = null;
     stepStepperRemolque = 0;
     stepStepper = 0;
     pathFileGuia = null;
@@ -50,6 +56,18 @@ class InspeccionProvider extends ChangeNotifier {
   void updateSelectedImage(String path) {
     pathFileKilometraje = path;
     pictureKilometraje = File.fromUri(Uri(path: path));
+    notifyListeners();
+  }
+
+  void updateCabezoteImage(String path) {
+    pathFileCabezote = path;
+    pictureCabezote = File.fromUri(Uri(path: path));
+    notifyListeners();
+  }
+
+  void updateRemolqueImage(String path) {
+    pathFileRemolque = path;
+    pictureRemolque = File.fromUri(Uri(path: path));
     notifyListeners();
   }
 
@@ -112,7 +130,8 @@ class InspeccionProvider extends ChangeNotifier {
   }
 
   listarCiudades(int idDepartamento) async {
-    final resCiudades = await DBProvider.db.getCiudadesByIdDepartamento(idDepartamento);
+    final resCiudades =
+        await DBProvider.db.getCiudadesByIdDepartamento(idDepartamento);
     ciudades = [...resCiudades!];
     notifyListeners();
   }
@@ -157,12 +176,14 @@ class InspeccionProvider extends ChangeNotifier {
 
   saveRespuestaInspeccion(Item nuevaRespuesta) async {
     notifyListeners();
-    final idRespuesta = await DBProvider.db.nuevoRespuestaInspeccion(nuevaRespuesta);
+    final idRespuesta =
+        await DBProvider.db.nuevoRespuestaInspeccion(nuevaRespuesta);
     notifyListeners();
     return idRespuesta;
   }
 
-  Future<List<ResumenPreoperacional>?> cargarTodosInspecciones(String idUsuario, String base) async {
+  Future<List<ResumenPreoperacional>?> cargarTodosInspecciones(
+      String idUsuario, String base) async {
     final inspecciones = await DBProvider.db.getAllInspections(idUsuario, base);
     return inspecciones!.isNotEmpty ? inspecciones : [];
   }
@@ -175,13 +196,15 @@ class InspeccionProvider extends ChangeNotifier {
   }
 
   Future<int?> eliminarResumenPreoperacional(int idResumen) async {
-    final respuestas = await DBProvider.db.deleteResumenPreoperacional(idResumen);
+    final respuestas =
+        await DBProvider.db.deleteResumenPreoperacional(idResumen);
     notifyListeners();
     return respuestas;
   }
 
   Future<int?> eliminarRespuestaPreoperacional(int idResumen) async {
-    final respuestas = await DBProvider.db.deleteRespuestaPreoperacional(idResumen);
+    final respuestas =
+        await DBProvider.db.deleteRespuestaPreoperacional(idResumen);
     notifyListeners();
     return respuestas;
   }

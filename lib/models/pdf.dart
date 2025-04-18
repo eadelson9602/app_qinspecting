@@ -26,6 +26,8 @@ class Pdf {
     this.rutaLogo,
     this.kilometraje,
     this.urlFotoKm,
+    this.urlFotoCabezote,
+    this.urlFotoRemolque,
     required this.detalle,
   });
 
@@ -51,6 +53,8 @@ class Pdf {
   String? rutaLogo;
   int? kilometraje;
   String? urlFotoKm;
+  String? urlFotoCabezote;
+  String? urlFotoRemolque;
   List<Detalle> detalle;
 
   factory Pdf.fromJson(String str) => Pdf.fromMap(json.decode(str));
@@ -80,6 +84,8 @@ class Pdf {
     rutaLogo: json["rutaLogo"],
     kilometraje: json["kilometraje"],
     urlFotoKm: json["urlFotoKm"],
+    urlFotoCabezote: json["urlFotoCabezote"],
+    urlFotoRemolque: json["urlFotoRemolque"],
     detalle: List<Detalle>.from(json["detalle"].map((x) => Detalle.fromMap(x))),
   );
 
@@ -104,6 +110,8 @@ class Pdf {
     "rutaLogo": rutaLogo,
     "kilometraje": kilometraje,
     "urlFotoKm": urlFotoKm,
+    "urlFotoCabezote": urlFotoCabezote,
+    "urlFotoRemolque": urlFotoRemolque,
     "detalle": List<dynamic>.from(detalle.map((x) => x.toMap())),
   };
 }

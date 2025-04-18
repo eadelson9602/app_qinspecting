@@ -27,10 +27,12 @@ class _InspeccionFormState extends State<InspeccionForm> {
   @override
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
-    final inspeccionService = Provider.of<InspeccionService>(context, listen: false);
+    final inspeccionService =
+        Provider.of<InspeccionService>(context, listen: false);
     final loginService = Provider.of<LoginService>(context, listen: false);
 
-    inspeccionService.resumePreoperacional.base = loginService.selectedEmpresa.nombreBase!;
+    inspeccionService.resumePreoperacional.base =
+        loginService.selectedEmpresa.nombreBase!;
 
     Widget _guiaTransporte() {
       return inspeccionProvider.tieneGuia
@@ -73,7 +75,8 @@ class _InspeccionFormState extends State<InspeccionForm> {
                               return;
                             }
 
-                            inspeccionService.resumePreoperacional.urlFotoGuia = photo.path;
+                            inspeccionService.resumePreoperacional.urlFotoGuia =
+                                photo.path;
                             inspeccionProvider.updateImageGuia(photo.path);
                           },
                           icon: Icon(
@@ -95,77 +98,110 @@ class _InspeccionFormState extends State<InspeccionForm> {
           height: 10,
         ),
         DropdownButtonFormField<String>(
-          decoration: InputDecorations.authInputDecorations(
-            prefixIcon: Icons.local_shipping,
-            hintText: '',
-            labelText: 'Placa del remolque'
-          ),
-          validator: (value) {
-            if (value == null) return 'Seleccione una placa';
-            return null;
-          },
-          items: inspeccionProvider.remolques.map((e) {
-            return DropdownMenuItem(
-              child: Text(e.placa),
-              value: e.placa,
-            );
-          }).toList(),
-          onChanged: (value) async {
-            final resultRemolque = await DBProvider.db.getRemolqueByPlate(value!);
-            inspeccionService.resumePreoperacional.placaRemolque = value;
-            inspeccionProvider.updateRemolqueSelected(resultRemolque!);
+            decoration: InputDecorations.authInputDecorations(
+                prefixIcon: Icons.local_shipping,
+                hintText: '',
+                labelText: 'Placa del remolque'),
+            validator: (value) {
+              if (value == null) return 'Seleccione una placa';
+              return null;
+            },
+            items: inspeccionProvider.remolques.map((e) {
+              return DropdownMenuItem(
+                child: Text(e.placa),
+                value: e.placa,
+              );
+            }).toList(),
+            onChanged: (value) async {
+              final resultRemolque =
+                  await DBProvider.db.getRemolqueByPlate(value!);
+              inspeccionService.resumePreoperacional.placaRemolque = value;
+              inspeccionProvider.updateRemolqueSelected(resultRemolque!);
 
-            await inspeccionProvider.listarCategoriaItemsRemolque(value);
-          }
+              await inspeccionProvider.listarCategoriaItemsRemolque(value);
+            }),
+        const SizedBox(
+          height: 10,
         ),
-        if(inspeccionProvider.remolqueSelected != null)
+        Text('Foto Remolque'),
+        Stack(
+          children: [
+            BoardImage(url: inspeccionProvider.pathFileRemolque),
+            Positioned(
+                right: 15,
+                bottom: 10,
+                child: IconButton(
+                  onPressed: () async {
+                    final reponsePermission =
+                        await inspeccionProvider.requestCameraPermission();
+                    if (reponsePermission) {
+                      final _picker = ImagePicker();
+                      final XFile? photo =
+                          await _picker.pickImage(source: ImageSource.camera);
+                      if (photo == null) {
+                        return;
+                      }
+                      inspeccionService.resumePreoperacional.urlFotoRemolque =
+                          photo.path;
+                      inspeccionProvider.updateRemolqueImage(photo.path);
+                    }
+                  },
+                  icon: Icon(
+                    Icons.camera_alt,
+                    color: Colors.white,
+                    size: 45,
+                  ),
+                ))
+          ],
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        if (inspeccionProvider.remolqueSelected != null)
           Column(
             children: [
               ListTile(
-                dense: true,
-                shape: Border(bottom: BorderSide(color: Colors.green)),
-                title: Text('Color', style: TextStyle(fontSize: 15)),
-                subtitle: Text(
-                  inspeccionProvider.remolqueSelected!.color.toString(),
-                  style: TextStyle(fontSize: 15)
-                )
-              ),
+                  dense: true,
+                  shape: Border(bottom: BorderSide(color: Colors.green)),
+                  title: Text('Color', style: TextStyle(fontSize: 15)),
+                  subtitle: Text(
+                      inspeccionProvider.remolqueSelected!.color.toString(),
+                      style: TextStyle(fontSize: 15))),
               ListTile(
-                dense: true,
-                shape: Border(bottom: BorderSide(color: Colors.green)),
-                title: Text('Marca del remolque', style: TextStyle(fontSize: 15)),
-                subtitle: Text(
-                  inspeccionProvider.remolqueSelected!.nombreMarca.toString(),
-                  style: TextStyle(fontSize: 15)
-                )
-              ),
+                  dense: true,
+                  shape: Border(bottom: BorderSide(color: Colors.green)),
+                  title: Text('Marca del remolque',
+                      style: TextStyle(fontSize: 15)),
+                  subtitle: Text(
+                      inspeccionProvider.remolqueSelected!.nombreMarca
+                          .toString(),
+                      style: TextStyle(fontSize: 15))),
               ListTile(
-                dense: true,
-                shape: Border(bottom: BorderSide(color: Colors.green)),
-                title: Text('Modelo del remolque', style: TextStyle(fontSize: 15)),
-                subtitle: Text(
-                  inspeccionProvider.remolqueSelected!.modelo.toString(),
-                  style: TextStyle(fontSize: 15)
-                )
-              ),
+                  dense: true,
+                  shape: Border(bottom: BorderSide(color: Colors.green)),
+                  title: Text('Modelo del remolque',
+                      style: TextStyle(fontSize: 15)),
+                  subtitle: Text(
+                      inspeccionProvider.remolqueSelected!.modelo.toString(),
+                      style: TextStyle(fontSize: 15))),
               ListTile(
-                dense: true,
-                shape: Border(bottom: BorderSide(color: Colors.green)),
-                title: Text('Matrícula del remolque', style: TextStyle(fontSize: 15)),
-                subtitle: Text(
-                  inspeccionProvider.remolqueSelected!.numeroMatricula .toString(),
-                  style: TextStyle(fontSize: 15)
-                )
-              ),
+                  dense: true,
+                  shape: Border(bottom: BorderSide(color: Colors.green)),
+                  title: Text('Matrícula del remolque',
+                      style: TextStyle(fontSize: 15)),
+                  subtitle: Text(
+                      inspeccionProvider.remolqueSelected!.numeroMatricula
+                          .toString(),
+                      style: TextStyle(fontSize: 15))),
               ListTile(
-                dense: true,
-                shape: Border(bottom: BorderSide(color: Colors.green)),
-                title: Text('Número de ejes del remolque', style: TextStyle(fontSize: 15)),
-                subtitle: Text(
-                  inspeccionProvider.remolqueSelected!.numeroEjes.toString(),
-                  style: TextStyle(fontSize: 15)
-                )
-              )
+                  dense: true,
+                  shape: Border(bottom: BorderSide(color: Colors.green)),
+                  title: Text('Número de ejes del remolque',
+                      style: TextStyle(fontSize: 15)),
+                  subtitle: Text(
+                      inspeccionProvider.remolqueSelected!.numeroEjes
+                          .toString(),
+                      style: TextStyle(fontSize: 15)))
             ],
           ),
         const SizedBox(
@@ -176,46 +212,48 @@ class _InspeccionFormState extends State<InspeccionForm> {
 
     Widget _infoVehiculo() {
       return inspeccionProvider.vehiculoSelected == null
-        ? Container()
-        : Column(
-            children: [
-              ListTile(
-                dense: true,
-                shape: Border(bottom: BorderSide(color: Colors.green)),
-                title: Text('Marca del cabezote', style: TextStyle(fontSize: 15)),
-                subtitle: Text(
-                  inspeccionProvider.vehiculoSelected!.nombreMarca, style: TextStyle(fontSize: 15)
+          ? Container()
+          : Column(
+              children: [
+                ListTile(
+                  dense: true,
+                  shape: Border(bottom: BorderSide(color: Colors.green)),
+                  title: Text('Marca del cabezote',
+                      style: TextStyle(fontSize: 15)),
+                  subtitle: Text(
+                      inspeccionProvider.vehiculoSelected!.nombreMarca,
+                      style: TextStyle(fontSize: 15)),
                 ),
-              ),
-              ListTile(
-                dense: true,
-                shape: Border(bottom: BorderSide(color: Colors.green)),
-                title: Text('Modelo del cabezote', style: TextStyle(fontSize: 15)),
-                subtitle: Text(
-                  inspeccionProvider.vehiculoSelected!.modelo.toString(),
-                  style: TextStyle(fontSize: 15)
+                ListTile(
+                  dense: true,
+                  shape: Border(bottom: BorderSide(color: Colors.green)),
+                  title: Text('Modelo del cabezote',
+                      style: TextStyle(fontSize: 15)),
+                  subtitle: Text(
+                      inspeccionProvider.vehiculoSelected!.modelo.toString(),
+                      style: TextStyle(fontSize: 15)),
                 ),
-              ),
-              ListTile(
-                dense: true,
-                shape: Border(bottom: BorderSide(color: Colors.green)),
-                title: Text('Licencia tránsito', style: TextStyle(fontSize: 15)),
-                subtitle: Text(
-                  inspeccionProvider.vehiculoSelected!.licenciaTransito.toString(),
-                  style: TextStyle(fontSize: 15)
+                ListTile(
+                  dense: true,
+                  shape: Border(bottom: BorderSide(color: Colors.green)),
+                  title:
+                      Text('Licencia tránsito', style: TextStyle(fontSize: 15)),
+                  subtitle: Text(
+                      inspeccionProvider.vehiculoSelected!.licenciaTransito
+                          .toString(),
+                      style: TextStyle(fontSize: 15)),
                 ),
-              ),
-              ListTile(
-                dense: true,
-                shape: Border(bottom: BorderSide(color: Colors.green)),
-                title: Text('Color de cabezote', style: TextStyle(fontSize: 15)),
-                subtitle: Text(
-                  inspeccionProvider.vehiculoSelected!.color.toString(),
-                  style: TextStyle(fontSize: 15)
+                ListTile(
+                  dense: true,
+                  shape: Border(bottom: BorderSide(color: Colors.green)),
+                  title:
+                      Text('Color de cabezote', style: TextStyle(fontSize: 15)),
+                  subtitle: Text(
+                      inspeccionProvider.vehiculoSelected!.color.toString(),
+                      style: TextStyle(fontSize: 15)),
                 ),
-              ),
-            ],
-          );
+              ],
+            );
     }
 
     return Container(
@@ -226,75 +264,76 @@ class _InspeccionFormState extends State<InspeccionForm> {
           child: Column(
             children: [
               DropdownButtonFormField<String>(
-                decoration: InputDecorations.authInputDecorations(
-                  prefixIcon: Icons.local_shipping,
-                  hintText: '',
-                  labelText: 'Placa del vehículo'
-                ),
-                validator: (value) {
-                  if (value == null) return 'Seleccione una placa';
-                  return null;
-                },
-                items: inspeccionProvider.vehiculos.map((e) {
-                  return DropdownMenuItem(
-                    child: Text(e.placa),
-                    value: e.placa,
-                  );
-                }).toList(),
-                onChanged: (value) async {
-                  final resultVehiculo = await DBProvider.db.getVehiculoByPlate(value!);
-                  inspeccionService.resumePreoperacional.placa = value;
-                  inspeccionService.resumePreoperacional.placaVehiculo = value;
-                  inspeccionProvider.updateVehiculoSelected(resultVehiculo!);
+                  decoration: InputDecorations.authInputDecorations(
+                      prefixIcon: Icons.local_shipping,
+                      hintText: '',
+                      labelText: 'Placa del vehículo'),
+                  validator: (value) {
+                    if (value == null) return 'Seleccione una placa';
+                    return null;
+                  },
+                  items: inspeccionProvider.vehiculos.map((e) {
+                    return DropdownMenuItem(
+                      child: Text(e.placa),
+                      value: e.placa,
+                    );
+                  }).toList(),
+                  onChanged: (value) async {
+                    final resultVehiculo =
+                        await DBProvider.db.getVehiculoByPlate(value!);
+                    inspeccionService.resumePreoperacional.placa = value;
+                    inspeccionService.resumePreoperacional.placaVehiculo =
+                        value;
+                    inspeccionProvider.updateVehiculoSelected(resultVehiculo!);
 
-                  await inspeccionProvider.listarCategoriaItemsVehiculo(resultVehiculo.placa);
-                }
-              ),
+                    await inspeccionProvider
+                        .listarCategoriaItemsVehiculo(resultVehiculo.placa);
+                  }),
               _infoVehiculo(),
               DropdownButtonFormField<int>(
-                decoration: InputDecorations.authInputDecorations(
-                  prefixIcon: Icons.place,
-                  hintText: '',
-                  labelText: 'Departamento de inspección'
-                ),
-                validator: (value) {
-                  if (value == null) return 'Seleccione un departamento';
-                  return null;
-                },
-                items: inspeccionProvider.departamentos.map((e) {
-                  return DropdownMenuItem(
-                    child: Text(e.label),
-                    value: e.value,
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  inspeccionProvider.listarCiudades(value!);
-                }),
+                  decoration: InputDecorations.authInputDecorations(
+                      prefixIcon: Icons.place,
+                      hintText: '',
+                      labelText: 'Departamento de inspección'),
+                  validator: (value) {
+                    if (value == null) return 'Seleccione un departamento';
+                    return null;
+                  },
+                  items: inspeccionProvider.departamentos.map((e) {
+                    return DropdownMenuItem(
+                      child: Text(e.label),
+                      value: e.value,
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    inspeccionProvider.listarCiudades(value!);
+                  }),
               const SizedBox(
                 height: 10,
               ),
               DropdownButtonFormField(
-                decoration: InputDecorations.authInputDecorations(
-                  prefixIcon: Icons.location_city,
-                  hintText: '',
-                  labelText: 'Ciudad de inspección'
-                ),
-                validator: (value) {
-                  if (value == null) return 'Seleccione una ciudad';
-                  return null;
-                },
-                items: inspeccionProvider.ciudades.map((e) {
-                  return DropdownMenuItem(
-                    child: Text(e.label),
-                    value: e.value,
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  Ciudades ciudad = inspeccionProvider.ciudades.firstWhere((element) => element.value == value);
-                  inspeccionService.resumePreoperacional.idCiudad = int.parse(value.toString());
-                  inspeccionService.resumePreoperacional.ciudad = ciudad.label;
-                }
-              ),
+                  decoration: InputDecorations.authInputDecorations(
+                      prefixIcon: Icons.location_city,
+                      hintText: '',
+                      labelText: 'Ciudad de inspección'),
+                  validator: (value) {
+                    if (value == null) return 'Seleccione una ciudad';
+                    return null;
+                  },
+                  items: inspeccionProvider.ciudades.map((e) {
+                    return DropdownMenuItem(
+                      child: Text(e.label),
+                      value: e.value,
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    Ciudades ciudad = inspeccionProvider.ciudades
+                        .firstWhere((element) => element.value == value);
+                    inspeccionService.resumePreoperacional.idCiudad =
+                        int.parse(value.toString());
+                    inspeccionService.resumePreoperacional.ciudad =
+                        ciudad.label;
+                  }),
               const SizedBox(
                 height: 10,
               ),
@@ -306,7 +345,8 @@ class _InspeccionFormState extends State<InspeccionForm> {
                   return null;
                 },
                 onChanged: (value) {
-                  inspeccionService.resumePreoperacional.kilometraje = value.isEmpty ? 0 : int.parse(value);
+                  inspeccionService.resumePreoperacional.kilometraje =
+                      value.isEmpty ? 0 : int.parse(value);
                 },
                 decoration: InputDecorations.authInputDecorations(
                     hintText: '',
@@ -321,54 +361,90 @@ class _InspeccionFormState extends State<InspeccionForm> {
                 children: [
                   BoardImage(url: inspeccionProvider.pathFileKilometraje),
                   Positioned(
-                    right: 15,
-                    bottom: 10,
-                    child: IconButton(
-                      onPressed: () async {
-                        final reponsePermission = await inspeccionProvider.requestCameraPermission();
-                        if (reponsePermission) {
-                          final _picker = ImagePicker();
-                          final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
-                          if (photo == null) {
-                            return;
+                      right: 15,
+                      bottom: 10,
+                      child: IconButton(
+                        onPressed: () async {
+                          final reponsePermission = await inspeccionProvider
+                              .requestCameraPermission();
+                          if (reponsePermission) {
+                            final _picker = ImagePicker();
+                            final XFile? photo = await _picker.pickImage(
+                                source: ImageSource.camera);
+                            if (photo == null) {
+                              return;
+                            }
+                            inspeccionService.resumePreoperacional.urlFotoKm =
+                                photo.path;
+                            inspeccionProvider.updateSelectedImage(photo.path);
                           }
-                          inspeccionService.resumePreoperacional.urlFotoKm = photo.path;
-                          inspeccionProvider.updateSelectedImage(photo.path);
-                        }
-                      },
-                      icon: Icon(
-                        Icons.camera_alt,
-                        color: Colors.white,
-                        size: 45,
-                      ),
-                    )
-                  )
+                        },
+                        icon: Icon(
+                          Icons.camera_alt,
+                          color: Colors.white,
+                          size: 45,
+                        ),
+                      ))
+                ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Text('Foto Cabezote'),
+              Stack(
+                children: [
+                  BoardImage(url: inspeccionProvider.pathFileCabezote),
+                  Positioned(
+                      right: 15,
+                      bottom: 10,
+                      child: IconButton(
+                        onPressed: () async {
+                          final reponsePermission = await inspeccionProvider
+                              .requestCameraPermission();
+                          if (reponsePermission) {
+                            final _picker = ImagePicker();
+                            final XFile? photo = await _picker.pickImage(
+                                source: ImageSource.camera);
+                            if (photo == null) {
+                              return;
+                            }
+                            inspeccionService.resumePreoperacional
+                                .urlFotoCabezote = photo.path;
+                            inspeccionProvider.updateCabezoteImage(photo.path);
+                          }
+                        },
+                        icon: Icon(
+                          Icons.camera_alt,
+                          color: Colors.white,
+                          size: 45,
+                        ),
+                      ))
                 ],
               ),
               const SizedBox(
                 height: 10,
               ),
               SwitchListTile.adaptive(
-                value: inspeccionProvider.realizoTanqueo,
-                title: const Text('¿Realizó tanqueo?'),
-                activeColor: Colors.green,
-                onChanged: (value) => inspeccionProvider.updateRealizoTanqueo(value)
-              ),
+                  value: inspeccionProvider.realizoTanqueo,
+                  title: const Text('¿Realizó tanqueo?'),
+                  activeColor: Colors.green,
+                  onChanged: (value) =>
+                      inspeccionProvider.updateRealizoTanqueo(value)),
               SwitchListTile.adaptive(
-                value: inspeccionProvider.tieneRemolque,
-                title: const Text('¿Tiene remolque?'),
-                activeColor: Colors.green,
-                onChanged: (value) {
-                  inspeccionProvider.updateTieneRemolque(value);
-                  inspeccionProvider.listarRemolques(loginService.selectedEmpresa.nombreBase!);
-                }
-              ),
+                  value: inspeccionProvider.tieneRemolque,
+                  title: const Text('¿Tiene remolque?'),
+                  activeColor: Colors.green,
+                  onChanged: (value) {
+                    inspeccionProvider.updateTieneRemolque(value);
+                    inspeccionProvider.listarRemolques(
+                        loginService.selectedEmpresa.nombreBase!);
+                  }),
               SwitchListTile.adaptive(
-                value: inspeccionProvider.tieneGuia,
-                title: const Text('Tiene guía transporte?'),
-                activeColor: Colors.green,
-                onChanged: (value) => inspeccionProvider.updateTieneGuia(value)
-              ),
+                  value: inspeccionProvider.tieneGuia,
+                  title: const Text('Tiene guía transporte?'),
+                  activeColor: Colors.green,
+                  onChanged: (value) =>
+                      inspeccionProvider.updateTieneGuia(value)),
               const SizedBox(
                 height: 10,
               ),
@@ -381,13 +457,13 @@ class _InspeccionFormState extends State<InspeccionForm> {
                     return null;
                   },
                   onChanged: (value) {
-                    inspeccionService.resumePreoperacional.cantTanqueoGalones = value.isEmpty ? 0 : int.parse(value);
+                    inspeccionService.resumePreoperacional.cantTanqueoGalones =
+                        value.isEmpty ? 0 : int.parse(value);
                   },
                   decoration: InputDecorations.authInputDecorations(
-                    hintText: '',
-                    labelText: 'Cantidad de galones tanqueados',
-                    prefixIcon: Icons.speed
-                  ),
+                      hintText: '',
+                      labelText: 'Cantidad de galones tanqueados',
+                      prefixIcon: Icons.speed),
                 ),
               if (inspeccionProvider.tieneRemolque) _infoRemolque(),
               if (inspeccionProvider.tieneGuia) _guiaTransporte(),
@@ -397,17 +473,24 @@ class _InspeccionFormState extends State<InspeccionForm> {
               // MaterialStateProperty.all<Color>(Colors.green)
               ElevatedButton(
                 style: ButtonStyle(
-                  elevation: MaterialStateProperty.all<double>(10),
-                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.symmetric(horizontal: 20)),
-                  minimumSize: MaterialStateProperty.all<Size>(Size.square(50)),
-                  textStyle: MaterialStateProperty.all<TextStyle>(TextStyle(fontSize: 16))
-                ),
+                    elevation: MaterialStateProperty.all<double>(10),
+                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                        EdgeInsets.symmetric(horizontal: 20)),
+                    minimumSize:
+                        MaterialStateProperty.all<Size>(Size.square(50)),
+                    textStyle: MaterialStateProperty.all<TextStyle>(
+                        TextStyle(fontSize: 16))),
                 child: const Text('Realizar inspección'),
                 onPressed: () async {
                   if (!isValidForm()) return;
 
-                  if (inspeccionProvider.pathFileKilometraje == null || (inspeccionProvider.tieneGuia && inspeccionProvider.pathFileGuia == null)) {
-                    String message = inspeccionProvider.pathFileKilometraje == null ? 'Ingrese foto del kilometraje!' : 'Ingrese foto de la guía';
+                  if (inspeccionProvider.pathFileKilometraje == null ||
+                      (inspeccionProvider.tieneGuia &&
+                          inspeccionProvider.pathFileGuia == null)) {
+                    String message =
+                        inspeccionProvider.pathFileKilometraje == null
+                            ? 'Ingrese foto del kilometraje!'
+                            : 'Ingrese foto de la guía';
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text(
                         message,
@@ -419,15 +502,18 @@ class _InspeccionFormState extends State<InspeccionForm> {
                       padding: const EdgeInsets.all(10),
                       behavior: SnackBarBehavior.floating,
                       backgroundColor: Colors.orange,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0)),
                     ));
                     return;
                   }
                   var now = DateTime.now();
                   var formatter = DateFormat('yyyy-MM-dd hh:mm');
                   String formattedDate = formatter.format(now);
-                  inspeccionService.resumePreoperacional.fechaPreoperacional = formattedDate;
-                  inspeccionService.resumePreoperacional.usuarioPreoperacional = loginService.userDataLogged.numeroDocumento!;
+                  inspeccionService.resumePreoperacional.fechaPreoperacional =
+                      formattedDate;
+                  inspeccionService.resumePreoperacional.usuarioPreoperacional =
+                      loginService.userDataLogged.numeroDocumento!;
                   Navigator.pushNamed(context, 'inspeccion_vehiculo');
                 },
               ),

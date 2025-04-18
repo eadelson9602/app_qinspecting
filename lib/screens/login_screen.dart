@@ -72,7 +72,9 @@ class _FormLogin extends StatelessWidget {
                     TextFormField(
                       autocorrect: false,
                       keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.digitsOnly
+                      ],
                       validator: (value) {
                         if (value!.isEmpty) return 'Ingrese su usuario';
                         return null;
@@ -231,15 +233,14 @@ class _ButtonLogin extends StatelessWidget {
                         width: 50,
                         height: 50,
                         child: isConnected
-                          ? loginForm.getImage(empresas[i].rutaLogo.toString())
-                          : ClipRRect(
-                              borderRadius: BorderRadius.circular(100),
-                              child: Image(
-                                  fit: BoxFit.cover,
-                                  image: AssetImage('assets/images/loading_4.gif')
-                                  )
-                                )
-                              ),
+                            ? loginForm
+                                .getImage(empresas[i].rutaLogo.toString())
+                            : ClipRRect(
+                                borderRadius: BorderRadius.circular(100),
+                                child: Image(
+                                    fit: BoxFit.cover,
+                                    image: AssetImage(
+                                        'assets/images/loading_4.gif')))),
                     title: Text(empresas[i].nombreQi.toString()),
                     trailing: const Icon(Icons.arrow_right),
                     onTap: () async {
@@ -267,7 +268,7 @@ class _ButtonLogin extends StatelessWidget {
                   ),
                 ),
               ));
-    } on DioError catch (_) {
+    } on DioException catch (_) {
       showSimpleNotification(
         Text('Error al iniciar sesión'),
         leading: Icon(Icons.check),

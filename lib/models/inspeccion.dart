@@ -19,6 +19,8 @@ class ResumenPreoperacional {
     this.ciudad,
     this.base,
     this.respuestas,
+    this.urlFotoRemolque,
+    this.urlFotoCabezote,
   });
 
   int? id;
@@ -29,6 +31,8 @@ class ResumenPreoperacional {
   int? kilometraje;
   int? cantTanqueoGalones;
   String? urlFotoKm;
+  String? urlFotoRemolque;
+  String? urlFotoCabezote;
   String? usuarioPreoperacional;
   String? numeroGuia;
   String? urlFotoGuia;
@@ -39,50 +43,54 @@ class ResumenPreoperacional {
   String? base;
   String? respuestas;
 
-  factory ResumenPreoperacional.fromJson(String str) => ResumenPreoperacional.fromMap(json.decode(str));
+  factory ResumenPreoperacional.fromJson(String str) =>
+      ResumenPreoperacional.fromMap(json.decode(str));
 
   String toJson() => json.encode(toMap());
 
   factory ResumenPreoperacional.fromMap(Map<String, dynamic> json) =>
-    ResumenPreoperacional(
-      id: json["id"],
-      placa: json["placa"],
-      resuPreId: json["resuPreId"],
-      fechaPreoperacional: json["fechaPreoperacional"],
-      ciudadGps: json["ciudadGps"],
-      kilometraje: json["kilometraje"],
-      cantTanqueoGalones: json["cantTanqueoGalones"],
-      urlFotoKm: json["urlFotoKm"] == null ? null : json["urlFotoKm"],
-      usuarioPreoperacional: json["usuarioPreoperacional"],
-      numeroGuia: json["numeroGuia"],
-      urlFotoGuia: json["urlFotoGuia"],
-      placaVehiculo: json["placaVehiculo"],
-      placaRemolque: json["placaRemolque"],
-      idCiudad: json["idCiudad"],
-      ciudad: json["ciudad"],
-      base: json["base"],
-      respuestas: json["respuestas"]
-    );
+      ResumenPreoperacional(
+          id: json["id"],
+          placa: json["placa"],
+          resuPreId: json["resuPreId"],
+          fechaPreoperacional: json["fechaPreoperacional"],
+          ciudadGps: json["ciudadGps"],
+          kilometraje: json["kilometraje"],
+          cantTanqueoGalones: json["cantTanqueoGalones"],
+          urlFotoKm: json["urlFotoKm"],
+          urlFotoRemolque: json["urlFotoRemolque"],
+          urlFotoCabezote: json["urlFotoCabezote"],
+          usuarioPreoperacional: json["usuarioPreoperacional"],
+          numeroGuia: json["numeroGuia"],
+          urlFotoGuia: json["urlFotoGuia"],
+          placaVehiculo: json["placaVehiculo"],
+          placaRemolque: json["placaRemolque"],
+          idCiudad: json["idCiudad"],
+          ciudad: json["ciudad"],
+          base: json["base"],
+          respuestas: json["respuestas"]);
 
   Map<String, dynamic> toMap() => {
-    "id": id,
-    "placa": placa,
-    "resuPreId": resuPreId,
-    "fechaPreoperacional": fechaPreoperacional,
-    "ciudadGps": ciudadGps,
-    "kilometraje": kilometraje,
-    "cantTanqueoGalones": cantTanqueoGalones,
-    "urlFotoKm": urlFotoKm == null ? null : urlFotoKm,
-    "usuarioPreoperacional": usuarioPreoperacional,
-    "numeroGuia": numeroGuia,
-    "urlFotoGuia": urlFotoGuia,
-    "placaVehiculo": placaVehiculo,
-    "placaRemolque": placaRemolque,
-    "idCiudad": idCiudad,
-    "ciudad": ciudad,
-    "base": base,
-    "respuestas": respuestas
-  };
+        "id": id,
+        "placa": placa,
+        "resuPreId": resuPreId,
+        "fechaPreoperacional": fechaPreoperacional,
+        "ciudadGps": ciudadGps,
+        "kilometraje": kilometraje,
+        "cantTanqueoGalones": cantTanqueoGalones,
+        "urlFotoKm": urlFotoKm,
+        "usuarioPreoperacional": usuarioPreoperacional,
+        "numeroGuia": numeroGuia,
+        "urlFotoGuia": urlFotoGuia,
+        "placaVehiculo": placaVehiculo,
+        "placaRemolque": placaRemolque,
+        "urlFotoCabezote": urlFotoCabezote,
+        "urlFotoRemolque": urlFotoRemolque,
+        "idCiudad": idCiudad,
+        "ciudad": ciudad,
+        "base": base,
+        "respuestas": respuestas
+      };
 }
 
 class Respuesta {
@@ -185,9 +193,9 @@ class ResumenPreoperacionalServer {
         detalle: json["detalle"],
         resuPreId: json["resuPreId"],
         tanqueo: json["tanqueo"],
-        numeroGuia: json["numeroGuia"] == null ? null : json["numeroGuia"],
+        numeroGuia: json["numeroGuia"],
         grave: json["grave"],
-        moderada: json["moderada"] == null ? null : json["moderada"],
+        moderada: json["moderada"],
         estado: json["estado"],
         cantFallas: json["cantFallas"],
         nota: json["nota"],
@@ -201,9 +209,9 @@ class ResumenPreoperacionalServer {
         "detalle": detalle,
         "resuPreId": resuPreId,
         "tanqueo": tanqueo,
-        "numeroGuia": numeroGuia == null ? null : numeroGuia,
+        "numeroGuia": numeroGuia,
         "grave": grave,
-        "moderada": moderada == null ? null : moderada,
+        "moderada": moderada,
         "estado": estado,
         "cantFallas": cantFallas,
         "nota": nota,
