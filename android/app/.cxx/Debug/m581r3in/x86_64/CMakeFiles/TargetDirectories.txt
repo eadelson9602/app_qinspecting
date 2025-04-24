@@ -1,0 +1,2 @@
+C:/Users/eadel/OneDrive/Documents/projects/appears/app_qinspecting/android/app/.cxx/Debug/m581r3in/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/eadel/OneDrive/Documents/projects/appears/app_qinspecting/android/app/.cxx/Debug/m581r3in/x86_64/CMakeFiles/rebuild_cache.dir

@@ -34,11 +34,12 @@ class LoginFormProvider extends ChangeNotifier {
           height: 40,
         ),
       );
-    } else if ( url.contains('svg') ) {
+    } else if (url.contains('svg')) {
       return SvgPicture.network(
         url,
-        semanticsLabel: 'A shark?!',
-        placeholderBuilder: (BuildContext context) => Image(image: AssetImage('assets/images/loading-2.gif')),
+        semanticsLabel: 'Profile Image!',
+        placeholderBuilder: (BuildContext context) =>
+            Image(image: AssetImage('assets/images/loading-2.gif')),
       );
     }
     return ClipRRect(

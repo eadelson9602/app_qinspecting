@@ -46,14 +46,18 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
 
     return PopScope(
-      onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) {
-          return;
-        }
-        final navigator = Navigator.of(context);
-        bool value = await _onWillPopScope();
-        if (value) {
-          navigator.pop(result);
+      canPop: false, // Esto evita que se salga sin tu confirmación
+
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
+
+        final shouldExit = await _onWillPopScope();
+        if (shouldExit) {
+          if (Platform.isAndroid) {
+            await SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+          } else if (Platform.isIOS) {
+            exit(0);
+          }
         }
       },
       child: Scaffold(
@@ -91,30 +95,28 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<bool> _onWillPopScope() async {
     return await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-              title: Icon(
-                Icons.warning,
-                color: Colors.orange,
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Icon(Icons.warning, color: Colors.orange),
+            content: const Text(
+              '¿Seguro que quieres salir de la aplicación?',
+              textAlign: TextAlign.center,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('NO'),
               ),
-              content: Text('¿Seguro que quieres salir de la aplicación?',
-                  textAlign: TextAlign.center),
-              actions: [
-                TextButton(
-                    onPressed: () => Navigator.pop(context, false),
-                    child: Text('NO')),
-                TextButton(
-                    onPressed: () async {
-                      if (Platform.isAndroid) {
-                        await SystemChannels.platform
-                            .invokeMethod('SystemNavigator.pop');
-                      } else if (Platform.isIOS) {
-                        exit(0);
-                      }
-                    },
-                    child: Text('SI', style: TextStyle(color: Colors.red))),
-              ],
-            ));
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context, true); // <- Aquí devolvemos true
+                },
+                child: const Text('SI', style: TextStyle(color: Colors.red)),
+              ),
+            ],
+          ),
+        ) ??
+        false;
   }
 }
 

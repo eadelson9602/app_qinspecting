@@ -12,7 +12,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final loginService = Provider.of<LoginService>(context, listen: false);
     final loginForm = Provider.of<LoginFormProvider>(context, listen: false);
-    final inspeccionService = Provider.of<InspeccionService>(context, listen: false);
+    final inspeccionService =
+        Provider.of<InspeccionService>(context, listen: false);
     String url = loginService.userDataLogged.urlFoto;
     return AppBar(
       title: const Text('Qinspecting'),
@@ -26,14 +27,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               child: FutureBuilder(
                 future: inspeccionService.checkConnection(),
                 builder: (context, snapshot) {
-                  if(snapshot.data == true){
-
+                  if (snapshot.data == true) {
                     return Container(
-                      height: 40,
-                      child: loginForm.getImage(url)
-                    );
+                        height: 40, child: loginForm.getImage(url));
                   }
-                  return Image(image: AssetImage('assets/images/boot_signature.gif'));
+                  return Image(
+                      image: AssetImage('assets/images/boot_signature.gif'));
                 },
               ),
             ),
