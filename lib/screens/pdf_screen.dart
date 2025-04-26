@@ -320,7 +320,7 @@ class PdfScreen extends StatelessWidget {
 
   //Create PDF grid and return
   PdfGrid getGridAnswers(Pdf infoPdf, Size pageSize, Uint8List fotoKilometraje,
-      Uint8List fotoCabezote, Uint8List fotoRemolque) {
+      Uint8List fotoCabezote, Uint8List? fotoRemolque) {
     //Create a PDF grid
     final PdfGrid grid = PdfGrid();
     //Secify the columns count to the grid.
@@ -391,11 +391,13 @@ class PdfScreen extends StatelessWidget {
           foto: infoPdf.urlFotoCabezote,
           fotoConverted: fotoCabezote));
 
-      infoPdf.detalle.last.respuestas.add(RespuestaInspeccion(
-          idItem: -3,
-          item: 'Remolque',
-          foto: infoPdf.urlFotoRemolque,
-          fotoConverted: fotoRemolque));
+      if (fotoRemolque != null) {
+        infoPdf.detalle.last.respuestas.add(RespuestaInspeccion(
+            idItem: -3,
+            item: 'Remolque',
+            foto: infoPdf.urlFotoRemolque,
+            fotoConverted: fotoRemolque));
+      }
 
       infoPdf.detalle.forEach((categoria) {
         // Dibujas las categorias
