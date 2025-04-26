@@ -43,7 +43,11 @@ class PdfScreen extends StatelessWidget {
                   IconButton(
                     icon: const Icon(Icons.share),
                     onPressed: () async {
-                      await Share.shareXFiles([XFile(data.file.path)]);
+                      final params = ShareParams(
+                        text: 'Great picture',
+                        files: [XFile(data.file.path)],
+                      );
+                      await SharePlus.instance.share(params);
                     },
                     tooltip: 'Compartir',
                   )
@@ -70,6 +74,8 @@ class PdfScreen extends StatelessWidget {
     Pdf infoPdf = await inspeccionService
         .detatilPdf(loginService.selectedEmpresa, resumenPreoperacional)
         .then((data) => data, onError: (e) {
+      print('ERROR PDF ${e}');
+
       showSimpleNotification(Text('Error al obtener detalle pdf'),
           leading: Icon(Icons.check),
           autoDismiss: true,
@@ -87,11 +93,15 @@ class PdfScreen extends StatelessWidget {
     var responseKilometraje = await get(Uri.parse(infoPdf.urlFotoKm!));
     var fotoKilometraje = responseKilometraje.bodyBytes;
 
-    var responseCabezote = await get(Uri.parse(infoPdf.urlFotoKm!));
+    var responseCabezote = await get(Uri.parse(infoPdf.urlFotoCabezote!));
     var fotoCabezote = responseCabezote.bodyBytes;
 
-    var responseRemolque = await get(Uri.parse(infoPdf.urlFotoRemolque!));
-    var fotoRemolque = responseRemolque.bodyBytes;
+    var fotoRemolque;
+    if (infoPdf.urlFotoRemolque != null &&
+        (infoPdf.urlFotoRemolque ?? '').isNotEmpty) {
+      var responseRemolque = await get(Uri.parse(infoPdf.urlFotoRemolque!));
+      fotoRemolque = responseRemolque.bodyBytes;
+    }
 
     var resFirmaConductor = await get(Uri.parse(infoPdf.firma!));
     var firmaConductor = resFirmaConductor.bodyBytes;

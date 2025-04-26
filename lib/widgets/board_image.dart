@@ -22,7 +22,7 @@ class BoardImage extends StatelessWidget {
           borderRadius: BorderRadius.all(Radius.circular(15)),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Color.fromARGB(13, 0, 0, 0),
                 blurRadius: 2,
                 offset: Offset(0, 5))
           ]);

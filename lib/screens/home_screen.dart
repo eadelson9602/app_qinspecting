@@ -154,8 +154,8 @@ class DesktopScreen extends StatelessWidget {
                   height: 420,
                   child: Swiper(
                     layout: SwiperLayout.STACK,
-                    itemHeight: sizeScreen.height * 1,
-                    itemWidth: sizeScreen.height * 0.5,
+                    itemHeight: sizeScreen.height * 0.8,
+                    itemWidth: sizeScreen.height * 0.4,
                     itemBuilder: (BuildContext context, int i) {
                       return CardInspeccionDesktop(
                           resumenPreoperacional:

@@ -39,7 +39,11 @@ class PdfScreenOffline extends StatelessWidget {
                   IconButton(
                     icon: const Icon(Icons.share),
                     onPressed: () async {
-                      await Share.shareXFiles([XFile(data.file.path)]);
+                      final params = ShareParams(
+                        text: 'Great picture',
+                        files: [XFile(data.file.path)],
+                      );
+                      await SharePlus.instance.share(params);
                     },
                     tooltip: 'Compartir',
                   )

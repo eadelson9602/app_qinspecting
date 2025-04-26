@@ -365,8 +365,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                       bottom: 10,
                       child: IconButton(
                         onPressed: () async {
-                          final reponsePermission = await inspeccionProvider
-                              .requestCameraPermission();
+                          final reponsePermission = await inspeccionProvider.requestCameraPermission();
                           if (reponsePermission) {
                             final _picker = ImagePicker();
                             final XFile? photo = await _picker.pickImage(
@@ -473,13 +472,15 @@ class _InspeccionFormState extends State<InspeccionForm> {
               // MaterialStateProperty.all<Color>(Colors.green)
               ElevatedButton(
                 style: ButtonStyle(
-                    elevation: MaterialStateProperty.all<double>(10),
-                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                        EdgeInsets.symmetric(horizontal: 20)),
-                    minimumSize:
-                        MaterialStateProperty.all<Size>(Size.square(50)),
-                    textStyle: MaterialStateProperty.all<TextStyle>(
-                        TextStyle(fontSize: 16))),
+                  elevation: WidgetStateProperty.all<double>(10),
+                  padding: WidgetStateProperty.all<EdgeInsetsGeometry>(
+                    EdgeInsets.symmetric(horizontal: 20),
+                  ),
+                  minimumSize: WidgetStateProperty.all<Size>(Size.square(50)),
+                  textStyle: WidgetStateProperty.all<TextStyle>(
+                    TextStyle(fontSize: 16),
+                  ),
+                ),
                 child: const Text('Realizar inspección'),
                 onPressed: () async {
                   if (!isValidForm()) return;
@@ -498,7 +499,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                         style: TextStyle(color: Colors.black),
                       ),
                       duration: const Duration(seconds: 2),
-                      width: 280.0, // Width of the SnackBar.
+                      width: 280.0,
                       padding: const EdgeInsets.all(10),
                       behavior: SnackBarBehavior.floating,
                       backgroundColor: Colors.orange,
@@ -507,13 +508,16 @@ class _InspeccionFormState extends State<InspeccionForm> {
                     ));
                     return;
                   }
+
                   var now = DateTime.now();
                   var formatter = DateFormat('yyyy-MM-dd hh:mm');
                   String formattedDate = formatter.format(now);
+
                   inspeccionService.resumePreoperacional.fechaPreoperacional =
                       formattedDate;
                   inspeccionService.resumePreoperacional.usuarioPreoperacional =
                       loginService.userDataLogged.numeroDocumento!;
+
                   Navigator.pushNamed(context, 'inspeccion_vehiculo');
                 },
               ),
