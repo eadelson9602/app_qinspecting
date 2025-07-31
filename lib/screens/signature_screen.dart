@@ -30,7 +30,8 @@ class MyStatelessWidget extends StatelessWidget {
           builder: (context, snapshot) {
             if (snapshot.data == true) {
               return FutureBuilder(
-                  future: firmaService.getInfoFirma(loginService.selectedEmpresa),
+                  future:
+                      firmaService.getInfoFirma(loginService.selectedEmpresa),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(child: CircularProgressIndicator());
@@ -46,7 +47,9 @@ class MyStatelessWidget extends StatelessWidget {
                             SizedBox(
                               height: 50.0,
                             ),
-                            Image(image: AssetImage('assets/images/boot_signature_2.gif')),
+                            Image(
+                                image: AssetImage(
+                                    'assets/images/boot_signature_2.gif')),
                             SizedBox(
                               width: 250,
                               child: DefaultTextStyle(
@@ -54,17 +57,19 @@ class MyStatelessWidget extends StatelessWidget {
                                       fontSize: 30.0,
                                       fontFamily: 'Agne',
                                       color: Colors.black),
-                                  child: AnimatedTextKit(
-                                    isRepeatingAnimation: true,
-                                    animatedTexts: [
-                                      TypewriterAnimatedText(
-                                          'Oops!!! Debe realizar su firma',
-                                          speed: Duration(milliseconds: 100),
-                                          textAlign: TextAlign.center),
-                                    ],
+                                  child: GestureDetector(
                                     onTap: () {
                                       print("Tap Event");
                                     },
+                                    child: AnimatedTextKit(
+                                      isRepeatingAnimation: true,
+                                      animatedTexts: [
+                                        TypewriterAnimatedText(
+                                            'Oops!!! Debe realizar su firma',
+                                            speed: Duration(milliseconds: 100),
+                                            textAlign: TextAlign.center),
+                                      ],
+                                    ),
                                   )),
                             )
                           ],
@@ -123,14 +128,14 @@ class CardFirma extends StatelessWidget {
           child: Column(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: FadeInImage(
-                  placeholder: const AssetImage('assets/images/loading-2.gif'),
-                  image: NetworkImage(infoFirma.firma.toString()),
-                  fit: BoxFit.cover,
-                  height: sizeScreen.height * 0.4,
-                )
-              ),
+                  borderRadius: BorderRadius.circular(10),
+                  child: FadeInImage(
+                    placeholder:
+                        const AssetImage('assets/images/loading-2.gif'),
+                    image: NetworkImage(infoFirma.firma.toString()),
+                    fit: BoxFit.cover,
+                    height: sizeScreen.height * 0.4,
+                  )),
               SizedBox(height: 10),
               Divider(
                 height: 15,

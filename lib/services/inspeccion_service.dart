@@ -390,38 +390,51 @@ class InspeccionService extends ChangeNotifier {
 
   Future<Pdf> detatilPdf(
       Empresa empresaSelected, ResumenPreoperacionalServer inspeccion) async {
-    Response response = await dio.get(
-        '${loginService.baseUrl}/inspeccion/${empresaSelected.nombreBase}/${inspeccion.resuPreId}',
-        options: loginService.options);
+    try {
+      Response response = await dio.get(
+          '${loginService.baseUrl}/inspeccion/${empresaSelected.nombreBase}/${inspeccion.resuPreId}',
+          options: loginService.options)
+          .timeout(Duration(seconds: 30));
 
-    List<Future> promesas = [];
+      List<Future> promesas = [];
 
-    Pdf temData = Pdf.fromJson(response.toString());
+      Pdf temData = Pdf.fromJson(response.toString());
 
-    temData.detalle.forEach((categoria) {
-      categoria.respuestas.forEach((respuesta) {
-        if (respuesta.foto != null) {
-          promesas.add(get(Uri.parse(respuesta.foto!)).then((value) {
-            return {"foto": respuesta.foto!, "data": value};
-          }));
-        }
+      temData.detalle.forEach((categoria) {
+        categoria.respuestas.forEach((respuesta) {
+          if (respuesta.foto != null) {
+            promesas.add(get(Uri.parse(respuesta.foto!))
+                .timeout(Duration(seconds: 10))
+                .then((value) {
+              return {"foto": respuesta.foto!, "data": value};
+            }).catchError((error) {
+              print('Error downloading image ${respuesta.foto}: $error');
+              return {"foto": respuesta.foto!, "data": null};
+            }));
+          }
+        });
       });
-    });
 
-    List<dynamic> responseFile =
-        await Future.wait(promesas).then((value) => value);
+      List<dynamic> responseFile = [];
+      if (promesas.isNotEmpty) {
+        responseFile = await Future.wait(promesas).then((value) => value);
+      }
 
-    temData.detalle.forEach((categoria) {
-      categoria.respuestas.forEach((respuesta) {
-        if (respuesta.foto != null) {
-          responseFile.forEach((element) {
-            if (element['foto'] == respuesta.foto) {
-              respuesta.fotoConverted = element['data'].bodyBytes;
-            }
-          });
-        }
+      temData.detalle.forEach((categoria) {
+        categoria.respuestas.forEach((respuesta) {
+          if (respuesta.foto != null) {
+            responseFile.forEach((element) {
+              if (element['foto'] == respuesta.foto && element['data'] != null) {
+                respuesta.fotoConverted = element['data'].bodyBytes;
+              }
+            });
+          }
+        });
       });
-    });
-    return temData;
+      return temData;
+    } catch (e) {
+      print('Error in detatilPdf: $e');
+      throw Exception('Error al obtener datos del PDF: $e');
+    }
   }
 }

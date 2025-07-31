@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:signature/signature.dart';
 import 'package:app_qinspecting/providers/providers.dart';
 
 import 'package:app_qinspecting/screens/loading_screen.dart';
@@ -19,17 +19,10 @@ class CreateSignatureScreen extends StatefulWidget {
 }
 
 class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
-  final SignatureController _controller = SignatureController(
-    penStrokeWidth: 1,
-    penColor: Colors.black,
-    exportBackgroundColor: Colors.white,
-  );
-
-  @override
-  void initState() {
-    super.initState();
-    _controller.addListener(() {});
-  }
+  List<Offset> _points = [];
+  List<List<Offset>> _strokes = [];
+  List<List<Offset>> _undoStack = [];
+  List<List<Offset>> _redoStack = [];
 
   @override
   Widget build(BuildContext context) {
@@ -41,32 +34,49 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
     return Scaffold(
       appBar: AppBar(),
       body: Container(
-        color: Colors.red,
-        child: Signature(
-          controller: _controller,
-          height: screenSize.height * 0.9,
-          backgroundColor: Colors.grey[200]!,
+        color: Colors.grey[200],
+        child: GestureDetector(
+          onPanStart: (details) {
+            setState(() {
+              _points = [details.localPosition];
+              _redoStack.clear();
+            });
+          },
+          onPanUpdate: (details) {
+            setState(() {
+              _points.add(details.localPosition);
+            });
+          },
+          onPanEnd: (details) {
+            setState(() {
+              if (_points.isNotEmpty) {
+                _strokes.add(List.from(_points));
+                _undoStack.add(List.from(_points));
+                _points = [];
+              }
+            });
+          },
+          child: CustomPaint(
+            painter: SignaturePainter(_strokes, _points),
+            size: Size(screenSize.width, screenSize.height * 0.9),
+          ),
         ),
       ),
-      bottomNavigationBar: //OK AND CLEAR BUTTONS
-          Container(
+      bottomNavigationBar: Container(
         decoration: const BoxDecoration(color: Colors.grey),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           mainAxisSize: MainAxisSize.max,
           children: [
-            //SHOW EXPORTED IMAGE IN NEW ROUTE
             IconButton(
               icon: const Icon(Icons.check),
               color: Colors.black,
               onPressed: () async {
-                if (_controller.isNotEmpty) {
+                if (_strokes.isNotEmpty || _points.isNotEmpty) {
                   try {
                     inspeccionService.isSaving = true;
-                    final Uint8List? data = await _controller.toPngBytes();
+                    final Uint8List? data = await _captureSignature();
                     if (data != null) {
-                      // File('my_firma.png').writeAsBytes(data);
-
                       final dir = await getExternalStorageDirectory();
                       final myImagePath =
                           '${dir!.path}/${loginService.selectedEmpresa.nombreBase}_${loginService.userDataLogged.numeroDocumento}.png';
@@ -75,7 +85,7 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
                         imageFile.create(recursive: true);
                       }
                       imageFile.writeAsBytesSync(data);
-                      // Se envia la foto de la firma al servidor
+
                       Map<String, dynamic>? responseUploadFirma =
                           await inspeccionService.uploadImage(
                               path: myImagePath,
@@ -93,16 +103,15 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
                       };
                       Map responseSaveFirma =
                           await firmaService.insertSignature(dataFirmaSave);
-                      // Actualizamos estado de firma en local
+
                       loginService.userDataLogged.idFirma =
                           responseSaveFirma['insertId'];
                       DBProvider.db.updateUser(loginService.userDataLogged);
-                      // restablecemos valor de variables
+
                       inspeccionService.isSaving = false;
                       firmaService.updateTerminos('NO');
                       firmaService.updateTabIndex(0);
 
-                      // show a notification at top of screen.
                       showSimpleNotification(
                           Text(responseSaveFirma['message']!),
                           leading: Icon(Icons.check),
@@ -126,27 +135,99 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
               icon: const Icon(Icons.undo),
               color: Colors.black,
               onPressed: () {
-                setState(() => _controller.undo());
+                setState(() {
+                  if (_strokes.isNotEmpty) {
+                    _redoStack.add(_strokes.removeLast());
+                  }
+                });
               },
             ),
             IconButton(
               icon: const Icon(Icons.redo),
               color: Colors.black,
               onPressed: () {
-                setState(() => _controller.redo());
+                setState(() {
+                  if (_redoStack.isNotEmpty) {
+                    _strokes.add(_redoStack.removeLast());
+                  }
+                });
               },
             ),
-            //CLEAR CANVAS
             IconButton(
               icon: const Icon(Icons.clear),
               color: Colors.black,
               onPressed: () {
-                setState(() => _controller.clear());
+                setState(() {
+                  _strokes.clear();
+                  _points.clear();
+                  _undoStack.clear();
+                  _redoStack.clear();
+                });
               },
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<Uint8List?> _captureSignature() async {
+    try {
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+      final painter = SignaturePainter(_strokes, _points);
+      painter.paint(canvas, Size(400, 300));
+      final picture = recorder.endRecording();
+      final image = await picture.toImage(400, 300);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      return byteData?.buffer.asUint8List();
+    } catch (e) {
+      print('Error capturing signature: $e');
+      return null;
+    }
+  }
+}
+
+class SignaturePainter extends CustomPainter {
+  final List<List<Offset>> strokes;
+  final List<Offset> currentPoints;
+
+  SignaturePainter(this.strokes, this.currentPoints);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.black
+      ..strokeWidth = 2.0
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    // Draw completed strokes
+    for (final stroke in strokes) {
+      if (stroke.length > 1) {
+        final path = Path();
+        path.moveTo(stroke[0].dx, stroke[0].dy);
+        for (int i = 1; i < stroke.length; i++) {
+          path.lineTo(stroke[i].dx, stroke[i].dy);
+        }
+        canvas.drawPath(path, paint);
+      }
+    }
+
+    // Draw current stroke
+    if (currentPoints.length > 1) {
+      final path = Path();
+      path.moveTo(currentPoints[0].dx, currentPoints[0].dy);
+      for (int i = 1; i < currentPoints.length; i++) {
+        path.lineTo(currentPoints[i].dx, currentPoints[i].dy);
+      }
+      canvas.drawPath(path, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(SignaturePainter oldDelegate) {
+    return oldDelegate.strokes != strokes ||
+        oldDelegate.currentPoints != currentPoints;
   }
 }

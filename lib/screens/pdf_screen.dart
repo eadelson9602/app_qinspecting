@@ -71,92 +71,170 @@ class PdfScreen extends StatelessWidget {
       ResumenPreoperacionalServer resumenPreoperacional,
       InspeccionService inspeccionService,
       LoginService loginService) async {
-    Pdf infoPdf = await inspeccionService
-        .detatilPdf(loginService.selectedEmpresa, resumenPreoperacional)
-        .then((data) => data, onError: (e) {
+    try {
+      Pdf infoPdf = await inspeccionService
+          .detatilPdf(loginService.selectedEmpresa, resumenPreoperacional)
+          .timeout(Duration(seconds: 30), onTimeout: () {
+        throw Exception('Timeout al obtener datos del PDF');
+      });
+
+      // Track failed images
+      List<String> failedImages = [];
+
+      // Validate and download images with timeout
+      Uint8List? logoCliente;
+      if (infoPdf.rutaLogo != null && infoPdf.rutaLogo!.isNotEmpty) {
+        try {
+          var responseLogoCliente = await get(Uri.parse(infoPdf.rutaLogo!))
+              .timeout(Duration(seconds: 10));
+          logoCliente = responseLogoCliente.bodyBytes;
+        } catch (e) {
+          print('Error downloading logo cliente: $e');
+          failedImages.add('Logo Cliente');
+          // Continue without logo
+        }
+      }
+
+      Uint8List? logoQi;
+      try {
+        var responseLogoQi = await get(Uri.parse('https://qinspecting.com/img/Qi.png'))
+            .timeout(Duration(seconds: 10));
+        logoQi = responseLogoQi.bodyBytes;
+      } catch (e) {
+        print('Error downloading logo Qi: $e');
+        failedImages.add('Logo Qi');
+        // Continue without logo
+      }
+
+      Uint8List? fotoKilometraje;
+      if (infoPdf.urlFotoKm != null && infoPdf.urlFotoKm!.isNotEmpty) {
+        try {
+          var responseKilometraje = await get(Uri.parse(infoPdf.urlFotoKm!))
+              .timeout(Duration(seconds: 10));
+          fotoKilometraje = responseKilometraje.bodyBytes;
+        } catch (e) {
+          print('Error downloading foto kilometraje: $e');
+          failedImages.add('Foto Kilometraje');
+          // Continue without image
+        }
+      }
+
+      Uint8List? fotoCabezote;
+      if (infoPdf.urlFotoCabezote != null && infoPdf.urlFotoCabezote!.isNotEmpty) {
+        try {
+          var responseCabezote = await get(Uri.parse(infoPdf.urlFotoCabezote!))
+              .timeout(Duration(seconds: 10));
+          fotoCabezote = responseCabezote.bodyBytes;
+        } catch (e) {
+          print('Error downloading foto cabezote: $e');
+          failedImages.add('Foto Cabezote');
+          // Continue without image
+        }
+      }
+
+      Uint8List? fotoRemolque;
+      if (infoPdf.urlFotoRemolque != null &&
+          infoPdf.urlFotoRemolque!.isNotEmpty) {
+        try {
+          var responseRemolque = await get(Uri.parse(infoPdf.urlFotoRemolque!))
+              .timeout(Duration(seconds: 10));
+          fotoRemolque = responseRemolque.bodyBytes;
+        } catch (e) {
+          print('Error downloading remolque image: $e');
+          failedImages.add('Foto Remolque');
+          // Continue without remolque image
+        }
+      }
+
+      Uint8List? firmaConductor;
+      if (infoPdf.firma != null && infoPdf.firma!.isNotEmpty) {
+        try {
+          var resFirmaConductor = await get(Uri.parse(infoPdf.firma!))
+              .timeout(Duration(seconds: 10));
+          firmaConductor = resFirmaConductor.bodyBytes;
+        } catch (e) {
+          print('Error downloading firma conductor: $e');
+          failedImages.add('Firma Conductor');
+          // Continue without signature
+        }
+      }
+      
+      Uint8List? firmaAuditor;
+      if (infoPdf.firmaAuditor != null && infoPdf.firmaAuditor!.isNotEmpty) {
+        try {
+          var resFirmaAuditor = await get(Uri.parse(infoPdf.firmaAuditor!))
+              .timeout(Duration(seconds: 10));
+          firmaAuditor = resFirmaAuditor.bodyBytes;
+        } catch (e) {
+          print('Error downloading firma auditor: $e');
+          failedImages.add('Firma Auditor');
+          // Continue without signature
+        }
+      }
+
+      // Log failed images
+      if (failedImages.isNotEmpty) {
+        print('Failed to load images: ${failedImages.join(', ')}');
+      }
+
+      //Create a PDF document.
+      final PdfDocument document = PdfDocument();
+      //Add page to the PDF
+      final PdfPage page = document.pages.add();
+      //Get page client size
+      final Size pageSize = page.getClientSize();
+      //Draw rectangle used how margin
+      page.graphics.drawRectangle(
+          bounds: Rect.fromLTWH(0, 0, pageSize.width, pageSize.height),
+          pen: PdfPen(PdfColor(0, 0, 0)));
+
+      // Draw header
+      final header = drawHeader(document, infoPdf, logoCliente, logoQi);
+      document.template.top = header;
+
+      //Generate PDF grid.
+      final PdfGrid gridSummary = getGridSummary(
+          infoPdf, pageSize, firmaConductor, firmaAuditor, resumenPreoperacional);
+
+      final PdfGrid gridAnswers = getGridAnswers(
+          infoPdf, pageSize, fotoKilometraje, fotoCabezote, fotoRemolque);
+
+      //Draw grid
+      PdfLayoutResult resultSummary = gridSummary.draw(
+          page: page, bounds: Rect.fromLTWH(0, 60, 0, 0)) as PdfLayoutResult;
+
+      //Draw the PDF grid
+      gridAnswers.draw(
+          page: page,
+          bounds: Rect.fromLTWH(0, resultSummary.bounds.bottom, 0, 0));
+
+      //Save the PDF document
+      final outputExternal = await getExternalStorageDirectory();
+      final pathFile =
+          '${outputExternal!.path}/${resumenPreoperacional.consecutivo}.pdf';
+
+      final pdf = await document.save();
+
+      await File(pathFile).writeAsBytes(pdf);
+
+      Uint8List bytes = File(pathFile).readAsBytesSync();
+      // Dispose the document.
+      document.dispose();
+
+      return PdfData(bytes: bytes, file: File(pathFile));
+    } catch (e) {
       print('ERROR PDF ${e}');
-
-      showSimpleNotification(Text('Error al obtener detalle pdf'),
-          leading: Icon(Icons.check),
+      showSimpleNotification(Text('Error al generar PDF: ${e.toString()}'),
+          leading: Icon(Icons.error),
           autoDismiss: true,
-          background: Colors.orange,
+          background: Colors.red,
           position: NotificationPosition.bottom);
-    });
-
-    var responseLogoCliente = await get(Uri.parse(infoPdf.rutaLogo!));
-    var logoCliente = responseLogoCliente.bodyBytes;
-
-    var responseLogoQi =
-        await get(Uri.parse('https://qinspecting.com/img/Qi.png'));
-    var logoQi = responseLogoQi.bodyBytes;
-
-    var responseKilometraje = await get(Uri.parse(infoPdf.urlFotoKm!));
-    var fotoKilometraje = responseKilometraje.bodyBytes;
-
-    var responseCabezote = await get(Uri.parse(infoPdf.urlFotoCabezote!));
-    var fotoCabezote = responseCabezote.bodyBytes;
-
-    var fotoRemolque;
-    if (infoPdf.urlFotoRemolque != null &&
-        (infoPdf.urlFotoRemolque ?? '').isNotEmpty) {
-      var responseRemolque = await get(Uri.parse(infoPdf.urlFotoRemolque!));
-      fotoRemolque = responseRemolque.bodyBytes;
+      throw e;
     }
-
-    var resFirmaConductor = await get(Uri.parse(infoPdf.firma!));
-    var firmaConductor = resFirmaConductor.bodyBytes;
-    var resFirmaAuditor = await get(Uri.parse(infoPdf.firmaAuditor!));
-    var firmaAuditor = resFirmaAuditor.bodyBytes;
-
-    //Create a PDF document.
-    final PdfDocument document = PdfDocument();
-    //Add page to the PDF
-    final PdfPage page = document.pages.add();
-    //Get page client size
-    final Size pageSize = page.getClientSize();
-    //Draw rectangle used how margin
-    page.graphics.drawRectangle(
-        bounds: Rect.fromLTWH(0, 0, pageSize.width, pageSize.height),
-        pen: PdfPen(PdfColor(0, 0, 0)));
-
-    // Draw header
-    final header = drawHeader(document, infoPdf, logoCliente, logoQi);
-    document.template.top = header;
-
-    //Generate PDF grid.
-    final PdfGrid gridSummary = getGridSummary(
-        infoPdf, pageSize, firmaConductor, firmaAuditor, resumenPreoperacional);
-
-    final PdfGrid gridAnswers = getGridAnswers(
-        infoPdf, pageSize, fotoKilometraje, fotoCabezote, fotoRemolque);
-
-    //Draw grid
-    PdfLayoutResult resultSummary = gridSummary.draw(
-        page: page, bounds: Rect.fromLTWH(0, 60, 0, 0)) as PdfLayoutResult;
-
-    //Draw the PDF grid
-    gridAnswers.draw(
-        page: page,
-        bounds: Rect.fromLTWH(0, resultSummary.bounds.bottom, 0, 0));
-
-    //Save the PDF document
-    final outputExternal = await getExternalStorageDirectory();
-    final pathFile =
-        '${outputExternal!.path}/${resumenPreoperacional.consecutivo}.pdf';
-
-    final pdf = await document.save();
-
-    await File(pathFile).writeAsBytes(pdf);
-
-    Uint8List bytes = File(pathFile).readAsBytesSync();
-    // Dispose the document.
-    document.dispose();
-
-    return PdfData(bytes: bytes, file: File(pathFile));
   }
 
   PdfPageTemplateElement drawHeader(PdfDocument document, Pdf infoPdf,
-      Uint8List logoCliente, Uint8List logoQi) {
+      Uint8List? logoCliente, Uint8List? logoQi) {
     final pageSize = document.pages[0].getClientSize();
     //Create the header with specific bounds
     PdfPageTemplateElement header =
@@ -167,8 +245,20 @@ class PdfScreen extends StatelessWidget {
         bounds: Rect.fromLTWH(0, 0, 120, 60), pen: PdfPen(PdfColor(0, 0, 0)));
 
     //Dibuja el logo del cliente
-    header.graphics
-        .drawImage(PdfBitmap(logoCliente), Rect.fromLTWH(1, 1, 118, 57));
+    if (logoCliente != null) {
+      header.graphics
+          .drawImage(PdfBitmap(logoCliente), Rect.fromLTWH(1, 1, 118, 57));
+    } else if (infoPdf.rutaLogo != null && infoPdf.rutaLogo!.isNotEmpty) {
+      // Show "No URI" message only if there was a URL that failed
+      header.graphics.drawString(
+          'No URI',
+          PdfStandardFont(PdfFontFamily.helvetica, 8),
+          brush: PdfBrushes.red,
+          bounds: Rect.fromLTWH(1, 1, 118, 57),
+          format: PdfStringFormat(
+              lineAlignment: PdfVerticalAlignment.middle,
+              alignment: PdfTextAlignment.center));
+    }
 
     //Diduja el rectangulo con el titulo del pdf
     header.graphics.drawRectangle(
@@ -237,14 +327,26 @@ class PdfScreen extends StatelessWidget {
         bounds: Rect.fromLTWH(455, 0, 60, 60), pen: PdfPen(PdfColor(0, 0, 0)));
 
     //Dibuja el logo de QI
-    header.graphics.drawImage(PdfBitmap(logoQi), Rect.fromLTWH(462, 8, 45, 45));
+    if (logoQi != null) {
+      header.graphics.drawImage(PdfBitmap(logoQi), Rect.fromLTWH(462, 8, 45, 45));
+    } else {
+      // Show "No URI" message for Qi logo (it's always expected)
+      header.graphics.drawString(
+          'No URI',
+          PdfStandardFont(PdfFontFamily.helvetica, 8),
+          brush: PdfBrushes.red,
+          bounds: Rect.fromLTWH(462, 8, 45, 45),
+          format: PdfStringFormat(
+              lineAlignment: PdfVerticalAlignment.middle,
+              alignment: PdfTextAlignment.center));
+    }
 
     //Return header
     return header;
   }
 
-  PdfGrid getGridSummary(Pdf infoPdf, Size pageSize, firmaConductor,
-      firmaAuditor, ResumenPreoperacionalServer resumenPreoperacional) {
+  PdfGrid getGridSummary(Pdf infoPdf, Size pageSize, Uint8List? firmaConductor,
+      Uint8List? firmaAuditor, ResumenPreoperacionalServer resumenPreoperacional) {
     //Create a PDF grid
     final PdfGrid gridSummary = PdfGrid();
     //Secify the columns count to the grid.
@@ -284,12 +386,28 @@ class PdfScreen extends StatelessWidget {
     rowSummary2.cells[0].value = 'N°. INSPECCIÓN';
     rowSummary2.cells[1].value = '${infoPdf.consecutivo}';
     rowSummary2.cells[2].value = 'FIRMA CONDUCTOR';
-    rowSummary2.cells[3].style =
-        PdfGridCellStyle(backgroundImage: PdfBitmap(firmaConductor));
+    if (firmaConductor != null) {
+      rowSummary2.cells[3].style =
+          PdfGridCellStyle(backgroundImage: PdfBitmap(firmaConductor));
+    } else if (infoPdf.firma != null && infoPdf.firma!.isNotEmpty) {
+      rowSummary2.cells[3].value = 'No URI';
+      rowSummary2.cells[3].style = PdfGridCellStyle(
+        textBrush: PdfBrushes.red,
+        font: PdfStandardFont(PdfFontFamily.helvetica, 8),
+      );
+    }
     rowSummary2.height = 30;
     rowSummary2.cells[4].value = 'FIRMA DE QUIEN INSPECCIONA';
-    rowSummary2.cells[5].value =
-        PdfGridCellStyle(backgroundImage: PdfBitmap(firmaAuditor));
+    if (firmaAuditor != null) {
+      rowSummary2.cells[5].style =
+          PdfGridCellStyle(backgroundImage: PdfBitmap(firmaAuditor));
+    } else if (infoPdf.firmaAuditor != null && infoPdf.firmaAuditor!.isNotEmpty) {
+      rowSummary2.cells[5].value = 'No URI';
+      rowSummary2.cells[5].style = PdfGridCellStyle(
+        textBrush: PdfBrushes.red,
+        font: PdfStandardFont(PdfFontFamily.helvetica, 8),
+      );
+    }
 
     // Styles for table
     gridSummary.style = PdfGridStyle(
@@ -319,8 +437,8 @@ class PdfScreen extends StatelessWidget {
   }
 
   //Create PDF grid and return
-  PdfGrid getGridAnswers(Pdf infoPdf, Size pageSize, Uint8List fotoKilometraje,
-      Uint8List fotoCabezote, Uint8List? fotoRemolque) {
+  PdfGrid getGridAnswers(Pdf infoPdf, Size pageSize, Uint8List? fotoKilometraje,
+      Uint8List? fotoCabezote, Uint8List? fotoRemolque) {
     //Create a PDF grid
     final PdfGrid grid = PdfGrid();
     //Secify the columns count to the grid.
@@ -470,12 +588,31 @@ class PdfScreen extends StatelessWidget {
       row.cells[5].value =
           '${respuesta.observacion == null ? '' : respuesta.observacion}';
     }
-    if (respuesta.foto == null) {
-      row.cells[6].value = '';
+    
+    if (respuesta.foto == null || respuesta.fotoConverted == null) {
+      // Only show "No URI" if there was a URL that failed
+      if (respuesta.foto != null && respuesta.foto!.isNotEmpty) {
+        row.cells[6].value = 'No URI';
+        row.cells[6].style = PdfGridCellStyle(
+          textBrush: PdfBrushes.red,
+          font: PdfStandardFont(PdfFontFamily.helvetica, 8),
+        );
+      } else {
+        row.cells[6].value = '';
+      }
     } else {
-      row.cells[6].style = PdfGridCellStyle(
-          backgroundImage: PdfBitmap(respuesta.fotoConverted!));
-      row.height = 40;
+      try {
+        row.cells[6].style = PdfGridCellStyle(
+            backgroundImage: PdfBitmap(respuesta.fotoConverted!));
+        row.height = 40;
+      } catch (e) {
+        print('Error setting image in PDF: $e');
+        row.cells[6].value = 'No URI';
+        row.cells[6].style = PdfGridCellStyle(
+          textBrush: PdfBrushes.red,
+          font: PdfStandardFont(PdfFontFamily.helvetica, 8),
+        );
+      }
     }
   }
 }
