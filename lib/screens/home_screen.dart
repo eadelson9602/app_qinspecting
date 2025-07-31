@@ -48,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return PopScope(
       canPop: false, // Esto evita que se salga sin tu confirmación
 
-      onPopInvoked: (didPop) async {
+      onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
 
         final shouldExit = await _onWillPopScope();
