@@ -10,7 +10,11 @@ import 'package:app_qinspecting/services/services.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 class InspeccionService extends ChangeNotifier {
-  final dio = Dio();
+  final dio = Dio(BaseOptions(
+    connectTimeout: Duration(seconds: 30),
+    receiveTimeout: Duration(seconds: 60),
+    sendTimeout: Duration(seconds: 30),
+  ));
   final loginService = LoginService();
   bool isLoading = false;
   bool isSaving = false;
@@ -212,50 +216,79 @@ class InspeccionService extends ChangeNotifier {
       String token = await storage.read(key: 'token') ?? '';
       loginService.options.headers = {"x-access-token": token};
       final baseEmpresa = selectedEmpresa.nombreBase;
+
       await loginService.getUserData(selectedEmpresa);
-      Response response = await dio.get(
+
+      // Perform all API calls in parallel to reduce total time
+      List<Future> apiCalls = [];
+
+      apiCalls.add(dio.get(
           '${loginService.baseUrl}/get_placas_cabezote/$baseEmpresa',
-          options: loginService.options);
-      for (var item in response.data) {
-        final tempVehiculo = Vehiculo.fromMap(item);
-        DBProvider.db.nuevoVehiculo(tempVehiculo);
-      }
-      Response responseTrailer = await dio.get(
+          options: loginService.options));
+
+      apiCalls.add(dio.get(
           '${loginService.baseUrl}/get_placas_trailer/$baseEmpresa',
-          options: loginService.options);
-      for (var item in responseTrailer.data) {
-        final tempRemolque = Remolque.fromMap(item);
-        DBProvider.db.nuevoRemolque(tempRemolque);
-      }
-      Response responseDepartamentos = await dio.get(
+          options: loginService.options));
+
+      apiCalls.add(dio.get(
           '${loginService.baseUrl}/list_departments/$baseEmpresa',
-          options: loginService.options);
-      for (var item in responseDepartamentos.data) {
-        final tempDepartamento = Departamentos.fromMap(item);
-        DBProvider.db.nuevoDepartamento(tempDepartamento);
-      }
-      Response responseCiudades = await dio.get(
-          '${loginService.baseUrl}/list_city/$baseEmpresa',
-          options: loginService.options);
-      for (var item in responseCiudades.data) {
-        final tempCiudad = Ciudades.fromMap(item);
-        DBProvider.db.nuevaCiudad(tempCiudad);
-      }
-      Response responseItems = await dio.get(
+          options: loginService.options));
+
+      apiCalls.add(dio.get('${loginService.baseUrl}/list_city/$baseEmpresa',
+          options: loginService.options));
+
+      apiCalls.add(dio.get(
           '${loginService.baseUrl}/list_items_x_placa/$baseEmpresa',
-          options: loginService.options);
-      for (var item in responseItems.data) {
-        final tempItem = ItemInspeccion.fromMap(item);
-        DBProvider.db.nuevoItem(tempItem);
+          options: loginService.options));
+
+      apiCalls.add(dio.get(
+          '${loginService.baseUrl}/list_type_documents/$baseEmpresa',
+          options: loginService.options));
+
+      // Wait for all API calls to complete
+      List<dynamic> responses = await Future.wait(apiCalls);
+
+      // Process database operations in batches to reduce lock time
+      List<Future> dbOperations = [];
+
+      // Process vehicles
+      for (var item in responses[0].data) {
+        final tempVehiculo = Vehiculo.fromMap(item);
+        dbOperations.add(DBProvider.db.nuevoVehiculo(tempVehiculo));
       }
 
-      Response responseTipodoc = await dio.get(
-          '${loginService.baseUrl}/list_type_documents/$baseEmpresa',
-          options: loginService.options);
-      for (var item in responseTipodoc.data) {
-        final tempTipoDoc = TipoDocumentos.fromMap(item);
-        DBProvider.db.nuevoTipoDocumento(tempTipoDoc);
+      // Process trailers
+      for (var item in responses[1].data) {
+        final tempRemolque = Remolque.fromMap(item);
+        dbOperations.add(DBProvider.db.nuevoRemolque(tempRemolque));
       }
+
+      // Process departments
+      for (var item in responses[2].data) {
+        final tempDepartamento = Departamentos.fromMap(item);
+        dbOperations.add(DBProvider.db.nuevoDepartamento(tempDepartamento));
+      }
+
+      // Process cities
+      for (var item in responses[3].data) {
+        final tempCiudad = Ciudades.fromMap(item);
+        dbOperations.add(DBProvider.db.nuevaCiudad(tempCiudad));
+      }
+
+      // Process items
+      for (var item in responses[4].data) {
+        final tempItem = ItemInspeccion.fromMap(item);
+        dbOperations.add(DBProvider.db.nuevoItem(tempItem));
+      }
+
+      // Process document types
+      for (var item in responses[5].data) {
+        final tempTipoDoc = TipoDocumentos.fromMap(item);
+        dbOperations.add(DBProvider.db.nuevoTipoDocumento(tempTipoDoc));
+      }
+
+      // Execute all database operations in parallel
+      await Future.wait(dbOperations);
 
       return true;
     } on DioException catch (error) {
@@ -391,46 +424,83 @@ class InspeccionService extends ChangeNotifier {
   Future<Pdf> detatilPdf(
       Empresa empresaSelected, ResumenPreoperacionalServer inspeccion) async {
     try {
-      Response response = await dio.get(
-          '${loginService.baseUrl}/inspeccion/${empresaSelected.nombreBase}/${inspeccion.resuPreId}',
-          options: loginService.options)
-          .timeout(Duration(seconds: 30));
+      print('Starting detatilPdf for inspection: ${inspeccion.resuPreId}');
 
-      List<Future> promesas = [];
-
-      Pdf temData = Pdf.fromJson(response.toString());
-
-      temData.detalle.forEach((categoria) {
-        categoria.respuestas.forEach((respuesta) {
-          if (respuesta.foto != null) {
-            promesas.add(get(Uri.parse(respuesta.foto!))
-                .timeout(Duration(seconds: 10))
-                .then((value) {
-              return {"foto": respuesta.foto!, "data": value};
-            }).catchError((error) {
-              print('Error downloading image ${respuesta.foto}: $error');
-              return {"foto": respuesta.foto!, "data": null};
-            }));
-          }
-        });
-      });
-
-      List<dynamic> responseFile = [];
-      if (promesas.isNotEmpty) {
-        responseFile = await Future.wait(promesas).then((value) => value);
+      // Check connectivity first
+      bool hasConnection = await checkConnection();
+      if (!hasConnection) {
+        throw Exception('Sin conexión a internet');
       }
 
+      print('Network connectivity confirmed');
+
+      Response response = await dio
+          .get(
+              '${loginService.baseUrl}/inspeccion/${empresaSelected.nombreBase}/${inspeccion.resuPreId}',
+              options: loginService.options)
+          .timeout(Duration(seconds: 30));
+
+      print('API call completed successfully');
+      Pdf temData = Pdf.fromJson(response.toString());
+
+      // Collect all image URLs that need to be downloaded
+      List<String> imageUrls = [];
       temData.detalle.forEach((categoria) {
         categoria.respuestas.forEach((respuesta) {
-          if (respuesta.foto != null) {
-            responseFile.forEach((element) {
-              if (element['foto'] == respuesta.foto && element['data'] != null) {
-                respuesta.fotoConverted = element['data'].bodyBytes;
-              }
-            });
+          if (respuesta.foto != null && respuesta.foto!.isNotEmpty) {
+            imageUrls.add(respuesta.foto!);
           }
         });
       });
+
+      print('Found ${imageUrls.length} images to download');
+
+      // Download images with better timeout handling
+      List<Future> promesas = [];
+      Map<String, dynamic> imageResults = {};
+
+      for (String imageUrl in imageUrls) {
+        promesas.add(get(Uri.parse(imageUrl))
+            .timeout(Duration(seconds: 8))
+            .then((value) {
+          imageResults[imageUrl] = value.bodyBytes;
+          print('Successfully downloaded: $imageUrl');
+          return {"foto": imageUrl, "data": value};
+        }).catchError((error) {
+          print('Error downloading image $imageUrl: $error');
+          imageResults[imageUrl] = null;
+          return {"foto": imageUrl, "data": null};
+        }));
+      }
+
+      // Wait for all image downloads with overall timeout
+      if (promesas.isNotEmpty) {
+        print('Starting concurrent image downloads...');
+        try {
+          await Future.wait(promesas).timeout(Duration(seconds: 25));
+          print('Image downloads completed');
+        } catch (error) {
+          print('Error during image downloads: $error');
+          // Continue with partial data
+        }
+      }
+
+      // Assign downloaded images to responses
+      int successfulDownloads = 0;
+      temData.detalle.forEach((categoria) {
+        categoria.respuestas.forEach((respuesta) {
+          if (respuesta.foto != null && respuesta.foto!.isNotEmpty) {
+            if (imageResults.containsKey(respuesta.foto!) &&
+                imageResults[respuesta.foto!] != null) {
+              respuesta.fotoConverted = imageResults[respuesta.foto!];
+              successfulDownloads++;
+            }
+          }
+        });
+      });
+
+      print(
+          'Successfully processed $successfulDownloads out of ${imageUrls.length} images');
       return temData;
     } catch (e) {
       print('Error in detatilPdf: $e');
