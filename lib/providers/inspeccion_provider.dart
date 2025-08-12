@@ -188,6 +188,7 @@ class InspeccionProvider extends ChangeNotifier {
   saveInspecicon(ResumenPreoperacional nuevoInspeccion) async {
     notifyListeners();
     final idEncabezado = await DBProvider.db.nuevoInspeccion(nuevoInspeccion);
+    clearData();
     notifyListeners();
     return idEncabezado;
   }
