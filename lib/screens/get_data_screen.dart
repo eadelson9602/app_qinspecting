@@ -9,13 +9,16 @@ class GetDataScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final inspeccionService = Provider.of<InspeccionService>(context, listen: false);
+    final inspeccionService =
+        Provider.of<InspeccionService>(context, listen: false);
     final loginService = Provider.of<LoginService>(context, listen: false);
     return Scaffold(
         body: FutureBuilder(
             future: inspeccionService.getData(loginService.selectedEmpresa),
             builder: (ctx, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
+                print(
+                    '📁conection state del data screen: ${snapshot.connectionState}');
                 return LoadingScreen();
               } else {
                 Future.microtask(() {

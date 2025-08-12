@@ -3,12 +3,19 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 
 import 'screens/screens.dart';
+import 'utils/error_handler.dart';
 
 import 'package:app_qinspecting/providers/providers.dart';
 
 import 'services/services.dart';
 
 void main() {
+  // Configurar Flutter para evitar errores del mouse tracker
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializar el manejador de errores
+  ErrorHandler.initialize();
+
   runApp(const AppState());
 }
 
@@ -41,6 +48,8 @@ class MyApp extends StatelessWidget {
       title: 'Qinspecting',
       theme: ThemeData(
         primarySwatch: Colors.green,
+        // Configuraciones para evitar problemas de touch/mouse
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       initialRoute: 'check_auth',
       routes: {
@@ -63,6 +72,10 @@ class MyApp extends StatelessWidget {
       // Se usa para controlar pagina que no existes 404
       onGenerateRoute: (settings) {
         return MaterialPageRoute(builder: (context) => const HomeScreen());
+      },
+      // Configurar builder para manejar errores
+      builder: (context, child) {
+        return ErrorHandler.wrapWithErrorHandler(child!);
       },
     ));
   }

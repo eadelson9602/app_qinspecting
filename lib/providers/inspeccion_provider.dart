@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -113,14 +114,31 @@ class InspeccionProvider extends ChangeNotifier {
   }
 
   Future<bool> listarDataInit(String base) async {
+    try {
+      print('Starting listarDataInit for base: $base');
+
+      // Load local data with timeout
+      await _loadVehiculos(base);
+      await _loadDepartamentos();
+
+      print('Local data loaded successfully');
+      return true;
+    } catch (e) {
+      print('Error in listarDataInit: $e');
+      rethrow; // Re-throw the exception so FutureBuilder can catch it
+    }
+  }
+
+  Future<void> _loadVehiculos(String base) async {
     vehiculos.clear();
     final resVehiculos = await DBProvider.db.getAllVehiculos(base);
     vehiculos = [...resVehiculos!];
+  }
 
+  Future<void> _loadDepartamentos() async {
     departamentos.clear();
     final resDepartamentos = await DBProvider.db.getAllDepartamentos();
     departamentos = [...resDepartamentos!];
-    return true;
   }
 
   listarDepartamentos() async {

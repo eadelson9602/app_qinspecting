@@ -190,7 +190,8 @@ class RespuestaInspeccion {
       this.observacion,
       this.respuesta,
       this.fotoConverted,
-      this.fechaVencimiento});
+      this.fechaVencimiento,
+      this.imageMessage});
 
   String? foto;
   Uint8List? fotoConverted;
@@ -199,6 +200,8 @@ class RespuestaInspeccion {
   String? respuesta;
   String? observacion;
   String? fechaVencimiento;
+  String?
+      imageMessage; // Message for image validation (e.g., "Ver en web", "No-uri")
 
   factory RespuestaInspeccion.fromJson(String str) =>
       RespuestaInspeccion.fromMap(json.decode(str));
@@ -213,7 +216,8 @@ class RespuestaInspeccion {
           idItem: json["idItem"],
           respuesta: json["respuesta"],
           observacion: json["observacion"],
-          fechaVencimiento: json["fechaVencimiento"]);
+          fechaVencimiento: json["fechaVencimiento"],
+          imageMessage: json["imageMessage"]);
 
   Map<String, dynamic> toMap() => {
         "foto": foto,
@@ -223,6 +227,7 @@ class RespuestaInspeccion {
         "respuesta": respuesta,
         "observacion": observacion,
         "fechaVencimiento": fechaVencimiento,
+        "imageMessage": imageMessage,
       };
 }
 

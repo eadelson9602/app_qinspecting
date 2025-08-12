@@ -129,11 +129,6 @@ class DesktopScreen extends StatelessWidget {
     final inspeccionService =
         Provider.of<InspeccionService>(context, listen: false);
     final sizeScreen = MediaQuery.of(context).size;
-    final inspeccionProvider =
-        Provider.of<InspeccionProvider>(context, listen: false);
-
-    inspeccionService.clearData();
-    inspeccionProvider.clearData();
 
     return Column(
       mainAxisSize: MainAxisSize.min,

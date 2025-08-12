@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:app_qinspecting/screens/screens.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' show get;
-import 'package:overlay_support/overlay_support.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
@@ -12,9 +11,19 @@ import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:provider/provider.dart';
+import 'package:app_qinspecting/widgets/error_retry_widget.dart';
 
-class PdfScreen extends StatelessWidget {
+class PdfScreen extends StatefulWidget {
   const PdfScreen({Key? key}) : super(key: key);
+
+  @override
+  State<PdfScreen> createState() => _PdfScreenState();
+}
+
+class _PdfScreenState extends State<PdfScreen> {
+  bool _isRetrying = false;
+  Exception? _lastError;
+  Key _futureBuilderKey = UniqueKey();
 
   @override
   Widget build(BuildContext context) {
@@ -24,13 +33,33 @@ class PdfScreen extends StatelessWidget {
         Provider.of<InspeccionService>(context, listen: false);
     final loginService = Provider.of<LoginService>(context, listen: false);
 
-    return FutureBuilder(
+    return FutureBuilder<PdfData>(
+        key: _futureBuilderKey,
         future: _generatePdf(
             resumenPreoperacional, inspeccionService, loginService),
         builder: (context, snapshot) {
-          if (snapshot.data == null) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return LoadingScreen();
-          } else {
+          } else if (snapshot.hasError) {
+            _lastError = snapshot.error as Exception?;
+            return Scaffold(
+              appBar: AppBar(
+                title: Text(
+                  'Preoperacional ${resumenPreoperacional.resuPreId}',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+              body: ErrorRetryWidget(
+                message: 'Error al generar el PDF',
+                subtitle:
+                    'No se pudo obtener la información del PDF. Verifica tu conexión a internet.',
+                onRetry: () => _retryPdfGeneration(
+                    resumenPreoperacional, inspeccionService, loginService),
+                isLoading: _isRetrying,
+                icon: Icons.picture_as_pdf,
+              ),
+            );
+          } else if (snapshot.hasData) {
             var data = snapshot.data as PdfData;
 
             return Scaffold(
@@ -62,8 +91,53 @@ class PdfScreen extends StatelessWidget {
                 allowPrinting: false,
               ),
             );
+          } else {
+            return Scaffold(
+              appBar: AppBar(
+                title: Text(
+                  'Preoperacional ${resumenPreoperacional.resuPreId}',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+              body: ErrorRetryWidget(
+                message: 'No se pudo cargar el PDF',
+                subtitle: 'Ocurrió un error inesperado al generar el PDF.',
+                onRetry: () => _retryPdfGeneration(
+                    resumenPreoperacional, inspeccionService, loginService),
+                isLoading: _isRetrying,
+                icon: Icons.picture_as_pdf,
+              ),
+            );
           }
         });
+  }
+
+  Future<void> _retryPdfGeneration(
+    ResumenPreoperacionalServer resumenPreoperacional,
+    InspeccionService inspeccionService,
+    LoginService loginService,
+  ) async {
+    setState(() {
+      _isRetrying = true;
+      _futureBuilderKey = UniqueKey(); // Force rebuild of FutureBuilder
+    });
+
+    try {
+      await Future.delayed(
+          Duration(milliseconds: 100)); // Small delay to show loading
+      if (mounted) {
+        setState(() {
+          _isRetrying = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isRetrying = false;
+          _lastError = e as Exception?;
+        });
+      }
+    }
   }
 
   // Genera el pdf
@@ -72,11 +146,16 @@ class PdfScreen extends StatelessWidget {
       InspeccionService inspeccionService,
       LoginService loginService) async {
     try {
+      print('Starting PDF generation...');
+
       Pdf infoPdf = await inspeccionService
           .detatilPdf(loginService.selectedEmpresa, resumenPreoperacional)
           .timeout(Duration(seconds: 30), onTimeout: () {
         throw Exception('Timeout al obtener datos del PDF');
       });
+
+      print(
+          'PDF data retrieved successfully, downloading additional images...');
 
       // Track failed images
       List<String> failedImages = [];
@@ -97,8 +176,9 @@ class PdfScreen extends StatelessWidget {
 
       Uint8List? logoQi;
       try {
-        var responseLogoQi = await get(Uri.parse('https://qinspecting.com/img/Qi.png'))
-            .timeout(Duration(seconds: 10));
+        var responseLogoQi =
+            await get(Uri.parse('https://qinspecting.com/img/Qi.png'))
+                .timeout(Duration(seconds: 10));
         logoQi = responseLogoQi.bodyBytes;
       } catch (e) {
         print('Error downloading logo Qi: $e');
@@ -120,7 +200,8 @@ class PdfScreen extends StatelessWidget {
       }
 
       Uint8List? fotoCabezote;
-      if (infoPdf.urlFotoCabezote != null && infoPdf.urlFotoCabezote!.isNotEmpty) {
+      if (infoPdf.urlFotoCabezote != null &&
+          infoPdf.urlFotoCabezote!.isNotEmpty) {
         try {
           var responseCabezote = await get(Uri.parse(infoPdf.urlFotoCabezote!))
               .timeout(Duration(seconds: 10));
@@ -158,7 +239,7 @@ class PdfScreen extends StatelessWidget {
           // Continue without signature
         }
       }
-      
+
       Uint8List? firmaAuditor;
       if (infoPdf.firmaAuditor != null && infoPdf.firmaAuditor!.isNotEmpty) {
         try {
@@ -174,16 +255,15 @@ class PdfScreen extends StatelessWidget {
 
       // Log failed images
       if (failedImages.isNotEmpty) {
-        print('Failed to load images: ${failedImages.join(', ')}');
+        print('Failed to download images: ${failedImages.join(', ')}');
       }
 
-      //Create a PDF document.
+      // Generate PDF
       final PdfDocument document = PdfDocument();
-      //Add page to the PDF
       final PdfPage page = document.pages.add();
-      //Get page client size
       final Size pageSize = page.getClientSize();
-      //Draw rectangle used how margin
+
+      // Draw rectangle used as margin
       page.graphics.drawRectangle(
           bounds: Rect.fromLTWH(0, 0, pageSize.width, pageSize.height),
           pen: PdfPen(PdfColor(0, 0, 0)));
@@ -192,44 +272,38 @@ class PdfScreen extends StatelessWidget {
       final header = drawHeader(document, infoPdf, logoCliente, logoQi);
       document.template.top = header;
 
-      //Generate PDF grid.
-      final PdfGrid gridSummary = getGridSummary(
-          infoPdf, pageSize, firmaConductor, firmaAuditor, resumenPreoperacional);
+      // Generate PDF grid.
+      final PdfGrid gridSummary = getGridSummary(infoPdf, pageSize,
+          firmaConductor, firmaAuditor, resumenPreoperacional);
 
-      final PdfGrid gridAnswers = getGridAnswers(
-          infoPdf, pageSize, fotoKilometraje, fotoCabezote, fotoRemolque);
+      final PdfGrid gridAnswers = getGridAnswers(infoPdf, pageSize, logoCliente,
+          logoQi, fotoKilometraje, fotoCabezote, fotoRemolque);
 
-      //Draw grid
+      // Draw grid
       PdfLayoutResult resultSummary = gridSummary.draw(
           page: page, bounds: Rect.fromLTWH(0, 60, 0, 0)) as PdfLayoutResult;
 
-      //Draw the PDF grid
+      // Draw the PDF grid
       gridAnswers.draw(
           page: page,
           bounds: Rect.fromLTWH(0, resultSummary.bounds.bottom, 0, 0));
 
-      //Save the PDF document
-      final outputExternal = await getExternalStorageDirectory();
-      final pathFile =
-          '${outputExternal!.path}/${resumenPreoperacional.consecutivo}.pdf';
-
-      final pdf = await document.save();
-
-      await File(pathFile).writeAsBytes(pdf);
-
-      Uint8List bytes = File(pathFile).readAsBytesSync();
-      // Dispose the document.
+      // Save the document
+      final List<int> bytes = await document.save();
       document.dispose();
 
-      return PdfData(bytes: bytes, file: File(pathFile));
+      // Create temporary file
+      final Directory tempDir = await getTemporaryDirectory();
+      final File tempFile = File(
+          '${tempDir.path}/preoperacional_${resumenPreoperacional.resuPreId}.pdf');
+      await tempFile.writeAsBytes(bytes);
+
+      print('PDF generated successfully');
+      return PdfData(file: tempFile, bytes: Uint8List.fromList(bytes));
     } catch (e) {
-      print('ERROR PDF ${e}');
-      showSimpleNotification(Text('Error al generar PDF: ${e.toString()}'),
-          leading: Icon(Icons.error),
-          autoDismiss: true,
-          background: Colors.red,
-          position: NotificationPosition.bottom);
-      throw e;
+      print('Error generating PDF: $e');
+      // Re-throw the exception so FutureBuilder can catch it
+      rethrow;
     }
   }
 
@@ -251,8 +325,7 @@ class PdfScreen extends StatelessWidget {
     } else if (infoPdf.rutaLogo != null && infoPdf.rutaLogo!.isNotEmpty) {
       // Show "No URI" message only if there was a URL that failed
       header.graphics.drawString(
-          'No URI',
-          PdfStandardFont(PdfFontFamily.helvetica, 8),
+          'No URI', PdfStandardFont(PdfFontFamily.helvetica, 8),
           brush: PdfBrushes.red,
           bounds: Rect.fromLTWH(1, 1, 118, 57),
           format: PdfStringFormat(
@@ -328,12 +401,12 @@ class PdfScreen extends StatelessWidget {
 
     //Dibuja el logo de QI
     if (logoQi != null) {
-      header.graphics.drawImage(PdfBitmap(logoQi), Rect.fromLTWH(462, 8, 45, 45));
+      header.graphics
+          .drawImage(PdfBitmap(logoQi), Rect.fromLTWH(462, 8, 45, 45));
     } else {
       // Show "No URI" message for Qi logo (it's always expected)
       header.graphics.drawString(
-          'No URI',
-          PdfStandardFont(PdfFontFamily.helvetica, 8),
+          'No URI', PdfStandardFont(PdfFontFamily.helvetica, 8),
           brush: PdfBrushes.red,
           bounds: Rect.fromLTWH(462, 8, 45, 45),
           format: PdfStringFormat(
@@ -345,8 +418,12 @@ class PdfScreen extends StatelessWidget {
     return header;
   }
 
-  PdfGrid getGridSummary(Pdf infoPdf, Size pageSize, Uint8List? firmaConductor,
-      Uint8List? firmaAuditor, ResumenPreoperacionalServer resumenPreoperacional) {
+  PdfGrid getGridSummary(
+      Pdf infoPdf,
+      Size pageSize,
+      Uint8List? firmaConductor,
+      Uint8List? firmaAuditor,
+      ResumenPreoperacionalServer resumenPreoperacional) {
     //Create a PDF grid
     final PdfGrid gridSummary = PdfGrid();
     //Secify the columns count to the grid.
@@ -390,7 +467,7 @@ class PdfScreen extends StatelessWidget {
       rowSummary2.cells[3].style =
           PdfGridCellStyle(backgroundImage: PdfBitmap(firmaConductor));
     } else if (infoPdf.firma != null && infoPdf.firma!.isNotEmpty) {
-      rowSummary2.cells[3].value = 'No URI';
+      rowSummary2.cells[3].value = 'Sin firma';
       rowSummary2.cells[3].style = PdfGridCellStyle(
         textBrush: PdfBrushes.red,
         font: PdfStandardFont(PdfFontFamily.helvetica, 8),
@@ -401,8 +478,9 @@ class PdfScreen extends StatelessWidget {
     if (firmaAuditor != null) {
       rowSummary2.cells[5].style =
           PdfGridCellStyle(backgroundImage: PdfBitmap(firmaAuditor));
-    } else if (infoPdf.firmaAuditor != null && infoPdf.firmaAuditor!.isNotEmpty) {
-      rowSummary2.cells[5].value = 'No URI';
+    } else if (infoPdf.firmaAuditor != null &&
+        infoPdf.firmaAuditor!.isNotEmpty) {
+      rowSummary2.cells[5].value = 'Sin firma';
       rowSummary2.cells[5].style = PdfGridCellStyle(
         textBrush: PdfBrushes.red,
         font: PdfStandardFont(PdfFontFamily.helvetica, 8),
@@ -437,8 +515,14 @@ class PdfScreen extends StatelessWidget {
   }
 
   //Create PDF grid and return
-  PdfGrid getGridAnswers(Pdf infoPdf, Size pageSize, Uint8List? fotoKilometraje,
-      Uint8List? fotoCabezote, Uint8List? fotoRemolque) {
+  PdfGrid getGridAnswers(
+      Pdf infoPdf,
+      Size pageSize,
+      Uint8List? logoCliente,
+      Uint8List? logoQi,
+      Uint8List? fotoKilometraje,
+      Uint8List? fotoCabezote,
+      Uint8List? fotoRemolque) {
     //Create a PDF grid
     final PdfGrid grid = PdfGrid();
     //Secify the columns count to the grid.
@@ -588,7 +672,7 @@ class PdfScreen extends StatelessWidget {
       row.cells[5].value =
           '${respuesta.observacion == null ? '' : respuesta.observacion}';
     }
-    
+
     if (respuesta.foto == null || respuesta.fotoConverted == null) {
       // Only show "No URI" if there was a URL that failed
       if (respuesta.foto != null && respuesta.foto!.isNotEmpty) {

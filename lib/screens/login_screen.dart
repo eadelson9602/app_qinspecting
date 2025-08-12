@@ -257,7 +257,7 @@ class _ButtonLogin extends StatelessWidget {
                           '${loginForm.usuario}',
                           '${loginForm.password}',
                           '${empresas[i].nombreBase}');
-                      loginService.userDataLogged = userData;
+                      loginService.userDataLogged = userData!;
                       await storage.write(
                           key: 'usuario',
                           value: '${empresas[i].numeroDocumento}');

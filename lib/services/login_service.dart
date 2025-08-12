@@ -139,14 +139,17 @@ class LoginService extends ChangeNotifier {
     if (idUsuario.isNotEmpty && nombreBase.isNotEmpty && token.isNotEmpty) {
       options.headers = {"x-access-token": token};
 
+      print('🔃base: $nombreBase');
       final tempDataEmp =
           await DBProvider.db.getEmpresaById(nombreBase) as Empresa;
       selectedEmpresa = tempDataEmp;
 
       final tempDataUser = await DBProvider.db
           .getUser(idUsuario, tempDataEmp.password!, tempDataEmp.nombreBase!);
-      userDataLogged = tempDataUser;
+      userDataLogged = tempDataUser!;
+      print('📁token if: $idUsuario');
     }
+    print('💻token: $idUsuario');
     return idUsuario;
   }
 
@@ -160,7 +163,7 @@ class LoginService extends ChangeNotifier {
 
       final tempDataUser = await DBProvider.db
           .getUser(idUsuario, tempDataEmp.password!, tempDataEmp.nombreBase!);
-      userDataLogged = tempDataUser;
+      userDataLogged = tempDataUser!;
     }
 
     return {"usuario": idUsuario, "nombreBase": nombreBase};

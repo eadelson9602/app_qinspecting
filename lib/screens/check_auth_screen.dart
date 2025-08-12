@@ -1,5 +1,6 @@
 import 'package:app_qinspecting/screens/home_screen.dart';
 import 'package:app_qinspecting/screens/login_screen.dart';
+import 'package:app_qinspecting/screens/loading_screen.dart';
 import 'package:app_qinspecting/services/login_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +14,13 @@ class CheckScreen extends StatelessWidget {
         child: FutureBuilder(
             future: loginService.readToken(),
             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-              if (!snapshot.hasData) return Text('Espere');
+              print(
+                  '📁conection state del check auth screen: ${snapshot.connectionState}');
+              if (!snapshot.hasData) {
+                print('📁data del check auth screen: ${snapshot.hasData}');
+                return LoadingScreen();
+              }
+              ;
               if (snapshot.data == '') {
                 Future.microtask(() {
                   Navigator.pushReplacement(

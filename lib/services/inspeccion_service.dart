@@ -59,45 +59,85 @@ class InspeccionService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> getLatesInspections(Empresa selectedEmpresa) async {
+  Future<bool> getLatesInspections(Empresa selectedEmpresa,
+      {int maxRetries = 3}) async {
     final connectivityResult = await checkConnection();
 
     if (connectivityResult) {
-      try {
-        // Buscamos en el storage el token y lo asignamos a la instancia para poderlo usar en todas las peticiones de este servicio
-        String token = await storage.read(key: 'token') ?? '';
-        loginService.options.headers = {"x-access-token": token};
+      for (int attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          print(
+              'Attempting to get latest inspections (attempt $attempt/$maxRetries)');
+          print(
+              'URL: ${loginService.baseUrl}/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.numeroDocumento}');
 
-        Response response = await dio.get(
-            '${loginService.baseUrl}/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.numeroDocumento}',
-            options: loginService.options);
-        List<ResumenPreoperacionalServer> tempData = [];
-        for (var item in response.data) {
-          tempData.add(ResumenPreoperacionalServer.fromMap(item));
+          // Buscamos en el storage el token y lo asignamos a la instancia para poderlo usar en todas las peticiones de este servicio
+          String token = await storage.read(key: 'token') ?? '';
+          loginService.options.headers = {"x-access-token": token};
+
+          print('Starting API call with 30s timeout...');
+          Response response = await dio.get(
+              '${loginService.baseUrl}/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.numeroDocumento}',
+              options: loginService.options,
+              queryParameters: {'timeout': 30});
+
+          print(
+              'API call completed successfully. Status: ${response.statusCode}');
+          print('Response data length: ${response.data?.length ?? 0}');
+
+          List<ResumenPreoperacionalServer> tempData = [];
+          if (response.data != null && response.data is List) {
+            for (var item in response.data) {
+              tempData.add(ResumenPreoperacionalServer.fromMap(item));
+            }
+          }
+
+          listInspections = [...tempData];
+          print('✅ Successfully obtained latest inspections');
+          return true;
+        } on DioException catch (error) {
+          print('Error in attempt $attempt: ${error.message}');
+          print('Error type: ${error.type}');
+          print('Error response: ${error.response?.data}');
+
+          // Si es un error de timeout o conexión, continuar con el siguiente intento
+          if (error.type == DioExceptionType.connectionTimeout ||
+              error.type == DioExceptionType.receiveTimeout ||
+              error.type == DioExceptionType.sendTimeout ||
+              error.type == DioExceptionType.connectionError) {
+            if (attempt == maxRetries) {
+              print(
+                  '⚠️ Returning false due to connection issues after $maxRetries attempts');
+              return false; // Retornar false en lugar de lanzar excepción
+            } else {
+              print('⏳ Waiting before retry...');
+              await Future.delayed(Duration(seconds: 2 * attempt));
+            }
+          } else {
+            // Para otros tipos de errores, lanzar excepción
+            if (attempt == maxRetries) {
+              throw Exception(
+                  'No hemos podido obtener las inspecciones después de $maxRetries intentos: ${error.message}');
+            } else {
+              await Future.delayed(Duration(seconds: 2 * attempt));
+            }
+          }
+        } catch (e) {
+          print('Unexpected error in attempt $attempt: $e');
+          if (attempt == maxRetries) {
+            print(
+                '⚠️ Returning false due to unexpected error after $maxRetries attempts');
+            return false; // Retornar false en lugar de lanzar excepción
+          } else {
+            await Future.delayed(Duration(seconds: 2 * attempt));
+          }
         }
-
-        listInspections = [...tempData];
-        return true;
-      } on DioException catch (error) {
-        print(error.response?.data);
-        showSimpleNotification(
-          Text('No hemos podido obtener las inspecciones'),
-          leading: Icon(Icons.wifi_tethering_error_rounded_outlined),
-          autoDismiss: true,
-          background: Colors.orange,
-          position: NotificationPosition.bottom,
-        );
-        return Future.error(error);
       }
+      print('⚠️ Returning false after $maxRetries attempts');
+      return false; // Retornar false en lugar de lanzar excepción
     } else {
-      // showSimpleNotification(
-      //   Text('Sin conexión a internet'),
-      //   leading: Icon(Icons.wifi_tethering_error_rounded_outlined),
-      //   autoDismiss: true,
-      //   background: Colors.orange,
-      //   position: NotificationPosition.bottom,
-      // );
-      return false;
+      print('⚠️ No internet connection, returning false');
+      return false; // Retornar false en lugar de lanzar excepción
     }
   }
 
@@ -249,46 +289,62 @@ class InspeccionService extends ChangeNotifier {
       List<dynamic> responses = await Future.wait(apiCalls);
 
       // Process database operations in batches to reduce lock time
-      List<Future> dbOperations = [];
-
-      // Process vehicles
+      List<Future> dbOperationsVehiculos = [];
+      List<Future> dbOperationsRemolques = [];
+      List<Future> dbOperationsDepartamentos = [];
+      List<Future> dbOperationsCiudades = [];
+      List<Future> dbOperationsItems = [];
+      List<Future> dbOperationsTipoDocumentos = [];
+      // // Process vehicles
       for (var item in responses[0].data) {
         final tempVehiculo = Vehiculo.fromMap(item);
-        dbOperations.add(DBProvider.db.nuevoVehiculo(tempVehiculo));
+        dbOperationsVehiculos.add(DBProvider.db.nuevoVehiculo(tempVehiculo));
       }
 
-      // Process trailers
+      print('dbOperationsVehiculos: ${dbOperationsVehiculos.length}');
+      await Future.wait(dbOperationsVehiculos);
+
+      print('✅vehiculos cargados');
+
+      // // Process trailers
       for (var item in responses[1].data) {
         final tempRemolque = Remolque.fromMap(item);
-        dbOperations.add(DBProvider.db.nuevoRemolque(tempRemolque));
+        dbOperationsRemolques.add(DBProvider.db.nuevoRemolque(tempRemolque));
       }
+
+      print('dbOperationsRemolques: ${dbOperationsRemolques.length}');
+      await Future.wait(dbOperationsRemolques);
+      print('✅remolques cargados');
 
       // Process departments
       for (var item in responses[2].data) {
         final tempDepartamento = Departamentos.fromMap(item);
-        dbOperations.add(DBProvider.db.nuevoDepartamento(tempDepartamento));
+        dbOperationsDepartamentos
+            .add(DBProvider.db.nuevoDepartamento(tempDepartamento));
       }
+
+      print('dbOperationsDepartamentos: ${dbOperationsDepartamentos.length}');
+      await Future.wait(dbOperationsDepartamentos);
+      print('✅departamentos cargados');
 
       // Process cities
       for (var item in responses[3].data) {
         final tempCiudad = Ciudades.fromMap(item);
-        dbOperations.add(DBProvider.db.nuevaCiudad(tempCiudad));
+        dbOperationsCiudades.add(DBProvider.db.nuevaCiudad(tempCiudad));
       }
 
       // Process items
       for (var item in responses[4].data) {
         final tempItem = ItemInspeccion.fromMap(item);
-        dbOperations.add(DBProvider.db.nuevoItem(tempItem));
+        dbOperationsItems.add(DBProvider.db.nuevoItem(tempItem));
       }
 
       // Process document types
       for (var item in responses[5].data) {
         final tempTipoDoc = TipoDocumentos.fromMap(item);
-        dbOperations.add(DBProvider.db.nuevoTipoDocumento(tempTipoDoc));
+        dbOperationsTipoDocumentos
+            .add(DBProvider.db.nuevoTipoDocumento(tempTipoDoc));
       }
-
-      // Execute all database operations in parallel
-      await Future.wait(dbOperations);
 
       return true;
     } on DioException catch (error) {
@@ -422,89 +478,160 @@ class InspeccionService extends ChangeNotifier {
   }
 
   Future<Pdf> detatilPdf(
-      Empresa empresaSelected, ResumenPreoperacionalServer inspeccion) async {
-    try {
-      print('Starting detatilPdf for inspection: ${inspeccion.resuPreId}');
+      Empresa empresaSelected, ResumenPreoperacionalServer inspeccion,
+      {int maxRetries = 3}) async {
+    for (int attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        print(
+            'Starting detatilPdf for inspection: ${inspeccion.resuPreId} (attempt $attempt/$maxRetries)');
 
-      // Check connectivity first
-      bool hasConnection = await checkConnection();
-      if (!hasConnection) {
-        throw Exception('Sin conexión a internet');
-      }
+        // Check connectivity first
+        bool hasConnection = await checkConnection();
+        if (!hasConnection) {
+          throw Exception('Sin conexión a internet');
+        }
 
-      print('Network connectivity confirmed');
+        print('Network connectivity confirmed');
 
-      Response response = await dio
-          .get(
-              '${loginService.baseUrl}/inspeccion/${empresaSelected.nombreBase}/${inspeccion.resuPreId}',
-              options: loginService.options)
-          .timeout(Duration(seconds: 30));
+        Response response = await dio
+            .get(
+                '${loginService.baseUrl}/inspeccion/${empresaSelected.nombreBase}/${inspeccion.resuPreId}',
+                options: loginService.options)
+            .timeout(Duration(seconds: 30));
 
-      print('API call completed successfully');
-      Pdf temData = Pdf.fromJson(response.toString());
+        print('API call completed successfully');
+        Pdf temData = Pdf.fromJson(response.toString());
 
-      // Collect all image URLs that need to be downloaded
-      List<String> imageUrls = [];
-      temData.detalle.forEach((categoria) {
-        categoria.respuestas.forEach((respuesta) {
-          if (respuesta.foto != null && respuesta.foto!.isNotEmpty) {
-            imageUrls.add(respuesta.foto!);
+        // Helper function to validate and process image
+        Future<Map<String, dynamic>> processImage(String imageUrl) async {
+          try {
+            // Check if it's a valid URL
+            if (imageUrl.startsWith('http://') ||
+                imageUrl.startsWith('https://')) {
+              // Try to download the image
+              var response =
+                  await get(Uri.parse(imageUrl)).timeout(Duration(seconds: 8));
+              print('Successfully downloaded: $imageUrl');
+              return {"foto": imageUrl, "data": response, "type": "url"};
+            } else if (imageUrl.startsWith('data:image/') ||
+                imageUrl.contains('base64')) {
+              // It's a base64 image
+              print('Base64 image detected: $imageUrl');
+              return {
+                "foto": imageUrl,
+                "data": null,
+                "type": "base64",
+                "message": "Ver en web"
+              };
+            } else {
+              // Invalid or unsupported format
+              print('Invalid image format: $imageUrl');
+              return {
+                "foto": imageUrl,
+                "data": null,
+                "type": "invalid",
+                "message": "No-uri"
+              };
+            }
+          } catch (error) {
+            print('Error processing image $imageUrl: $error');
+            return {
+              "foto": imageUrl,
+              "data": null,
+              "type": "error",
+              "message": "No-uri"
+            };
           }
+        }
+
+        // Collect all image URLs that need to be processed
+        List<String> imageUrls = [];
+        temData.detalle.forEach((categoria) {
+          categoria.respuestas.forEach((respuesta) {
+            if (respuesta.foto != null && respuesta.foto!.isNotEmpty) {
+              imageUrls.add(respuesta.foto!);
+            }
+          });
         });
-      });
 
-      print('Found ${imageUrls.length} images to download');
+        print('Found ${imageUrls.length} images to process');
 
-      // Download images with better timeout handling
-      List<Future> promesas = [];
-      Map<String, dynamic> imageResults = {};
+        // Process images with validation
+        List<Future> promesas = [];
+        Map<String, dynamic> imageResults = {};
 
-      for (String imageUrl in imageUrls) {
-        promesas.add(get(Uri.parse(imageUrl))
-            .timeout(Duration(seconds: 8))
-            .then((value) {
-          imageResults[imageUrl] = value.bodyBytes;
-          print('Successfully downloaded: $imageUrl');
-          return {"foto": imageUrl, "data": value};
-        }).catchError((error) {
-          print('Error downloading image $imageUrl: $error');
-          imageResults[imageUrl] = null;
-          return {"foto": imageUrl, "data": null};
-        }));
-      }
+        for (String imageUrl in imageUrls) {
+          promesas.add(processImage(imageUrl).then((result) {
+            if (result["type"] == "url" && result["data"] != null) {
+              imageResults[imageUrl] = result["data"].bodyBytes;
+            } else {
+              imageResults[imageUrl] = null;
+              // Store the message for display
+              imageResults['${imageUrl}_message'] = result["message"];
+            }
+            return result;
+          }));
+        }
 
-      // Wait for all image downloads with overall timeout
-      if (promesas.isNotEmpty) {
-        print('Starting concurrent image downloads...');
-        try {
-          await Future.wait(promesas).timeout(Duration(seconds: 25));
-          print('Image downloads completed');
-        } catch (error) {
-          print('Error during image downloads: $error');
-          // Continue with partial data
+        // Wait for all image processing with overall timeout
+        if (promesas.isNotEmpty) {
+          print('Starting concurrent image processing...');
+          try {
+            await Future.wait(promesas).timeout(Duration(seconds: 25));
+            print('Image processing completed');
+          } catch (error) {
+            print('Error during image processing: $error');
+            // Continue with partial data
+          }
+        }
+
+        // Assign processed images to responses
+        int successfulDownloads = 0;
+        int base64Images = 0;
+        int invalidImages = 0;
+
+        temData.detalle.forEach((categoria) {
+          categoria.respuestas.forEach((respuesta) {
+            if (respuesta.foto != null && respuesta.foto!.isNotEmpty) {
+              if (imageResults.containsKey(respuesta.foto!) &&
+                  imageResults[respuesta.foto!] != null) {
+                respuesta.fotoConverted = imageResults[respuesta.foto!];
+                respuesta.imageMessage = null; // Clear any previous message
+                successfulDownloads++;
+              } else {
+                // Check if there's a message for this image
+                String? message = imageResults['${respuesta.foto}_message'];
+                if (message != null) {
+                  respuesta.imageMessage = message;
+                  respuesta.fotoConverted = null; // Clear the image data
+                  if (message == "Ver en web") {
+                    base64Images++;
+                  } else if (message == "No-uri") {
+                    invalidImages++;
+                  }
+                }
+              }
+            }
+          });
+        });
+
+        print(
+            'Successfully processed $successfulDownloads URLs, $base64Images base64 images, $invalidImages invalid images out of ${imageUrls.length} total images');
+        return temData;
+      } catch (e) {
+        print('Error in detatilPdf attempt $attempt: $e');
+        if (attempt == maxRetries) {
+          throw Exception(
+              'Error al obtener datos del PDF después de $maxRetries intentos: $e');
+        } else {
+          // Wait before retrying with exponential backoff
+          int waitTime = 2 * attempt;
+          print('Retrying in $waitTime seconds...');
+          await Future.delayed(Duration(seconds: waitTime));
         }
       }
-
-      // Assign downloaded images to responses
-      int successfulDownloads = 0;
-      temData.detalle.forEach((categoria) {
-        categoria.respuestas.forEach((respuesta) {
-          if (respuesta.foto != null && respuesta.foto!.isNotEmpty) {
-            if (imageResults.containsKey(respuesta.foto!) &&
-                imageResults[respuesta.foto!] != null) {
-              respuesta.fotoConverted = imageResults[respuesta.foto!];
-              successfulDownloads++;
-            }
-          }
-        });
-      });
-
-      print(
-          'Successfully processed $successfulDownloads out of ${imageUrls.length} images');
-      return temData;
-    } catch (e) {
-      print('Error in detatilPdf: $e');
-      throw Exception('Error al obtener datos del PDF: $e');
     }
+    throw Exception(
+        'Error al obtener datos del PDF después de $maxRetries intentos');
   }
 }
