@@ -676,9 +676,9 @@ class _PdfScreenState extends State<PdfScreen> {
     if (respuesta.foto == null || respuesta.fotoConverted == null) {
       // Only show "No URI" if there was a URL that failed
       if (respuesta.foto != null && respuesta.foto!.isNotEmpty) {
-        row.cells[6].value = 'No URI';
+        row.cells[6].value = 'Ver en web';
         row.cells[6].style = PdfGridCellStyle(
-          textBrush: PdfBrushes.red,
+          textBrush: PdfBrushes.black,
           font: PdfStandardFont(PdfFontFamily.helvetica, 8),
         );
       } else {
