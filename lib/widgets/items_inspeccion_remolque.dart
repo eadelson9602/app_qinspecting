@@ -23,7 +23,8 @@ class _ItemsInspeccionarStateRemolque extends State<ItemsInspeccionarRemolque> {
       List<Step> stepsInspeccion = [];
       for (int i = 0; i < itemsInspeccionar.length; i++) {
         stepsInspeccion.add(Step(
-            isActive: inspeccionProvider.stepStepperRemolque >= i ? true : false,
+            isActive:
+                inspeccionProvider.stepStepperRemolque >= i ? true : false,
             title: Text(itemsInspeccionar[i].categoria),
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,12 +39,16 @@ class _ItemsInspeccionarStateRemolque extends State<ItemsInspeccionarRemolque> {
                     ),
                     onPressed: () {
                       setState(() {
-                        for (var item in itemsInspeccionar[i].items) {
+                        // Revalidar límites por si la lista cambió
+                        final currentList =
+                            inspeccionProvider.itemsInspeccionRemolque;
+                        if (i < 0 || i >= currentList.length) return;
+                        for (var item in currentList[i].items) {
                           item.respuesta = 'B';
                         }
                         if (inspeccionProvider.stepStepperRemolque <
-                                itemsInspeccionar.length &&
-                            itemsInspeccionar.length -
+                                currentList.length &&
+                            currentList.length -
                                     inspeccionProvider.stepStepperRemolque !=
                                 1) {
                           inspeccionProvider.updateStepRemolque(
@@ -172,16 +177,22 @@ class _ItemsInspeccionarStateRemolque extends State<ItemsInspeccionarRemolque> {
     }
 
     if (itemsInspeccionar.isEmpty) return const LoadingScreen();
+    final safeCurrentStep = itemsInspeccionar.isEmpty
+        ? 0
+        : inspeccionProvider.stepStepperRemolque
+            .clamp(0, itemsInspeccionar.length - 1);
     return Stepper(
       margin: EdgeInsets.only(left: 55, bottom: 40),
-      currentStep: inspeccionProvider.stepStepperRemolque,
+      currentStep: safeCurrentStep,
       controlsBuilder: (context, details) {
         return Row(
           children: [
             if (inspeccionProvider.stepStepperRemolque > 0)
               MaterialButton(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(100)),
                 onPressed: details.onStepCancel,
                 child: Container(
                   child: Row(
@@ -224,7 +235,8 @@ class _ItemsInspeccionarStateRemolque extends State<ItemsInspeccionarRemolque> {
         }
       },
       onStepTapped: (int index) {
-        inspeccionProvider.updateStepRemolque(index);
+        final boundedIndex = index.clamp(0, itemsInspeccionar.length - 1);
+        inspeccionProvider.updateStepRemolque(boundedIndex);
       },
       steps: _renderSteps(),
     );

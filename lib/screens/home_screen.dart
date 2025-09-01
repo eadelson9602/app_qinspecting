@@ -82,6 +82,9 @@ class _HomeScreenState extends State<HomeScreen> {
           currentIndex: _selectedIndex,
           selectedItemColor: Colors.green,
           onTap: (int index) {
+            if (index == 0) {
+              inspeccionProvider.clearData();
+            }
             if (index == 1 && loginService.userDataLogged.idFirma == 0) {
               Navigator.popAndPushNamed(context, 'signature');
             } else {
@@ -145,6 +148,16 @@ class DesktopScreen extends StatelessWidget {
                     height: 355,
                     child: Center(child: CircularProgressIndicator()));
               } else if (snapshot.data != false) {
+                if (inspeccionService.listInspections.isEmpty) {
+                  return Container(
+                    height: 355,
+                    alignment: Alignment.center,
+                    child: Text(
+                      'No hay inspecciones recientes',
+                      style: TextStyle(fontSize: 16, color: Colors.black54),
+                    ),
+                  );
+                }
                 return Container(
                   height: 420,
                   child: Swiper(

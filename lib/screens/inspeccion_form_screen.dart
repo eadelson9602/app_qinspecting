@@ -365,7 +365,8 @@ class _InspeccionFormState extends State<InspeccionForm> {
                       bottom: 10,
                       child: IconButton(
                         onPressed: () async {
-                          final reponsePermission = await inspeccionProvider.requestCameraPermission();
+                          final reponsePermission = await inspeccionProvider
+                              .requestCameraPermission();
                           if (reponsePermission) {
                             final _picker = ImagePicker();
                             final XFile? photo = await _picker.pickImage(

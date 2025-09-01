@@ -27,7 +27,26 @@ class _PdfScreenState extends State<PdfScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final params = ModalRoute.of(context)!.settings.arguments as List;
+    final Object? args = ModalRoute.of(context)?.settings.arguments;
+    if (args is! List ||
+        args.isEmpty ||
+        args[0] is! ResumenPreoperacionalServer) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'Preoperacional',
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
+        body: const Center(
+          child: Text(
+            'Parámetros inválidos o faltantes',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+    final List params = args as List;
     final resumenPreoperacional = params[0] as ResumenPreoperacionalServer;
     final inspeccionService =
         Provider.of<InspeccionService>(context, listen: false);
