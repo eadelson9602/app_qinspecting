@@ -46,7 +46,7 @@ class _PdfScreenState extends State<PdfScreen> {
         ),
       );
     }
-    final List params = args as List;
+    final List params = args;
     final resumenPreoperacional = params[0] as ResumenPreoperacionalServer;
     final inspeccionService =
         Provider.of<InspeccionService>(context, listen: false);
