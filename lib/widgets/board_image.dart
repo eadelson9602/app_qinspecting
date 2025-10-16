@@ -36,6 +36,8 @@ class BoardImage extends StatelessWidget {
     return Image.file(
       File(picture),
       fit: BoxFit.cover,
+      cacheWidth: 640,
+      cacheHeight: 640,
     );
   }
 }

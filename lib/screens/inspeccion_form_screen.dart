@@ -1,4 +1,5 @@
 import 'package:app_qinspecting/models/departamentos_ciudad.dart';
+import 'dart:io';
 import 'package:app_qinspecting/services/login_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -68,13 +69,22 @@ class _InspeccionFormState extends State<InspeccionForm> {
                         child: IconButton(
                           onPressed: () async {
                             final _picker = ImagePicker();
+                            print('[pick] solicitando foto guía...');
                             final XFile? photo = await _picker.pickImage(
-                                source: ImageSource.camera);
+                                source: ImageSource.camera,
+                                imageQuality: 70,
+                                maxWidth: 1080,
+                                maxHeight: 1080);
 
                             if (photo == null) {
+                              print('[pick] cancelado foto guía');
                               return;
                             }
 
+                            try {
+                              print(
+                                  '[pick] guía path=${photo.path} size=${await File(photo.path).length()} bytes');
+                            } catch (_) {}
                             inspeccionService.resumePreoperacional.urlFotoGuia =
                                 photo.path;
                             inspeccionProvider.updateImageGuia(photo.path);
@@ -136,11 +146,20 @@ class _InspeccionFormState extends State<InspeccionForm> {
                         await inspeccionProvider.requestCameraPermission();
                     if (reponsePermission) {
                       final _picker = ImagePicker();
-                      final XFile? photo =
-                          await _picker.pickImage(source: ImageSource.camera);
+                      print('[pick] solicitando foto remolque...');
+                      final XFile? photo = await _picker.pickImage(
+                          source: ImageSource.camera,
+                          imageQuality: 70,
+                          maxWidth: 1080,
+                          maxHeight: 1080);
                       if (photo == null) {
+                        print('[pick] cancelado foto remolque');
                         return;
                       }
+                      try {
+                        print(
+                            '[pick] remolque path=${photo.path} size=${await File(photo.path).length()} bytes');
+                      } catch (_) {}
                       inspeccionService.resumePreoperacional.urlFotoRemolque =
                           photo.path;
                       inspeccionProvider.updateRemolqueImage(photo.path);
@@ -374,11 +393,20 @@ class _InspeccionFormState extends State<InspeccionForm> {
                               .requestCameraPermission();
                           if (reponsePermission) {
                             final _picker = ImagePicker();
+                            print('[pick] solicitando foto kilometraje...');
                             final XFile? photo = await _picker.pickImage(
-                                source: ImageSource.camera);
+                                source: ImageSource.camera,
+                                imageQuality: 70,
+                                maxWidth: 1080,
+                                maxHeight: 1080);
                             if (photo == null) {
+                              print('[pick] cancelado foto kilometraje');
                               return;
                             }
+                            try {
+                              print(
+                                  '[pick] kilometraje path=${photo.path} size=${await File(photo.path).length()} bytes');
+                            } catch (_) {}
                             inspeccionService.resumePreoperacional.urlFotoKm =
                                 photo.path;
                             inspeccionProvider.updateSelectedImage(photo.path);
@@ -408,11 +436,20 @@ class _InspeccionFormState extends State<InspeccionForm> {
                               .requestCameraPermission();
                           if (reponsePermission) {
                             final _picker = ImagePicker();
+                            print('[pick] solicitando foto cabezote...');
                             final XFile? photo = await _picker.pickImage(
-                                source: ImageSource.camera);
+                                source: ImageSource.camera,
+                                imageQuality: 70,
+                                maxWidth: 1080,
+                                maxHeight: 1080);
                             if (photo == null) {
+                              print('[pick] cancelado foto cabezote');
                               return;
                             }
+                            try {
+                              print(
+                                  '[pick] cabezote path=${photo.path} size=${await File(photo.path).length()} bytes');
+                            } catch (_) {}
                             inspeccionService.resumePreoperacional
                                 .urlFotoCabezote = photo.path;
                             inspeccionProvider.updateCabezoteImage(photo.path);

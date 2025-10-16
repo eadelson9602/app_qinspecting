@@ -7,7 +7,15 @@ import 'package:flutter/material.dart';
 import 'package:app_qinspecting/models/models.dart';
 
 class LoginService extends ChangeNotifier {
-  var dio = Dio();
+  var dio = Dio(BaseOptions(
+    connectTimeout: Duration(seconds: 10),
+    receiveTimeout: Duration(seconds: 10),
+    sendTimeout: Duration(seconds: 10),
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+  ));
   bool isLoading = false;
   bool isSaving = false;
   PageController pageController = PageController(initialPage: 0);
@@ -17,8 +25,8 @@ class LoginService extends ChangeNotifier {
   Empresa selectedEmpresa = Empresa();
   UserData userDataLogged = UserData(urlFoto: '');
 
-  String baseUrl = 'https://apis.qinspecting.com/pflutter';
-  // String baseUrl = 'http://192.168.20.3:3012';
+  // String baseUrl = 'https://apis.qinspecting.com/pflutter';
+  String baseUrl = 'http://192.168.1.10:3012';
   Options options = Options();
 
   Future<Map<dynamic, dynamic>> getToken(int user, String password) async {
@@ -26,22 +34,39 @@ class LoginService extends ChangeNotifier {
       isLoading = true;
       notifyListeners();
 
+      print('[LOGIN] Iniciando getToken...');
+      print('[LOGIN] URL: ${baseUrl}/get_token');
+      print('[LOGIN] Usuario: $user');
+      print('[LOGIN] Headers: ${options.headers}');
+
       Response response = await dio.post('${baseUrl}/get_token',
           options: options,
           data: json.encode({'usuario': '$user', 'password': password}));
+
+      print('[LOGIN] Response status: ${response.statusCode}');
+      print('[LOGIN] Response data: ${response.data}');
+
       Map<dynamic, dynamic> resGetToken = response.data;
       if (resGetToken.containsKey('token')) {
         // Guardamos el token el el storage del dispositivo
         await storage.write(key: 'token', value: response.data['token']);
         options.headers = {"x-access-token": response.data['token']};
+        print('[LOGIN] Token guardado exitosamente');
       }
 
       return resGetToken;
     } on DioException catch (error) {
+      print('[LOGIN] DioException: ${error.type}');
+      print('[LOGIN] Error message: ${error.message}');
+      print('[LOGIN] Error response: ${error.response?.data}');
+      print('[LOGIN] Error status: ${error.response?.statusCode}');
       return {
         "message": "No hemos podido obtener el token",
         "error": error.message
       };
+    } catch (e) {
+      print('[LOGIN] Error inesperado: $e');
+      return {"message": "Error inesperado", "error": e.toString()};
     } finally {
       isLoading = false;
       notifyListeners();
@@ -52,16 +77,35 @@ class LoginService extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
+    print('[LOGIN] Iniciando login...');
+    print('[LOGIN] URL: ${baseUrl}/login');
+    print('[LOGIN] Usuario: $user');
+    print('[LOGIN] Headers: ${options.headers}');
+
     final List<Empresa> empresas = [];
-    Response response = await dio.post('${baseUrl}/login',
-        options: options,
-        data: json.encode({'usuario': '$user', 'password': password}));
-    var tempRes = response.data;
-    if (tempRes.runtimeType == List<dynamic>) {
-      for (var item in response.data) {
-        empresas.add(Empresa.fromMap(item));
+    try {
+      Response response = await dio.post('${baseUrl}/login',
+          options: options,
+          data: json.encode({'usuario': '$user', 'password': password}));
+
+      print('[LOGIN] Login response status: ${response.statusCode}');
+      print('[LOGIN] Login response data: ${response.data}');
+
+      var tempRes = response.data;
+      if (tempRes.runtimeType == List<dynamic>) {
+        for (var item in response.data) {
+          empresas.add(Empresa.fromMap(item));
+        }
       }
+    } on DioException catch (error) {
+      print('[LOGIN] Login DioException: ${error.type}');
+      print('[LOGIN] Login Error message: ${error.message}');
+      print('[LOGIN] Login Error response: ${error.response?.data}');
+      print('[LOGIN] Login Error status: ${error.response?.statusCode}');
+    } catch (e) {
+      print('[LOGIN] Login Error inesperado: $e');
     }
+
     isLoading = false;
     notifyListeners();
     return empresas;

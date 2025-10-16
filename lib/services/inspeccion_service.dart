@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' show get;
+import 'dart:convert';
 
 import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/providers/providers.dart';
@@ -18,6 +19,10 @@ class InspeccionService extends ChangeNotifier {
   final loginService = LoginService();
   bool isLoading = false;
   bool isSaving = false;
+  // Progreso por lote para subidas masivas de imágenes
+  double batchProgress = 0.0; // 0..1 del lote actual
+  int currentBatchIndex = 0; // índice del lote actual (1-based)
+  int totalBatches = 0; // total de lotes
   final List<Departamentos> departamentos = [];
   final List<Ciudades> ciudades = [];
   final List<Vehiculo> vehiculos = [];
@@ -57,6 +62,55 @@ class InspeccionService extends ChangeNotifier {
   void updateSaving(bool value) {
     isSaving = value;
     notifyListeners();
+  }
+
+  // Verificación de conexión estable (WiFi o móvil >= 4G aprox.)
+  Future<bool> isConnectionStable({
+    Duration timeout = const Duration(seconds: 4),
+  }) async {
+    try {
+      final connectivity = await Connectivity().checkConnectivity();
+      if (connectivity == ConnectivityResult.none) return false;
+      if (!(connectivity == ConnectivityResult.wifi ||
+          connectivity == ConnectivityResult.mobile)) return false;
+
+      // Si es Wi‑Fi, considerar estable inmediatamente (evita falsos negativos por endpoints no disponibles)
+      if (connectivity == ConnectivityResult.wifi) {
+        print('[conn] WIFI detected => stable=true');
+        return true;
+      }
+
+      // Probar múltiples endpoints del backend (algunos proyectos no exponen /health)
+      final candidates = <String>[
+        '${loginService.baseUrl}/health',
+        '${loginService.baseUrl}/',
+        '${loginService.baseUrl}/status',
+        '${loginService.baseUrl}/ping',
+      ];
+
+      int ok = 0;
+      for (final url in candidates) {
+        try {
+          final uri = Uri.parse(url);
+          // Usar GET ligero: algunos backends no aceptan HEAD
+          final res = await dio
+              .getUri(uri, options: Options(method: 'GET'))
+              .timeout(timeout);
+          print('[conn] GET ${uri.path} -> ${res.statusCode}');
+          if (res.statusCode != null && res.statusCode! < 500) ok++;
+        } catch (e) {
+          print('[conn] GET error $url: $e');
+          // Ignorar y seguir probando otros endpoints
+        }
+        if (ok >= 2) break; // suficientemente estable
+      }
+      // Consideramos estable si al menos 2 endpoints respondieron o si 1 respondió y es WiFi
+      if (ok >= 2) return true;
+      if (ok >= 1 && connectivity == ConnectivityResult.wifi) return true;
+      return false;
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<bool> getLatesInspections(Empresa selectedEmpresa,
@@ -227,6 +281,7 @@ class InspeccionService extends ChangeNotifier {
       required String company,
       required String folder}) async {
     try {
+      print('📤 DEBUG: Iniciando subida de imagen: $path');
       var fileName = (path.split('/').last);
       var formData = FormData.fromMap({
         'files':
@@ -237,16 +292,24 @@ class InspeccionService extends ChangeNotifier {
           data: formData,
           options: loginService.options);
       final resp = ResponseUploadFile.fromMap(response.data);
-
+      print('✅ DEBUG: Imagen subida exitosamente: ${resp.path}');
       return resp.toMap();
     } on DioException catch (error) {
-      print(error.response!.data);
+      print('❌ ERROR: Error en uploadImage: ${error.message}');
+      if (error.response != null) {
+        print('❌ ERROR: Response data: ${error.response!.data}');
+      } else {
+        print('❌ ERROR: No response data available');
+      }
       showSimpleNotification(Text('No se ha podido subir la foto al servidor'),
           leading: Icon(Icons.check),
           autoDismiss: true,
           background: Colors.orange,
           position: NotificationPosition.bottom);
-      return Future.error(error.response!.data);
+      return Future.error(error.response?.data ?? error.message);
+    } catch (e) {
+      print('❌ ERROR: Error inesperado en uploadImage: $e');
+      return Future.error(e);
     }
   }
 
@@ -382,18 +445,18 @@ class InspeccionService extends ChangeNotifier {
         }
 
         // Se envia la foto del cabezote si tiene
-        if (resumePreoperacional.urlFotoCabezote?.isNotEmpty ?? false) {
+        if (inspeccion.urlFotoCabezote?.isNotEmpty ?? false) {
           Map<String, dynamic>? responseUploaCabezote = await uploadImage(
-              path: resumePreoperacional.urlFotoCabezote!,
+              path: inspeccion.urlFotoCabezote!,
               company: selectedEmpresa.nombreQi!,
               folder: 'inspecciones');
           inspeccion.urlFotoCabezote = responseUploaCabezote?['path'];
         }
 
         // Se envia la foto del remolque si tiene
-        if (resumePreoperacional.urlFotoRemolque?.isNotEmpty ?? false) {
+        if (inspeccion.urlFotoRemolque?.isNotEmpty ?? false) {
           Map<String, dynamic>? responseUploaRemolque = await uploadImage(
-              path: resumePreoperacional.urlFotoRemolque!,
+              path: inspeccion.urlFotoRemolque!,
               company: selectedEmpresa.nombreQi!,
               folder: 'inspecciones');
           inspeccion.urlFotoRemolque = responseUploaRemolque?['path'];
@@ -406,39 +469,127 @@ class InspeccionService extends ChangeNotifier {
             data: inspeccion.toJson());
         final resumen = Respuesta.fromMap(responseResumen.data);
 
-        // Consultamos en sqlite las respuestas
-        List<Item> respuestas =
-            await inspeccionProvider.cargarTodasRespuestas(inspeccion.id!);
+        // Obtenemos las respuestas desde el JSON almacenado en el objeto inspección
+        List<Item> respuestas = [];
 
-        List<Future> Promesas = [];
-        respuestas.forEach((element) {
+        if (inspeccion.respuestas != null &&
+            inspeccion.respuestas!.isNotEmpty) {
+          print(
+              '🔍 DEBUG: Obteniendo respuestas desde JSON del objeto inspección');
+          List tempData = jsonDecode(inspeccion.respuestas!) as List;
+
+          tempData.forEach((element) {
+            final data = ItemsVehiculo.fromMap(element);
+            // Filtramos los items que tienen respuesta
+            final tempRespuestas =
+                data.items.where((item) => item.respuesta != null).toList();
+            // Agregamos todas las respuestas a la lista
+            respuestas.addAll(tempRespuestas);
+          });
+
+          print(
+              '🔍 DEBUG: Respuestas obtenidas desde JSON: ${respuestas.length}');
+        } else {
+          print(
+              '⚠️ WARNING: No hay respuestas en el JSON del objeto inspección');
+
+          // Fallback: intentar desde SQLite
+          List<Item> respuestasSQLite =
+              await inspeccionProvider.cargarTodasRespuestas(inspeccion.id!);
+          print(
+              '🔍 DEBUG: Respuestas desde SQLite (fallback): ${respuestasSQLite.length}');
+          respuestas = respuestasSQLite;
+        }
+
+        // Subida secuencial con reintentos para mayor estabilidad
+        print(
+            '🔍 DEBUG: Iniciando subida secuencial de ${respuestas.length} respuestas');
+
+        int exitosos = 0;
+        int fallidos = 0;
+
+        for (int i = 0; i < respuestas.length; i++) {
+          final element = respuestas[i];
           element.fkPreoperacional = resumen.idInspeccion;
-          if (element.adjunto != null) {
-            Promesas.add(uploadImage(
+          element.base = selectedEmpresa.nombreBase;
+
+          final hasAdjunto =
+              element.adjunto != null && element.adjunto!.isNotEmpty;
+          print(
+              '🔍 DEBUG: Procesando respuesta ${i + 1}/${respuestas.length} - ID: ${element.idItem}, Adjunto: ${hasAdjunto ? "SÍ" : "NO"}');
+
+          bool procesadoExitosamente = false;
+          int intentos = 0;
+          const maxIntentos = 3;
+
+          while (!procesadoExitosamente && intentos < maxIntentos) {
+            intentos++;
+            print(
+                '🔄 DEBUG: Intento $intentos/$maxIntentos para respuesta ${element.idItem}');
+
+            try {
+              if (hasAdjunto) {
+                print('📤 DEBUG: Subiendo imagen adjunta: ${element.adjunto}');
+                final responseUpload = await uploadImage(
                     path: element.adjunto!,
                     company: selectedEmpresa.nombreQi!,
-                    folder: 'inspecciones')
-                .then((response) {
-              final responseUpload = ResponseUploadFile.fromMap(response!);
-              element.adjunto = responseUpload.path;
+                    folder: 'inspecciones');
 
-              return dio.post(
+                if (responseUpload != null) {
+                  element.adjunto = responseUpload['path'];
+                  print('✅ DEBUG: Imagen subida exitosamente');
+                } else {
+                  print('⚠️ WARNING: Imagen no se subió, enviando sin adjunto');
+                  element.adjunto = null;
+                }
+              }
+
+              print('📤 DEBUG: Enviando respuesta al servidor');
+              print('🔍 DEBUG: Datos a enviar: ${element.toJson()}');
+
+              await dio.post(
                   '${loginService.baseUrl}/insert_respuestas_preoperacional',
                   options: loginService.options,
                   data: element.toJson());
-            }));
-          } else {
-            Promesas.add(dio.post(
-                '${loginService.baseUrl}/insert_respuestas_preoperacional',
-                options: loginService.options,
-                data: element.toJson()));
-          }
-        });
 
-        // Ejecutamos todas las peticiones
-        await Future.wait(Promesas).then((value) async {
-          // print(value);
-        });
+              print(
+                  '✅ DEBUG: Respuesta ${element.idItem} enviada exitosamente');
+              procesadoExitosamente = true;
+              exitosos++;
+            } catch (e) {
+              print(
+                  '❌ ERROR: Error en intento $intentos para respuesta ${element.idItem}: $e');
+
+              if (intentos < maxIntentos) {
+                print('⏳ DEBUG: Esperando antes del siguiente intento...');
+                await Future.delayed(
+                    Duration(seconds: 2 * intentos)); // Backoff exponencial
+              } else {
+                print(
+                    '❌ ERROR: Respuesta ${element.idItem} falló después de $maxIntentos intentos');
+                fallidos++;
+              }
+            }
+          }
+
+          // Actualizar progreso
+          batchProgress = (i + 1) / respuestas.length;
+          currentBatchIndex = i + 1;
+          totalBatches = respuestas.length;
+          notifyListeners();
+
+          print(
+              '📊 DEBUG: Progreso: ${(batchProgress * 100).toStringAsFixed(1)}% (${i + 1}/${respuestas.length})');
+
+          // Delay entre respuestas para no sobrecargar el servidor
+          if (i < respuestas.length - 1) {
+            await Future.delayed(
+                Duration(milliseconds: 1000)); // 1 segundo entre respuestas
+          }
+        }
+
+        print(
+            '🎉 DEBUG: Subida secuencial completada - Exitosos: $exitosos, Fallidos: $fallidos');
 
         // get a notification at top of screen.
         showSimpleNotification(Text(resumen.message!),
