@@ -8,6 +8,7 @@ import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/screens/screens.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
+import 'package:app_qinspecting/ui/app_theme.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -68,29 +69,48 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: EdgeInsets.symmetric(horizontal: 20),
           child: _widgetOptions.elementAt(_selectedIndex),
         )),
-        bottomNavigationBar: BottomNavigationBar(
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Escritorio',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.app_registration_sharp),
-              label: 'Inspecciones',
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          selectedItemColor: Colors.green,
-          onTap: (int index) {
-            if (index == 0) {
-              inspeccionProvider.clearData();
-            }
-            if (index == 1 && loginService.userDataLogged.idFirma == 0) {
-              Navigator.popAndPushNamed(context, 'signature');
-            } else {
-              _onItemTapped(index);
-            }
-          },
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 10,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
+          child: BottomNavigationBar(
+            items: [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined),
+                activeIcon: Icon(Icons.home),
+                label: 'Escritorio',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.app_registration_outlined),
+                activeIcon: Icon(Icons.app_registration),
+                label: 'Inspecciones',
+              ),
+            ],
+            currentIndex: _selectedIndex,
+            selectedItemColor: AppTheme.primaryGreen,
+            unselectedItemColor: Colors.grey.shade600,
+            backgroundColor: Colors.white,
+            elevation: 0,
+            type: BottomNavigationBarType.fixed,
+            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
+            onTap: (int index) {
+              if (index == 0) {
+                inspeccionProvider.clearData();
+              }
+              if (index == 1 && loginService.userDataLogged.idFirma == 0) {
+                Navigator.popAndPushNamed(context, 'signature');
+              } else {
+                _onItemTapped(index);
+              }
+            },
+          ),
         ),
       ),
     );
@@ -100,7 +120,16 @@ class _HomeScreenState extends State<HomeScreen> {
     return await showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Icon(Icons.warning, color: Colors.orange),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Row(
+              children: [
+                Icon(Icons.warning_rounded, color: AppTheme.warningColor),
+                const SizedBox(width: 8),
+                const Text('Confirmar salida'),
+              ],
+            ),
             content: const Text(
               '¿Seguro que quieres salir de la aplicación?',
               textAlign: TextAlign.center,
@@ -108,13 +137,17 @@ class _HomeScreenState extends State<HomeScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('NO'),
+                child: const Text('Cancelar'),
               ),
-              TextButton(
+              ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context, true); // <- Aquí devolvemos true
+                  Navigator.pop(context, true);
                 },
-                child: const Text('SI', style: TextStyle(color: Colors.red)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.errorColor,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Salir'),
               ),
             ],
           ),

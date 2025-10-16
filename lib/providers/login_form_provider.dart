@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -42,11 +43,24 @@ class LoginFormProvider extends ChangeNotifier {
             Image(image: AssetImage('assets/images/loading-2.gif')),
       );
     }
-    return ClipRRect(
-      borderRadius: BorderRadius.all(Radius.circular(50)),
-      child: FadeInImage(
-          placeholder: const AssetImage('assets/images/loading-2.gif'),
-          image: NetworkImage(url)),
-    );
+    // Si es una ruta local (archivo), usar FileImage; si es URL http(s), usar NetworkImage
+    final isLocalPath =
+        !(url.startsWith('http://') || url.startsWith('https://'));
+    if (isLocalPath) {
+      return ClipRRect(
+        borderRadius: BorderRadius.all(Radius.circular(50)),
+        child: Image(
+          image: FileImage(File(url)),
+          fit: BoxFit.cover,
+        ),
+      );
+    } else {
+      return ClipRRect(
+        borderRadius: BorderRadius.all(Radius.circular(50)),
+        child: FadeInImage(
+            placeholder: const AssetImage('assets/images/loading-2.gif'),
+            image: NetworkImage(url)),
+      );
+    }
   }
 }

@@ -1,4 +1,6 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -128,14 +130,12 @@ class CardFirma extends StatelessWidget {
           child: Column(
             children: [
               ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: FadeInImage(
-                    placeholder:
-                        const AssetImage('assets/images/loading-2.gif'),
-                    image: NetworkImage(infoFirma.firma.toString()),
-                    fit: BoxFit.cover,
-                    height: sizeScreen.height * 0.4,
-                  )),
+                borderRadius: BorderRadius.circular(10),
+                child: _SignatureImage(
+                  source: infoFirma.firma?.toString(),
+                  height: sizeScreen.height * 0.4,
+                ),
+              ),
               SizedBox(height: 10),
               Divider(
                 height: 15,
@@ -164,5 +164,76 @@ class CardFirma extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _SignatureImage extends StatelessWidget {
+  const _SignatureImage({Key? key, required this.source, required this.height})
+      : super(key: key);
+  final String? source;
+  final double height;
+
+  bool _looksLikeBase64(String s) {
+    // Heurística simple: contiene ',' (data URI) o solo charset base64
+    return s.startsWith('data:image') ||
+        RegExp(r'^[A-Za-z0-9+/=]+$').hasMatch(s);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (source == null || source!.isEmpty) {
+      return Image(
+        image: const AssetImage('assets/images/no-image.png'),
+        height: height,
+        fit: BoxFit.contain,
+      );
+    }
+
+    try {
+      final String value = source!;
+      if (value.startsWith('http')) {
+        // URL remota
+        return FadeInImage(
+          placeholder: const AssetImage('assets/images/loading-2.gif'),
+          image: NetworkImage(value),
+          height: height,
+          fit: BoxFit.contain,
+        );
+      }
+
+      // Base64: permitir prefijo data:image/...
+      String pure = value;
+      final commaIndex = value.indexOf(',');
+      if (commaIndex != -1) {
+        pure = value.substring(commaIndex + 1);
+      }
+
+      if (_looksLikeBase64(pure)) {
+        Uint8List bytes = base64Decode(pure);
+        return Image.memory(
+          bytes,
+          height: height,
+          fit: BoxFit.contain,
+          errorBuilder: (_, __, ___) => const Image(
+            image: AssetImage('assets/images/no-image.png'),
+            fit: BoxFit.contain,
+          ),
+        );
+      }
+
+      // Ruta local
+      return FadeInImage(
+        placeholder: const AssetImage('assets/images/loading-2.gif'),
+        image: NetworkImage(value),
+        height: height,
+        fit: BoxFit.contain,
+      );
+    } catch (_) {
+      return Image(
+        image: const AssetImage('assets/images/no-image.png'),
+        height: height,
+        fit: BoxFit.contain,
+      );
+    }
   }
 }

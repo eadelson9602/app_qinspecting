@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'screens/screens.dart';
 import 'utils/error_handler.dart';
+import 'ui/app_theme.dart';
 
 import 'package:app_qinspecting/providers/providers.dart';
 
@@ -46,11 +47,7 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Qinspecting',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        // Configuraciones para evitar problemas de touch/mouse
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
+      theme: AppTheme.lightTheme,
       initialRoute: 'check_auth',
       routes: {
         'login': (_) => const LoginScreen(),

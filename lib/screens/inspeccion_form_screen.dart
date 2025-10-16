@@ -54,7 +54,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                       prefixIcon: Icons.speed),
                 ),
                 const SizedBox(
-                  height: 10,
+                  height: 16,
                 ),
                 Text('Foto guía de transporte'),
                 Stack(
@@ -95,7 +95,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
     Widget _infoRemolque() {
       return Column(children: [
         const SizedBox(
-          height: 10,
+          height: 16,
         ),
         DropdownButtonFormField<String>(
             decoration: InputDecorations.authInputDecorations(
@@ -121,7 +121,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
               await inspeccionProvider.listarCategoriaItemsRemolque(value);
             }),
         const SizedBox(
-          height: 10,
+          height: 16,
         ),
         Text('Foto Remolque'),
         Stack(
@@ -155,7 +155,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
           ],
         ),
         const SizedBox(
-          height: 10,
+          height: 16,
         ),
         if (inspeccionProvider.remolqueSelected != null)
           Column(
@@ -246,8 +246,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                 ListTile(
                   dense: true,
                   shape: Border(bottom: BorderSide(color: Colors.green)),
-                  title:
-                      Text('Color de cabezote', style: TextStyle(fontSize: 15)),
+                  title: Text('Color de cabezote'),
                   subtitle: Text(
                       inspeccionProvider.vehiculoSelected!.color.toString(),
                       style: TextStyle(fontSize: 15)),
@@ -263,6 +262,9 @@ class _InspeccionFormState extends State<InspeccionForm> {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
             children: [
+              const SizedBox(
+                height: 16,
+              ),
               DropdownButtonFormField<String>(
                   decoration: InputDecorations.authInputDecorations(
                       prefixIcon: Icons.local_shipping,
@@ -290,6 +292,9 @@ class _InspeccionFormState extends State<InspeccionForm> {
                         .listarCategoriaItemsVehiculo(resultVehiculo.placa);
                   }),
               _infoVehiculo(),
+              const SizedBox(
+                height: 16,
+              ),
               DropdownButtonFormField<int>(
                   decoration: InputDecorations.authInputDecorations(
                       prefixIcon: Icons.place,
@@ -309,7 +314,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                     inspeccionProvider.listarCiudades(value!);
                   }),
               const SizedBox(
-                height: 10,
+                height: 16,
               ),
               DropdownButtonFormField(
                   decoration: InputDecorations.authInputDecorations(
@@ -335,7 +340,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                         ciudad.label;
                   }),
               const SizedBox(
-                height: 10,
+                height: 16,
               ),
               TextFormField(
                 autocorrect: false,
@@ -354,7 +359,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                     prefixIcon: Icons.speed),
               ),
               const SizedBox(
-                height: 10,
+                height: 16,
               ),
               Text('Foto kilometraje'),
               Stack(
@@ -388,7 +393,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                 ],
               ),
               const SizedBox(
-                height: 10,
+                height: 16,
               ),
               Text('Foto Cabezote'),
               Stack(
