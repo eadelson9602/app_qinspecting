@@ -8,13 +8,15 @@ import 'dart:convert';
 import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/services/services.dart';
+import 'package:app_qinspecting/services/notification_service.dart';
+import 'package:app_qinspecting/services/background_upload_service.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 class InspeccionService extends ChangeNotifier {
   final dio = Dio(BaseOptions(
-    connectTimeout: Duration(seconds: 30),
-    receiveTimeout: Duration(seconds: 60),
-    sendTimeout: Duration(seconds: 30),
+    connectTimeout: Duration(seconds: 60), // Aumentado para segundo plano
+    receiveTimeout: Duration(seconds: 90), // Aumentado para segundo plano
+    sendTimeout: Duration(seconds: 60), // Aumentado para segundo plano
   ));
   final loginService = LoginService();
   bool isLoading = false;
@@ -23,6 +25,37 @@ class InspeccionService extends ChangeNotifier {
   double batchProgress = 0.0; // 0..1 del lote actual
   int currentBatchIndex = 0; // índice del lote actual (1-based)
   int totalBatches = 0; // total de lotes
+
+  /// Obtiene el estado actual de la aplicación
+  AppLifecycleState? get currentAppState =>
+      WidgetsBinding.instance.lifecycleState;
+
+  /// Log del estado de la app para debugging
+  void _logAppState(String operation) {
+    final state = currentAppState;
+    print('📱 DEBUG: [$operation] Estado de la app: $state');
+    switch (state) {
+      case AppLifecycleState.resumed:
+        print('🟢 DEBUG: [$operation] APP EN PRIMER PLANO');
+        break;
+      case AppLifecycleState.paused:
+        print('🟡 DEBUG: [$operation] APP EN SEGUNDO PLANO');
+        break;
+      case AppLifecycleState.inactive:
+        print('🟠 DEBUG: [$operation] APP INACTIVA');
+        break;
+      case AppLifecycleState.detached:
+        print('🔴 DEBUG: [$operation] APP DESCONECTADA');
+        break;
+      case AppLifecycleState.hidden:
+        print('⚫ DEBUG: [$operation] APP OCULTA');
+        break;
+      case null:
+        print('❓ DEBUG: [$operation] Estado de app desconocido');
+        break;
+    }
+  }
+
   final List<Departamentos> departamentos = [];
   final List<Ciudades> ciudades = [];
   final List<Vehiculo> vehiculos = [];
@@ -282,6 +315,7 @@ class InspeccionService extends ChangeNotifier {
       required String folder}) async {
     try {
       print('📤 DEBUG: Iniciando subida de imagen: $path');
+      _logAppState('UPLOAD_IMAGE');
       var fileName = (path.split('/').last);
       var formData = FormData.fromMap({
         'files':
@@ -423,12 +457,24 @@ class InspeccionService extends ChangeNotifier {
     }
   }
 
+  /// Envía la inspección de forma tradicional (foreground)
   Future<Map<String, dynamic>> sendInspeccion(
-      ResumenPreoperacional inspeccion, Empresa selectedEmpresa) async {
+      ResumenPreoperacional inspeccion, Empresa selectedEmpresa,
+      {bool showProgressNotifications = false}) async {
     try {
       final connectivityResult = await checkConnection();
       if (connectivityResult) {
+        if (showProgressNotifications) {
+          await NotificationService.showUploadProgressNotification(
+            title: 'Subiendo Inspección',
+            body: 'Subiendo imágenes...',
+            progress: 0,
+            total: 100,
+          );
+        }
+
         // Se envia la foto del kilometraje al servidor
+        _logAppState('SUBIDA_IMAGEN_KM');
         Map<String, dynamic>? responseUploadKilometraje = await uploadImage(
             path: inspeccion.urlFotoKm!,
             company: '${selectedEmpresa.nombreQi}',
@@ -463,6 +509,16 @@ class InspeccionService extends ChangeNotifier {
         }
 
         // Guardamos el resumen del preoperacional en el server
+        if (showProgressNotifications) {
+          await NotificationService.showUploadProgressNotification(
+            title: 'Subiendo Inspección',
+            body: 'Guardando resumen...',
+            progress: 30,
+            total: 100,
+          );
+        }
+
+        _logAppState('GUARDADO_RESUMEN');
         final responseResumen = await dio.post(
             '${loginService.baseUrl}/insert_preoperacional',
             options: loginService.options,
@@ -505,6 +561,15 @@ class InspeccionService extends ChangeNotifier {
         print(
             '🔍 DEBUG: Iniciando subida secuencial de ${respuestas.length} respuestas');
 
+        if (showProgressNotifications) {
+          await NotificationService.showUploadProgressNotification(
+            title: 'Subiendo Inspección',
+            body: 'Procesando respuestas...',
+            progress: 60,
+            total: 100,
+          );
+        }
+
         int exitosos = 0;
         int fallidos = 0;
 
@@ -517,6 +582,19 @@ class InspeccionService extends ChangeNotifier {
               element.adjunto != null && element.adjunto!.isNotEmpty;
           print(
               '🔍 DEBUG: Procesando respuesta ${i + 1}/${respuestas.length} - ID: ${element.idItem}, Adjunto: ${hasAdjunto ? "SÍ" : "NO"}');
+
+          // Actualizar progreso
+          if (showProgressNotifications) {
+            final progress = 60 + ((i / respuestas.length) * 40).round();
+            await NotificationService.showUploadProgressNotification(
+              title: 'Subiendo Inspección',
+              body: 'Procesando respuesta ${i + 1}/${respuestas.length}',
+              progress: progress,
+              total: 100,
+            );
+          }
+
+          _logAppState('PROCESANDO_RESPUESTA_${i + 1}');
 
           bool procesadoExitosamente = false;
           int intentos = 0;
@@ -562,8 +640,9 @@ class InspeccionService extends ChangeNotifier {
 
               if (intentos < maxIntentos) {
                 print('⏳ DEBUG: Esperando antes del siguiente intento...');
-                await Future.delayed(
-                    Duration(seconds: 2 * intentos)); // Backoff exponencial
+                await Future.delayed(Duration(
+                    seconds:
+                        5 * intentos)); // Backoff más largo para segundo plano
               } else {
                 print(
                     '❌ ERROR: Respuesta ${element.idItem} falló después de $maxIntentos intentos');
@@ -628,6 +707,139 @@ class InspeccionService extends ChangeNotifier {
     }
   }
 
+  /// Envía la inspección en segundo plano con notificaciones
+  Future<Map<String, dynamic>> sendInspeccionBackground(
+      ResumenPreoperacional inspeccion, Empresa selectedEmpresa) async {
+    print('🚀 DEBUG: Iniciando sendInspeccionBackground');
+    print('📋 DEBUG: Inspección ID: ${inspeccion.id}');
+    print('🏢 DEBUG: Empresa: ${selectedEmpresa.nombreQi}');
+
+    try {
+      print('🌐 DEBUG: Verificando conectividad...');
+      final connectivityResult = await checkConnection();
+      if (!connectivityResult) {
+        print('❌ DEBUG: Sin conexión a internet');
+        return {
+          "message": 'Sin conexión a internet',
+          "ok": false,
+          "idInspeccion": 0
+        };
+      }
+      print('✅ DEBUG: Conectividad verificada');
+
+      // Verificar permisos de notificación
+      print('🔔 DEBUG: Verificando permisos de notificación...');
+      final hasPermissions = await NotificationService.requestPermissions();
+      if (!hasPermissions) {
+        print('❌ DEBUG: Permisos de notificación denegados');
+        showSimpleNotification(
+          Text(
+              'Se requieren permisos de notificación para la subida en segundo plano'),
+          leading: Icon(Icons.notifications_off),
+          autoDismiss: true,
+          background: Colors.orange,
+          position: NotificationPosition.bottom,
+        );
+        return {
+          "message": 'Permisos de notificación requeridos',
+          "ok": false,
+          "idInspeccion": 0
+        };
+      }
+      print('✅ DEBUG: Permisos de notificación verificados');
+
+      // Obtener token de autenticación
+      print('🔑 DEBUG: Obteniendo token de autenticación...');
+      String token = await storage.read(key: 'token') ?? '';
+      if (token.isEmpty) {
+        print('❌ DEBUG: Token de autenticación no encontrado');
+        return {
+          "message": 'Token de autenticación no encontrado',
+          "ok": false,
+          "idInspeccion": 0
+        };
+      }
+      print('✅ DEBUG: Token obtenido: ${token.substring(0, 10)}...');
+
+      // Programar tarea en segundo plano
+      print('📅 DEBUG: Programando tarea en segundo plano...');
+      await BackgroundUploadService.scheduleUploadTask(
+        inspeccion: inspeccion,
+        empresa: selectedEmpresa,
+        token: token,
+        inspeccionService: this,
+      );
+      print('✅ DEBUG: Tarea programada exitosamente');
+
+      // Mostrar notificación inicial
+      print('📱 DEBUG: Mostrando notificación inicial...');
+      await NotificationService.showUploadProgressNotification(
+        title: 'Subiendo Inspección',
+        body: 'La subida comenzará en segundo plano...',
+        progress: 0,
+        total: 100,
+      );
+      print('✅ DEBUG: Notificación inicial mostrada');
+
+      // Mostrar notificación en la app
+      print('📱 DEBUG: Mostrando notificación en la app...');
+      showSimpleNotification(
+        Text('Subida iniciada en segundo plano. Puedes salir de la app.'),
+        leading: Icon(Icons.cloud_upload),
+        autoDismiss: true,
+        background: Colors.blue,
+        position: NotificationPosition.bottom,
+      );
+      print('✅ DEBUG: Notificación en la app mostrada');
+
+      isSaving = false;
+      notifyListeners();
+
+      print('🎉 DEBUG: sendInspeccionBackground completado exitosamente');
+      return {
+        "message": 'Subida iniciada en segundo plano',
+        "ok": true,
+        "idInspeccion": inspeccion.id ?? 0,
+        "background": true,
+      };
+    } catch (e) {
+      print('❌ ERROR: Error iniciando subida en segundo plano: $e');
+      showSimpleNotification(
+        Text('Error iniciando subida en segundo plano'),
+        leading: Icon(Icons.error),
+        autoDismiss: true,
+        background: Colors.red,
+        position: NotificationPosition.bottom,
+      );
+
+      isSaving = false;
+      notifyListeners();
+
+      return {
+        "message": 'Error iniciando subida en segundo plano: $e',
+        "ok": false,
+        "idInspeccion": 0
+      };
+    }
+  }
+
+  /// Cancela la subida en segundo plano
+  Future<void> cancelBackgroundUpload() async {
+    await BackgroundUploadService.cancelUploadTask();
+    showSimpleNotification(
+      Text('Subida en segundo plano cancelada'),
+      leading: Icon(Icons.cancel),
+      autoDismiss: true,
+      background: Colors.orange,
+      position: NotificationPosition.bottom,
+    );
+  }
+
+  /// Verifica si hay una subida en progreso
+  Future<bool> isBackgroundUploadInProgress() async {
+    return await BackgroundUploadService.isUploadInProgress();
+  }
+
   Future<Pdf> detatilPdf(
       Empresa empresaSelected, ResumenPreoperacionalServer inspeccion,
       {int maxRetries = 3}) async {
@@ -648,7 +860,7 @@ class InspeccionService extends ChangeNotifier {
             .get(
                 '${loginService.baseUrl}/inspeccion/${empresaSelected.nombreBase}/${inspeccion.resuPreId}',
                 options: loginService.options)
-            .timeout(Duration(seconds: 30));
+            .timeout(Duration(seconds: 60)); // Aumentado para segundo plano
 
         print('API call completed successfully');
         Pdf temData = Pdf.fromJson(response.toString());

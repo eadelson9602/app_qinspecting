@@ -9,10 +9,18 @@ import 'ui/app_theme.dart';
 import 'package:app_qinspecting/providers/providers.dart';
 
 import 'services/services.dart';
+import 'services/notification_service.dart';
+import 'services/background_upload_service.dart';
+import 'services/real_background_upload_service.dart';
 
-void main() {
+void main() async {
   // Configurar Flutter para evitar errores del mouse tracker
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializar servicios de notificaciones y trabajo en segundo plano
+  await NotificationService.initialize();
+  await BackgroundUploadService.initialize();
+  await RealBackgroundUploadService.initialize();
 
   // Inicializar el manejador de errores
   ErrorHandler.initialize();
