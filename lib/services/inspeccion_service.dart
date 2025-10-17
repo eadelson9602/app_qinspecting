@@ -504,7 +504,9 @@ class InspeccionService extends ChangeNotifier {
             progress: currentElement,
             total: totalElements > 0 ? totalElements : 1,
           );
-          batchProgress = totalElements > 0 ? (currentElement / totalElements).clamp(0.0, 1.0) : 0.0;
+          batchProgress = totalElements > 0
+              ? (currentElement / totalElements).clamp(0.0, 1.0)
+              : 0.0;
           notifyListeners();
         }
 
@@ -531,7 +533,9 @@ class InspeccionService extends ChangeNotifier {
               progress: currentElement,
               total: totalElements,
             );
-            batchProgress = totalElements > 0 ? (currentElement / totalElements).clamp(0.0, 1.0) : 0.0;
+            batchProgress = totalElements > 0
+                ? (currentElement / totalElements).clamp(0.0, 1.0)
+                : 0.0;
             notifyListeners();
           }
         }
@@ -553,7 +557,9 @@ class InspeccionService extends ChangeNotifier {
               progress: currentElement,
               total: totalElements,
             );
-            batchProgress = totalElements > 0 ? (currentElement / totalElements).clamp(0.0, 1.0) : 0.0;
+            batchProgress = totalElements > 0
+                ? (currentElement / totalElements).clamp(0.0, 1.0)
+                : 0.0;
             notifyListeners();
           }
         }
@@ -575,7 +581,9 @@ class InspeccionService extends ChangeNotifier {
               progress: currentElement,
               total: totalElements,
             );
-            batchProgress = totalElements > 0 ? (currentElement / totalElements).clamp(0.0, 1.0) : 0.0;
+            batchProgress = totalElements > 0
+                ? (currentElement / totalElements).clamp(0.0, 1.0)
+                : 0.0;
             notifyListeners();
           }
         }
@@ -589,7 +597,9 @@ class InspeccionService extends ChangeNotifier {
             progress: currentElement,
             total: totalElements > 0 ? totalElements : 1,
           );
-          batchProgress = totalElements > 0 ? (currentElement / totalElements).clamp(0.0, 1.0) : 0.0;
+          batchProgress = totalElements > 0
+              ? (currentElement / totalElements).clamp(0.0, 1.0)
+              : 0.0;
           notifyListeners();
         }
 
@@ -675,7 +685,9 @@ class InspeccionService extends ChangeNotifier {
           );
 
           // Sincronizar batchProgress
-          batchProgress = totalElements > 0 ? (currentElement / totalElements).clamp(0.0, 1.0) : 0.0;
+          batchProgress = totalElements > 0
+              ? (currentElement / totalElements).clamp(0.0, 1.0)
+              : 0.0;
           notifyListeners();
         }
 
@@ -703,7 +715,9 @@ class InspeccionService extends ChangeNotifier {
             );
 
             // Sincronizar batchProgress con el progreso de la notificación
-            batchProgress = totalElements > 0 ? (currentElement / totalElements).clamp(0.0, 1.0) : 0.0;
+            batchProgress = totalElements > 0
+                ? (currentElement / totalElements).clamp(0.0, 1.0)
+                : 0.0;
             notifyListeners();
           }
 
