@@ -25,8 +25,8 @@ class LoginService extends ChangeNotifier {
   Empresa selectedEmpresa = Empresa();
   UserData userDataLogged = UserData(urlFoto: '');
 
-  // String baseUrl = 'https://apis.qinspecting.com/pflutter';
-  String baseUrl = 'http://192.168.1.10:3012';
+  String baseUrl = 'https://apis.qinspecting.com/pflutter';
+  // String baseUrl = 'http://192.168.1.10:3012';
   Options options = Options();
 
   Future<Map<dynamic, dynamic>> getToken(int user, String password) async {

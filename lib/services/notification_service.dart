@@ -73,7 +73,7 @@ class NotificationService {
     // Validar parámetros para evitar valores inválidos
     final safeProgress = progress.clamp(0, total > 0 ? total : 1);
     final safeTotal = total > 0 ? total : 1;
-    
+
     final percentage = ((safeProgress / safeTotal) * 100).round().clamp(0, 100);
 
     const AndroidNotificationDetails androidDetails =
@@ -122,7 +122,7 @@ class NotificationService {
     // Validar parámetros para evitar valores inválidos
     final safeProgress = progress.clamp(0, total > 0 ? total : 1);
     final safeTotal = total > 0 ? total : 1;
-    
+
     final percentage = ((safeProgress / safeTotal) * 100).round().clamp(0, 100);
 
     final AndroidNotificationDetails androidDetails =

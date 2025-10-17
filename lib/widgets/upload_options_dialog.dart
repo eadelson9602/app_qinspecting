@@ -202,8 +202,9 @@ class UploadOptionsDialog extends StatelessWidget {
 
     try {
       // Verificar si ya tiene permisos de notificación
-      final hasPermissions = await NotificationService.areNotificationsEnabled();
-      
+      final hasPermissions =
+          await NotificationService.areNotificationsEnabled();
+
       if (hasPermissions) {
         // Ya tiene permisos, proceder directamente con la subida
         navigator.pop(); // Cerrar el diálogo de opciones
@@ -243,7 +244,8 @@ class UploadOptionsDialog extends StatelessWidget {
 
   Future<void> _startBackgroundUploadDirectly(BuildContext context) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final inspeccionService = Provider.of<InspeccionService>(context, listen: false);
+    final inspeccionService =
+        Provider.of<InspeccionService>(context, listen: false);
 
     try {
       // Configurar el índice seleccionado y estado de guardado
@@ -251,12 +253,14 @@ class UploadOptionsDialog extends StatelessWidget {
       inspeccionService.updateSaving(true);
 
       // Iniciar subida en segundo plano
-      final result = await inspeccionService.sendInspeccionBackground(inspeccion, empresa);
+      final result =
+          await inspeccionService.sendInspeccionBackground(inspeccion, empresa);
 
       if (result['ok']) {
         scaffoldMessenger.showSnackBar(
           SnackBar(
-            content: Text('Subida iniciada en segundo plano. Puedes salir de la app.'),
+            content: Text(
+                'Subida iniciada en segundo plano. Puedes salir de la app.'),
             backgroundColor: Colors.green,
             duration: Duration(seconds: 5),
           ),
