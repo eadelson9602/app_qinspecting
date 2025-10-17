@@ -7,9 +7,11 @@ import 'package:provider/provider.dart';
 import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/services/background_upload_service.dart';
+import 'package:app_qinspecting/services/notification_service.dart';
+import 'package:app_qinspecting/models/inspeccion.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
-import 'package:app_qinspecting/widgets/upload_options_dialog.dart';
 import 'package:app_qinspecting/widgets/upload_progress_widgets.dart';
+import 'package:app_qinspecting/widgets/notification_permission_dialog.dart';
 
 class SendPendingInspectionScree extends StatelessWidget {
   const SendPendingInspectionScree({Key? key}) : super(key: key);
@@ -114,6 +116,83 @@ class _ContentCardInspectionPendingState
           .eliminarRespuestaPreoperacional(allInspecciones[0].id!);
       if (mounted) setState(() {});
     } finally {
+      inspeccionService.updateSaving(false);
+    }
+  }
+
+  Future<void> _startBackgroundUploadDirectly(BuildContext context,
+      ResumenPreoperacional inspeccion, int indexSelected) async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final inspeccionService =
+        Provider.of<InspeccionService>(context, listen: false);
+    final loginService = Provider.of<LoginService>(context, listen: false);
+
+    try {
+      // Verificar permisos de notificación
+      final hasPermissions =
+          await NotificationService.areNotificationsEnabled();
+
+      if (!hasPermissions) {
+        // Mostrar diálogo de permisos si no los tiene
+        showDialog(
+          context: context,
+          builder: (dialogContext) => NotificationPermissionDialog(
+            onPermissionGranted: () {
+              Navigator.of(dialogContext).pop();
+              // Intentar nuevamente después de otorgar permisos
+              _startBackgroundUploadDirectly(
+                  context, inspeccion, indexSelected);
+            },
+            onPermissionDenied: () {
+              Navigator.of(dialogContext).pop();
+              scaffoldMessenger.showSnackBar(
+                SnackBar(
+                  content: Text(
+                      'Se requieren permisos de notificación para el envío en segundo plano'),
+                  backgroundColor: Colors.orange,
+                ),
+              );
+            },
+            inspeccion: inspeccion,
+            empresa: loginService.selectedEmpresa,
+            indexSelected: indexSelected,
+          ),
+        );
+        return;
+      }
+
+      // Iniciar envío en segundo plano
+      inspeccionService.indexSelected = indexSelected;
+      inspeccionService.updateSaving(true);
+
+      final result = await inspeccionService.sendInspeccionBackground(
+          inspeccion, loginService.selectedEmpresa);
+
+      if (result['ok']) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text(
+                'Subida iniciada en segundo plano. Puedes salir de la app.'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 5),
+          ),
+        );
+      } else {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text('Error: ${result['message']}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        inspeccionService.updateSaving(false);
+      }
+    } catch (e) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text('Error inesperado: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
       inspeccionService.updateSaving(false);
     }
   }
@@ -281,19 +360,12 @@ class _ContentCardInspectionPendingState
                                         ),
                                         onPressed: inspeccionService.isSaving
                                             ? null
-                                            : () {
-                                                // Mostrar diálogo de opciones de subida
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (context) =>
-                                                      UploadOptionsDialog(
-                                                    inspeccion:
-                                                        allInspecciones[i],
-                                                    empresa: loginService
-                                                        .selectedEmpresa,
-                                                    indexSelected: i,
-                                                  ),
-                                                );
+                                            : () async {
+                                                // Iniciar envío en segundo plano directamente
+                                                await _startBackgroundUploadDirectly(
+                                                    context,
+                                                    allInspecciones[i],
+                                                    i);
                                               }),
                                     const SizedBox(width: 8),
                                   ],
