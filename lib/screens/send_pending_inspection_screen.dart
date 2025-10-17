@@ -176,7 +176,7 @@ class _ContentCardInspectionPendingState
                                 Center(
                                     child: Text(
                                   _isBackgroundUploadActive
-                                      ? 'Proceso en segundo plano activo - Puedes salir de la app'
+                                      ? 'Puedes usar otras apps, pero NO cierres Qinspecting'
                                       : 'Por favor NO cierre y no se salga de la app, mientras se este enviando la inspección',
                                   textAlign: TextAlign.center,
                                 )),
@@ -189,7 +189,8 @@ class _ContentCardInspectionPendingState
                                       'Lote ${inspeccionService.currentBatchIndex} de ${inspeccionService.totalBatches}'),
                                   SizedBox(height: 6),
                                   LinearProgressIndicator(
-                                      value: inspeccionService.batchProgress == 0
+                                      value: inspeccionService.batchProgress ==
+                                              0
                                           ? null
                                           : inspeccionService.batchProgress),
                                 ],
@@ -199,10 +200,10 @@ class _ContentCardInspectionPendingState
                                   Column(
                                     children: [
                                       Text(
-                                        'Proceso en segundo plano activo',
+                                        'Enviando inspección',
                                         style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.blue,
+                                          fontSize: 14,
+                                          color: Colors.green,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -210,7 +211,7 @@ class _ContentCardInspectionPendingState
                                       Text(
                                         'Progreso: ${(inspeccionService.batchProgress * 100).toStringAsFixed(1)}%',
                                         style: TextStyle(
-                                          fontSize: 11,
+                                          fontSize: 14,
                                           color: Colors.grey[600],
                                         ),
                                       ),
