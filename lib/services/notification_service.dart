@@ -70,7 +70,11 @@ class NotificationService {
     required int total,
     String? payload,
   }) async {
-    final percentage = ((progress / total) * 100).round();
+    // Validar parámetros para evitar valores inválidos
+    final safeProgress = progress.clamp(0, total > 0 ? total : 1);
+    final safeTotal = total > 0 ? total : 1;
+    
+    final percentage = ((safeProgress / safeTotal) * 100).round().clamp(0, 100);
 
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
@@ -103,19 +107,23 @@ class NotificationService {
     await _notifications.show(
       _notificationId,
       title,
-      '$body ($progress/$total - $percentage%)',
+      '$body ($safeProgress/$safeTotal - $percentage%)',
       notificationDetails,
       payload: payload,
     );
 
     // Actualizar progreso
-    await _updateProgressNotification(progress, total);
+    await _updateProgressNotification(safeProgress, safeTotal);
   }
 
   /// Actualiza el progreso de la notificación
   static Future<void> _updateProgressNotification(
       int progress, int total) async {
-    final percentage = ((progress / total) * 100).round();
+    // Validar parámetros para evitar valores inválidos
+    final safeProgress = progress.clamp(0, total > 0 ? total : 1);
+    final safeTotal = total > 0 ? total : 1;
+    
+    final percentage = ((safeProgress / safeTotal) * 100).round().clamp(0, 100);
 
     final AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
@@ -148,7 +156,7 @@ class NotificationService {
     await _notifications.show(
       _notificationId,
       'Qinspecting',
-      'Progreso: $progress/$total ($percentage%)',
+      'Progreso: $safeProgress/$safeTotal ($percentage%)',
       notificationDetails,
     );
   }
