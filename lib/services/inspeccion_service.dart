@@ -467,7 +467,7 @@ class InspeccionService extends ChangeNotifier {
       if (connectivityResult) {
         // Declarar respuestas primero
         List<Item> respuestas = [];
-        
+
         // Variables para progreso (se calcularán después de cargar respuestas)
         int totalElements = 0;
         int currentElement = 0;
@@ -477,7 +477,7 @@ class InspeccionService extends ChangeNotifier {
             title: 'Subiendo Inspección',
             body: 'Iniciando subida...',
             progress: 0,
-            total: totalElements,
+            total: totalElements > 0 ? totalElements : 1,
           );
 
           // Sincronizar batchProgress inicial
@@ -502,9 +502,9 @@ class InspeccionService extends ChangeNotifier {
             title: 'Subiendo Inspección',
             body: 'Subiendo imagen del kilometraje...',
             progress: currentElement,
-            total: totalElements,
+            total: totalElements > 0 ? totalElements : 1,
           );
-          batchProgress = currentElement / totalElements;
+          batchProgress = totalElements > 0 ? (currentElement / totalElements).clamp(0.0, 1.0) : 0.0;
           notifyListeners();
         }
 
@@ -531,7 +531,7 @@ class InspeccionService extends ChangeNotifier {
               progress: currentElement,
               total: totalElements,
             );
-            batchProgress = currentElement / totalElements;
+            batchProgress = totalElements > 0 ? (currentElement / totalElements).clamp(0.0, 1.0) : 0.0;
             notifyListeners();
           }
         }
@@ -553,7 +553,7 @@ class InspeccionService extends ChangeNotifier {
               progress: currentElement,
               total: totalElements,
             );
-            batchProgress = currentElement / totalElements;
+            batchProgress = totalElements > 0 ? (currentElement / totalElements).clamp(0.0, 1.0) : 0.0;
             notifyListeners();
           }
         }
@@ -575,7 +575,7 @@ class InspeccionService extends ChangeNotifier {
               progress: currentElement,
               total: totalElements,
             );
-            batchProgress = currentElement / totalElements;
+            batchProgress = totalElements > 0 ? (currentElement / totalElements).clamp(0.0, 1.0) : 0.0;
             notifyListeners();
           }
         }
@@ -587,9 +587,9 @@ class InspeccionService extends ChangeNotifier {
             title: 'Subiendo Inspección',
             body: 'Guardando resumen...',
             progress: currentElement,
-            total: totalElements,
+            total: totalElements > 0 ? totalElements : 1,
           );
-          batchProgress = currentElement / totalElements;
+          batchProgress = totalElements > 0 ? (currentElement / totalElements).clamp(0.0, 1.0) : 0.0;
           notifyListeners();
         }
 
@@ -655,6 +655,13 @@ class InspeccionService extends ChangeNotifier {
 
         print('📊 DEBUG: Total elementos a procesar: $totalElements');
 
+        // Validar que totalElements sea válido
+        if (totalElements <= 0) {
+          print(
+              '⚠️ WARNING: totalElements es $totalElements, estableciendo a 1 para evitar división por cero');
+          totalElements = 1;
+        }
+
         // Subida secuencial con reintentos para mayor estabilidad
         print(
             '🔍 DEBUG: Iniciando subida secuencial de ${respuestas.length} respuestas');
@@ -664,11 +671,11 @@ class InspeccionService extends ChangeNotifier {
             title: 'Subiendo Inspección',
             body: 'Procesando respuestas...',
             progress: currentElement,
-            total: totalElements,
+            total: totalElements > 0 ? totalElements : 1,
           );
-          
+
           // Sincronizar batchProgress
-          batchProgress = currentElement / totalElements;
+          batchProgress = totalElements > 0 ? (currentElement / totalElements).clamp(0.0, 1.0) : 0.0;
           notifyListeners();
         }
 
@@ -696,7 +703,7 @@ class InspeccionService extends ChangeNotifier {
             );
 
             // Sincronizar batchProgress con el progreso de la notificación
-            batchProgress = currentElement / totalElements;
+            batchProgress = totalElements > 0 ? (currentElement / totalElements).clamp(0.0, 1.0) : 0.0;
             notifyListeners();
           }
 
