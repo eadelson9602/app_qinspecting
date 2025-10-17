@@ -154,8 +154,10 @@ class _ContentCardInspectionPendingState
                     ),
                     // Card de la inspección
                     Card(
-                      child: inspeccionService.isSaving &&
-                              inspeccionService.indexSelected == i
+                      child: (inspeccionService.isSaving &&
+                                  inspeccionService.indexSelected == i) ||
+                              (_isBackgroundUploadActive &&
+                                  inspeccionService.indexSelected == i)
                           ? Container(
                               padding: EdgeInsets.all(20),
                               child: Column(children: [
@@ -173,20 +175,24 @@ class _ContentCardInspectionPendingState
                                 ),
                                 Center(
                                     child: Text(
-                                  'Por favor NO cierre y no se salga de la app, mientras se este enviando la inspección',
+                                  _isBackgroundUploadActive
+                                      ? 'Proceso en segundo plano activo - Puedes salir de la app'
+                                      : 'Por favor NO cierre y no se salga de la app, mientras se este enviando la inspección',
                                   textAlign: TextAlign.center,
                                 )),
                                 SizedBox(
                                   height: 10,
                                 ),
                                 // Progreso por lote: lote actual / total y barra determinada
-                                Text(
-                                    'Lote ${inspeccionService.currentBatchIndex} de ${inspeccionService.totalBatches}'),
-                                SizedBox(height: 6),
-                                LinearProgressIndicator(
-                                    value: inspeccionService.batchProgress == 0
-                                        ? null
-                                        : inspeccionService.batchProgress),
+                                if (!_isBackgroundUploadActive) ...[
+                                  Text(
+                                      'Lote ${inspeccionService.currentBatchIndex} de ${inspeccionService.totalBatches}'),
+                                  SizedBox(height: 6),
+                                  LinearProgressIndicator(
+                                      value: inspeccionService.batchProgress == 0
+                                          ? null
+                                          : inspeccionService.batchProgress),
+                                ],
                                 SizedBox(height: 8),
                                 // Mostrar progreso del proceso en segundo plano si está activo
                                 if (_isBackgroundUploadActive)
@@ -210,6 +216,7 @@ class _ContentCardInspectionPendingState
                                       ),
                                     ],
                                   ),
+                                // if (_isBackgroundUploadActive)
                               ]),
                             )
                           : Column(
