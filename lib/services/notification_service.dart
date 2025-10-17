@@ -14,7 +14,7 @@ class NotificationService {
   /// Inicializa el servicio de notificaciones
   static Future<void> initialize() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('@mipmap/launcher_icon');
 
     const DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings(
@@ -86,6 +86,7 @@ class NotificationService {
       progress: 0,
       onlyAlertOnce: true,
       silent: true,
+      icon: '@mipmap/launcher_icon',
     );
 
     const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
@@ -130,6 +131,7 @@ class NotificationService {
       progress: percentage,
       onlyAlertOnce: true,
       silent: true,
+      icon: '@mipmap/launcher_icon',
     );
 
     const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
@@ -167,7 +169,7 @@ class NotificationService {
       ongoing: false,
       autoCancel: true,
       showProgress: false,
-      icon: '@mipmap/ic_launcher',
+      icon: '@mipmap/launcher_icon',
     );
 
     const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
@@ -206,7 +208,7 @@ class NotificationService {
       ongoing: false,
       autoCancel: true,
       showProgress: false,
-      icon: '@mipmap/ic_launcher',
+      icon: '@mipmap/launcher_icon',
     );
 
     const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
