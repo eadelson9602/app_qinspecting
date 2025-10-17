@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/services/services.dart';
+import 'package:app_qinspecting/services/notification_service.dart';
 import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/widgets/notification_permission_dialog.dart';
 
@@ -199,23 +200,85 @@ class UploadOptionsDialog extends StatelessWidget {
     // Capturar referencias antes de operaciones asíncronas
     final navigator = Navigator.of(context);
 
-    // No cerrar el diálogo inmediatamente, dejar que el NotificationPermissionDialog lo maneje
-    // navigator.pop();
+    try {
+      // Verificar si ya tiene permisos de notificación
+      final hasPermissions = await NotificationService.areNotificationsEnabled();
+      
+      if (hasPermissions) {
+        // Ya tiene permisos, proceder directamente con la subida
+        navigator.pop(); // Cerrar el diálogo de opciones
+        await _startBackgroundUploadDirectly(context);
+      } else {
+        // No tiene permisos, mostrar diálogo de solicitud
+        showDialog(
+          context: context,
+          builder: (dialogContext) => NotificationPermissionDialog(
+            onPermissionGranted: () {
+              // Cerrar el diálogo de opciones cuando se otorgan permisos
+              navigator.pop();
+            },
+            onPermissionDenied: () => _showAlternativeOptions(context),
+            inspeccion: inspeccion,
+            empresa: empresa,
+            indexSelected: indexSelected,
+          ),
+        );
+      }
+    } catch (e) {
+      // En caso de error al verificar permisos, mostrar el diálogo por seguridad
+      showDialog(
+        context: context,
+        builder: (dialogContext) => NotificationPermissionDialog(
+          onPermissionGranted: () {
+            navigator.pop();
+          },
+          onPermissionDenied: () => _showAlternativeOptions(context),
+          inspeccion: inspeccion,
+          empresa: empresa,
+          indexSelected: indexSelected,
+        ),
+      );
+    }
+  }
 
-    // Mostrar diálogo de permisos de notificación
-    showDialog(
-      context: context,
-      builder: (dialogContext) => NotificationPermissionDialog(
-        onPermissionGranted: () {
-          // Cerrar el diálogo de opciones cuando se otorgan permisos
-          navigator.pop();
-        },
-        onPermissionDenied: () => _showAlternativeOptions(context),
-        inspeccion: inspeccion,
-        empresa: empresa,
-        indexSelected: indexSelected,
-      ),
-    );
+  Future<void> _startBackgroundUploadDirectly(BuildContext context) async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final inspeccionService = Provider.of<InspeccionService>(context, listen: false);
+
+    try {
+      // Configurar el índice seleccionado y estado de guardado
+      inspeccionService.indexSelected = indexSelected;
+      inspeccionService.updateSaving(true);
+
+      // Iniciar subida en segundo plano
+      final result = await inspeccionService.sendInspeccionBackground(inspeccion, empresa);
+
+      if (result['ok']) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text('Subida iniciada en segundo plano. Puedes salir de la app.'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 5),
+          ),
+        );
+      } else {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text('Error: ${result['message']}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        inspeccionService.updateSaving(false);
+      }
+    } catch (e) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text('Error inesperado: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      inspeccionService.updateSaving(false);
+    }
   }
 
   void _showAlternativeOptions(BuildContext context) {
