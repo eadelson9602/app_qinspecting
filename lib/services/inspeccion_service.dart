@@ -472,7 +472,7 @@ class InspeccionService extends ChangeNotifier {
             progress: 0,
             total: 100,
           );
-          
+
           // Sincronizar batchProgress inicial
           batchProgress = 0.0;
           notifyListeners();
@@ -529,7 +529,7 @@ class InspeccionService extends ChangeNotifier {
             progress: 30,
             total: 100,
           );
-          
+
           // Sincronizar batchProgress
           batchProgress = 0.3;
           notifyListeners();
@@ -590,7 +590,7 @@ class InspeccionService extends ChangeNotifier {
             progress: 60,
             total: 100,
           );
-          
+
           // Sincronizar batchProgress
           batchProgress = 0.6;
           notifyListeners();
@@ -618,7 +618,7 @@ class InspeccionService extends ChangeNotifier {
               progress: progress,
               total: 100,
             );
-            
+
             // Sincronizar batchProgress con el progreso de la notificación
             batchProgress = progress / 100.0;
             notifyListeners();
@@ -681,8 +681,7 @@ class InspeccionService extends ChangeNotifier {
             }
           }
 
-          // Actualizar progreso
-          batchProgress = (i + 1) / respuestas.length;
+          // Actualizar progreso (solo índices, batchProgress se sincroniza con notificaciones)
           currentBatchIndex = i + 1;
           totalBatches = respuestas.length;
           notifyListeners();

@@ -147,7 +147,7 @@ class NotificationService {
 
     await _notifications.show(
       _notificationId,
-      'Subiendo Inspección',
+      'Qinspecting',
       'Progreso: $progress/$total ($percentage%)',
       notificationDetails,
     );
