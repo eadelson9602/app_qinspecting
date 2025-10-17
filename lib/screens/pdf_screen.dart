@@ -248,15 +248,19 @@ class _PdfScreenState extends State<PdfScreen> {
 
       Uint8List? fotoGuia;
       if (infoPdf.urlFotoGuia != null && infoPdf.urlFotoGuia!.isNotEmpty) {
+        print('🔍 DEBUG: Procesando foto de guía: ${infoPdf.urlFotoGuia}');
         try {
           var responseGuia = await get(Uri.parse(infoPdf.urlFotoGuia!))
               .timeout(Duration(seconds: 10));
           fotoGuia = responseGuia.bodyBytes;
+          print('✅ DEBUG: Foto de guía descargada exitosamente, tamaño: ${fotoGuia.length} bytes');
         } catch (e) {
-          print('Error downloading foto guia: $e');
+          print('❌ DEBUG: Error downloading foto guia: $e');
           failedImages.add('Foto Guía');
           // Continue without guia image
         }
+      } else {
+        print('⚠️ DEBUG: urlFotoGuia es null o vacía: ${infoPdf.urlFotoGuia}');
       }
 
       Uint8List? firmaConductor;
@@ -626,21 +630,18 @@ class _PdfScreenState extends State<PdfScreen> {
           foto: infoPdf.urlFotoCabezote,
           fotoConverted: fotoCabezote));
 
-      if (fotoRemolque != null) {
-        infoPdf.detalle.last.respuestas.add(RespuestaInspeccion(
-            idItem: -3,
-            item: 'Remolque',
-            foto: infoPdf.urlFotoRemolque,
-            fotoConverted: fotoRemolque));
-      }
+      infoPdf.detalle.last.respuestas.add(RespuestaInspeccion(
+          idItem: -3,
+          item: 'Remolque',
+          foto: infoPdf.urlFotoRemolque,
+          fotoConverted: fotoRemolque));
 
-      if (fotoGuia != null) {
-        infoPdf.detalle.last.respuestas.add(RespuestaInspeccion(
-            idItem: -4,
-            item: 'Guía',
-            foto: infoPdf.urlFotoGuia,
-            fotoConverted: fotoGuia));
-      }
+      print('🔍 DEBUG: Agregando respuesta de Guía - URL: ${infoPdf.urlFotoGuia}, fotoConverted: ${fotoGuia != null ? '${fotoGuia.length} bytes' : 'null'}');
+      infoPdf.detalle.last.respuestas.add(RespuestaInspeccion(
+          idItem: -4,
+          item: 'Guía',
+          foto: infoPdf.urlFotoGuia,
+          fotoConverted: fotoGuia));
 
       infoPdf.detalle.forEach((categoria) {
         // Dibujas las categorias
