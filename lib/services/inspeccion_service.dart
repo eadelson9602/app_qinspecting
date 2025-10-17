@@ -467,28 +467,10 @@ class InspeccionService extends ChangeNotifier {
       if (connectivityResult) {
         // Declarar respuestas primero
         List<Item> respuestas = [];
-
-        // Calcular elementos totales para progreso real
+        
+        // Variables para progreso (se calcularán después de cargar respuestas)
         int totalElements = 0;
         int currentElement = 0;
-
-        // Contar imágenes del resumen
-        if (inspeccion.urlFotoKm != null && inspeccion.urlFotoKm!.isNotEmpty)
-          totalElements++;
-        if (inspeccion.urlFotoCabezote != null &&
-            inspeccion.urlFotoCabezote!.isNotEmpty) totalElements++;
-        if (inspeccion.urlFotoRemolque != null &&
-            inspeccion.urlFotoRemolque!.isNotEmpty) totalElements++;
-        if (inspeccion.urlFotoGuia != null &&
-            inspeccion.urlFotoGuia!.isNotEmpty) totalElements++;
-
-        // Contar respuestas
-        totalElements += respuestas.length;
-
-        // Agregar 1 para el resumen final
-        totalElements += 1;
-
-        print('📊 DEBUG: Total elementos a procesar: $totalElements');
 
         if (showProgressNotifications) {
           await NotificationService.showUploadProgressNotification(
@@ -654,6 +636,25 @@ class InspeccionService extends ChangeNotifier {
           respuestas = respuestasSQLite;
         }
 
+        // Calcular elementos totales para progreso real (después de cargar respuestas)
+        // Contar imágenes del resumen
+        if (inspeccion.urlFotoKm != null && inspeccion.urlFotoKm!.isNotEmpty)
+          totalElements++;
+        if (inspeccion.urlFotoCabezote != null &&
+            inspeccion.urlFotoCabezote!.isNotEmpty) totalElements++;
+        if (inspeccion.urlFotoRemolque != null &&
+            inspeccion.urlFotoRemolque!.isNotEmpty) totalElements++;
+        if (inspeccion.urlFotoGuia != null &&
+            inspeccion.urlFotoGuia!.isNotEmpty) totalElements++;
+
+        // Contar respuestas (ahora ya están cargadas)
+        totalElements += respuestas.length;
+
+        // Agregar 1 para el resumen final
+        totalElements += 1;
+
+        print('📊 DEBUG: Total elementos a procesar: $totalElements');
+
         // Subida secuencial con reintentos para mayor estabilidad
         print(
             '🔍 DEBUG: Iniciando subida secuencial de ${respuestas.length} respuestas');
@@ -662,12 +663,12 @@ class InspeccionService extends ChangeNotifier {
           await NotificationService.showUploadProgressNotification(
             title: 'Subiendo Inspección',
             body: 'Procesando respuestas...',
-            progress: 60,
-            total: 100,
+            progress: currentElement,
+            total: totalElements,
           );
-
+          
           // Sincronizar batchProgress
-          batchProgress = 0.6;
+          batchProgress = currentElement / totalElements;
           notifyListeners();
         }
 
