@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/services/services.dart';
+import 'package:app_qinspecting/services/background_upload_service.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 import 'package:app_qinspecting/widgets/upload_options_dialog.dart';
 import 'package:app_qinspecting/widgets/upload_progress_widgets.dart';
@@ -171,6 +172,36 @@ class _ContentCardInspectionPendingState
                                     value: inspeccionService.batchProgress == 0
                                         ? null
                                         : inspeccionService.batchProgress),
+                                SizedBox(height: 8),
+                                // Mostrar progreso del proceso en segundo plano si está activo
+                                FutureBuilder<bool>(
+                                  future: BackgroundUploadService.isUploadInProgress(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData && snapshot.data == true) {
+                                      return Column(
+                                        children: [
+                                          Text(
+                                            'Proceso en segundo plano activo',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.blue,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          SizedBox(height: 4),
+                                          Text(
+                                            'Progreso: ${(inspeccionService.batchProgress * 100).toStringAsFixed(1)}%',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }
+                                    return SizedBox.shrink();
+                                  },
+                                ),
                               ]),
                             )
                           : Column(
