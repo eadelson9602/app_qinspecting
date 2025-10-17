@@ -4,6 +4,7 @@ import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/services/notification_service.dart';
 import 'package:app_qinspecting/services/upload_foreground_service.dart';
+import 'package:app_qinspecting/providers/providers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -134,6 +135,21 @@ class RealBackgroundUploadService with WidgetsBindingObserver {
           title: 'Subida Completada',
           body: 'La inspección se subió exitosamente',
         );
+
+        // Eliminar datos de la inspección del SQLite después del envío exitoso
+        print('🗑️ DEBUG: Eliminando datos de la inspección del SQLite...');
+        try {
+          final inspeccionProvider = InspeccionProvider();
+          await inspeccionProvider
+              .eliminarResumenPreoperacional(inspeccion.id!);
+          await inspeccionProvider
+              .eliminarRespuestaPreoperacional(inspeccion.id!);
+          print(
+              '✅ DEBUG: Datos de la inspección eliminados del SQLite exitosamente');
+        } catch (e) {
+          print('⚠️ WARNING: Error eliminando datos del SQLite: $e');
+          // No lanzar excepción aquí para no afectar el proceso de subida
+        }
 
         print('🎉 DEBUG: Subida completada exitosamente usando sendInspeccion');
       } else {
