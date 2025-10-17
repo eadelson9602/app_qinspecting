@@ -465,12 +465,37 @@ class InspeccionService extends ChangeNotifier {
     try {
       final connectivityResult = await checkConnection();
       if (connectivityResult) {
+        // Declarar respuestas primero
+        List<Item> respuestas = [];
+
+        // Calcular elementos totales para progreso real
+        int totalElements = 0;
+        int currentElement = 0;
+
+        // Contar imágenes del resumen
+        if (inspeccion.urlFotoKm != null && inspeccion.urlFotoKm!.isNotEmpty)
+          totalElements++;
+        if (inspeccion.urlFotoCabezote != null &&
+            inspeccion.urlFotoCabezote!.isNotEmpty) totalElements++;
+        if (inspeccion.urlFotoRemolque != null &&
+            inspeccion.urlFotoRemolque!.isNotEmpty) totalElements++;
+        if (inspeccion.urlFotoGuia != null &&
+            inspeccion.urlFotoGuia!.isNotEmpty) totalElements++;
+
+        // Contar respuestas
+        totalElements += respuestas.length;
+
+        // Agregar 1 para el resumen final
+        totalElements += 1;
+
+        print('📊 DEBUG: Total elementos a procesar: $totalElements');
+
         if (showProgressNotifications) {
           await NotificationService.showUploadProgressNotification(
             title: 'Subiendo Inspección',
-            body: 'Subiendo imágenes...',
+            body: 'Iniciando subida...',
             progress: 0,
-            total: 100,
+            total: totalElements,
           );
 
           // Sincronizar batchProgress inicial
@@ -488,6 +513,19 @@ class InspeccionService extends ChangeNotifier {
             folder: 'inspecciones');
         inspeccion.urlFotoKm = responseUploadKilometraje?['path'];
 
+        // Actualizar progreso
+        if (showProgressNotifications) {
+          currentElement++;
+          await NotificationService.showUploadProgressNotification(
+            title: 'Subiendo Inspección',
+            body: 'Subiendo imagen del kilometraje...',
+            progress: currentElement,
+            total: totalElements,
+          );
+          batchProgress = currentElement / totalElements;
+          notifyListeners();
+        }
+
         print('inspeccion.urlFotoKm: ${inspeccion.urlFotoGuia}');
         print('inspeccion.urlFotoCabezote: ${inspeccion.urlFotoCabezote}');
         print('inspeccion.urlFotoRemolque: ${inspeccion.urlFotoRemolque}');
@@ -501,6 +539,19 @@ class InspeccionService extends ChangeNotifier {
 
           print('responseUploadGuia: ${responseUploadGuia}');
           inspeccion.urlFotoGuia = responseUploadGuia?['path'];
+
+          // Actualizar progreso
+          if (showProgressNotifications) {
+            currentElement++;
+            await NotificationService.showUploadProgressNotification(
+              title: 'Subiendo Inspección',
+              body: 'Subiendo imagen de la guía...',
+              progress: currentElement,
+              total: totalElements,
+            );
+            batchProgress = currentElement / totalElements;
+            notifyListeners();
+          }
         }
 
         // Se envia la foto del cabezote si tiene
@@ -510,6 +561,19 @@ class InspeccionService extends ChangeNotifier {
               company: selectedEmpresa.nombreQi!,
               folder: 'inspecciones');
           inspeccion.urlFotoCabezote = responseUploaCabezote?['path'];
+
+          // Actualizar progreso
+          if (showProgressNotifications) {
+            currentElement++;
+            await NotificationService.showUploadProgressNotification(
+              title: 'Subiendo Inspección',
+              body: 'Subiendo imagen del cabezote...',
+              progress: currentElement,
+              total: totalElements,
+            );
+            batchProgress = currentElement / totalElements;
+            notifyListeners();
+          }
         }
 
         // Se envia la foto del remolque si tiene
@@ -519,19 +583,31 @@ class InspeccionService extends ChangeNotifier {
               company: selectedEmpresa.nombreQi!,
               folder: 'inspecciones');
           inspeccion.urlFotoRemolque = responseUploaRemolque?['path'];
+
+          // Actualizar progreso
+          if (showProgressNotifications) {
+            currentElement++;
+            await NotificationService.showUploadProgressNotification(
+              title: 'Subiendo Inspección',
+              body: 'Subiendo imagen del remolque...',
+              progress: currentElement,
+              total: totalElements,
+            );
+            batchProgress = currentElement / totalElements;
+            notifyListeners();
+          }
         }
 
         // Guardamos el resumen del preoperacional en el server
         if (showProgressNotifications) {
+          currentElement++;
           await NotificationService.showUploadProgressNotification(
             title: 'Subiendo Inspección',
             body: 'Guardando resumen...',
-            progress: 30,
-            total: 100,
+            progress: currentElement,
+            total: totalElements,
           );
-
-          // Sincronizar batchProgress
-          batchProgress = 0.3;
+          batchProgress = currentElement / totalElements;
           notifyListeners();
         }
 
@@ -548,7 +624,6 @@ class InspeccionService extends ChangeNotifier {
 
         // Obtenemos las respuestas desde el JSON almacenado en el objeto inspección
         // Incluye items que tengan respuesta o adjunto (para no perder fotos)
-        List<Item> respuestas = [];
 
         if (inspeccion.respuestas != null &&
             inspeccion.respuestas!.isNotEmpty) {
@@ -611,16 +686,16 @@ class InspeccionService extends ChangeNotifier {
 
           // Actualizar progreso
           if (showProgressNotifications) {
-            final progress = 60 + ((i / respuestas.length) * 40).round();
+            currentElement++;
             await NotificationService.showUploadProgressNotification(
               title: 'Subiendo Inspección',
               body: 'Procesando respuesta ${i + 1}/${respuestas.length}',
-              progress: progress,
-              total: 100,
+              progress: currentElement,
+              total: totalElements,
             );
 
             // Sincronizar batchProgress con el progreso de la notificación
-            batchProgress = progress / 100.0;
+            batchProgress = currentElement / totalElements;
             notifyListeners();
           }
 
