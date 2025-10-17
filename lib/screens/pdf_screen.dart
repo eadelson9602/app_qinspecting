@@ -173,6 +173,15 @@ class _PdfScreenState extends State<PdfScreen> {
         throw Exception('Timeout al obtener datos del PDF');
       });
 
+      print('infoPdf: ${infoPdf.toJson()}');
+      print('infoPdf.rutaLogo: ${infoPdf.rutaLogo}');
+      print('infoPdf.urlFotoKm: ${infoPdf.urlFotoKm}');
+      print('infoPdf.urlFotoCabezote: ${infoPdf.urlFotoCabezote}');
+      print('infoPdf.urlFotoRemolque: ${infoPdf.urlFotoRemolque}');
+      print('infoPdf.urlFotoGuia: ${infoPdf.urlFotoGuia}');
+      print('infoPdf.firma: ${infoPdf.firma}');
+      print('infoPdf.firmaAuditor: ${infoPdf.firmaAuditor}');
+
       print(
           'PDF data retrieved successfully, downloading additional images...');
 
@@ -207,10 +216,8 @@ class _PdfScreenState extends State<PdfScreen> {
 
       Uint8List? fotoKilometraje;
       if (infoPdf.urlFotoKm != null && infoPdf.urlFotoKm!.isNotEmpty) {
-        // Reemplazar host temporalmente para pruebas locales
-        String urlKmLocal = infoPdf.urlFotoKm!.replaceAll('https://apis.qinspecting.com', 'http://192.168.1.10:3012');
         try {
-          var responseKilometraje = await get(Uri.parse(urlKmLocal))
+          var responseKilometraje = await get(Uri.parse(infoPdf.urlFotoKm!))
               .timeout(Duration(seconds: 10));
           fotoKilometraje = responseKilometraje.bodyBytes;
         } catch (e) {
@@ -223,10 +230,8 @@ class _PdfScreenState extends State<PdfScreen> {
       Uint8List? fotoCabezote;
       if (infoPdf.urlFotoCabezote != null &&
           infoPdf.urlFotoCabezote!.isNotEmpty) {
-        // Reemplazar host temporalmente para pruebas locales
-        String urlCabezoteLocal = infoPdf.urlFotoCabezote!.replaceAll('https://apis.qinspecting.com', 'http://192.168.1.10:3012');
         try {
-          var responseCabezote = await get(Uri.parse(urlCabezoteLocal))
+          var responseCabezote = await get(Uri.parse(infoPdf.urlFotoCabezote!))
               .timeout(Duration(seconds: 10));
           fotoCabezote = responseCabezote.bodyBytes;
         } catch (e) {
@@ -239,10 +244,8 @@ class _PdfScreenState extends State<PdfScreen> {
       Uint8List? fotoRemolque;
       if (infoPdf.urlFotoRemolque != null &&
           infoPdf.urlFotoRemolque!.isNotEmpty) {
-        // Reemplazar host temporalmente para pruebas locales
-        String urlRemolqueLocal = infoPdf.urlFotoRemolque!.replaceAll('https://apis.qinspecting.com', 'http://192.168.1.10:3012');
         try {
-          var responseRemolque = await get(Uri.parse(urlRemolqueLocal))
+          var responseRemolque = await get(Uri.parse(infoPdf.urlFotoRemolque!))
               .timeout(Duration(seconds: 10));
           fotoRemolque = responseRemolque.bodyBytes;
         } catch (e) {
@@ -254,12 +257,8 @@ class _PdfScreenState extends State<PdfScreen> {
 
       Uint8List? fotoGuia;
       if (infoPdf.urlFotoGuia != null && infoPdf.urlFotoGuia!.isNotEmpty) {
-        // Reemplazar host temporalmente para pruebas locales
-        String urlGuiaLocal = infoPdf.urlFotoGuia!.replaceAll('https://apis.qinspecting.com', 'http://192.168.1.10:3012');
-        print('🔍 DEBUG: Procesando foto de guía: ${infoPdf.urlFotoGuia}');
-        print('🔍 DEBUG: URL local de guía: $urlGuiaLocal');
         try {
-          var responseGuia = await get(Uri.parse(urlGuiaLocal))
+          var responseGuia = await get(Uri.parse(infoPdf.urlFotoGuia!))
               .timeout(Duration(seconds: 10));
           fotoGuia = responseGuia.bodyBytes;
           print(
