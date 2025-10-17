@@ -54,6 +54,8 @@ class ContentCardInspectionPending extends StatefulWidget {
 class _ContentCardInspectionPendingState
     extends State<ContentCardInspectionPending> {
   Timer? _autoTimer;
+  Timer? _progressTimer;
+  bool _isBackgroundUploadActive = false;
 
   @override
   void initState() {
@@ -61,13 +63,26 @@ class _ContentCardInspectionPendingState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _autoTimer =
           Timer.periodic(const Duration(seconds: 8), (_) => _tryAutoSend());
+      // Timer para actualizar el progreso del proceso en segundo plano
+      _progressTimer = Timer.periodic(
+          const Duration(seconds: 2), (_) => _updateBackgroundProgress());
     });
   }
 
   @override
   void dispose() {
     _autoTimer?.cancel();
+    _progressTimer?.cancel();
     super.dispose();
+  }
+
+  Future<void> _updateBackgroundProgress() async {
+    final isActive = await BackgroundUploadService.isUploadInProgress();
+    if (mounted && _isBackgroundUploadActive != isActive) {
+      setState(() {
+        _isBackgroundUploadActive = isActive;
+      });
+    }
   }
 
   Future<void> _tryAutoSend() async {
@@ -174,34 +189,27 @@ class _ContentCardInspectionPendingState
                                         : inspeccionService.batchProgress),
                                 SizedBox(height: 8),
                                 // Mostrar progreso del proceso en segundo plano si está activo
-                                FutureBuilder<bool>(
-                                  future: BackgroundUploadService.isUploadInProgress(),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasData && snapshot.data == true) {
-                                      return Column(
-                                        children: [
-                                          Text(
-                                            'Proceso en segundo plano activo',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.blue,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          SizedBox(height: 4),
-                                          Text(
-                                            'Progreso: ${(inspeccionService.batchProgress * 100).toStringAsFixed(1)}%',
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              color: Colors.grey[600],
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    }
-                                    return SizedBox.shrink();
-                                  },
-                                ),
+                                if (_isBackgroundUploadActive)
+                                  Column(
+                                    children: [
+                                      Text(
+                                        'Proceso en segundo plano activo',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.blue,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Progreso: ${(inspeccionService.batchProgress * 100).toStringAsFixed(1)}%',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                               ]),
                             )
                           : Column(
