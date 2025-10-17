@@ -19,7 +19,7 @@
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
     
     <application
-        android:label="app_qinspecting"
+        android:label="Qinspecting"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
         android:usesCleartextTraffic="true"
