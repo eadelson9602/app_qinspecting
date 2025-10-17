@@ -912,16 +912,16 @@ class InspeccionService extends ChangeNotifier {
       );
       print('✅ DEBUG: Notificación inicial mostrada');
 
-      // Mostrar notificación en la app
-      print('📱 DEBUG: Mostrando notificación en la app...');
-      showSimpleNotification(
-        Text('Subida iniciada en segundo plano. Puedes salir de la app.'),
-        leading: Icon(Icons.cloud_upload),
-        autoDismiss: true,
-        background: Colors.blue,
-        position: NotificationPosition.bottom,
-      );
-      print('✅ DEBUG: Notificación en la app mostrada');
+      // Mostrar notificación en la app - COMENTADA para evitar duplicación
+      // print('📱 DEBUG: Mostrando notificación en la app...');
+      // showSimpleNotification(
+      //   Text('Subida iniciada en segundo plano. Puedes salir de la app.'),
+      //   leading: Icon(Icons.cloud_upload),
+      //   autoDismiss: true,
+      //   background: Colors.blue,
+      //   position: NotificationPosition.bottom,
+      // );
+      // print('✅ DEBUG: Notificación en la app mostrada');
 
       // Cancelar notificación de progreso al completar
       await NotificationService.cancelProgressNotification();
