@@ -246,6 +246,19 @@ class _PdfScreenState extends State<PdfScreen> {
         }
       }
 
+      Uint8List? fotoGuia;
+      if (infoPdf.urlFotoGuia != null && infoPdf.urlFotoGuia!.isNotEmpty) {
+        try {
+          var responseGuia = await get(Uri.parse(infoPdf.urlFotoGuia!))
+              .timeout(Duration(seconds: 10));
+          fotoGuia = responseGuia.bodyBytes;
+        } catch (e) {
+          print('Error downloading foto guia: $e');
+          failedImages.add('Foto Guía');
+          // Continue without guia image
+        }
+      }
+
       Uint8List? firmaConductor;
       if (infoPdf.firma != null && infoPdf.firma!.isNotEmpty) {
         try {
@@ -296,7 +309,7 @@ class _PdfScreenState extends State<PdfScreen> {
           firmaConductor, firmaAuditor, resumenPreoperacional);
 
       final PdfGrid gridAnswers = getGridAnswers(infoPdf, pageSize, logoCliente,
-          logoQi, fotoKilometraje, fotoCabezote, fotoRemolque);
+          logoQi, fotoKilometraje, fotoCabezote, fotoRemolque, fotoGuia);
 
       // Draw grid
       PdfLayoutResult resultSummary = gridSummary.draw(
@@ -541,7 +554,8 @@ class _PdfScreenState extends State<PdfScreen> {
       Uint8List? logoQi,
       Uint8List? fotoKilometraje,
       Uint8List? fotoCabezote,
-      Uint8List? fotoRemolque) {
+      Uint8List? fotoRemolque,
+      Uint8List? fotoGuia) {
     //Create a PDF grid
     final PdfGrid grid = PdfGrid();
     //Secify the columns count to the grid.
@@ -620,6 +634,14 @@ class _PdfScreenState extends State<PdfScreen> {
             fotoConverted: fotoRemolque));
       }
 
+      if (fotoGuia != null) {
+        infoPdf.detalle.last.respuestas.add(RespuestaInspeccion(
+            idItem: -4,
+            item: 'Guía',
+            foto: infoPdf.urlFotoGuia,
+            fotoConverted: fotoGuia));
+      }
+
       infoPdf.detalle.forEach((categoria) {
         // Dibujas las categorias
         final PdfGridRow row = grid.rows.add();
@@ -667,6 +689,11 @@ class _PdfScreenState extends State<PdfScreen> {
     }
 
     if (respuesta.idItem == -3) {
+      row.cells[1].columnSpan = 5;
+      row.cells[1].style.stringFormat = formatColumns;
+    }
+
+    if (respuesta.idItem == -4) {
       row.cells[1].columnSpan = 5;
       row.cells[1].style.stringFormat = formatColumns;
     }

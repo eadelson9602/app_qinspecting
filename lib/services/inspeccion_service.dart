@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' show get;
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/providers/providers.dart';
@@ -481,17 +482,23 @@ class InspeccionService extends ChangeNotifier {
             folder: 'inspecciones');
         inspeccion.urlFotoKm = responseUploadKilometraje?['path'];
 
-        // Se envia la foto de la guia si tiene
-        if (inspeccion.numeroGuia?.isNotEmpty ?? false) {
+        print('inspeccion.urlFotoKm: ${inspeccion.urlFotoGuia}');
+        print('inspeccion.urlFotoCabezote: ${inspeccion.urlFotoCabezote}');
+        print('inspeccion.urlFotoRemolque: ${inspeccion.urlFotoRemolque}');
+        // Se envia la foto de la guia si tiene (basado en existencia de la foto)
+        if (inspeccion.urlFotoGuia != null) {
+          print('Subiendo foto de la guia: ${inspeccion.urlFotoGuia}');
           Map<String, dynamic>? responseUploadGuia = await uploadImage(
               path: inspeccion.urlFotoGuia!,
               company: selectedEmpresa.nombreQi!,
               folder: 'inspecciones');
+
+          print('responseUploadGuia: ${responseUploadGuia}');
           inspeccion.urlFotoGuia = responseUploadGuia?['path'];
         }
 
         // Se envia la foto del cabezote si tiene
-        if (inspeccion.urlFotoCabezote?.isNotEmpty ?? false) {
+        if (inspeccion.urlFotoCabezote != null) {
           Map<String, dynamic>? responseUploaCabezote = await uploadImage(
               path: inspeccion.urlFotoCabezote!,
               company: selectedEmpresa.nombreQi!,
@@ -500,7 +507,7 @@ class InspeccionService extends ChangeNotifier {
         }
 
         // Se envia la foto del remolque si tiene
-        if (inspeccion.urlFotoRemolque?.isNotEmpty ?? false) {
+        if (inspeccion.urlFotoRemolque != null) {
           Map<String, dynamic>? responseUploaRemolque = await uploadImage(
               path: inspeccion.urlFotoRemolque!,
               company: selectedEmpresa.nombreQi!,
@@ -518,6 +525,8 @@ class InspeccionService extends ChangeNotifier {
           );
         }
 
+        print('inspeccion: ${inspeccion.toJson()}');
+
         _logAppState('GUARDADO_RESUMEN');
         final responseResumen = await dio.post(
             '${loginService.baseUrl}/insert_preoperacional',
@@ -525,7 +534,10 @@ class InspeccionService extends ChangeNotifier {
             data: inspeccion.toJson());
         final resumen = Respuesta.fromMap(responseResumen.data);
 
+        print('responseResumen: ${responseResumen.data}');
+
         // Obtenemos las respuestas desde el JSON almacenado en el objeto inspección
+        // Incluye items que tengan respuesta o adjunto (para no perder fotos)
         List<Item> respuestas = [];
 
         if (inspeccion.respuestas != null &&
