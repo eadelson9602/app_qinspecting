@@ -474,6 +474,8 @@ class InspeccionService extends ChangeNotifier {
           );
         }
 
+        print('Subiendo foto del kilometraje: ${inspeccion.urlFotoKm}');
+
         // Se envia la foto del kilometraje al servidor
         _logAppState('SUBIDA_IMAGEN_KM');
         Map<String, dynamic>? responseUploadKilometraje = await uploadImage(
@@ -682,6 +684,9 @@ class InspeccionService extends ChangeNotifier {
         print(
             '🎉 DEBUG: Subida secuencial completada - Exitosos: $exitosos, Fallidos: $fallidos');
 
+        // Cancelar notificación de progreso al completar
+        await NotificationService.cancelProgressNotification();
+
         // get a notification at top of screen.
         showSimpleNotification(Text(resumen.message!),
             leading: Icon(Icons.check),
@@ -715,6 +720,8 @@ class InspeccionService extends ChangeNotifier {
           position: NotificationPosition.bottom);
       return Future.error(error.response?.data);
     } finally {
+      // Cancelar notificación de progreso en caso de error
+      await NotificationService.cancelProgressNotification();
       isSaving = false;
     }
   }
@@ -804,6 +811,9 @@ class InspeccionService extends ChangeNotifier {
       );
       print('✅ DEBUG: Notificación en la app mostrada');
 
+      // Cancelar notificación de progreso al completar
+      await NotificationService.cancelProgressNotification();
+
       isSaving = false;
       notifyListeners();
 
@@ -824,6 +834,8 @@ class InspeccionService extends ChangeNotifier {
         position: NotificationPosition.bottom,
       );
 
+      // Cancelar notificación de progreso en caso de error
+      await NotificationService.cancelProgressNotification();
       isSaving = false;
       notifyListeners();
 
