@@ -472,6 +472,10 @@ class InspeccionService extends ChangeNotifier {
             progress: 0,
             total: 100,
           );
+          
+          // Sincronizar batchProgress inicial
+          batchProgress = 0.0;
+          notifyListeners();
         }
 
         print('Subiendo foto del kilometraje: ${inspeccion.urlFotoKm}');
@@ -525,6 +529,10 @@ class InspeccionService extends ChangeNotifier {
             progress: 30,
             total: 100,
           );
+          
+          // Sincronizar batchProgress
+          batchProgress = 0.3;
+          notifyListeners();
         }
 
         print('inspeccion: ${inspeccion.toJson()}');
@@ -582,6 +590,10 @@ class InspeccionService extends ChangeNotifier {
             progress: 60,
             total: 100,
           );
+          
+          // Sincronizar batchProgress
+          batchProgress = 0.6;
+          notifyListeners();
         }
 
         int exitosos = 0;
@@ -606,6 +618,10 @@ class InspeccionService extends ChangeNotifier {
               progress: progress,
               total: 100,
             );
+            
+            // Sincronizar batchProgress con el progreso de la notificación
+            batchProgress = progress / 100.0;
+            notifyListeners();
           }
 
           _logAppState('PROCESANDO_RESPUESTA_${i + 1}');
