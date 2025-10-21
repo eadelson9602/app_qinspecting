@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/providers/providers.dart';
 
@@ -16,17 +17,16 @@ class InfoVehiculoWidget extends StatelessWidget {
               ListTile(
                 dense: true,
                 shape: Border(bottom: BorderSide(color: Colors.green)),
-                title: Text('Marca del cabezote',
-                    style: TextStyle(fontSize: 15)),
-                subtitle: Text(
-                    inspeccionProvider.vehiculoSelected!.nombreMarca,
+                title:
+                    Text('Marca del cabezote', style: TextStyle(fontSize: 15)),
+                subtitle: Text(inspeccionProvider.vehiculoSelected!.nombreMarca,
                     style: TextStyle(fontSize: 15)),
               ),
               ListTile(
                 dense: true,
                 shape: Border(bottom: BorderSide(color: Colors.green)),
-                title: Text('Modelo del cabezote',
-                    style: TextStyle(fontSize: 15)),
+                title:
+                    Text('Modelo del cabezote', style: TextStyle(fontSize: 15)),
                 subtitle: Text(
                     inspeccionProvider.vehiculoSelected!.modelo.toString(),
                     style: TextStyle(fontSize: 15)),

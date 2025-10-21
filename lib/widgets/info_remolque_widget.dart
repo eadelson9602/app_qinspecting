@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
@@ -101,17 +102,16 @@ class InfoRemolqueWidget extends StatelessWidget {
             ListTile(
                 dense: true,
                 shape: Border(bottom: BorderSide(color: Colors.green)),
-                title: Text('Marca del remolque',
-                    style: TextStyle(fontSize: 15)),
+                title:
+                    Text('Marca del remolque', style: TextStyle(fontSize: 15)),
                 subtitle: Text(
-                    inspeccionProvider.remolqueSelected!.nombreMarca
-                        .toString(),
+                    inspeccionProvider.remolqueSelected!.nombreMarca.toString(),
                     style: TextStyle(fontSize: 15))),
             ListTile(
                 dense: true,
                 shape: Border(bottom: BorderSide(color: Colors.green)),
-                title: Text('Modelo del remolque',
-                    style: TextStyle(fontSize: 15)),
+                title:
+                    Text('Modelo del remolque', style: TextStyle(fontSize: 15)),
                 subtitle: Text(
                     inspeccionProvider.remolqueSelected!.modelo.toString(),
                     style: TextStyle(fontSize: 15))),
@@ -130,8 +130,7 @@ class InfoRemolqueWidget extends StatelessWidget {
                 title: Text('Número de ejes del remolque',
                     style: TextStyle(fontSize: 15)),
                 subtitle: Text(
-                    inspeccionProvider.remolqueSelected!.numeroEjes
-                        .toString(),
+                    inspeccionProvider.remolqueSelected!.numeroEjes.toString(),
                     style: TextStyle(fontSize: 15)))
           ],
         ),

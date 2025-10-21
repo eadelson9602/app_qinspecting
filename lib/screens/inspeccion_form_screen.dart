@@ -35,8 +35,6 @@ class _InspeccionFormState extends State<InspeccionForm> {
     inspeccionService.resumePreoperacional.base =
         loginService.selectedEmpresa.nombreBase!;
 
-
-
     return Container(
       child: SingleChildScrollView(
         child: Form(

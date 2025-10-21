@@ -35,7 +35,15 @@ class InspeccionVehiculoScreen extends StatelessWidget {
 
           // Si no tiene remolque
           List<dynamic> tempRespuestas = [];
-          inspeccionProvider.itemsInspeccion.forEach((element) => tempRespuestas.add(element.toJson()));
+          inspeccionProvider.itemsInspeccion.forEach((element) {
+            // Asegurar que cada item tenga el parámetro base
+            element.items.forEach((item) {
+              if (item.respuesta != null) {
+                item.base = loginService.selectedEmpresa.nombreBase;
+              }
+            });
+            tempRespuestas.add(element.toJson());
+          });
           inspeccionService.resumePreoperacional.respuestas = tempRespuestas.toString();
           final idEncabezado = await inspeccionProvider.saveInspecicon(inspeccionService.resumePreoperacional);
 

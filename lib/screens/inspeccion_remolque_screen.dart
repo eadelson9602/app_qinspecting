@@ -26,13 +26,23 @@ class InspeccionRemolqueScreen extends StatelessWidget {
         onPressed: () async {
           inspeccionProvider.updateSaving(true);
           List<dynamic> tempRespuestas = [];
-        
-          inspeccionProvider.itemsInspeccionRemolque.forEach((element) { 
+
+          inspeccionProvider.itemsInspeccionRemolque.forEach((element) {
             inspeccionProvider.itemsInspeccion.add(element);
           });
-          inspeccionProvider.itemsInspeccion.forEach((element) => tempRespuestas.add(element.toJson()));
+          
+          inspeccionProvider.itemsInspeccion.forEach((element) {
+            // Asegurar que cada item tenga el parámetro base
+            element.items.forEach((item) {
+              if (item.respuesta != null) {
+                item.base = loginService.selectedEmpresa.nombreBase;
+              }
+            });
+            tempRespuestas.add(element.toJson());
+          });
           inspeccionService.resumePreoperacional.respuestas = tempRespuestas.toString();
-          final idEncabezado = await inspeccionProvider.saveInspecicon(inspeccionService.resumePreoperacional);
+          final idEncabezado = await inspeccionProvider
+              .saveInspecicon(inspeccionService.resumePreoperacional);
 
           List<Future> futureRespuestas = [];
           inspeccionProvider.itemsInspeccion.forEach((categoria) {
@@ -40,7 +50,8 @@ class InspeccionRemolqueScreen extends StatelessWidget {
               if (item.respuesta != null) {
                 item.fkPreoperacional = idEncabezado;
                 item.base = loginService.selectedEmpresa.nombreBase;
-                futureRespuestas.add(inspeccionProvider.saveRespuestaInspeccion(item));
+                futureRespuestas
+                    .add(inspeccionProvider.saveRespuestaInspeccion(item));
               }
             });
           });
@@ -49,11 +60,10 @@ class InspeccionRemolqueScreen extends StatelessWidget {
           uiProvider.selectedMenuOpt = 0;
           // show a notification at top of screen.
           showSimpleNotification(Text('Inspección realizada'),
-            leading: Icon(Icons.check),
-            autoDismiss: true,
-            background: Colors.green,
-            position: NotificationPosition.bottom
-          );
+              leading: Icon(Icons.check),
+              autoDismiss: true,
+              background: Colors.green,
+              position: NotificationPosition.bottom);
 
           Navigator.pushReplacementNamed(context, 'home');
         },
