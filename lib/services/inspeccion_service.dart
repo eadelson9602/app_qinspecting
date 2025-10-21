@@ -669,7 +669,7 @@ class InspeccionService extends ChangeNotifier {
         for (int i = 0; i < respuestas.length; i++) {
           final element = respuestas[i];
           element.fkPreoperacional = resumen.idInspeccion;
-          element.base = selectedEmpresa.nombreBase;
+          // element.base ya está asignado desde las pantallas de inspección
 
           final hasAdjunto =
               element.adjunto != null && element.adjunto!.isNotEmpty;

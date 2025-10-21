@@ -44,8 +44,10 @@ class InspeccionVehiculoScreen extends StatelessWidget {
             });
             tempRespuestas.add(element.toJson());
           });
-          inspeccionService.resumePreoperacional.respuestas = tempRespuestas.toString();
-          final idEncabezado = await inspeccionProvider.saveInspecicon(inspeccionService.resumePreoperacional);
+          inspeccionService.resumePreoperacional.respuestas =
+              tempRespuestas.toString();
+          final idEncabezado = await inspeccionProvider
+              .saveInspecicon(inspeccionService.resumePreoperacional);
 
           List<Future> futureRespuestas = [];
 
@@ -54,7 +56,8 @@ class InspeccionVehiculoScreen extends StatelessWidget {
               if (item.respuesta != null) {
                 item.fkPreoperacional = idEncabezado;
                 item.base = loginService.selectedEmpresa.nombreBase;
-                futureRespuestas.add(inspeccionProvider.saveRespuestaInspeccion(item));
+                futureRespuestas
+                    .add(inspeccionProvider.saveRespuestaInspeccion(item));
               }
             });
           });

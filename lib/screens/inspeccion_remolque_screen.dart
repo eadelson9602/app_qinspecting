@@ -30,7 +30,7 @@ class InspeccionRemolqueScreen extends StatelessWidget {
           inspeccionProvider.itemsInspeccionRemolque.forEach((element) {
             inspeccionProvider.itemsInspeccion.add(element);
           });
-          
+
           inspeccionProvider.itemsInspeccion.forEach((element) {
             // Asegurar que cada item tenga el parámetro base
             element.items.forEach((item) {
@@ -40,7 +40,8 @@ class InspeccionRemolqueScreen extends StatelessWidget {
             });
             tempRespuestas.add(element.toJson());
           });
-          inspeccionService.resumePreoperacional.respuestas = tempRespuestas.toString();
+          inspeccionService.resumePreoperacional.respuestas =
+              tempRespuestas.toString();
           final idEncabezado = await inspeccionProvider
               .saveInspecicon(inspeccionService.resumePreoperacional);
 
