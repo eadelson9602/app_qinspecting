@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 import 'screens/screens.dart';
 import 'utils/error_handler.dart';
@@ -20,12 +21,14 @@ void main() async {
 
   try {
     // Inicializar Firebase
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     print('[Firebase] ✅ Inicializado correctamente');
 
     // Inicializar Crashlytics
     await CrashlyticsService.initialize();
-    
+
     // Configurar manejo de errores de Flutter (Crashlytics ya maneja esto)
     FlutterError.onError = (FlutterErrorDetails details) {
       FlutterError.presentError(details);
@@ -45,7 +48,8 @@ void main() async {
     print('[App] ❌ Error al inicializar servicios: $e');
     // Registrar error en Crashlytics si está disponible
     try {
-      await CrashlyticsService.recordError(e, StackTrace.current, reason: 'Error en inicialización de app');
+      await CrashlyticsService.recordError(e, StackTrace.current,
+          reason: 'Error en inicialización de app');
     } catch (_) {
       // Si Crashlytics no está disponible, continuar sin él
     }

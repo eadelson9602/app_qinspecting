@@ -96,7 +96,7 @@ class CameraService {
       return photo.path;
     } catch (e) {
       print('${logPrefix ?? '[Camera]'} ❌ ERROR capturando foto: $e');
-      
+
       // Registrar error en Crashlytics
       await CrashlyticsService.recordCameraError(
         errorType: 'CAPTURE_ERROR',
@@ -106,7 +106,7 @@ class CameraService {
           'error_type': e.runtimeType.toString(),
         },
       );
-      
+
       _showError(context, 'Error al capturar foto: ${e.toString()}');
       return null;
     }

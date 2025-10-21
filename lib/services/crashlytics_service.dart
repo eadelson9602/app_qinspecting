@@ -66,7 +66,7 @@ class CrashlyticsService {
 
       // Crear un error personalizado
       final customException = Exception('$category: $message');
-      
+
       await _crashlytics.recordError(
         customException,
         stackTrace ?? StackTrace.current,
@@ -74,7 +74,8 @@ class CrashlyticsService {
         fatal: false,
       );
 
-      print('[Crashlytics] Error personalizado registrado: $category - $message');
+      print(
+          '[Crashlytics] Error personalizado registrado: $category - $message');
     } catch (e) {
       print('[Crashlytics] Error al registrar error personalizado: $e');
     }
@@ -88,11 +89,11 @@ class CrashlyticsService {
   }) async {
     try {
       await _crashlytics.setUserIdentifier(userId);
-      
+
       if (email != null) {
         await _crashlytics.setCustomKey('user_email', email);
       }
-      
+
       if (name != null) {
         await _crashlytics.setCustomKey('user_name', name);
       }
@@ -112,15 +113,15 @@ class CrashlyticsService {
   }) async {
     try {
       await _crashlytics.setCustomKey('session_id', sessionId);
-      
+
       if (base != null) {
         await _crashlytics.setCustomKey('base', base);
       }
-      
+
       if (vehiclePlate != null) {
         await _crashlytics.setCustomKey('vehicle_plate', vehiclePlate);
       }
-      
+
       if (inspectionType != null) {
         await _crashlytics.setCustomKey('inspection_type', inspectionType);
       }
@@ -215,7 +216,7 @@ class CrashlyticsService {
       await _crashlytics.setCustomKey('base', '');
       await _crashlytics.setCustomKey('vehicle_plate', '');
       await _crashlytics.setCustomKey('inspection_type', '');
-      
+
       print('[Crashlytics] Claves personalizadas limpiadas');
     } catch (e) {
       print('[Crashlytics] Error al limpiar claves personalizadas: $e');
