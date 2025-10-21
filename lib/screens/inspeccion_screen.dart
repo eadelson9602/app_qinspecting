@@ -8,7 +8,6 @@ class InspeccionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       appBar: CustomAppBar(),
       drawer: CustomDrawer(),

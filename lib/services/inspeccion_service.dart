@@ -509,9 +509,6 @@ class InspeccionService extends ChangeNotifier {
           notifyListeners();
         }
 
-        print('inspeccion.urlFotoKm: ${inspeccion.urlFotoGuia}');
-        print('inspeccion.urlFotoCabezote: ${inspeccion.urlFotoCabezote}');
-        print('inspeccion.urlFotoRemolque: ${inspeccion.urlFotoRemolque}');
         // Se envia la foto de la guia si tiene (basado en existencia de la foto)
         if (inspeccion.urlFotoGuia != null) {
           print('Subiendo foto de la guia: ${inspeccion.urlFotoGuia}');
@@ -611,15 +608,11 @@ class InspeccionService extends ChangeNotifier {
             data: inspeccion.toJson());
         final resumen = Respuesta.fromMap(responseResumen.data);
 
-        print('responseResumen: ${responseResumen.data}');
-
-        // Obtenemos las respuestas desde el JSON almacenado en el objeto inspección
-        // Incluye items que tengan respuesta o adjunto (para no perder fotos)
-
         if (inspeccion.respuestas != null &&
             inspeccion.respuestas!.isNotEmpty) {
           print(
               '🔍 DEBUG: Obteniendo respuestas desde JSON del objeto inspección');
+
           List tempData = jsonDecode(inspeccion.respuestas!) as List;
 
           tempData.forEach((element) {
@@ -627,22 +620,17 @@ class InspeccionService extends ChangeNotifier {
             // Filtramos los items que tienen respuesta
             final tempRespuestas =
                 data.items.where((item) => item.respuesta != null).toList();
+
+            tempRespuestas.forEach((element) {
+              element.fkPreoperacional = resumen.idInspeccion;
+              element.base = selectedEmpresa.nombreBase;
+            });
             // Agregamos todas las respuestas a la lista
             respuestas.addAll(tempRespuestas);
           });
 
           print(
               '🔍 DEBUG: Respuestas obtenidas desde JSON: ${respuestas.length}');
-        } else {
-          print(
-              '⚠️ WARNING: No hay respuestas en el JSON del objeto inspección');
-
-          // Fallback: intentar desde SQLite
-          List<Item> respuestasSQLite =
-              await inspeccionProvider.cargarTodasRespuestas(inspeccion.id!);
-          print(
-              '🔍 DEBUG: Respuestas desde SQLite (fallback): ${respuestasSQLite.length}');
-          respuestas = respuestasSQLite;
         }
 
         // Calcular elementos totales para progreso real (después de cargar respuestas)
@@ -671,27 +659,12 @@ class InspeccionService extends ChangeNotifier {
           totalElements = 1;
         }
 
-        // Subida secuencial con reintentos para mayor estabilidad
+        // Preparar todas las respuestas para envío en lote
         print(
-            '🔍 DEBUG: Iniciando subida secuencial de ${respuestas.length} respuestas');
+            '🔍 DEBUG: Preparando ${respuestas.length} respuestas para envío en lote');
 
-        if (showProgressNotifications) {
-          await NotificationService.showUploadProgressNotification(
-            title: 'Subiendo Inspección',
-            body: 'Procesando respuestas...',
-            progress: currentElement,
-            total: totalElements > 0 ? totalElements : 1,
-          );
-
-          // Sincronizar batchProgress
-          batchProgress = totalElements > 0
-              ? (currentElement / totalElements).clamp(0.0, 1.0)
-              : 0.0;
-          notifyListeners();
-        }
-
-        int exitosos = 0;
-        int fallidos = 0;
+        // Preparar el array de respuestas para el nuevo endpoint
+        List<Map<String, dynamic>> respuestasArray = [];
 
         for (int i = 0; i < respuestas.length; i++) {
           final element = respuestas[i];
@@ -701,99 +674,90 @@ class InspeccionService extends ChangeNotifier {
           final hasAdjunto =
               element.adjunto != null && element.adjunto!.isNotEmpty;
           print(
-              '🔍 DEBUG: Procesando respuesta ${i + 1}/${respuestas.length} - ID: ${element.idItem}, Adjunto: ${hasAdjunto ? "SÍ" : "NO"}');
+              '🔍 DEBUG: Preparando respuesta ${i + 1}/${respuestas.length} - ID: ${element.idItem}, Adjunto: ${hasAdjunto ? "SÍ" : "NO"}');
 
           // Actualizar progreso
           if (showProgressNotifications) {
             currentElement++;
             await NotificationService.showUploadProgressNotification(
               title: 'Subiendo Inspección',
-              body: 'Procesando respuesta ${i + 1}/${respuestas.length}',
+              body: 'Preparando respuesta ${i + 1}/${respuestas.length}',
               progress: currentElement,
               total: totalElements,
             );
 
-            // Sincronizar batchProgress con el progreso de la notificación
             batchProgress = totalElements > 0
                 ? (currentElement / totalElements).clamp(0.0, 1.0)
                 : 0.0;
             notifyListeners();
           }
 
-          _logAppState('PROCESANDO_RESPUESTA_${i + 1}');
+          _logAppState('PREPARANDO_RESPUESTA_${i + 1}');
 
-          bool procesadoExitosamente = false;
-          int intentos = 0;
-          const maxIntentos = 3;
-
-          while (!procesadoExitosamente && intentos < maxIntentos) {
-            intentos++;
-            print(
-                '🔄 DEBUG: Intento $intentos/$maxIntentos para respuesta ${element.idItem}');
-
+          // Subir imagen adjunta si existe
+          if (hasAdjunto) {
+            print('📤 DEBUG: Subiendo imagen adjunta: ${element.adjunto}');
             try {
-              if (hasAdjunto) {
-                print('📤 DEBUG: Subiendo imagen adjunta: ${element.adjunto}');
-                final responseUpload = await uploadImage(
-                    path: element.adjunto!,
-                    company: selectedEmpresa.nombreQi!,
-                    folder: 'inspecciones');
+              final responseUpload = await uploadImage(
+                  path: element.adjunto!,
+                  company: selectedEmpresa.nombreQi!,
+                  folder: 'inspecciones');
 
-                if (responseUpload != null) {
-                  element.adjunto = responseUpload['path'];
-                  print('✅ DEBUG: Imagen subida exitosamente');
-                } else {
-                  print('⚠️ WARNING: Imagen no se subió, enviando sin adjunto');
-                  element.adjunto = null;
-                }
-              }
-
-              print('📤 DEBUG: Enviando respuesta al servidor');
-              print('🔍 DEBUG: Datos a enviar: ${element.toJson()}');
-
-              await dio.post(
-                  '${loginService.baseUrl}/insert_respuestas_preoperacional',
-                  options: loginService.options,
-                  data: element.toJson());
-
-              print(
-                  '✅ DEBUG: Respuesta ${element.idItem} enviada exitosamente');
-              procesadoExitosamente = true;
-              exitosos++;
-            } catch (e) {
-              print(
-                  '❌ ERROR: Error en intento $intentos para respuesta ${element.idItem}: $e');
-
-              if (intentos < maxIntentos) {
-                print('⏳ DEBUG: Esperando antes del siguiente intento...');
-                await Future.delayed(Duration(
-                    seconds:
-                        5 * intentos)); // Backoff más largo para segundo plano
+              if (responseUpload != null) {
+                element.adjunto = responseUpload['path'];
+                print('✅ DEBUG: Imagen subida exitosamente');
               } else {
-                print(
-                    '❌ ERROR: Respuesta ${element.idItem} falló después de $maxIntentos intentos');
-                fallidos++;
+                print('⚠️ WARNING: Imagen no se subió, enviando sin adjunto');
+                element.adjunto = null;
               }
+            } catch (e) {
+              print('❌ ERROR: Error subiendo imagen adjunta: $e');
+              element.adjunto = null; // Continuar sin adjunto
             }
           }
 
-          // Actualizar progreso (solo índices, batchProgress se sincroniza con notificaciones)
-          currentBatchIndex = i + 1;
-          totalBatches = respuestas.length;
-          notifyListeners();
-
-          print(
-              '📊 DEBUG: Progreso: ${(batchProgress * 100).toStringAsFixed(1)}% (${i + 1}/${respuestas.length})');
-
-          // Delay entre respuestas para no sobrecargar el servidor
-          if (i < respuestas.length - 1) {
-            await Future.delayed(
-                Duration(milliseconds: 1000)); // 1 segundo entre respuestas
-          }
+          // Agregar respuesta al array
+          respuestasArray.add(jsonDecode(element.toJson()));
         }
 
+        // Enviar todas las respuestas en una sola petición
         print(
-            '🎉 DEBUG: Subida secuencial completada - Exitosos: $exitosos, Fallidos: $fallidos');
+            '📤 DEBUG: Enviando ${respuestasArray.length} respuestas en lote al servidor');
+
+        if (showProgressNotifications) {
+          await NotificationService.showUploadProgressNotification(
+            title: 'Subiendo Inspección',
+            body: 'Enviando respuestas al servidor...',
+            progress: currentElement,
+            total: totalElements,
+          );
+        }
+
+        print('respuestasArray: ${jsonEncode(respuestasArray)}');
+
+        final responseBatch = await dio.post(
+            '${loginService.baseUrl}/insert_respuestas_preoperacional',
+            options: loginService.options,
+            data: {
+              'respuestas': respuestasArray,
+              'base': selectedEmpresa.nombreBase,
+            });
+
+        print('✅ DEBUG: Respuestas enviadas exitosamente en lote');
+        print('📊 DEBUG: Respuesta del servidor: ${responseBatch.data}');
+
+        // Actualizar progreso final
+        if (showProgressNotifications) {
+          currentElement = totalElements;
+          await NotificationService.showUploadProgressNotification(
+            title: 'Subiendo Inspección',
+            body: 'Respuestas guardadas exitosamente',
+            progress: currentElement,
+            total: totalElements,
+          );
+          batchProgress = 1.0;
+          notifyListeners();
+        }
 
         // Cancelar notificación de progreso al completar
         await NotificationService.cancelProgressNotification();
