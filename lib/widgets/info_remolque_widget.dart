@@ -57,9 +57,10 @@ class InfoRemolqueWidget extends StatelessWidget {
                     context: context,
                     logPrefix: '[pick] remolque',
                   );
-                  
+
                   if (photoPath != null) {
-                    inspeccionService.resumePreoperacional.urlFotoRemolque = photoPath;
+                    inspeccionService.resumePreoperacional.urlFotoRemolque =
+                        photoPath;
                     inspeccionProvider.updateRemolqueImage(photoPath);
                   }
                 },

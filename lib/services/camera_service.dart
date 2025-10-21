@@ -2,10 +2,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:app_qinspecting/services/crashlytics_service.dart';
 
 class CameraService {
   static final ImagePicker _picker = ImagePicker();
-  
+
   /// Captura una foto desde la cámara con manejo robusto de errores
   static Future<String?> capturePhoto({
     required BuildContext context,
@@ -17,6 +18,10 @@ class CameraService {
       if (!cameraStatus.isGranted) {
         final result = await Permission.camera.request();
         if (!result.isGranted) {
+          await CrashlyticsService.recordCameraError(
+            errorType: 'PERMISSION_DENIED',
+            errorMessage: 'Permisos de cámara denegados',
+          );
           _showError(context, 'Permisos de cámara denegados');
           return null;
         }
@@ -28,6 +33,10 @@ class CameraService {
         if (!storageStatus.isGranted) {
           final result = await Permission.storage.request();
           if (!result.isGranted) {
+            await CrashlyticsService.recordCameraError(
+              errorType: 'STORAGE_PERMISSION_DENIED',
+              errorMessage: 'Permisos de almacenamiento denegados',
+            );
             _showError(context, 'Permisos de almacenamiento denegados');
             return null;
           }
@@ -40,7 +49,7 @@ class CameraService {
       final XFile? photo = await _picker.pickImage(
         source: ImageSource.camera,
         imageQuality: 60, // Reducir calidad para evitar problemas de memoria
-        maxWidth: 800,    // Reducir resolución máxima
+        maxWidth: 800, // Reducir resolución máxima
         maxHeight: 800,
         preferredCameraDevice: CameraDevice.rear,
       );
@@ -59,11 +68,14 @@ class CameraService {
 
       // 5. Verificar tamaño del archivo
       final fileSize = await file.length();
-      print('${logPrefix ?? '[Camera]'} Archivo capturado: ${photo.path} (${fileSize} bytes)');
+      print(
+          '${logPrefix ?? '[Camera]'} Archivo capturado: ${photo.path} (${fileSize} bytes)');
 
       // Límite más estricto para evitar problemas de memoria
-      if (fileSize > 5 * 1024 * 1024) { // 5MB máximo
-        _showError(context, 'Error: La imagen es demasiado grande (${(fileSize / 1024 / 1024).toStringAsFixed(1)}MB). Máximo permitido: 5MB');
+      if (fileSize > 5 * 1024 * 1024) {
+        // 5MB máximo
+        _showError(context,
+            'Error: La imagen es demasiado grande (${(fileSize / 1024 / 1024).toStringAsFixed(1)}MB). Máximo permitido: 5MB');
         return null;
       }
 
@@ -82,9 +94,19 @@ class CameraService {
 
       print('${logPrefix ?? '[Camera]'} ✅ Foto capturada exitosamente');
       return photo.path;
-
     } catch (e) {
       print('${logPrefix ?? '[Camera]'} ❌ ERROR capturando foto: $e');
+      
+      // Registrar error en Crashlytics
+      await CrashlyticsService.recordCameraError(
+        errorType: 'CAPTURE_ERROR',
+        errorMessage: 'Error al capturar foto: ${e.toString()}',
+        additionalData: {
+          'log_prefix': logPrefix ?? '[Camera]',
+          'error_type': e.runtimeType.toString(),
+        },
+      );
+      
       _showError(context, 'Error al capturar foto: ${e.toString()}');
       return null;
     }

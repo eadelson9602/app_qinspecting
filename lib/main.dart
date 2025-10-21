@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import 'screens/screens.dart';
 import 'utils/error_handler.dart';
@@ -18,25 +18,38 @@ void main() async {
   // Configurar Flutter para evitar errores del mouse tracker
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Configurar manejo de errores de Flutter
-  FlutterError.onError = (FlutterErrorDetails details) {
-    FlutterError.presentError(details);
-    print('Flutter Error: ${details.exception}');
-  };
+  try {
+    // Inicializar Firebase
+    await Firebase.initializeApp();
+    print('[Firebase] ✅ Inicializado correctamente');
 
-  // Configurar manejo de errores de plataforma
-  // PlatformDispatcher.instance.onError = (error, stack) {
-  //   print('Platform Error: $error');
-  //   return true;
-  // };
+    // Inicializar Crashlytics
+    await CrashlyticsService.initialize();
+    
+    // Configurar manejo de errores de Flutter (Crashlytics ya maneja esto)
+    FlutterError.onError = (FlutterErrorDetails details) {
+      FlutterError.presentError(details);
+      print('Flutter Error: ${details.exception}');
+    };
 
-  // Inicializar servicios de notificaciones y trabajo en segundo plano
-  await NotificationService.initialize();
-  await BackgroundUploadService.initialize();
-  await RealBackgroundUploadService.initialize();
+    // Inicializar servicios de notificaciones y trabajo en segundo plano
+    await NotificationService.initialize();
+    await BackgroundUploadService.initialize();
+    await RealBackgroundUploadService.initialize();
 
-  // Inicializar el manejador de errores
-  ErrorHandler.initialize();
+    // Inicializar el manejador de errores
+    ErrorHandler.initialize();
+
+    print('[App] ✅ Todos los servicios inicializados correctamente');
+  } catch (e) {
+    print('[App] ❌ Error al inicializar servicios: $e');
+    // Registrar error en Crashlytics si está disponible
+    try {
+      await CrashlyticsService.recordError(e, StackTrace.current, reason: 'Error en inicialización de app');
+    } catch (_) {
+      // Si Crashlytics no está disponible, continuar sin él
+    }
+  }
 
   runApp(const AppState());
 }

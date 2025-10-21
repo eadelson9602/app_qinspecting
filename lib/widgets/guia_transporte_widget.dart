@@ -50,9 +50,10 @@ class GuiaTransporteWidget extends StatelessWidget {
                             context: context,
                             logPrefix: '[pick] guía',
                           );
-                          
+
                           if (photoPath != null) {
-                            inspeccionService.resumePreoperacional.urlFotoGuia = photoPath;
+                            inspeccionService.resumePreoperacional.urlFotoGuia =
+                                photoPath;
                             inspeccionProvider.updateImageGuia(photoPath);
                           }
                         },
