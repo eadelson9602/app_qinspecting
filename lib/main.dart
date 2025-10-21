@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 
@@ -16,6 +17,18 @@ import 'services/real_background_upload_service.dart';
 void main() async {
   // Configurar Flutter para evitar errores del mouse tracker
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Configurar manejo de errores de Flutter
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    print('Flutter Error: ${details.exception}');
+  };
+
+  // Configurar manejo de errores de plataforma
+  // PlatformDispatcher.instance.onError = (error, stack) {
+  //   print('Platform Error: $error');
+  //   return true;
+  // };
 
   // Inicializar servicios de notificaciones y trabajo en segundo plano
   await NotificationService.initialize();
