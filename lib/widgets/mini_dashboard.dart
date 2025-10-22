@@ -26,14 +26,27 @@ class _MiniDashboardState extends State<MiniDashboard> {
       final loginService = Provider.of<LoginService>(context, listen: false);
       final dbProvider = Provider.of<DBProvider>(context, listen: false);
 
+      print('🔍 Debug MiniDashboard:');
+      print('  - Usuario ID: ${loginService.userDataLogged.id}');
+      print(
+          '  - Usuario numeroDocumento: ${loginService.userDataLogged.numeroDocumento}');
+      print('  - Empresa base: ${loginService.selectedEmpresa.nombreBase}');
+
       if (loginService.userDataLogged.id != null &&
           loginService.selectedEmpresa.nombreBase != null) {
         final stats = await dbProvider.getDashboardStats(
             loginService.userDataLogged.id.toString(),
             loginService.selectedEmpresa.nombreBase!);
 
+        print('📊 MiniDashboard stats recibidas: $stats');
+
         setState(() {
           _stats = stats;
+          _isLoading = false;
+        });
+      } else {
+        print('⚠️ MiniDashboard: Datos de usuario o empresa nulos');
+        setState(() {
           _isLoading = false;
         });
       }
@@ -98,7 +111,6 @@ class _MiniDashboardState extends State<MiniDashboard> {
                     icon: Icons.pending_actions,
                     color: Color(0xFF9C27B0), // Purple
                     subtitle: 'Por enviar',
-                    changeText: '↑ 2.1%',
                   ),
                 ),
                 SizedBox(width: 12), // Tamaño original restaurado
@@ -109,7 +121,6 @@ class _MiniDashboardState extends State<MiniDashboard> {
                     icon: Icons.today,
                     color: Color(0xFFE91E63), // Pink/Red
                     subtitle: 'Inspecciones',
-                    changeText: '↑ 2.1%',
                   ),
                 ),
               ],
@@ -127,7 +138,6 @@ class _MiniDashboardState extends State<MiniDashboard> {
                     icon: Icons.date_range,
                     color: Color(0xFFFF9800), // Orange
                     subtitle: 'Esta semana',
-                    changeText: '↑ 2.1%',
                   ),
                 ),
                 SizedBox(width: 12), // Tamaño original restaurado
@@ -138,7 +148,6 @@ class _MiniDashboardState extends State<MiniDashboard> {
                     icon: Icons.analytics,
                     color: Color(0xFF2196F3), // Light Blue
                     subtitle: 'Acumulado',
-                    changeText: '↑ 2.1%',
                   ),
                 ),
               ],
@@ -155,7 +164,6 @@ class _MiniDashboardState extends State<MiniDashboard> {
     required IconData icon,
     required Color color,
     required String subtitle,
-    required String changeText,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -179,7 +187,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.all(12), // Reducido para evitar overflow
+        padding: EdgeInsets.all(11), // Reducido para evitar overflow
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -237,30 +245,6 @@ class _MiniDashboardState extends State<MiniDashboard> {
               ),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
-            ),
-            SizedBox(height: 4), // Reemplazar Spacer con SizedBox fijo
-            // Indicador de cambio
-            Row(
-              children: [
-                Icon(
-                  Icons.trending_up,
-                  color: Color(0xFF4CAF50),
-                  size: 12, // Reducido para evitar overflow
-                ),
-                SizedBox(width: 2), // Reducido
-                Expanded(
-                  child: Text(
-                    changeText,
-                    style: TextStyle(
-                      fontSize: 9, // Reducido para evitar overflow
-                      color: Color(0xFF4CAF50),
-                      fontWeight: FontWeight.w500,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
-              ],
             ),
           ],
         ),
