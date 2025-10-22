@@ -35,7 +35,8 @@ class _MiniDashboardState extends State<MiniDashboard> {
       if (loginService.userDataLogged.id != null &&
           loginService.selectedEmpresa.nombreBase != null) {
         final stats = await dbProvider.getDashboardStats(
-            loginService.userDataLogged.id.toString(),
+            loginService.userDataLogged
+                .numeroDocumento!, // Usar numeroDocumento en lugar de id
             loginService.selectedEmpresa.nombreBase!);
 
         print('📊 MiniDashboard stats recibidas: $stats');

@@ -900,16 +900,17 @@ class DBProvider {
       // Intentar con la nueva estructura (con eliminado y enviado)
       try {
         print('  - Intentando con estructura nueva (con eliminado y enviado)');
-        
+
         // Verificar si las columnas existen antes de usarlas
         final hasEliminado = tableInfo.any((col) => col['name'] == 'eliminado');
         final hasEnviado = tableInfo.any((col) => col['name'] == 'enviado');
-        
+
         if (!hasEliminado || !hasEnviado) {
           throw Exception('Columnas eliminado o enviado no existen');
         }
-        
-        print('  - Columnas eliminado y enviado encontradas, usando estructura nueva');
+
+        print(
+            '  - Columnas eliminado y enviado encontradas, usando estructura nueva');
 
         // Transacciones pendientes de envío
         final pendientesResult = await db.rawQuery('''
@@ -961,8 +962,10 @@ class DBProvider {
         print('  - Total (nueva estructura): ${stats['total']}');
       } catch (e) {
         // Si falla, usar la estructura antigua (sin eliminado ni enviado)
-        print('⚠️ Usando estructura antigua de base de datos para dashboard: $e');
-        print('  - En estructura antigua, todas las inspecciones se consideran pendientes');
+        print(
+            '⚠️ Usando estructura antigua de base de datos para dashboard: $e');
+        print(
+            '  - En estructura antigua, todas las inspecciones se consideran pendientes');
 
         // Todas las inspecciones son "pendientes" en la estructura antigua
         final pendientesResult = await db.rawQuery('''

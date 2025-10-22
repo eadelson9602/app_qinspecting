@@ -298,7 +298,7 @@ class PendingInspectionsCard extends StatelessWidget {
       print('  - Empresa base: ${loginService.selectedEmpresa.nombreBase}');
 
       final result = await DBProvider.db.getAllInspections(
-        loginService.userDataLogged.id.toString(),
+        loginService.userDataLogged.numeroDocumento!,
         loginService.selectedEmpresa.nombreBase!,
       );
 
