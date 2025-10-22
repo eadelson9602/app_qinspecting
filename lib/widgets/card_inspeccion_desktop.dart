@@ -111,7 +111,7 @@ class CardInspeccionDesktop extends StatelessWidget {
 
           // Contenido de la tarjeta
           Expanded(
-            child: SingleChildScrollView(
+            child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,35 +122,35 @@ class CardInspeccionDesktop extends StatelessWidget {
                     Icons.description_outlined,
                     const Color(0xFF2196F3), // Dark Blue
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   _buildInfoRow(
                     'Responsable',
                     resumenPreoperacional.creado.toString(),
                     Icons.person_outline,
                     const Color(0xFF1976D2), // Blue
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   _buildInfoRow(
                     'Fecha',
                     resumenPreoperacional.fechaPreoperacional.toString(),
                     Icons.calendar_today_outlined,
                     const Color(0xFF4CAF50), // Green
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   _buildInfoRow(
                     'Hora',
                     resumenPreoperacional.hora.toString(),
                     Icons.access_time_outlined,
                     const Color(0xFFFF9800), // Orange
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   _buildInfoRow(
                     'Tanqueo',
                     resumenPreoperacional.tanqueo.toString(),
                     Icons.local_gas_station_outlined,
                     const Color(0xFF9C27B0), // Purple
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   Row(
                     children: [
                       Expanded(
@@ -172,7 +172,7 @@ class CardInspeccionDesktop extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 12),
                 ],
               ),
             ),
@@ -241,18 +241,18 @@ class CardInspeccionDesktop extends StatelessWidget {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
             color: iconColor,
             shape: BoxShape.circle,
           ),
           child: Icon(
             icon,
-            size: 16,
+            size: 14,
             color: Colors.white,
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 10),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -261,16 +261,16 @@ class CardInspeccionDesktop extends StatelessWidget {
                 label,
                 style: TextStyle(
                   color: Colors.grey.shade600,
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 2),
               Text(
                 value,
                 style: const TextStyle(
                   color: Colors.black87,
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
                 ),
                 maxLines: 1,
