@@ -109,7 +109,7 @@ class MyApp extends StatelessWidget {
         'profile': (_) => const ProfileScreen(),
         'inspeccion': (_) => const InspeccionScreen(),
         'signature': (_) => const SignatureScreen(),
-        'send_pending': (_) => const SendPendingInspectionScree(),
+        'send_pending': (_) => const SendPendingInspectionScreen(),
         'settings': (_) => const SettingScreen(),
         'inspeccion_vehiculo': (_) => const InspeccionVehiculoScreen(),
         'inspeccion_remolque': (_) => const InspeccionRemolqueScreen(),
