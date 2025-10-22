@@ -163,13 +163,15 @@ class _MiniDashboardState extends State<MiniDashboard> {
         borderRadius: BorderRadius.circular(16), // Tamaño original restaurado
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08), // Tamaño original restaurado
+            color: Colors.black
+                .withValues(alpha: 0.08), // Tamaño original restaurado
             blurRadius: 20, // Tamaño original restaurado
             offset: Offset(0, 4), // Tamaño original restaurado
             spreadRadius: 0,
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04), // Tamaño original restaurado
+            color: Colors.black
+                .withValues(alpha: 0.04), // Tamaño original restaurado
             blurRadius: 6, // Tamaño original restaurado
             offset: Offset(0, 2), // Tamaño original restaurado
             spreadRadius: 0,
@@ -190,7 +192,8 @@ class _MiniDashboardState extends State<MiniDashboard> {
                   height: 32, // Tamaño original restaurado
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8), // Tamaño original restaurado
+                    borderRadius:
+                        BorderRadius.circular(8), // Tamaño original restaurado
                   ),
                   child: Icon(
                     icon,

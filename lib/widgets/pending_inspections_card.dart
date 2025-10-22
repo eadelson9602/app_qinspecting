@@ -15,7 +15,7 @@ class PendingInspectionsCard extends StatelessWidget {
 
     return FutureBuilder<List<ResumenPreoperacional>?>(
       future: DBProvider.db.getAllInspections(
-        loginService.userDataLogged.numeroDocumento!,
+        loginService.userDataLogged.id.toString(),
         loginService.selectedEmpresa.nombreBase!,
       ),
       builder: (context, snapshot) {
