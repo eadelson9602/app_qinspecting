@@ -11,9 +11,13 @@ class PendingInspectionsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = theme.primaryColor;
+    final loginService = Provider.of<LoginService>(context, listen: false);
 
     return FutureBuilder<List<ResumenPreoperacional>?>(
-      future: DBProvider.db.getAllInspections(),
+      future: DBProvider.db.getAllInspections(
+        loginService.userDataLogged.numeroDocumento!,
+        loginService.selectedEmpresa.nombreBase!,
+      ),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return _buildLoadingCard(primaryColor);
@@ -224,9 +228,9 @@ class PendingInspectionsCard extends StatelessWidget {
               ),
             ],
           ),
-          
+
           SizedBox(height: 16),
-          
+
           // Información adicional
           if (pendingCount > 0) ...[
             Text(
@@ -238,7 +242,9 @@ class PendingInspectionsCard extends StatelessWidget {
               ),
             ),
             SizedBox(height: 8),
-            ...inspections.take(3).map((inspection) => _buildInspectionItem(inspection)),
+            ...inspections
+                .take(3)
+                .map((inspection) => _buildInspectionItem(inspection)),
             if (pendingCount > 3) ...[
               SizedBox(height: 8),
               Text(
