@@ -94,10 +94,6 @@ class NotificationPermissionDialog extends StatelessWidget {
   }
 
   Future<void> _requestPermissions(BuildContext context) async {
-    // Guardar referencias antes de operaciones asíncronas
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final navigator = Navigator.of(context);
-
     try {
       // Mostrar indicador de carga
       showDialog(
@@ -115,23 +111,32 @@ class NotificationPermissionDialog extends StatelessWidget {
       );
 
       // Solicitar permisos
+      print('🔐 DEBUG: Solicitando permisos de notificación...');
       final granted = await NotificationService.requestPermissions();
+      print('🔐 DEBUG: Resultado de permisos: $granted');
 
       // Cerrar diálogo de carga de forma segura
       if (context.mounted) {
         Navigator.of(context).pop();
+        print('✅ DEBUG: Diálogo de carga cerrado');
       }
 
+      // Pequeña pausa para asegurar que el diálogo se cierre
+      await Future.delayed(Duration(milliseconds: 100));
+
       if (granted) {
+        print('✅ DEBUG: Permisos otorgados, iniciando flujo de éxito');
         // Mostrar confirmación de éxito
-        scaffoldMessenger.showSnackBar(
-          SnackBar(
-            content: Text(
-                '✅ Permisos otorgados. Iniciando subida en segundo plano...'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 3),
-          ),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  '✅ Permisos otorgados. Iniciando subida en segundo plano...'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
 
         // Iniciar proceso de subida automáticamente
         print(
@@ -141,17 +146,19 @@ class NotificationPermissionDialog extends StatelessWidget {
 
         onPermissionGranted();
       } else {
+        print('❌ DEBUG: Permisos denegados, mostrando diálogo de error');
         // Mostrar error y opciones alternativas
         _showPermissionDeniedDialog(context);
       }
     } catch (e) {
+      print('❌ DEBUG: Error en _requestPermissions: $e');
       // Cerrar diálogo de carga si está abierto de forma segura
       if (context.mounted) {
         Navigator.of(context).pop();
       }
 
       if (context.mounted) {
-        scaffoldMessenger.showSnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('❌ Error solicitando permisos: $e'),
             backgroundColor: Colors.red,
