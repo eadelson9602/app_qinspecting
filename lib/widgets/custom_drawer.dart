@@ -39,7 +39,7 @@ class CustomDrawer extends StatelessWidget {
               Container(
                 height: 1,
                 margin:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(1),
@@ -89,6 +89,43 @@ class CustomDrawer extends StatelessWidget {
                       onTap: () =>
                           Navigator.popAndPushNamed(context, 'settings'),
                     ),
+                    _buildMenuItem(
+                      context: context,
+                      icon: Icons.privacy_tip_outlined,
+                      title: 'Política de Privacidad',
+                      onTap: () {
+                        uiProvider.selectedMenuOpt = 0;
+                        Navigator.popAndPushNamed(context, 'home');
+                      },
+                    ),
+                    _buildMenuItem(
+                      context: context,
+                      icon: Icons.description_outlined,
+                      title: 'Términos y Condiciones',
+                      onTap: () =>
+                          Navigator.popAndPushNamed(context, 'profile'),
+                    ),
+                    _buildMenuItem(
+                      context: context,
+                      icon: Icons.contact_mail_outlined,
+                      title: 'Contacto',
+                      onTap: () =>
+                          Navigator.popAndPushNamed(context, 'send_pending'),
+                    ),
+                    _buildMenuItem(
+                      context: context,
+                      icon: Icons.help_outline,
+                      title: 'Ayuda',
+                      onTap: () =>
+                          Navigator.popAndPushNamed(context, 'signature'),
+                    ),
+                    _buildMenuItem(
+                      context: context,
+                      icon: Icons.info_outline,
+                      title: 'Acerca de',
+                      onTap: () =>
+                          Navigator.popAndPushNamed(context, 'settings'),
+                    ),
                   ],
                 ),
               ),
@@ -109,7 +146,7 @@ class CustomDrawer extends StatelessWidget {
     String url = loginService.userDataLogged.urlFoto;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 10),
       child: Column(
         children: [
           // Botón de cerrar drawer
@@ -150,7 +187,7 @@ class CustomDrawer extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 10),
 
           // Avatar del usuario usando el mismo método que el appbar
           Container(
@@ -192,7 +229,7 @@ class CustomDrawer extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
 
           // Nombre del usuario
           Text(

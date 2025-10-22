@@ -72,42 +72,110 @@ class _HomeScreenState extends State<HomeScreen> {
           child: _widgetOptions.elementAt(_selectedIndex),
         )),
         bottomNavigationBar: Container(
+          margin: EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 10,
-                offset: const Offset(0, -2),
+                blurRadius: 20,
+                offset: const Offset(0, 4),
+                spreadRadius: 0,
               ),
             ],
+            border: Border(
+              bottom: BorderSide(
+                color: Color(0xFF4285F4),
+                width: 3,
+              ),
+            ),
           ),
-          child: Row(
-            children: [
-              // Botón del sidebar
-              Expanded(
-                child: Builder(
-                  builder: (context) => InkWell(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Row(
+              children: [
+                // Botón del sidebar
+                Expanded(
+                  child: Builder(
+                    builder: (context) => InkWell(
+                      onTap: () {
+                        _scaffoldKey.currentState?.openDrawer();
+                      },
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.grid_view_rounded,
+                              color: Color(0xFF606060),
+                              size: 28,
+                            ),
+                            SizedBox(height: 6),
+                            Text(
+                              'Menú',
+                              style: TextStyle(
+                                color: Color(0xFF606060),
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Botón Escritorio
+                Expanded(
+                  child: InkWell(
                     onTap: () {
-                      _scaffoldKey.currentState?.openDrawer();
+                      inspeccionProvider.clearData();
+                      _onItemTapped(0);
                     },
+                    borderRadius: BorderRadius.circular(20),
                     child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                      padding: EdgeInsets.symmetric(vertical: 16),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            Icons.menu_rounded,
-                            color: Colors.grey.shade600,
-                            size: 24,
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Icon(
+                                Icons.home_outlined,
+                                color: _selectedIndex == 0
+                                    ? Color(0xFF34A853)
+                                    : Color(0xFF606060),
+                                size: 28,
+                              ),
+                              if (_selectedIndex == 0)
+                                Positioned(
+                                  bottom: -2,
+                                  child: Container(
+                                    width: 6,
+                                    height: 6,
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFF34A853),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
-                          SizedBox(height: 4),
+                          SizedBox(height: 6),
                           Text(
-                            'Menú',
+                            'Escritorio',
                             style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                              color: _selectedIndex == 0
+                                  ? Color(0xFF34A853)
+                                  : Color(0xFF606060),
+                              fontSize: 11,
+                              fontWeight: _selectedIndex == 0
+                                  ? FontWeight.w600
+                                  : FontWeight.w500,
                             ),
                           ),
                         ],
@@ -115,89 +183,49 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-              ),
-              // Botón Escritorio
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    inspeccionProvider.clearData();
-                    _onItemTapped(0);
-                  },
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          _selectedIndex == 0
-                              ? Icons.home
-                              : Icons.home_outlined,
-                          color: _selectedIndex == 0
-                              ? AppTheme.primaryGreen
-                              : Colors.grey.shade600,
-                          size: 24,
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Escritorio',
-                          style: TextStyle(
-                            color: _selectedIndex == 0
-                                ? AppTheme.primaryGreen
-                                : Colors.grey.shade600,
-                            fontSize: 12,
-                            fontWeight: _selectedIndex == 0
-                                ? FontWeight.w600
-                                : FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              // Botón Inspecciones
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    if (loginService.userDataLogged.idFirma == 0) {
-                      Navigator.popAndPushNamed(context, 'signature');
-                    } else {
-                      _onItemTapped(1);
-                    }
-                  },
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          _selectedIndex == 1
-                              ? Icons.app_registration
-                              : Icons.app_registration_outlined,
-                          color: _selectedIndex == 1
-                              ? AppTheme.primaryGreen
-                              : Colors.grey.shade600,
-                          size: 24,
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Inspecciones',
-                          style: TextStyle(
+                // Botón Inspecciones
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      if (loginService.userDataLogged.idFirma == 0) {
+                        Navigator.popAndPushNamed(context, 'signature');
+                      } else {
+                        _onItemTapped(1);
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.checklist_rounded,
                             color: _selectedIndex == 1
-                                ? AppTheme.primaryGreen
-                                : Colors.grey.shade600,
-                            fontSize: 12,
-                            fontWeight: _selectedIndex == 1
-                                ? FontWeight.w600
-                                : FontWeight.w500,
+                                ? Color(0xFF34A853)
+                                : Color(0xFF606060),
+                            size: 28,
                           ),
-                        ),
-                      ],
+                          SizedBox(height: 6),
+                          Text(
+                            'Inspecciones',
+                            style: TextStyle(
+                              color: _selectedIndex == 1
+                                  ? Color(0xFF34A853)
+                                  : Color(0xFF606060),
+                              fontSize: 11,
+                              fontWeight: _selectedIndex == 1
+                                  ? FontWeight.w600
+                                  : FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
