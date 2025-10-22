@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:app_qinspecting/services/services.dart';
 
 class QuickCrashlyticsTest extends StatelessWidget {
