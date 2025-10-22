@@ -55,7 +55,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
 
   Widget _buildLoadingState() {
     return Container(
-      height: 140, // Ajustado para coincidir con el dashboard
+      height: 200, // Tamaño original restaurado
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
         borderRadius: BorderRadius.circular(20),
@@ -84,7 +84,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
 
   Widget _buildDashboardGrid() {
     return Container(
-      height: 140, // Reducido de 160 a 140
+      height: 200, // Tamaño original restaurado
       child: Column(
         children: [
           // Primera fila
@@ -101,7 +101,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
                     changeText: '↑ 2.1%',
                   ),
                 ),
-                SizedBox(width: 4), // Reducido de 6 a 4
+                SizedBox(width: 12), // Tamaño original restaurado
                 Expanded(
                   child: _buildStatCard(
                     title: 'Hoy',
@@ -115,7 +115,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
               ],
             ),
           ),
-          SizedBox(height: 4), // Reducido de 6 a 4
+          SizedBox(height: 12), // Tamaño original restaurado
           // Segunda fila
           Expanded(
             child: Row(
@@ -130,7 +130,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
                     changeText: '↑ 2.1%',
                   ),
                 ),
-                SizedBox(width: 4), // Reducido de 6 a 4
+                SizedBox(width: 12), // Tamaño original restaurado
                 Expanded(
                   child: _buildStatCard(
                     title: 'Total',
@@ -160,44 +160,50 @@ class _MiniDashboardState extends State<MiniDashboard> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8), // Reducido de 10 a 8
+        borderRadius: BorderRadius.circular(16), // Tamaño original restaurado
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05), // Reducido de 0.06 a 0.05
-            blurRadius: 8, // Reducido de 10 a 8
-            offset: Offset(0, 1), // Reducido de 2 a 1
+            color: Colors.black.withValues(alpha: 0.08), // Tamaño original restaurado
+            blurRadius: 20, // Tamaño original restaurado
+            offset: Offset(0, 4), // Tamaño original restaurado
+            spreadRadius: 0,
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04), // Tamaño original restaurado
+            blurRadius: 6, // Tamaño original restaurado
+            offset: Offset(0, 2), // Tamaño original restaurado
             spreadRadius: 0,
           ),
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.all(6), // Reducido de 8 a 6
+        padding: EdgeInsets.all(16), // Tamaño original restaurado
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min, // Optimización para evitar overflow
           children: [
             // Header con icono y título
             Row(
               children: [
                 Container(
-                  width: 20, // Reducido de 24 a 20
-                  height: 20, // Reducido de 24 a 20
+                  width: 32, // Tamaño original restaurado
+                  height: 32, // Tamaño original restaurado
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(4), // Reducido de 5 a 4
+                    borderRadius: BorderRadius.circular(8), // Tamaño original restaurado
                   ),
                   child: Icon(
                     icon,
                     color: color,
-                    size: 12, // Reducido de 14 a 12
+                    size: 18, // Tamaño original restaurado
                   ),
                 ),
-                SizedBox(width: 3), // Reducido de 4 a 3
+                SizedBox(width: 8), // Tamaño original restaurado
                 Expanded(
                   child: Text(
                     title,
                     style: TextStyle(
-                      fontSize: 10, // Reducido de 11 a 10
+                      fontSize: 14, // Tamaño original restaurado
                       fontWeight: FontWeight.w600,
                       color: Color(0xFF333333),
                     ),
@@ -206,43 +212,43 @@ class _MiniDashboardState extends State<MiniDashboard> {
                 ),
               ],
             ),
-            SizedBox(height: 4), // Reducido de 6 a 4
+            SizedBox(height: 12), // Tamaño original restaurado
             // Valor principal
             Text(
               _formatValue(value),
               style: TextStyle(
-                fontSize: 16, // Reducido de 18 a 16
+                fontSize: 24, // Tamaño original restaurado
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF333333),
                 height: 1.0,
               ),
             ),
-            SizedBox(height: 1), // Reducido de 2 a 1
+            SizedBox(height: 4), // Tamaño original restaurado
             // Subtítulo
             Text(
               subtitle,
               style: TextStyle(
-                fontSize: 8, // Reducido de 9 a 8
+                fontSize: 12, // Tamaño original restaurado
                 color: Colors.grey.shade600,
                 fontWeight: FontWeight.w500,
               ),
               overflow: TextOverflow.ellipsis,
             ),
-            SizedBox(height: 1), // Reducido de 2 a 1
+            Spacer(), // Restaurado el Spacer original
             // Indicador de cambio
             Row(
               children: [
                 Icon(
                   Icons.trending_up,
                   color: Color(0xFF4CAF50),
-                  size: 8, // Reducido de 10 a 8
+                  size: 14, // Tamaño original restaurado
                 ),
-                SizedBox(width: 1), // Reducido de 2 a 1
+                SizedBox(width: 4), // Tamaño original restaurado
                 Expanded(
                   child: Text(
                     changeText,
                     style: TextStyle(
-                      fontSize: 7, // Reducido de 8 a 7
+                      fontSize: 11, // Tamaño original restaurado
                       color: Color(0xFF4CAF50),
                       fontWeight: FontWeight.w500,
                     ),
