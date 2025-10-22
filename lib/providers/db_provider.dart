@@ -514,9 +514,24 @@ class DBProvider {
 
   Future<int?> nuevoItem(ItemInspeccion nuevoItem) async {
     final db = await database;
-
-    final res = await db?.insert('ItemsInspeccion', nuevoItem.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace);
+    
+    // Usar INSERT OR REPLACE para evitar conflictos de IDs
+    final res = await db?.rawInsert('''
+      INSERT OR REPLACE INTO ItemsInspeccion 
+      (id, placa, tipoVehiculo, idCategoria, categoria, idItem, item, base)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ''', [
+      nuevoItem.id,
+      nuevoItem.placa,
+      nuevoItem.tipoVehiculo,
+      nuevoItem.idCategoria,
+      nuevoItem.categoria,
+      nuevoItem.idItem,
+      nuevoItem.item,
+      nuevoItem.base
+    ]);
+    
+    print('📝 Item insertado: ID=${nuevoItem.id}, idItem=${nuevoItem.idItem}, placa=${nuevoItem.placa}');
     return res;
   }
 
@@ -539,6 +554,32 @@ class DBProvider {
     return res!.isNotEmpty
         ? res.map((s) => ItemInspeccion.fromMap(s)).toList()
         : [];
+  }
+
+  /// Verifica que los items se guardaron correctamente
+  Future<Map<String, dynamic>> verifyItemsSaved(String base) async {
+    final db = await database;
+    final res = await db?.rawQuery('''
+      SELECT 
+        COUNT(*) as total_items,
+        COUNT(DISTINCT idItem) as unique_idItems,
+        COUNT(DISTINCT placa) as unique_placas,
+        MIN(idItem) as min_idItem,
+        MAX(idItem) as max_idItem
+      FROM ItemsInspeccion 
+      WHERE base = ?
+    ''', [base]);
+
+    final stats = res?.first ?? {};
+    print('📊 Items verificados: $stats');
+    
+    return {
+      'total_items': stats['total_items'] ?? 0,
+      'unique_idItems': stats['unique_idItems'] ?? 0,
+      'unique_placas': stats['unique_placas'] ?? 0,
+      'min_idItem': stats['min_idItem'] ?? 0,
+      'max_idItem': stats['max_idItem'] ?? 0,
+    };
   }
 
   Future<List<ItemsVehiculo>?> getItemsInspectionByPlaca(String placa) async {

@@ -57,7 +57,8 @@ class _SafeCrashlyticsTestState extends State<SafeCrashlyticsTest> {
                 child: ElevatedButton(
                   onPressed: () async {
                     try {
-                      await FirebaseCrashlytics.instance.log('Safe test - ${DateTime.now()}');
+                      await FirebaseCrashlytics.instance
+                          .log('Safe test - ${DateTime.now()}');
                       await FirebaseCrashlytics.instance.recordError(
                         Exception('Safe test error - ${DateTime.now()}'),
                         StackTrace.current,
@@ -76,7 +77,8 @@ class _SafeCrashlyticsTestState extends State<SafeCrashlyticsTest> {
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 4),
                   ),
-                  child: const Text('Safe Test', style: TextStyle(fontSize: 12)),
+                  child:
+                      const Text('Safe Test', style: TextStyle(fontSize: 12)),
                 ),
               ),
               const SizedBox(width: 4),

@@ -430,11 +430,22 @@ class InspeccionService extends ChangeNotifier {
         dbOperationsCiudades.add(DBProvider.db.nuevaCiudad(tempCiudad));
       }
 
-      // Process items
+      // Process items - Limpiar tabla primero para evitar conflictos
+      await DBProvider.db.clearItemsInspeccion();
+      print('✅ Items de inspección limpiados');
+
       for (var item in responses[4].data) {
         final tempItem = ItemInspeccion.fromMap(item);
         dbOperationsItems.add(DBProvider.db.nuevoItem(tempItem));
       }
+
+      print('dbOperationsItems: ${dbOperationsItems.length}');
+      await Future.wait(dbOperationsItems);
+      print('✅items cargados');
+
+      // Verificar que los items se guardaron correctamente
+      final itemsStats = await DBProvider.db.verifyItemsSaved(baseEmpresa);
+      print('📊 Estadísticas de items: $itemsStats');
 
       // Process document types
       for (var item in responses[5].data) {
