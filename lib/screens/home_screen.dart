@@ -130,7 +130,6 @@ class DesktopScreen extends StatelessWidget {
     final loginService = Provider.of<LoginService>(context, listen: false);
     final inspeccionService =
         Provider.of<InspeccionService>(context, listen: false);
-    final sizeScreen = MediaQuery.of(context).size;
 
     return Column(
       children: [
@@ -144,12 +143,12 @@ class DesktopScreen extends StatelessWidget {
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Container(
-                    height: 355,
+                    height: 300,
                     child: Center(child: CircularProgressIndicator()));
               } else if (snapshot.data != false) {
                 if (inspeccionService.listInspections.isEmpty) {
                   return Container(
-                    height: 355,
+                    height: 300,
                     alignment: Alignment.center,
                     child: Text(
                       'No hay inspecciones recientes',
@@ -158,11 +157,11 @@ class DesktopScreen extends StatelessWidget {
                   );
                 }
                 return Container(
-                  height: 600,
+                  height: 300,
                   child: Swiper(
                     layout: SwiperLayout.STACK,
-                    itemHeight: sizeScreen.height * 0.8,
-                    itemWidth: sizeScreen.height * 0.4,
+                    itemHeight: 250, // Altura fija del card
+                    itemWidth: 200,  // Ancho fijo del card
                     itemBuilder: (BuildContext context, int i) {
                       return CardInspeccionDesktop(
                           resumenPreoperacional:

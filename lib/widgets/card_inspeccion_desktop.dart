@@ -12,9 +12,7 @@ class CardInspeccionDesktop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 600,
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      width: 300,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
