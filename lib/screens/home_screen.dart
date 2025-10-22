@@ -83,10 +83,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 offset: const Offset(0, 4),
                 spreadRadius: 0,
               ),
+              BoxShadow(
+                color: Color(0xFF34A853).withValues(alpha: 0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 6),
+                spreadRadius: 0,
+              ),
             ],
             border: Border(
               bottom: BorderSide(
-                color: Color(0xFF4285F4),
+                color: Color(0xFF34A853),
                 width: 3,
               ),
             ),
