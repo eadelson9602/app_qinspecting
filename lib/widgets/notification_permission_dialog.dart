@@ -23,74 +23,261 @@ class NotificationPermissionDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Row(
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final backgroundColor = theme.scaffoldBackgroundColor;
+    
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      elevation: 10,
+      backgroundColor: Colors.transparent,
+      child: Container(
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 20,
+              offset: Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header con gradiente
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    primaryColor,
+                    primaryColor.withOpacity(0.8),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              padding: EdgeInsets.all(24),
+              child: Column(
+                children: [
+                  // Icono animado
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.notifications_active_rounded,
+                      color: Colors.white,
+                      size: 32,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Permisos de Notificación',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Necesarios para el envío en segundo plano',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 14,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+            
+            // Contenido principal
+            Padding(
+              padding: EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Para enviar inspecciones automáticamente necesitamos tu permiso para enviar notificaciones.',
+                    style: TextStyle(
+                      fontSize: 16,
+                      height: 1.5,
+                      color: theme.textTheme.bodyLarge?.color,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  
+                  // Lista de beneficios
+                  Text(
+                    'Esto nos permite:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: theme.textTheme.titleMedium?.color,
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  
+                  _buildBenefitItem(
+                    context,
+                    Icons.cloud_upload_rounded,
+                    'Enviar inspecciones automáticamente',
+                    'Sin intervención manual',
+                  ),
+                  SizedBox(height: 8),
+                  _buildBenefitItem(
+                    context,
+                    Icons.trending_up_rounded,
+                    'Notificar el progreso de subida',
+                    'Seguimiento en tiempo real',
+                  ),
+                  SizedBox(height: 8),
+                  _buildBenefitItem(
+                    context,
+                    Icons.sync_rounded,
+                    'Mantener la app sincronizada',
+                    'Datos siempre actualizados',
+                  ),
+                ],
+              ),
+            ),
+            
+            // Botones de acción
+            Padding(
+              padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        if (context.mounted) {
+                          Navigator.of(context).pop();
+                        }
+                        onPermissionDenied?.call();
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 14),
+                        side: BorderSide(color: primaryColor.withOpacity(0.5)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'Ahora no',
+                        style: TextStyle(
+                          color: primaryColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await _requestPermissions(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 14),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.check_rounded, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'Permitir',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBenefitItem(BuildContext context, IconData icon, String title, String subtitle) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    
+    return Container(
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: primaryColor.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: primaryColor.withOpacity(0.1),
+          width: 1,
+        ),
+      ),
+      child: Row(
         children: [
-          Icon(Icons.notifications_active, color: Colors.blue),
-          SizedBox(width: 10),
-          Text('Permisos de Notificación'),
+          Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: primaryColor.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: primaryColor,
+              size: 20,
+            ),
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: theme.textTheme.bodyLarge?.color,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.textTheme.bodySmall?.color,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Para subir inspecciones en segundo plano necesitamos permisos de notificación.',
-            style: TextStyle(fontSize: 16),
-          ),
-          SizedBox(height: 15),
-          Text(
-            'Esto nos permite:',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8),
-          Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.green, size: 20),
-              SizedBox(width: 8),
-              Expanded(child: Text('Mostrar el progreso de subida')),
-            ],
-          ),
-          SizedBox(height: 4),
-          Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.green, size: 20),
-              SizedBox(width: 8),
-              Expanded(child: Text('Notificar cuando termine la subida')),
-            ],
-          ),
-          SizedBox(height: 4),
-          Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.green, size: 20),
-              SizedBox(width: 8),
-              Expanded(
-                  child: Text('Continuar subiendo aunque salgas de la app')),
-            ],
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-            onPermissionDenied?.call();
-          },
-          child: Text('Cancelar'),
-        ),
-        ElevatedButton(
-          onPressed: () async {
-            Navigator.of(context).pop();
-            await _requestPermissions(context);
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-          ),
-          child: Text('Permitir Notificaciones'),
-        ),
-      ],
     );
   }
 
