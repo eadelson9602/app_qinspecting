@@ -43,9 +43,11 @@ class CameraService {
         }
       }
 
-      print('${logPrefix ?? '[Camera]'} Iniciando captura de foto...');
+      print('${logPrefix ?? '[Camera]'} 🔍 Iniciando captura de foto...');
+      print(
+          '${logPrefix ?? '[Camera]'} 📱 Timestamp: ${DateTime.now().toIso8601String()}');
 
-      // 3. Capturar imagen con configuración optimizada
+      // 1. Verificar permisos de cámara
       final XFile? photo = await _picker.pickImage(
         source: ImageSource.camera,
         imageQuality: 60, // Reducir calidad para evitar problemas de memoria
@@ -55,9 +57,10 @@ class CameraService {
       );
 
       if (photo == null) {
-        print('${logPrefix ?? '[Camera]'} Captura cancelada por el usuario');
+        print('${logPrefix ?? '[Camera]'} ❌ Captura cancelada por el usuario');
         return null;
       }
+      print('${logPrefix ?? '[Camera]'} ✅ Foto capturada: ${photo.path}');
 
       // 4. Validar archivo capturado
       final file = File(photo.path);
