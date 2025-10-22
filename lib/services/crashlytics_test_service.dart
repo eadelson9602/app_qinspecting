@@ -54,8 +54,8 @@ class CrashlyticsTestService {
       );
 
       print('[CrashlyticsTest] ✅ Todos los tests de integración completados');
-      print('[CrashlyticsTest] 📊 Revisa Firebase Console en ~5 minutos para ver los reportes');
-
+      print(
+          '[CrashlyticsTest] 📊 Revisa Firebase Console en ~5 minutos para ver los reportes');
     } catch (e) {
       print('[CrashlyticsTest] ❌ Error durante las pruebas: $e');
     }
@@ -98,7 +98,6 @@ class CrashlyticsTestService {
       }
 
       print('[CrashlyticsTest] ✅ Tests de errores de cámara completados');
-
     } catch (e) {
       print('[CrashlyticsTest] ❌ Error en tests de cámara: $e');
     }

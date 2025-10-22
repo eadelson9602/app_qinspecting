@@ -35,7 +35,8 @@ class CrashlyticsTestWidget extends StatelessWidget {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Tests de integración ejecutados. Revisa Firebase Console.'),
+                            content: Text(
+                                'Tests de integración ejecutados. Revisa Firebase Console.'),
                             backgroundColor: Colors.green,
                           ),
                         );
@@ -52,7 +53,8 @@ class CrashlyticsTestWidget extends StatelessWidget {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Tests de cámara ejecutados. Revisa Firebase Console.'),
+                            content: Text(
+                                'Tests de cámara ejecutados. Revisa Firebase Console.'),
                             backgroundColor: Colors.blue,
                           ),
                         );
