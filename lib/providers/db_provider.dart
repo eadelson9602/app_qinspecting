@@ -876,8 +876,9 @@ class DBProvider {
         SELECT COUNT(*) as count 
         FROM ResumenPreoperacional
       ''');
-      print('  - Total registros en toda la tabla: ${allRecordsTotal.first['count']}');
-      
+      print(
+          '  - Total registros en toda la tabla: ${allRecordsTotal.first['count']}');
+
       // Mostrar algunos registros de ejemplo para debugging
       final sampleRecords = await db.rawQuery('''
         SELECT usuarioPreoperacional, base, fechaPreoperacional, placa
@@ -886,7 +887,8 @@ class DBProvider {
       ''');
       print('  - Registros de ejemplo:');
       for (var record in sampleRecords) {
-        print('    * usuarioPreoperacional: ${record['usuarioPreoperacional']}, base: ${record['base']}, fecha: ${record['fechaPreoperacional']}, placa: ${record['placa']}');
+        print(
+            '    * usuarioPreoperacional: ${record['usuarioPreoperacional']}, base: ${record['base']}, fecha: ${record['fechaPreoperacional']}, placa: ${record['placa']}');
       }
 
       // Verificar estructura de la tabla
@@ -898,6 +900,16 @@ class DBProvider {
       // Intentar con la nueva estructura (con eliminado y enviado)
       try {
         print('  - Intentando con estructura nueva (con eliminado y enviado)');
+        
+        // Verificar si las columnas existen antes de usarlas
+        final hasEliminado = tableInfo.any((col) => col['name'] == 'eliminado');
+        final hasEnviado = tableInfo.any((col) => col['name'] == 'enviado');
+        
+        if (!hasEliminado || !hasEnviado) {
+          throw Exception('Columnas eliminado o enviado no existen');
+        }
+        
+        print('  - Columnas eliminado y enviado encontradas, usando estructura nueva');
 
         // Transacciones pendientes de envío
         final pendientesResult = await db.rawQuery('''
@@ -949,8 +961,8 @@ class DBProvider {
         print('  - Total (nueva estructura): ${stats['total']}');
       } catch (e) {
         // Si falla, usar la estructura antigua (sin eliminado ni enviado)
-        print(
-            '⚠️ Usando estructura antigua de base de datos para dashboard: $e');
+        print('⚠️ Usando estructura antigua de base de datos para dashboard: $e');
+        print('  - En estructura antigua, todas las inspecciones se consideran pendientes');
 
         // Todas las inspecciones son "pendientes" en la estructura antigua
         final pendientesResult = await db.rawQuery('''
