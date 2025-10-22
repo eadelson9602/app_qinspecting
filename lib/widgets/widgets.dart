@@ -1,6 +1,7 @@
 export 'package:app_qinspecting/widgets/auth_background.dart';
 export 'package:app_qinspecting/widgets/board_image.dart';
 export 'package:app_qinspecting/widgets/custom_style_buttom.dart';
+export 'package:app_qinspecting/widgets/custom_style_button.dart';
 export 'package:app_qinspecting/widgets/card_inspeccion_desktop.dart';
 export 'package:app_qinspecting/widgets/custom_app_bar.dart';
 export 'package:app_qinspecting/widgets/custom_drawer.dart';
