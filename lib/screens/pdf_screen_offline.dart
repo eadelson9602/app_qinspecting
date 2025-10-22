@@ -49,7 +49,9 @@ class PdfScreenOffline extends StatelessWidget {
                   )
                 ],
               ),
-              body: Container(
+              body: InteractiveViewer(
+                minScale: 0.5,
+                maxScale: 3.0,
                 child: PdfPreview(
                   build: (format) => data.bytes,
                   canChangePageFormat: false,
@@ -57,13 +59,6 @@ class PdfScreenOffline extends StatelessWidget {
                   canDebug: false,
                   allowSharing: false,
                   allowPrinting: false,
-                  allowZoom: true,
-                  maxScale: 5.0,
-                  minScale: 0.5,
-                  initialPageFormat: PdfPageFormat.a4,
-                  scrollViewDecoration: BoxDecoration(
-                    color: Theme.of(context).scaffoldBackgroundColor,
-                  ),
                 ),
               ),
             );
