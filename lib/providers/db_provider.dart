@@ -49,7 +49,11 @@ class DBProvider {
             idCiudad NUMERIC, 
             ciudad TEXT, 
             respuestas TEXT, 
-            base TEXT
+            base TEXT,
+            enviado INTEGER DEFAULT 0,
+            fechaEnvio TEXT,
+            eliminado INTEGER DEFAULT 0,
+            fechaEliminacion TEXT
           );
         ''');
 
@@ -650,8 +654,14 @@ class DBProvider {
 
   Future<int?> deleteResumenPreoperacional(int idResumen) async {
     final db = await database;
-    final res = await db?.delete('ResumenPreoperacional',
-        where: 'id = ?', whereArgs: [idResumen]);
+    final res = await db?.update(
+        'ResumenPreoperacional',
+        {
+          'eliminado': 1,
+          'fechaEliminacion': DateTime.now().toIso8601String(),
+        },
+        where: 'id = ?',
+        whereArgs: [idResumen]);
     return res;
   }
 
@@ -666,9 +676,9 @@ class DBProvider {
   Future<List<ResumenPreoperacional>?> getAllInspections(
       String idUsuario, String base) async {
     final db = await database;
-    // Usar índice idx_resumen_usuario_base
+    // Usar índice idx_resumen_usuario_base y excluir eliminados
     final res = await db?.query('ResumenPreoperacional',
-        where: 'usuarioPreoperacional = ? AND base = ?',
+        where: 'usuarioPreoperacional = ? AND base = ? AND eliminado = 0',
         whereArgs: [idUsuario, base]);
 
     return res!.isNotEmpty
@@ -823,5 +833,209 @@ class DBProvider {
       }
     });
     print('✅ Inserted ${respuestas.length} responses in batch');
+  }
+
+  // ==================== DASHBOARD FUNCTIONS ====================
+
+  /// Obtiene estadísticas del dashboard para un usuario específico
+  Future<Map<String, int>> getDashboardStats(
+      String idUsuario, String base) async {
+    final db = await database;
+    if (db == null) return {};
+
+    final stats = <String, int>{};
+
+    try {
+      // Transacciones pendientes de envío
+      final pendientesResult = await db.rawQuery('''
+        SELECT COUNT(*) as count 
+        FROM ResumenPreoperacional 
+        WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0 AND enviado = 0
+      ''', [idUsuario, base]);
+      stats['pendientes'] = pendientesResult.first['count'] as int;
+
+      // Transacciones del día
+      final hoy = DateTime.now();
+      final inicioDia =
+          DateTime(hoy.year, hoy.month, hoy.day).toIso8601String();
+      final finDia =
+          DateTime(hoy.year, hoy.month, hoy.day, 23, 59, 59).toIso8601String();
+
+      final diaResult = await db.rawQuery('''
+        SELECT COUNT(*) as count 
+        FROM ResumenPreoperacional 
+        WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0 
+        AND fechaPreoperacional >= ? AND fechaPreoperacional <= ?
+      ''', [idUsuario, base, inicioDia, finDia]);
+      stats['dia'] = diaResult.first['count'] as int;
+
+      // Transacciones de la semana
+      final inicioSemana = hoy.subtract(Duration(days: hoy.weekday - 1));
+      final inicioSemanaStr =
+          DateTime(inicioSemana.year, inicioSemana.month, inicioSemana.day)
+              .toIso8601String();
+
+      final semanaResult = await db.rawQuery('''
+        SELECT COUNT(*) as count 
+        FROM ResumenPreoperacional 
+        WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0 
+        AND fechaPreoperacional >= ?
+      ''', [idUsuario, base, inicioSemanaStr]);
+      stats['semana'] = semanaResult.first['count'] as int;
+
+      // Total de transacciones (no eliminadas)
+      final totalResult = await db.rawQuery('''
+        SELECT COUNT(*) as count 
+        FROM ResumenPreoperacional 
+        WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0
+      ''', [idUsuario, base]);
+      stats['total'] = totalResult.first['count'] as int;
+
+      print('📊 Dashboard stats: $stats');
+      return stats;
+    } catch (e) {
+      print('❌ Error getting dashboard stats: $e');
+      return {};
+    }
+  }
+
+  /// Obtiene las inspecciones pendientes de envío
+  Future<List<ResumenPreoperacional>?> getPendingInspections(
+      String idUsuario, String base) async {
+    final db = await database;
+    final res = await db?.query('ResumenPreoperacional',
+        where:
+            'usuarioPreoperacional = ? AND base = ? AND eliminado = 0 AND enviado = 0',
+        whereArgs: [idUsuario, base],
+        orderBy: 'fechaPreoperacional DESC');
+
+    return res!.isNotEmpty
+        ? res.map((s) => ResumenPreoperacional.fromMap(s)).toList()
+        : [];
+  }
+
+  /// Obtiene las inspecciones del día
+  Future<List<ResumenPreoperacional>?> getTodayInspections(
+      String idUsuario, String base) async {
+    final db = await database;
+    final hoy = DateTime.now();
+    final inicioDia = DateTime(hoy.year, hoy.month, hoy.day).toIso8601String();
+    final finDia =
+        DateTime(hoy.year, hoy.month, hoy.day, 23, 59, 59).toIso8601String();
+
+    final res = await db?.query('ResumenPreoperacional',
+        where:
+            'usuarioPreoperacional = ? AND base = ? AND eliminado = 0 AND fechaPreoperacional >= ? AND fechaPreoperacional <= ?',
+        whereArgs: [idUsuario, base, inicioDia, finDia],
+        orderBy: 'fechaPreoperacional DESC');
+
+    return res!.isNotEmpty
+        ? res.map((s) => ResumenPreoperacional.fromMap(s)).toList()
+        : [];
+  }
+
+  /// Obtiene las inspecciones de la semana
+  Future<List<ResumenPreoperacional>?> getWeekInspections(
+      String idUsuario, String base) async {
+    final db = await database;
+    final hoy = DateTime.now();
+    final inicioSemana = hoy.subtract(Duration(days: hoy.weekday - 1));
+    final inicioSemanaStr =
+        DateTime(inicioSemana.year, inicioSemana.month, inicioSemana.day)
+            .toIso8601String();
+
+    final res = await db?.query('ResumenPreoperacional',
+        where:
+            'usuarioPreoperacional = ? AND base = ? AND eliminado = 0 AND fechaPreoperacional >= ?',
+        whereArgs: [idUsuario, base, inicioSemanaStr],
+        orderBy: 'fechaPreoperacional DESC');
+
+    return res!.isNotEmpty
+        ? res.map((s) => ResumenPreoperacional.fromMap(s)).toList()
+        : [];
+  }
+
+  /// Marca una inspección como enviada
+  Future<int?> markAsSent(int idResumen) async {
+    final db = await database;
+    final res = await db?.update(
+        'ResumenPreoperacional',
+        {
+          'enviado': 1,
+          'fechaEnvio': DateTime.now().toIso8601String(),
+        },
+        where: 'id = ?',
+        whereArgs: [idResumen]);
+    return res;
+  }
+
+  /// Obtiene estadísticas detalladas por período
+  Future<Map<String, dynamic>> getDetailedStats(
+      String idUsuario, String base) async {
+    final db = await database;
+    if (db == null) return {};
+
+    try {
+      final stats = <String, dynamic>{};
+
+      // Estadísticas por estado de envío
+      final estadoResult = await db.rawQuery('''
+        SELECT 
+          enviado,
+          COUNT(*) as count
+        FROM ResumenPreoperacional 
+        WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0
+        GROUP BY enviado
+      ''', [idUsuario, base]);
+
+      stats['enviadas'] = 0;
+      stats['pendientes'] = 0;
+
+      for (final row in estadoResult) {
+        if (row['enviado'] == 1) {
+          stats['enviadas'] = row['count'];
+        } else {
+          stats['pendientes'] = row['count'];
+        }
+      }
+
+      // Estadísticas por día de la semana
+      final diasResult = await db.rawQuery('''
+        SELECT 
+          strftime('%w', fechaPreoperacional) as dia_semana,
+          COUNT(*) as count
+        FROM ResumenPreoperacional 
+        WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0
+        AND fechaPreoperacional >= date('now', '-7 days')
+        GROUP BY dia_semana
+        ORDER BY dia_semana
+      ''', [idUsuario, base]);
+
+      stats['por_dias'] = diasResult
+          .map((row) => {'dia': row['dia_semana'], 'count': row['count']})
+          .toList();
+
+      // Promedio de inspecciones por día
+      final promedioResult = await db.rawQuery('''
+        SELECT 
+          COUNT(*) as total,
+          COUNT(DISTINCT date(fechaPreoperacional)) as dias_distintos
+        FROM ResumenPreoperacional 
+        WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0
+        AND fechaPreoperacional >= date('now', '-30 days')
+      ''', [idUsuario, base]);
+
+      final total = promedioResult.first['total'] as int;
+      final diasDistintos = promedioResult.first['dias_distintos'] as int;
+      stats['promedio_diario'] = diasDistintos > 0
+          ? (total / diasDistintos).toStringAsFixed(1)
+          : '0.0';
+
+      print('📊 Detailed stats: $stats');
+      return stats;
+    } catch (e) {
+      print('❌ Error getting detailed stats: $e');
+      return {};
+    }
   }
 }

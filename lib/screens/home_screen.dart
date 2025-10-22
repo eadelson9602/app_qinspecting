@@ -258,6 +258,9 @@ class DesktopScreen extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(height: 5), // Reducido el espacio inicial
+        // Mini Dashboard con estadísticas
+        MiniDashboard(),
+        SizedBox(height: 16),
         // Card de inspecciones pendientes
         PendingInspectionsCard(),
         SizedBox(height: 16),

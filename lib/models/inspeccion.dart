@@ -21,6 +21,10 @@ class ResumenPreoperacional {
     this.respuestas,
     this.urlFotoRemolque,
     this.urlFotoCabezote,
+    this.enviado,
+    this.fechaEnvio,
+    this.eliminado,
+    this.fechaEliminacion,
   });
 
   int? id;
@@ -42,6 +46,10 @@ class ResumenPreoperacional {
   String? ciudad;
   String? base;
   String? respuestas;
+  int? enviado;
+  String? fechaEnvio;
+  int? eliminado;
+  String? fechaEliminacion;
 
   factory ResumenPreoperacional.fromJson(String str) =>
       ResumenPreoperacional.fromMap(json.decode(str));
@@ -68,7 +76,11 @@ class ResumenPreoperacional {
           idCiudad: json["idCiudad"],
           ciudad: json["ciudad"],
           base: json["base"],
-          respuestas: json["respuestas"]);
+          respuestas: json["respuestas"],
+          enviado: json["enviado"],
+          fechaEnvio: json["fechaEnvio"],
+          eliminado: json["eliminado"],
+          fechaEliminacion: json["fechaEliminacion"]);
 
   Map<String, dynamic> toMap() => {
         "id": id,
@@ -89,7 +101,11 @@ class ResumenPreoperacional {
         "idCiudad": idCiudad,
         "ciudad": ciudad,
         "base": base,
-        "respuestas": respuestas
+        "respuestas": respuestas,
+        "enviado": enviado,
+        "fechaEnvio": fechaEnvio,
+        "eliminado": eliminado,
+        "fechaEliminacion": fechaEliminacion
       };
 }
 

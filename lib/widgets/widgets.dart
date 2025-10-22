@@ -8,6 +8,7 @@ export 'package:app_qinspecting/widgets/info_remolque_widget.dart';
 export 'package:app_qinspecting/widgets/info_vehiculo_widget.dart';
 export 'package:app_qinspecting/widgets/items_inspeccion_remolque.dart';
 export 'package:app_qinspecting/widgets/items_inspeccion_vehiculo.dart';
+export 'package:app_qinspecting/widgets/mini_dashboard.dart';
 export 'package:app_qinspecting/widgets/no_internet.dart';
 export 'package:app_qinspecting/widgets/pending_inspections_card.dart';
 export 'package:app_qinspecting/widgets/terminos_condiciones.dart';
