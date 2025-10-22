@@ -861,23 +861,44 @@ class DBProvider {
       print('🔍 Debug getDashboardStats:');
       print('  - idUsuario: $idUsuario');
       print('  - base: $base');
-      
+
       // Primero verificar si existen registros en la tabla
       final allRecordsResult = await db.rawQuery('''
         SELECT COUNT(*) as count 
         FROM ResumenPreoperacional 
         WHERE usuarioPreoperacional = ? AND base = ?
       ''', [idUsuario, base]);
-      print('  - Total registros encontrados: ${allRecordsResult.first['count']}');
+      print(
+          '  - Total registros encontrados: ${allRecordsResult.first['count']}');
+
+      // Verificar TODOS los registros en la tabla (sin filtros)
+      final allRecordsTotal = await db.rawQuery('''
+        SELECT COUNT(*) as count 
+        FROM ResumenPreoperacional
+      ''');
+      print('  - Total registros en toda la tabla: ${allRecordsTotal.first['count']}');
       
+      // Mostrar algunos registros de ejemplo para debugging
+      final sampleRecords = await db.rawQuery('''
+        SELECT usuarioPreoperacional, base, fechaPreoperacional, placa
+        FROM ResumenPreoperacional 
+        LIMIT 5
+      ''');
+      print('  - Registros de ejemplo:');
+      for (var record in sampleRecords) {
+        print('    * usuarioPreoperacional: ${record['usuarioPreoperacional']}, base: ${record['base']}, fecha: ${record['fechaPreoperacional']}, placa: ${record['placa']}');
+      }
+
       // Verificar estructura de la tabla
-      final tableInfo = await db.rawQuery('PRAGMA table_info(ResumenPreoperacional)');
-      print('  - Columnas de la tabla: ${tableInfo.map((col) => col['name']).toList()}');
-      
+      final tableInfo =
+          await db.rawQuery('PRAGMA table_info(ResumenPreoperacional)');
+      print(
+          '  - Columnas de la tabla: ${tableInfo.map((col) => col['name']).toList()}');
+
       // Intentar con la nueva estructura (con eliminado y enviado)
       try {
         print('  - Intentando con estructura nueva (con eliminado y enviado)');
-        
+
         // Transacciones pendientes de envío
         final pendientesResult = await db.rawQuery('''
           SELECT COUNT(*) as count 
@@ -926,10 +947,10 @@ class DBProvider {
         ''', [idUsuario, base]);
         stats['total'] = totalResult.first['count'] as int;
         print('  - Total (nueva estructura): ${stats['total']}');
-        
       } catch (e) {
         // Si falla, usar la estructura antigua (sin eliminado ni enviado)
-        print('⚠️ Usando estructura antigua de base de datos para dashboard: $e');
+        print(
+            '⚠️ Usando estructura antigua de base de datos para dashboard: $e');
 
         // Todas las inspecciones son "pendientes" en la estructura antigua
         final pendientesResult = await db.rawQuery('''
