@@ -39,7 +39,7 @@ class NotificationPermissionDialog extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 20,
               offset: Offset(0, 10),
             ),
@@ -55,7 +55,7 @@ class NotificationPermissionDialog extends StatelessWidget {
                 gradient: LinearGradient(
                   colors: [
                     primaryColor,
-                    primaryColor.withOpacity(0.8),
+                    primaryColor.withValues(alpha: 0.8),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -72,7 +72,7 @@ class NotificationPermissionDialog extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -95,7 +95,7 @@ class NotificationPermissionDialog extends StatelessWidget {
                   Text(
                     'Necesarios para el envío en segundo plano',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       fontSize: 13,
                     ),
                     textAlign: TextAlign.center,
@@ -104,32 +104,32 @@ class NotificationPermissionDialog extends StatelessWidget {
               ),
             ),
 
-                   // Contenido principal
-                   Padding(
-                     padding: EdgeInsets.all(20),
-                     child: Column(
-                       crossAxisAlignment: CrossAxisAlignment.start,
-                       children: [
-                         Text(
-                           'Para enviar inspecciones automáticamente necesitamos tu permiso para enviar notificaciones.',
-                           style: TextStyle(
-                             fontSize: 15,
-                             height: 1.4,
-                             color: theme.textTheme.bodyLarge?.color,
-                           ),
-                         ),
-                         SizedBox(height: 16),
-                         
-                         // Lista de beneficios
-                         Text(
-                           'Esto nos permite:',
-                           style: TextStyle(
-                             fontWeight: FontWeight.w600,
-                             fontSize: 15,
-                             color: theme.textTheme.titleMedium?.color,
-                           ),
-                         ),
-                         SizedBox(height: 10),
+            // Contenido principal
+            Padding(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Para enviar inspecciones automáticamente necesitamos tu permiso para enviar notificaciones.',
+                    style: TextStyle(
+                      fontSize: 15,
+                      height: 1.4,
+                      color: theme.textTheme.bodyLarge?.color,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+
+                  // Lista de beneficios
+                  Text(
+                    'Esto nos permite:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      color: theme.textTheme.titleMedium?.color,
+                    ),
+                  ),
+                  SizedBox(height: 10),
 
                   _buildBenefitItem(
                     context,
@@ -137,27 +137,27 @@ class NotificationPermissionDialog extends StatelessWidget {
                     'Enviar inspecciones automáticamente',
                     'Sin intervención manual',
                   ),
-                         SizedBox(height: 6),
-                         _buildBenefitItem(
-                           context,
-                           Icons.trending_up_rounded,
-                           'Notificar el progreso de subida',
-                           'Seguimiento en tiempo real',
-                         ),
-                         SizedBox(height: 6),
-                         _buildBenefitItem(
-                           context,
-                           Icons.sync_rounded,
-                           'Mantener la app sincronizada',
-                           'Datos siempre actualizados',
-                         ),
+                  SizedBox(height: 6),
+                  _buildBenefitItem(
+                    context,
+                    Icons.trending_up_rounded,
+                    'Notificar el progreso de subida',
+                    'Seguimiento en tiempo real',
+                  ),
+                  SizedBox(height: 6),
+                  _buildBenefitItem(
+                    context,
+                    Icons.sync_rounded,
+                    'Mantener la app sincronizada',
+                    'Datos siempre actualizados',
+                  ),
                 ],
               ),
             ),
 
-                   // Botones de acción
-                   Padding(
-                     padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
+            // Botones de acción
+            Padding(
+              padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
               child: Row(
                 children: [
                   Expanded(
@@ -168,13 +168,14 @@ class NotificationPermissionDialog extends StatelessWidget {
                         }
                         onPermissionDenied?.call();
                       },
-                       style: OutlinedButton.styleFrom(
-                         padding: EdgeInsets.symmetric(vertical: 12),
-                         side: BorderSide(color: primaryColor.withOpacity(0.5)),
-                         shape: RoundedRectangleBorder(
-                           borderRadius: BorderRadius.circular(12),
-                         ),
-                       ),
+                      style: OutlinedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        side: BorderSide(
+                            color: primaryColor.withValues(alpha: 0.5)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
                       child: Text(
                         'Ahora no',
                         style: TextStyle(
@@ -191,27 +192,27 @@ class NotificationPermissionDialog extends StatelessWidget {
                       onPressed: () async {
                         await _requestPermissions(context);
                       },
-                         style: ElevatedButton.styleFrom(
-                           backgroundColor: primaryColor,
-                           foregroundColor: Colors.white,
-                           padding: EdgeInsets.symmetric(vertical: 12),
-                           elevation: 0,
-                           shape: RoundedRectangleBorder(
-                             borderRadius: BorderRadius.circular(12),
-                           ),
-                         ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.check_rounded, size: 20),
                           SizedBox(width: 8),
-                           Text(
-                             'Permitir',
-                             style: TextStyle(
-                               fontWeight: FontWeight.w600,
-                               fontSize: 15,
-                             ),
-                           ),
+                          Text(
+                            'Permitir',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -233,10 +234,10 @@ class NotificationPermissionDialog extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: primaryColor.withOpacity(0.05),
+        color: primaryColor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: primaryColor.withOpacity(0.1),
+          color: primaryColor.withValues(alpha: 0.1),
           width: 1,
         ),
       ),
@@ -245,7 +246,7 @@ class NotificationPermissionDialog extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.1),
+              color: primaryColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
