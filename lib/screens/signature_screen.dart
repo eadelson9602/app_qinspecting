@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
-import 'package:app_qinspecting/ui/app_theme.dart';
 
 class SignatureScreen extends StatelessWidget {
   const SignatureScreen({Key? key}) : super(key: key);
@@ -132,19 +131,6 @@ class MyStatelessWidget extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Scaffold.of(context).openDrawer();
-        },
-        backgroundColor: AppTheme.primaryGreen,
-        foregroundColor: Colors.white,
-        elevation: 2, // Reducida la sombra
-        child: const Icon(
-          Icons.menu_rounded,
-          size: 24, // Icono más pequeño
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(

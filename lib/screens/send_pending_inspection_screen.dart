@@ -62,19 +62,6 @@ class SendPendingInspectionScreen extends StatelessWidget {
               ),
             ],
           )),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Scaffold.of(context).openDrawer();
-        },
-        backgroundColor: AppTheme.primaryGreen,
-        foregroundColor: Colors.white,
-        elevation: 2, // Reducida la sombra
-        child: const Icon(
-          Icons.menu_rounded,
-          size: 24, // Icono más pequeño
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
       // floatingActionButton: FloatingActionButton(
       //   mini: true,
       //   onPressed: inspeccionService.isSaving
