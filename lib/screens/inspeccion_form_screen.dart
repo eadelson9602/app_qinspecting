@@ -43,7 +43,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
           child: Column(
             children: [
               // Widget de prueba de Crashlytics (temporal para debugging)
-              const QuickCrashlyticsTest(),
+              const SafeCrashlyticsTest(),
               const SizedBox(
                 height: 16,
               ),

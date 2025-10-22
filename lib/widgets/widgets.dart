@@ -15,3 +15,4 @@ export 'package:app_qinspecting/widgets/text_button_personalized.dart';
 export 'package:app_qinspecting/widgets/crashlytics_test_widget.dart';
 export 'package:app_qinspecting/widgets/simple_crashlytics_test.dart';
 export 'package:app_qinspecting/widgets/quick_crashlytics_test.dart';
+export 'package:app_qinspecting/widgets/safe_crashlytics_test.dart';

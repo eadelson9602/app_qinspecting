@@ -115,23 +115,35 @@ class CameraService {
     }
   }
 
-  /// Muestra un mensaje de error al usuario
+  /// Muestra un mensaje de error al usuario de forma segura
   static void _showError(BuildContext context, String message) {
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 4),
-          action: SnackBarAction(
-            label: 'Cerrar',
-            textColor: Colors.white,
-            onPressed: () {
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            },
+    try {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+            action: SnackBarAction(
+              label: 'Cerrar',
+              textColor: Colors.white,
+              onPressed: () {
+                try {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  }
+                } catch (e) {
+                  print('[Camera] Error hiding SnackBar: $e');
+                }
+              },
+            ),
           ),
-        ),
-      );
+        );
+      }
+    } catch (e) {
+      print('[Camera] Error showing SnackBar: $e');
+      // Fallback: solo mostrar en logs
+      print('[Camera] ERROR: $message');
     }
   }
 
