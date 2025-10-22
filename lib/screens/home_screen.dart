@@ -261,9 +261,6 @@ class DesktopScreen extends StatelessWidget {
         // Mini Dashboard con estadísticas
         MiniDashboard(),
         SizedBox(height: 16),
-        // Card de inspecciones pendientes
-        PendingInspectionsCard(),
-        SizedBox(height: 16),
         FutureBuilder(
             future: inspeccionService
                 .getLatesInspections(loginService.selectedEmpresa),

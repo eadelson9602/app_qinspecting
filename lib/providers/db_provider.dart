@@ -676,14 +676,26 @@ class DBProvider {
   Future<List<ResumenPreoperacional>?> getAllInspections(
       String idUsuario, String base) async {
     final db = await database;
-    // Usar índice idx_resumen_usuario_base y excluir eliminados
-    final res = await db?.query('ResumenPreoperacional',
-        where: 'usuarioPreoperacional = ? AND base = ? AND eliminado = 0',
-        whereArgs: [idUsuario, base]);
+    try {
+      // Intentar con la nueva estructura (con eliminado)
+      final res = await db?.query('ResumenPreoperacional',
+          where: 'usuarioPreoperacional = ? AND base = ? AND eliminado = 0',
+          whereArgs: [idUsuario, base]);
 
-    return res!.isNotEmpty
-        ? res.map((s) => ResumenPreoperacional.fromMap(s)).toList()
-        : [];
+      return res!.isNotEmpty
+          ? res.map((s) => ResumenPreoperacional.fromMap(s)).toList()
+          : [];
+    } catch (e) {
+      // Si falla, usar la estructura antigua (sin eliminado)
+      print('⚠️ Usando estructura antigua de base de datos (sin eliminado)');
+      final res = await db?.query('ResumenPreoperacional',
+          where: 'usuarioPreoperacional = ? AND base = ?',
+          whereArgs: [idUsuario, base]);
+
+      return res!.isNotEmpty
+          ? res.map((s) => ResumenPreoperacional.fromMap(s)).toList()
+          : [];
+    }
   }
 
   Future<List<Item>?> getAllRespuestasByIdResumen(int fkPreoperacional) async {
@@ -846,50 +858,101 @@ class DBProvider {
     final stats = <String, int>{};
 
     try {
-      // Transacciones pendientes de envío
-      final pendientesResult = await db.rawQuery('''
-        SELECT COUNT(*) as count 
-        FROM ResumenPreoperacional 
-        WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0 AND enviado = 0
-      ''', [idUsuario, base]);
-      stats['pendientes'] = pendientesResult.first['count'] as int;
+      // Intentar con la nueva estructura (con eliminado y enviado)
+      try {
+        // Transacciones pendientes de envío
+        final pendientesResult = await db.rawQuery('''
+          SELECT COUNT(*) as count 
+          FROM ResumenPreoperacional 
+          WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0 AND enviado = 0
+        ''', [idUsuario, base]);
+        stats['pendientes'] = pendientesResult.first['count'] as int;
 
-      // Transacciones del día
-      final hoy = DateTime.now();
-      final inicioDia =
-          DateTime(hoy.year, hoy.month, hoy.day).toIso8601String();
-      final finDia =
-          DateTime(hoy.year, hoy.month, hoy.day, 23, 59, 59).toIso8601String();
+        // Transacciones del día
+        final hoy = DateTime.now();
+        final inicioDia =
+            DateTime(hoy.year, hoy.month, hoy.day).toIso8601String();
+        final finDia = DateTime(hoy.year, hoy.month, hoy.day, 23, 59, 59)
+            .toIso8601String();
 
-      final diaResult = await db.rawQuery('''
-        SELECT COUNT(*) as count 
-        FROM ResumenPreoperacional 
-        WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0 
-        AND fechaPreoperacional >= ? AND fechaPreoperacional <= ?
-      ''', [idUsuario, base, inicioDia, finDia]);
-      stats['dia'] = diaResult.first['count'] as int;
+        final diaResult = await db.rawQuery('''
+          SELECT COUNT(*) as count 
+          FROM ResumenPreoperacional 
+          WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0 
+          AND fechaPreoperacional >= ? AND fechaPreoperacional <= ?
+        ''', [idUsuario, base, inicioDia, finDia]);
+        stats['dia'] = diaResult.first['count'] as int;
 
-      // Transacciones de la semana
-      final inicioSemana = hoy.subtract(Duration(days: hoy.weekday - 1));
-      final inicioSemanaStr =
-          DateTime(inicioSemana.year, inicioSemana.month, inicioSemana.day)
-              .toIso8601String();
+        // Transacciones de la semana
+        final inicioSemana = hoy.subtract(Duration(days: hoy.weekday - 1));
+        final inicioSemanaStr =
+            DateTime(inicioSemana.year, inicioSemana.month, inicioSemana.day)
+                .toIso8601String();
 
-      final semanaResult = await db.rawQuery('''
-        SELECT COUNT(*) as count 
-        FROM ResumenPreoperacional 
-        WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0 
-        AND fechaPreoperacional >= ?
-      ''', [idUsuario, base, inicioSemanaStr]);
-      stats['semana'] = semanaResult.first['count'] as int;
+        final semanaResult = await db.rawQuery('''
+          SELECT COUNT(*) as count 
+          FROM ResumenPreoperacional 
+          WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0 
+          AND fechaPreoperacional >= ?
+        ''', [idUsuario, base, inicioSemanaStr]);
+        stats['semana'] = semanaResult.first['count'] as int;
 
-      // Total de transacciones (no eliminadas)
-      final totalResult = await db.rawQuery('''
-        SELECT COUNT(*) as count 
-        FROM ResumenPreoperacional 
-        WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0
-      ''', [idUsuario, base]);
-      stats['total'] = totalResult.first['count'] as int;
+        // Total de transacciones (no eliminadas)
+        final totalResult = await db.rawQuery('''
+          SELECT COUNT(*) as count 
+          FROM ResumenPreoperacional 
+          WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0
+        ''', [idUsuario, base]);
+        stats['total'] = totalResult.first['count'] as int;
+      } catch (e) {
+        // Si falla, usar la estructura antigua (sin eliminado ni enviado)
+        print('⚠️ Usando estructura antigua de base de datos para dashboard');
+
+        // Todas las inspecciones son "pendientes" en la estructura antigua
+        final pendientesResult = await db.rawQuery('''
+          SELECT COUNT(*) as count 
+          FROM ResumenPreoperacional 
+          WHERE usuarioPreoperacional = ? AND base = ?
+        ''', [idUsuario, base]);
+        stats['pendientes'] = pendientesResult.first['count'] as int;
+
+        // Transacciones del día
+        final hoy = DateTime.now();
+        final inicioDia =
+            DateTime(hoy.year, hoy.month, hoy.day).toIso8601String();
+        final finDia = DateTime(hoy.year, hoy.month, hoy.day, 23, 59, 59)
+            .toIso8601String();
+
+        final diaResult = await db.rawQuery('''
+          SELECT COUNT(*) as count 
+          FROM ResumenPreoperacional 
+          WHERE usuarioPreoperacional = ? AND base = ? 
+          AND fechaPreoperacional >= ? AND fechaPreoperacional <= ?
+        ''', [idUsuario, base, inicioDia, finDia]);
+        stats['dia'] = diaResult.first['count'] as int;
+
+        // Transacciones de la semana
+        final inicioSemana = hoy.subtract(Duration(days: hoy.weekday - 1));
+        final inicioSemanaStr =
+            DateTime(inicioSemana.year, inicioSemana.month, inicioSemana.day)
+                .toIso8601String();
+
+        final semanaResult = await db.rawQuery('''
+          SELECT COUNT(*) as count 
+          FROM ResumenPreoperacional 
+          WHERE usuarioPreoperacional = ? AND base = ? 
+          AND fechaPreoperacional >= ?
+        ''', [idUsuario, base, inicioSemanaStr]);
+        stats['semana'] = semanaResult.first['count'] as int;
+
+        // Total de transacciones
+        final totalResult = await db.rawQuery('''
+          SELECT COUNT(*) as count 
+          FROM ResumenPreoperacional 
+          WHERE usuarioPreoperacional = ? AND base = ?
+        ''', [idUsuario, base]);
+        stats['total'] = totalResult.first['count'] as int;
+      }
 
       print('📊 Dashboard stats: $stats');
       return stats;

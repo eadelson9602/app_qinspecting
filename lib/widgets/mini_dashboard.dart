@@ -179,83 +179,85 @@ class _MiniDashboardState extends State<MiniDashboard> {
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.all(16), // Tamaño original restaurado
+        padding: EdgeInsets.all(12), // Reducido para evitar overflow
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min, // Optimización para evitar overflow
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Header con icono y título
             Row(
               children: [
                 Container(
-                  width: 32, // Tamaño original restaurado
-                  height: 32, // Tamaño original restaurado
+                  width: 28, // Reducido para evitar overflow
+                  height: 28, // Reducido para evitar overflow
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.1),
-                    borderRadius:
-                        BorderRadius.circular(8), // Tamaño original restaurado
+                    borderRadius: BorderRadius.circular(6), // Reducido
                   ),
                   child: Icon(
                     icon,
                     color: color,
-                    size: 18, // Tamaño original restaurado
+                    size: 16, // Reducido para evitar overflow
                   ),
                 ),
-                SizedBox(width: 8), // Tamaño original restaurado
+                SizedBox(width: 6), // Reducido
                 Expanded(
                   child: Text(
                     title,
                     style: TextStyle(
-                      fontSize: 14, // Tamaño original restaurado
+                      fontSize: 12, // Reducido para evitar overflow
                       fontWeight: FontWeight.w600,
                       color: Color(0xFF333333),
                     ),
                     overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 12), // Tamaño original restaurado
+            SizedBox(height: 8), // Reducido
             // Valor principal
             Text(
               _formatValue(value),
               style: TextStyle(
-                fontSize: 24, // Tamaño original restaurado
+                fontSize: 20, // Reducido para evitar overflow
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF333333),
                 height: 1.0,
               ),
             ),
-            SizedBox(height: 4), // Tamaño original restaurado
+            SizedBox(height: 2), // Reducido
             // Subtítulo
             Text(
               subtitle,
               style: TextStyle(
-                fontSize: 12, // Tamaño original restaurado
+                fontSize: 10, // Reducido para evitar overflow
                 color: Colors.grey.shade600,
                 fontWeight: FontWeight.w500,
               ),
               overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
-            Spacer(), // Restaurado el Spacer original
+            SizedBox(height: 4), // Reemplazar Spacer con SizedBox fijo
             // Indicador de cambio
             Row(
               children: [
                 Icon(
                   Icons.trending_up,
                   color: Color(0xFF4CAF50),
-                  size: 14, // Tamaño original restaurado
+                  size: 12, // Reducido para evitar overflow
                 ),
-                SizedBox(width: 4), // Tamaño original restaurado
+                SizedBox(width: 2), // Reducido
                 Expanded(
                   child: Text(
                     changeText,
                     style: TextStyle(
-                      fontSize: 11, // Tamaño original restaurado
+                      fontSize: 9, // Reducido para evitar overflow
                       color: Color(0xFF4CAF50),
                       fontWeight: FontWeight.w500,
                     ),
                     overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                 ),
               ],
