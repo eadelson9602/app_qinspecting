@@ -2,6 +2,7 @@
 // Replace these values with your actual Firebase project configuration
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
@@ -27,11 +28,11 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'YOUR_ANDROID_API_KEY',
-    appId: 'YOUR_ANDROID_APP_ID',
-    messagingSenderId: 'YOUR_SENDER_ID',
+    apiKey: 'AIzaSyBbtOKgmtWCpTj7rEkoKlzuqKYcPb97l3A',
+    appId: '1:501102619445:android:bdea53f446dc42ac0c7a7c',
+    messagingSenderId: '501102619445',
     projectId: 'qinspecting-f9826',
-    storageBucket: 'qinspecting-f9826.appspot.com',
+    storageBucket: 'qinspecting-f9826.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
