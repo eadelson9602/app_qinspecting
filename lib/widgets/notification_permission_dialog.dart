@@ -117,8 +117,10 @@ class NotificationPermissionDialog extends StatelessWidget {
       // Solicitar permisos
       final granted = await NotificationService.requestPermissions();
 
-      // Cerrar diálogo de carga
-      navigator.pop();
+      // Cerrar diálogo de carga de forma segura
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
 
       if (granted) {
         // Mostrar confirmación de éxito
@@ -143,15 +145,19 @@ class NotificationPermissionDialog extends StatelessWidget {
         _showPermissionDeniedDialog(context);
       }
     } catch (e) {
-      // Cerrar diálogo de carga si está abierto
-      navigator.pop();
+      // Cerrar diálogo de carga si está abierto de forma segura
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
 
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          content: Text('❌ Error solicitando permisos: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (context.mounted) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text('❌ Error solicitando permisos: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
       onPermissionDenied?.call();
     }
   }
@@ -179,32 +185,38 @@ class NotificationPermissionDialog extends StatelessWidget {
 
       if (result['ok']) {
         // Verificar que el contexto sigue siendo válido antes de mostrar SnackBar
-        scaffoldMessenger.showSnackBar(
-          SnackBar(
-            content: Text(
-                'Subida iniciada en segundo plano. Puedes salir de la app.'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 5),
-          ),
-        );
+        if (context.mounted) {
+          scaffoldMessenger.showSnackBar(
+            SnackBar(
+              content: Text(
+                  'Subida iniciada en segundo plano. Puedes salir de la app.'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 5),
+            ),
+          );
+        }
         print('✅ DEBUG: SnackBar de éxito mostrado');
       } else {
-        scaffoldMessenger.showSnackBar(
-          SnackBar(
-            content: Text('Error: ${result['message']}'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        if (context.mounted) {
+          scaffoldMessenger.showSnackBar(
+            SnackBar(
+              content: Text('Error: ${result['message']}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
         inspeccionService.updateSaving(false);
         print('❌ DEBUG: Error en subida: ${result['message']}');
       }
     } catch (e) {
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          content: Text('Error inesperado: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (context.mounted) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text('Error inesperado: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
       inspeccionService.updateSaving(false);
       print('❌ ERROR: Error inesperado en _startBackgroundUpload: $e');
     }

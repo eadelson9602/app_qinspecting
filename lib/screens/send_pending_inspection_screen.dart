@@ -138,20 +138,26 @@ class _ContentCardInspectionPendingState
           context: context,
           builder: (dialogContext) => NotificationPermissionDialog(
             onPermissionGranted: () {
-              Navigator.of(dialogContext).pop();
+              if (dialogContext.mounted) {
+                Navigator.of(dialogContext).pop();
+              }
               // Intentar nuevamente después de otorgar permisos
               _startBackgroundUploadDirectly(
                   context, inspeccion, indexSelected);
             },
             onPermissionDenied: () {
-              Navigator.of(dialogContext).pop();
-              scaffoldMessenger.showSnackBar(
-                SnackBar(
-                  content: Text(
-                      'Se requieren permisos de notificación para el envío en segundo plano'),
-                  backgroundColor: Colors.orange,
-                ),
-              );
+              if (dialogContext.mounted) {
+                Navigator.of(dialogContext).pop();
+              }
+              if (context.mounted) {
+                scaffoldMessenger.showSnackBar(
+                  SnackBar(
+                    content: Text(
+                        'Se requieren permisos de notificación para el envío en segundo plano'),
+                    backgroundColor: Colors.orange,
+                  ),
+                );
+              }
             },
             inspeccion: inspeccion,
             empresa: loginService.selectedEmpresa,

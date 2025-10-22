@@ -514,7 +514,7 @@ class DBProvider {
 
   Future<int?> nuevoItem(ItemInspeccion nuevoItem) async {
     final db = await database;
-    
+
     // Usar INSERT OR REPLACE para evitar conflictos de IDs
     final res = await db?.rawInsert('''
       INSERT OR REPLACE INTO ItemsInspeccion 
@@ -530,8 +530,9 @@ class DBProvider {
       nuevoItem.item,
       nuevoItem.base
     ]);
-    
-    print('📝 Item insertado: ID=${nuevoItem.id}, idItem=${nuevoItem.idItem}, placa=${nuevoItem.placa}');
+
+    print(
+        '📝 Item insertado: ID=${nuevoItem.id}, idItem=${nuevoItem.idItem}, placa=${nuevoItem.placa}');
     return res;
   }
 
@@ -572,7 +573,7 @@ class DBProvider {
 
     final stats = res?.first ?? {};
     print('📊 Items verificados: $stats');
-    
+
     return {
       'total_items': stats['total_items'] ?? 0,
       'unique_idItems': stats['unique_idItems'] ?? 0,

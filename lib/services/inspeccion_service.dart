@@ -444,7 +444,7 @@ class InspeccionService extends ChangeNotifier {
       print('✅items cargados');
 
       // Verificar que los items se guardaron correctamente
-      final itemsStats = await DBProvider.db.verifyItemsSaved(baseEmpresa);
+      final itemsStats = await DBProvider.db.verifyItemsSaved(baseEmpresa!);
       print('📊 Estadísticas de items: $itemsStats');
 
       // Process document types
