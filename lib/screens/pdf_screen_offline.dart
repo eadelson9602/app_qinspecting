@@ -49,17 +49,19 @@ class PdfScreenOffline extends StatelessWidget {
                   )
                 ],
               ),
-              body: PdfPreview(
-                build: (format) => data.bytes,
-                canChangePageFormat: false,
-                canChangeOrientation: false,
-                canDebug: false,
-                allowSharing: false,
-                allowPrinting: false,
-                allowZoom: true,
-                maxScale: 3.0,
+              body: InteractiveViewer(
                 minScale: 0.5,
-                initialPageFormat: PdfPageFormat.a4,
+                maxScale: 3.0,
+                child: PdfPreview(
+                  build: (format) => data.bytes,
+                  canChangePageFormat: false,
+                  canChangeOrientation: false,
+                  canDebug: false,
+                  allowSharing: false,
+                  allowPrinting: false,
+                  allowZoom: false, // Deshabilitamos el zoom nativo
+                  initialPageFormat: PdfPageFormat.a4,
+                ),
               ),
             );
           }
