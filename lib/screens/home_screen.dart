@@ -169,9 +169,10 @@ class DesktopScreen extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(
-          height: 10,
-        ),
+        SizedBox(height: 10),
+        // Card de inspecciones pendientes
+        PendingInspectionsCard(),
+        SizedBox(height: 16),
         FutureBuilder(
             future: inspeccionService
                 .getLatesInspections(loginService.selectedEmpresa),
