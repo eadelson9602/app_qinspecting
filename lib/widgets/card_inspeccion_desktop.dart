@@ -12,7 +12,7 @@ class CardInspeccionDesktop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 500,
+      height: 600,
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       width: 300,
       decoration: BoxDecoration(
@@ -111,7 +111,7 @@ class CardInspeccionDesktop extends StatelessWidget {
 
           // Contenido de la tarjeta
           Expanded(
-            child: Padding(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
