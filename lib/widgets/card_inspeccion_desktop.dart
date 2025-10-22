@@ -31,47 +31,78 @@ class CardInspeccionDesktop extends StatelessWidget {
         children: [
           // Header de la tarjeta
           Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: AppTheme.primaryGradient,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
-            ),
+            padding: const EdgeInsets.all(20),
             child: Row(
               children: [
                 Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryGreen.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.description_outlined,
+                    color: AppTheme.primaryGreen,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            '#${resumenPreoperacional.resuPreId}',
+                            style: const TextStyle(
+                              color: Colors.black87,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryGreen,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Text(
+                              'Activa',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Inspección detallada',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
+                    color: Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(
-                    Icons.assignment_outlined,
-                    color: Colors.white,
+                  child: Icon(
+                    Icons.copy_outlined,
+                    color: Colors.grey.shade600,
                     size: 20,
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Inspección #${resumenPreoperacional.resuPreId}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.picture_as_pdf_outlined,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                  onPressed: () => Navigator.pushNamed(context, 'pdf',
-                      arguments: [resumenPreoperacional]),
                 ),
               ],
             ),
@@ -80,7 +111,7 @@ class CardInspeccionDesktop extends StatelessWidget {
           // Contenido de la tarjeta
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -88,64 +119,115 @@ class CardInspeccionDesktop extends StatelessWidget {
                     'Detalle',
                     resumenPreoperacional.detalle.toString(),
                     Icons.description_outlined,
+                    const Color(0xFF2196F3), // Dark Blue
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
                   _buildInfoRow(
                     'Responsable',
                     resumenPreoperacional.creado.toString(),
                     Icons.person_outline,
+                    const Color(0xFF1976D2), // Blue
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
                   _buildInfoRow(
                     'Fecha',
                     resumenPreoperacional.fechaPreoperacional.toString(),
                     Icons.calendar_today_outlined,
+                    const Color(0xFF4CAF50), // Green
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
                   _buildInfoRow(
                     'Hora',
                     resumenPreoperacional.hora.toString(),
                     Icons.access_time_outlined,
+                    const Color(0xFFFF9800), // Orange
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
+                  _buildInfoRow(
+                    'Tanqueo',
+                    resumenPreoperacional.tanqueo.toString(),
+                    Icons.local_gas_station_outlined,
+                    const Color(0xFF9C27B0), // Purple
+                  ),
+                  const SizedBox(height: 16),
                   Row(
                     children: [
-                      Expanded(
-                        child: _buildInfoRow(
-                          'Tanqueo',
-                          resumenPreoperacional.tanqueo.toString(),
-                          Icons.local_gas_station_outlined,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
                       Expanded(
                         child: _buildInfoRow(
                           'Fallas graves',
                           resumenPreoperacional.grave.toString(),
                           Icons.warning_outlined,
+                          const Color(0xFFF44336), // Red
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
+                      const SizedBox(width: 16),
                       Expanded(
                         child: _buildInfoRow(
                           'Fallas moderadas',
                           resumenPreoperacional.moderada.toString(),
                           Icons.info_outline,
+                          const Color(0xFFFF9800), // Orange
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildStatusChip(),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 20),
                 ],
               ),
+            ),
+          ),
+
+          // Footer con estado
+          Container(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.successColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.check_circle_outline,
+                    color: AppTheme.successColor,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'Estado',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.successColor,
+                    borderRadius: BorderRadius.circular(25),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.successColor.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Text(
+                    'APROBADO',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -153,15 +235,22 @@ class CardInspeccionDesktop extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(String label, String value, IconData icon) {
+  Widget _buildInfoRow(String label, String value, IconData icon, Color iconColor) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 16,
-          color: AppTheme.primaryGreen.withValues(alpha: 0.7),
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: iconColor,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            size: 16,
+            color: Colors.white,
+          ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,13 +263,13 @@ class CardInspeccionDesktop extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 4),
               Text(
                 value,
                 style: const TextStyle(
                   color: Colors.black87,
                   fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.bold,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -192,40 +281,4 @@ class CardInspeccionDesktop extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusChip() {
-    final isApproved = resumenPreoperacional.estado == 'APROBADO';
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: isApproved
-            ? AppTheme.successColor.withValues(alpha: 0.1)
-            : AppTheme.errorColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isApproved
-              ? AppTheme.successColor.withValues(alpha: 0.3)
-              : AppTheme.errorColor.withValues(alpha: 0.3),
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            isApproved ? Icons.check_circle : Icons.cancel,
-            size: 14,
-            color: isApproved ? AppTheme.successColor : AppTheme.errorColor,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            resumenPreoperacional.estado.toString(),
-            style: TextStyle(
-              color: isApproved ? AppTheme.successColor : AppTheme.errorColor,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
