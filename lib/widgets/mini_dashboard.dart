@@ -165,91 +165,123 @@ class _MiniDashboardState extends State<MiniDashboard> {
     required Color color,
     required String subtitle,
   }) {
+    // Calcular porcentaje de progreso basado en el valor
+    double progressPercentage = _calculateProgressPercentage(value, title);
+    
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16), // Tamaño original restaurado
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black
-                .withValues(alpha: 0.08), // Tamaño original restaurado
-            blurRadius: 20, // Tamaño original restaurado
-            offset: Offset(0, 4), // Tamaño original restaurado
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: Offset(0, 4),
             spreadRadius: 0,
           ),
           BoxShadow(
-            color: Colors.black
-                .withValues(alpha: 0.04), // Tamaño original restaurado
-            blurRadius: 6, // Tamaño original restaurado
-            offset: Offset(0, 2), // Tamaño original restaurado
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 6,
+            offset: Offset(0, 2),
             spreadRadius: 0,
           ),
         ],
       ),
-      child: Padding(
-        padding: EdgeInsets.all(11), // Reducido para evitar overflow
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header con icono y título
-            Row(
+      child: Stack(
+        children: [
+          // Contenido principal del card
+          Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: 28, // Reducido para evitar overflow
-                  height: 28, // Reducido para evitar overflow
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(6), // Reducido
-                  ),
-                  child: Icon(
-                    icon,
-                    color: color,
-                    size: 16, // Reducido para evitar overflow
+                // Título
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF333333),
                   ),
                 ),
-                SizedBox(width: 6), // Reducido
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 12, // Reducido para evitar overflow
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF333333),
+                SizedBox(height: 12),
+                // Valor principal
+                Text(
+                  _formatValue(value),
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF333333),
+                    height: 1.0,
+                  ),
+                ),
+                Spacer(),
+                // Barra de progreso
+                Container(
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                  child: FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: progressPercentage,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 8), // Reducido
-            // Valor principal
-            Text(
-              _formatValue(value),
-              style: TextStyle(
-                fontSize: 20, // Reducido para evitar overflow
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF333333),
-                height: 1.0,
+          ),
+          // Icono circular en la esquina superior derecha
+          Positioned(
+            top: -8,
+            right: -8,
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(
+                icon,
+                color: Colors.white,
+                size: 20,
               ),
             ),
-            SizedBox(height: 2), // Reducido
-            // Subtítulo
-            Text(
-              subtitle,
-              style: TextStyle(
-                fontSize: 10, // Reducido para evitar overflow
-                color: Colors.grey.shade600,
-                fontWeight: FontWeight.w500,
-              ),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
+  }
+
+  double _calculateProgressPercentage(int value, String title) {
+    // Calcular porcentaje basado en el tipo de métrica
+    switch (title) {
+      case 'Pendientes':
+        return (value / 20).clamp(0.0, 1.0); // Máximo 20 pendientes = 100%
+      case 'Hoy':
+        return (value / 10).clamp(0.0, 1.0); // Máximo 10 hoy = 100%
+      case 'Semana':
+        return (value / 50).clamp(0.0, 1.0); // Máximo 50 semana = 100%
+      case 'Total':
+        return (value / 200).clamp(0.0, 1.0); // Máximo 200 total = 100%
+      default:
+        return 0.5; // Valor por defecto
+    }
   }
 
   String _formatValue(int value) {
