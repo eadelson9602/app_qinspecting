@@ -8,24 +8,40 @@ import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/services/background_upload_service.dart';
 import 'package:app_qinspecting/services/notification_service.dart';
+import 'package:app_qinspecting/ui/app_theme.dart';
 import 'package:app_qinspecting/models/inspeccion.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 import 'package:app_qinspecting/widgets/upload_progress_widgets.dart';
 import 'package:app_qinspecting/widgets/notification_permission_dialog.dart';
 
-class SendPendingInspectionScree extends StatelessWidget {
-  const SendPendingInspectionScree({Key? key}) : super(key: key);
+class SendPendingInspectionScreen extends StatelessWidget {
+  const SendPendingInspectionScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(),
       drawer: CustomDrawer(),
       body: Container(
           height: double.infinity,
-          padding: EdgeInsets.only(top: 5, left: 10, right: 10, bottom: 50),
+          padding: EdgeInsets.only(
+              top: 50,
+              left: 10,
+              right: 10,
+              bottom: 50), // Reducido el espacio superior
           child: ContentCardInspectionPending()),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Scaffold.of(context).openDrawer();
+        },
+        backgroundColor: AppTheme.primaryGreen,
+        foregroundColor: Colors.white,
+        elevation: 2, // Reducida la sombra
+        child: const Icon(
+          Icons.menu_rounded,
+          size: 24, // Icono más pequeño
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
       // floatingActionButton: FloatingActionButton(
       //   mini: true,
       //   onPressed: inspeccionService.isSaving

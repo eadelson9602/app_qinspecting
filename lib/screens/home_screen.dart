@@ -19,6 +19,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   void _onItemTapped(int index) {
     setState(() {
@@ -62,11 +63,12 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       },
       child: Scaffold(
-        appBar: CustomAppBar(),
+        key: _scaffoldKey,
         drawer: CustomDrawer(),
         body: SafeArea(
             child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
+          padding: EdgeInsets.fromLTRB(
+              20, 20, 20, 0), // Reducido aún más el espacio superior
           child: _widgetOptions.elementAt(_selectedIndex),
         )),
         bottomNavigationBar: Container(
@@ -80,36 +82,88 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-          child: BottomNavigationBar(
-            items: [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home_outlined),
-                activeIcon: Icon(Icons.home),
-                label: 'Escritorio',
+          child: Row(
+            children: [
+              Container(
+                width: 15,
+                height: 10,
               ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.app_registration_outlined),
-                activeIcon: Icon(Icons.app_registration),
-                label: 'Inspecciones',
+              // Botón del sidebar
+              Expanded(
+                child: Builder(
+                  builder: (context) => InkWell(
+                    onTap: () {
+                      _scaffoldKey.currentState?.openDrawer();
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.menu_rounded,
+                            color:
+                                Colors.grey.shade600, // Color no seleccionado
+                            size: 24,
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Menú',
+                            style: TextStyle(
+                              color:
+                                  Colors.grey.shade600, // Color no seleccionado
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // Separador
+              Container(
+                width: 15,
+                height: 10,
+              ),
+              // Navegación principal
+              Expanded(
+                child: BottomNavigationBar(
+                  items: [
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.home_outlined),
+                      activeIcon: Icon(Icons.home),
+                      label: 'Escritorio',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.app_registration_outlined),
+                      activeIcon: Icon(Icons.app_registration),
+                      label: 'Inspecciones',
+                    ),
+                  ],
+                  currentIndex: _selectedIndex,
+                  selectedItemColor: AppTheme.primaryGreen,
+                  unselectedItemColor: Colors.grey.shade600,
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  type: BottomNavigationBarType.fixed,
+                  selectedLabelStyle:
+                      const TextStyle(fontWeight: FontWeight.w600),
+                  onTap: (int index) {
+                    if (index == 0) {
+                      inspeccionProvider.clearData();
+                    }
+                    if (index == 1 &&
+                        loginService.userDataLogged.idFirma == 0) {
+                      Navigator.popAndPushNamed(context, 'signature');
+                    } else {
+                      _onItemTapped(index);
+                    }
+                  },
+                ),
               ),
             ],
-            currentIndex: _selectedIndex,
-            selectedItemColor: AppTheme.primaryGreen,
-            unselectedItemColor: Colors.grey.shade600,
-            backgroundColor: Colors.white,
-            elevation: 0,
-            type: BottomNavigationBarType.fixed,
-            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
-            onTap: (int index) {
-              if (index == 0) {
-                inspeccionProvider.clearData();
-              }
-              if (index == 1 && loginService.userDataLogged.idFirma == 0) {
-                Navigator.popAndPushNamed(context, 'signature');
-              } else {
-                _onItemTapped(index);
-              }
-            },
           ),
         ),
       ),
@@ -169,7 +223,7 @@ class DesktopScreen extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(height: 10),
+        SizedBox(height: 5), // Reducido el espacio inicial
         // Card de inspecciones pendientes
         PendingInspectionsCard(),
         SizedBox(height: 16),
