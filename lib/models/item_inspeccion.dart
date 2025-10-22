@@ -106,7 +106,7 @@ class Item {
 
   factory Item.fromMap(Map<String, dynamic> json) => Item(
     idCategoria: json['idCategoria'],
-    idItem: json["idItem"].toString(),
+    idItem: json["idItem"].toString(), // Mantener como string para compatibilidad
     item: json["item"],
     respuesta: json["respuesta"],
     adjunto: json["adjunto"],
@@ -117,7 +117,7 @@ class Item {
 
   Map<String, dynamic> toMap() => {
     "idCategoria": idCategoria,
-    "idItem": idItem,
+    "idItem": int.tryParse(idItem) ?? 0, // Convertir a entero para el backend
     "item": item,
     "respuesta": respuesta,
     "adjunto": adjunto,
