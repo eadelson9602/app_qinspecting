@@ -92,13 +92,44 @@ class MyStatelessWidget extends StatelessWidget {
     return Scaffold(
       drawer: CustomDrawer(),
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(
-              20, 50, 20, 0), // Reducido el espacio superior
-          child: Center(
-            child:
-                _widgetOptions.elementAt(firmaService.indexTabaCreateSignature),
-          ),
+        child: Stack(
+          children: [
+            // Botón de volver atrás
+            Positioned(
+              left: 20,
+              top: 50,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ),
+            // Contenido principal
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                  20, 50, 20, 0), // Reducido el espacio superior
+              child: Center(
+                child:
+                    _widgetOptions.elementAt(firmaService.indexTabaCreateSignature),
+              ),
+            ),
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
