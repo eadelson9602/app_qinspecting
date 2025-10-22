@@ -17,33 +17,28 @@ class CustomBottomNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loginService = Provider.of<LoginService>(context, listen: false);
-    final inspeccionProvider = Provider.of<InspeccionService>(context, listen: false);
+    final inspeccionProvider =
+        Provider.of<InspeccionService>(context, listen: false);
 
     return Container(
-      margin: EdgeInsets.all(16),
+      margin: EdgeInsets.all(15),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(50),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 20,
-            offset: const Offset(0, 4),
-            spreadRadius: 0,
-          ),
-          BoxShadow(
-            color: Color(0xFF34A853).withValues(alpha: 0.3),
-            blurRadius: 8,
             offset: const Offset(0, 2),
             spreadRadius: 0,
           ),
+          // BoxShadow(
+          //   color: Color(0xFF34A853).withValues(alpha: 0.3),
+          //   blurRadius: 8,
+          //   offset: const Offset(0, 2),
+          //   spreadRadius: 0,
+          // ),
         ],
-        border: Border(
-          bottom: BorderSide(
-            color: Color(0xFF34A853),
-            width: 1,
-          ),
-        ),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
@@ -67,15 +62,15 @@ class CustomBottomNavigation extends StatelessWidget {
                           color: Color(0xFF606060),
                           size: 28,
                         ),
-                        SizedBox(height: 6),
-                        Text(
-                          'Menú',
-                          style: TextStyle(
-                            color: Color(0xFF606060),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                        // SizedBox(height: 6),
+                        // Text(
+                        //   'Menú',
+                        //   style: TextStyle(
+                        //     color: Color(0xFF606060),
+                        //     fontSize: 11,
+                        //     fontWeight: FontWeight.w500,
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
@@ -119,19 +114,19 @@ class CustomBottomNavigation extends StatelessWidget {
                             ),
                         ],
                       ),
-                      SizedBox(height: 6),
-                      Text(
-                        'Escritorio',
-                        style: TextStyle(
-                          color: selectedIndex == 0
-                              ? Color(0xFF34A853)
-                              : Color(0xFF606060),
-                          fontSize: 11,
-                          fontWeight: selectedIndex == 0
-                              ? FontWeight.w600
-                              : FontWeight.w500,
-                        ),
-                      ),
+                      // SizedBox(height: 6),
+                      // Text(
+                      //   'Escritorio',
+                      //   style: TextStyle(
+                      //     color: selectedIndex == 0
+                      //         ? Color(0xFF34A853)
+                      //         : Color(0xFF606060),
+                      //     fontSize: 11,
+                      //     fontWeight: selectedIndex == 0
+                      //         ? FontWeight.w600
+                      //         : FontWeight.w500,
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -160,19 +155,19 @@ class CustomBottomNavigation extends StatelessWidget {
                             : Color(0xFF606060),
                         size: 28,
                       ),
-                      SizedBox(height: 6),
-                      Text(
-                        'Inspecciones',
-                        style: TextStyle(
-                          color: selectedIndex == 1
-                              ? Color(0xFF34A853)
-                              : Color(0xFF606060),
-                          fontSize: 11,
-                          fontWeight: selectedIndex == 1
-                              ? FontWeight.w600
-                              : FontWeight.w500,
-                        ),
-                      ),
+                      // SizedBox(height: 6),
+                      // Text(
+                      //   'Inspecciones',
+                      //   style: TextStyle(
+                      //     color: selectedIndex == 1
+                      //         ? Color(0xFF34A853)
+                      //         : Color(0xFF606060),
+                      //     fontSize: 11,
+                      //     fontWeight: selectedIndex == 1
+                      //         ? FontWeight.w600
+                      //         : FontWeight.w500,
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
