@@ -26,7 +26,7 @@ class InspeccionRemolqueScreen extends StatelessWidget {
         icon: Icons.check_circle,
         backgroundColor: Colors.green,
         fontSize: 14,
-        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
         onPressed: () async {
           inspeccionProvider.updateSaving(true);
           List<dynamic> tempRespuestas = [];

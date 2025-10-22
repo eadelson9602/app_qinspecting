@@ -42,28 +42,6 @@ class _InspeccionFormState extends State<InspeccionForm> {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
             children: [
-              // Ejemplo de botones con el nuevo estilo
-              CustomStyleButtonCard(
-                title: '🚀 Acciones de Inspección',
-                buttons: [
-                  CustomStyleButton(
-                    text: 'Guardar',
-                    icon: Icons.save,
-                    backgroundColor: Colors.green,
-                    onPressed: () {
-                      // Acción de guardar
-                    },
-                  ),
-                  CustomStyleButton(
-                    text: 'Enviar',
-                    icon: Icons.send,
-                    backgroundColor: Colors.blue,
-                    onPressed: () {
-                      // Acción de enviar
-                    },
-                  ),
-                ],
-              ),
               const SizedBox(
                 height: 16,
               ),
