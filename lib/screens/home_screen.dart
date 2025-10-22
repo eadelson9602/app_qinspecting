@@ -66,10 +66,12 @@ class _HomeScreenState extends State<HomeScreen> {
         key: _scaffoldKey,
         drawer: CustomDrawer(),
         body: SafeArea(
-            child: Padding(
-          padding: EdgeInsets.fromLTRB(
-              20, 20, 20, 0), // Reducido aún más el espacio superior
-          child: _widgetOptions.elementAt(_selectedIndex),
+            child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+                20, 20, 20, 0), // Reducido aún más el espacio superior
+            child: _widgetOptions.elementAt(_selectedIndex),
+          ),
         )),
         bottomNavigationBar: CustomBottomNavigation(
           selectedIndex: _selectedIndex,
@@ -131,7 +133,6 @@ class DesktopScreen extends StatelessWidget {
     final sizeScreen = MediaQuery.of(context).size;
 
     return Column(
-      mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(height: 5), // Reducido el espacio inicial
         // Mini Dashboard con estadísticas

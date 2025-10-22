@@ -235,7 +235,8 @@ class CardInspeccionDesktop extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(String label, String value, IconData icon, Color iconColor) {
+  Widget _buildInfoRow(
+      String label, String value, IconData icon, Color iconColor) {
     return Row(
       children: [
         Container(
@@ -280,5 +281,4 @@ class CardInspeccionDesktop extends StatelessWidget {
       ],
     );
   }
-
 }
