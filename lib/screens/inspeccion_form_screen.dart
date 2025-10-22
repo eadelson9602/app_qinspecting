@@ -42,6 +42,8 @@ class _InspeccionFormState extends State<InspeccionForm> {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
             children: [
+              // Widget de prueba de Crashlytics (temporal para debugging)
+              const QuickCrashlyticsTest(),
               const SizedBox(
                 height: 16,
               ),
