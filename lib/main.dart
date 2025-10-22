@@ -30,20 +30,20 @@ void main() async {
 
     // Inicializar Crashlytics
     await CrashlyticsService.initialize();
-    
+
     // Configurar Crashlytics para modo debug
     if (kDebugMode) {
       await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
       print('[Firebase] 🔍 Crashlytics habilitado para debug');
     }
-    
+
     // Configurar manejo de errores de Flutter
     FlutterError.onError = (FlutterErrorDetails details) {
       FirebaseCrashlytics.instance.recordFlutterFatalError(details);
       FlutterError.presentError(details);
       print('Flutter Error: ${details.exception}');
     };
-    
+
     // Configurar manejo de errores de plataforma
     PlatformDispatcher.instance.onError = (error, stack) {
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);

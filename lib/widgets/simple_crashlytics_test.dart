@@ -25,7 +25,8 @@ class SimpleCrashlyticsTest extends StatelessWidget {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Test ejecutado. Revisa logs y Firebase Console.'),
+                      content: Text(
+                          'Test ejecutado. Revisa logs y Firebase Console.'),
                       backgroundColor: Colors.green,
                     ),
                   );
@@ -100,7 +101,8 @@ class SimpleCrashlyticsTest extends StatelessWidget {
                 children: [
                   Text(
                     '⚠️ Nota Importante:',
-                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.amber),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.amber),
                   ),
                   SizedBox(height: 8),
                   Text(
