@@ -87,6 +87,7 @@ class AppState extends StatelessWidget {
       ChangeNotifierProvider(create: (_) => PerfilFormProvider()),
       ChangeNotifierProvider(create: (_) => InspeccionService()),
       ChangeNotifierProvider(create: (_) => FirmaService()),
+      Provider<DBProvider>(create: (_) => DBProvider.db),
     ], child: const MyApp());
   }
 }
