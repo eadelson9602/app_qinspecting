@@ -84,10 +84,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           child: Row(
             children: [
-              Container(
-                width: 15,
-                height: 10,
-              ),
               // Botón del sidebar
               Expanded(
                 child: Builder(
@@ -102,16 +98,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Icon(
                             Icons.menu_rounded,
-                            color:
-                                Colors.grey.shade600, // Color no seleccionado
+                            color: Colors.grey.shade600,
                             size: 24,
                           ),
                           SizedBox(height: 4),
                           Text(
                             'Menú',
                             style: TextStyle(
-                              color:
-                                  Colors.grey.shade600, // Color no seleccionado
+                              color: Colors.grey.shade600,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),
@@ -122,45 +116,85 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              // Separador
-              Container(
-                width: 15,
-                height: 10,
-              ),
-              // Navegación principal
+              // Botón Escritorio
               Expanded(
-                child: BottomNavigationBar(
-                  items: [
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.home_outlined),
-                      activeIcon: Icon(Icons.home),
-                      label: 'Escritorio',
+                child: InkWell(
+                  onTap: () {
+                    inspeccionProvider.clearData();
+                    _onItemTapped(0);
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          _selectedIndex == 0
+                              ? Icons.home
+                              : Icons.home_outlined,
+                          color: _selectedIndex == 0
+                              ? AppTheme.primaryGreen
+                              : Colors.grey.shade600,
+                          size: 24,
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Escritorio',
+                          style: TextStyle(
+                            color: _selectedIndex == 0
+                                ? AppTheme.primaryGreen
+                                : Colors.grey.shade600,
+                            fontSize: 12,
+                            fontWeight: _selectedIndex == 0
+                                ? FontWeight.w600
+                                : FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.app_registration_outlined),
-                      activeIcon: Icon(Icons.app_registration),
-                      label: 'Inspecciones',
-                    ),
-                  ],
-                  currentIndex: _selectedIndex,
-                  selectedItemColor: AppTheme.primaryGreen,
-                  unselectedItemColor: Colors.grey.shade600,
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  type: BottomNavigationBarType.fixed,
-                  selectedLabelStyle:
-                      const TextStyle(fontWeight: FontWeight.w600),
-                  onTap: (int index) {
-                    if (index == 0) {
-                      inspeccionProvider.clearData();
-                    }
-                    if (index == 1 &&
-                        loginService.userDataLogged.idFirma == 0) {
+                  ),
+                ),
+              ),
+              // Botón Inspecciones
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    if (loginService.userDataLogged.idFirma == 0) {
                       Navigator.popAndPushNamed(context, 'signature');
                     } else {
-                      _onItemTapped(index);
+                      _onItemTapped(1);
                     }
                   },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          _selectedIndex == 1
+                              ? Icons.app_registration
+                              : Icons.app_registration_outlined,
+                          color: _selectedIndex == 1
+                              ? AppTheme.primaryGreen
+                              : Colors.grey.shade600,
+                          size: 24,
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Inspecciones',
+                          style: TextStyle(
+                            color: _selectedIndex == 1
+                                ? AppTheme.primaryGreen
+                                : Colors.grey.shade600,
+                            fontSize: 12,
+                            fontWeight: _selectedIndex == 1
+                                ? FontWeight.w600
+                                : FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ],
