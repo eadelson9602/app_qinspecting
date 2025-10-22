@@ -858,8 +858,26 @@ class DBProvider {
     final stats = <String, int>{};
 
     try {
+      print('🔍 Debug getDashboardStats:');
+      print('  - idUsuario: $idUsuario');
+      print('  - base: $base');
+      
+      // Primero verificar si existen registros en la tabla
+      final allRecordsResult = await db.rawQuery('''
+        SELECT COUNT(*) as count 
+        FROM ResumenPreoperacional 
+        WHERE usuarioPreoperacional = ? AND base = ?
+      ''', [idUsuario, base]);
+      print('  - Total registros encontrados: ${allRecordsResult.first['count']}');
+      
+      // Verificar estructura de la tabla
+      final tableInfo = await db.rawQuery('PRAGMA table_info(ResumenPreoperacional)');
+      print('  - Columnas de la tabla: ${tableInfo.map((col) => col['name']).toList()}');
+      
       // Intentar con la nueva estructura (con eliminado y enviado)
       try {
+        print('  - Intentando con estructura nueva (con eliminado y enviado)');
+        
         // Transacciones pendientes de envío
         final pendientesResult = await db.rawQuery('''
           SELECT COUNT(*) as count 
@@ -867,6 +885,7 @@ class DBProvider {
           WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0 AND enviado = 0
         ''', [idUsuario, base]);
         stats['pendientes'] = pendientesResult.first['count'] as int;
+        print('  - Pendientes (nueva estructura): ${stats['pendientes']}');
 
         // Transacciones del día
         final hoy = DateTime.now();
@@ -882,6 +901,7 @@ class DBProvider {
           AND fechaPreoperacional >= ? AND fechaPreoperacional <= ?
         ''', [idUsuario, base, inicioDia, finDia]);
         stats['dia'] = diaResult.first['count'] as int;
+        print('  - Hoy (nueva estructura): ${stats['dia']}');
 
         // Transacciones de la semana
         final inicioSemana = hoy.subtract(Duration(days: hoy.weekday - 1));
@@ -896,6 +916,7 @@ class DBProvider {
           AND fechaPreoperacional >= ?
         ''', [idUsuario, base, inicioSemanaStr]);
         stats['semana'] = semanaResult.first['count'] as int;
+        print('  - Semana (nueva estructura): ${stats['semana']}');
 
         // Total de transacciones (no eliminadas)
         final totalResult = await db.rawQuery('''
@@ -904,9 +925,11 @@ class DBProvider {
           WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0
         ''', [idUsuario, base]);
         stats['total'] = totalResult.first['count'] as int;
+        print('  - Total (nueva estructura): ${stats['total']}');
+        
       } catch (e) {
         // Si falla, usar la estructura antigua (sin eliminado ni enviado)
-        print('⚠️ Usando estructura antigua de base de datos para dashboard');
+        print('⚠️ Usando estructura antigua de base de datos para dashboard: $e');
 
         // Todas las inspecciones son "pendientes" en la estructura antigua
         final pendientesResult = await db.rawQuery('''
@@ -915,6 +938,7 @@ class DBProvider {
           WHERE usuarioPreoperacional = ? AND base = ?
         ''', [idUsuario, base]);
         stats['pendientes'] = pendientesResult.first['count'] as int;
+        print('  - Pendientes (estructura antigua): ${stats['pendientes']}');
 
         // Transacciones del día
         final hoy = DateTime.now();
@@ -930,6 +954,7 @@ class DBProvider {
           AND fechaPreoperacional >= ? AND fechaPreoperacional <= ?
         ''', [idUsuario, base, inicioDia, finDia]);
         stats['dia'] = diaResult.first['count'] as int;
+        print('  - Hoy (estructura antigua): ${stats['dia']}');
 
         // Transacciones de la semana
         final inicioSemana = hoy.subtract(Duration(days: hoy.weekday - 1));
@@ -944,6 +969,7 @@ class DBProvider {
           AND fechaPreoperacional >= ?
         ''', [idUsuario, base, inicioSemanaStr]);
         stats['semana'] = semanaResult.first['count'] as int;
+        print('  - Semana (estructura antigua): ${stats['semana']}');
 
         // Total de transacciones
         final totalResult = await db.rawQuery('''
@@ -952,9 +978,10 @@ class DBProvider {
           WHERE usuarioPreoperacional = ? AND base = ?
         ''', [idUsuario, base]);
         stats['total'] = totalResult.first['count'] as int;
+        print('  - Total (estructura antigua): ${stats['total']}');
       }
 
-      print('📊 Dashboard stats: $stats');
+      print('📊 Dashboard stats finales: $stats');
       return stats;
     } catch (e) {
       print('❌ Error getting dashboard stats: $e');

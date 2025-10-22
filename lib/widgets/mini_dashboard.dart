@@ -97,7 +97,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
 
   Widget _buildDashboardGrid() {
     return Container(
-      height: 200, // Tamaño original restaurado
+      height: 250, // Tamaño original restaurado
       child: Column(
         children: [
           // Primera fila
@@ -108,7 +108,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
                   child: _buildStatCard(
                     title: 'Pendientes',
                     value: _stats['pendientes'] ?? 0,
-                    icon: Icons.pending_actions,
+                    icon: Icons.schedule,
                     color: Color(0xFF9C27B0), // Purple
                     subtitle: 'Por enviar',
                   ),
@@ -118,7 +118,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
                   child: _buildStatCard(
                     title: 'Hoy',
                     value: _stats['dia'] ?? 0,
-                    icon: Icons.today,
+                    icon: Icons.calendar_today,
                     color: Color(0xFFE91E63), // Pink/Red
                     subtitle: 'Inspecciones',
                   ),
@@ -135,7 +135,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
                   child: _buildStatCard(
                     title: 'Semana',
                     value: _stats['semana'] ?? 0,
-                    icon: Icons.date_range,
+                    icon: Icons.calendar_view_week,
                     color: Color(0xFFFF9800), // Orange
                     subtitle: 'Esta semana',
                   ),
@@ -145,7 +145,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
                   child: _buildStatCard(
                     title: 'Total',
                     value: _stats['total'] ?? 0,
-                    icon: Icons.analytics,
+                    icon: Icons.bar_chart,
                     color: Color(0xFF2196F3), // Light Blue
                     subtitle: 'Acumulado',
                   ),
@@ -167,34 +167,36 @@ class _MiniDashboardState extends State<MiniDashboard> {
   }) {
     // Calcular porcentaje de progreso basado en el valor
     double progressPercentage = _calculateProgressPercentage(value, title);
-    
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: Offset(0, 4),
-            spreadRadius: 0,
+
+    return Stack(
+      children: [
+        // Card principal
+        Container(
+          width: double.infinity - 20,
+          height: 100,
+          margin: EdgeInsets.only(top: 10, right: 10),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 20,
+                offset: Offset(0, 4),
+                spreadRadius: 0,
+              ),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 6,
+                offset: Offset(0, 2),
+                spreadRadius: 0,
+              ),
+            ],
           ),
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 6,
-            offset: Offset(0, 2),
-            spreadRadius: 0,
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          // Contenido principal del card
-          Padding(
+          child: Padding(
             padding: EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
               children: [
                 // Título
                 Text(
@@ -205,7 +207,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
                     color: Color(0xFF333333),
                   ),
                 ),
-                SizedBox(height: 12),
+                SizedBox(height: 8),
                 // Valor principal
                 Text(
                   _formatValue(value),
@@ -238,33 +240,33 @@ class _MiniDashboardState extends State<MiniDashboard> {
               ],
             ),
           ),
-          // Icono circular en la esquina superior derecha
-          Positioned(
-            top: -8,
-            right: -8,
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: color.withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Icon(
-                icon,
-                color: Colors.white,
-                size: 20,
-              ),
+        ),
+        // Icono circular flotante en la esquina superior derecha
+        Positioned(
+          top: 0,
+          right: 0,
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 20,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
