@@ -117,15 +117,15 @@ class CustomStyleButtonCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = theme.primaryColor;
-    final cardBgColor = cardColor ?? primaryColor.withOpacity(0.05);
-    final cardBorderColor = borderColor ?? primaryColor.withOpacity(0.2);
+    final cardBgColor = cardColor ?? primaryColor.withValues(alpha: 0.05);
+    final cardBorderColor = borderColor ?? primaryColor.withValues(alpha: 0.2);
 
     return Container(
       margin: margin ?? const EdgeInsets.all(8),
       padding: padding ?? const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: cardBgColor,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(25),
         border: Border.all(color: cardBorderColor),
       ),
       child: Column(
