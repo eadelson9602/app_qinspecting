@@ -14,21 +14,23 @@ class PendingInspectionsCard extends StatelessWidget {
     final loginService = Provider.of<LoginService>(context, listen: false);
 
     return FutureBuilder<List<ResumenPreoperacional>?>(
-      future: DBProvider.db.getAllInspections(
-        loginService.userDataLogged.id.toString(),
-        loginService.selectedEmpresa.nombreBase!,
-      ),
+      future: _getInspectionsWithDebug(loginService),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return _buildLoadingCard(primaryColor);
         }
 
         if (snapshot.hasError) {
-          return _buildErrorCard(primaryColor, 'Error al cargar inspecciones');
+          print('❌ Error en PendingInspectionsCard: ${snapshot.error}');
+          return _buildErrorCard(
+              primaryColor, 'Error al cargar inspecciones: ${snapshot.error}');
         }
 
         final inspections = snapshot.data ?? [];
         final pendingCount = inspections.length;
+
+        print(
+            '📊 PendingInspectionsCard - Inspecciones encontradas: $pendingCount');
 
         return _buildAnalyticsCard(
           context,
@@ -284,5 +286,27 @@ class PendingInspectionsCard extends StatelessWidget {
     }
 
     return cardContent;
+  }
+
+  Future<List<ResumenPreoperacional>?> _getInspectionsWithDebug(
+      LoginService loginService) async {
+    try {
+      print('🔍 Debug PendingInspectionsCard:');
+      print('  - Usuario ID: ${loginService.userDataLogged.id}');
+      print(
+          '  - Usuario numeroDocumento: ${loginService.userDataLogged.numeroDocumento}');
+      print('  - Empresa base: ${loginService.selectedEmpresa.nombreBase}');
+
+      final result = await DBProvider.db.getAllInspections(
+        loginService.userDataLogged.id.toString(),
+        loginService.selectedEmpresa.nombreBase!,
+      );
+
+      print('  - Resultado: ${result?.length ?? 0} inspecciones');
+      return result;
+    } catch (e) {
+      print('❌ Error en _getInspectionsWithDebug: $e');
+      rethrow;
+    }
   }
 }
