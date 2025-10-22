@@ -23,12 +23,45 @@ class SendPendingInspectionScreen extends StatelessWidget {
       drawer: CustomDrawer(),
       body: Container(
           height: double.infinity,
-          padding: EdgeInsets.only(
-              top: 50,
-              left: 10,
-              right: 10,
-              bottom: 50), // Reducido el espacio superior
-          child: ContentCardInspectionPending()),
+          child: Stack(
+            children: [
+              // Botón de volver atrás
+              Positioned(
+                left: 20,
+                top: 50,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
+              // Contenido principal
+              Container(
+                padding: EdgeInsets.only(
+                    top: 50,
+                    left: 10,
+                    right: 10,
+                    bottom: 50), // Reducido el espacio superior
+                child: ContentCardInspectionPending(),
+              ),
+            ],
+          )),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Scaffold.of(context).openDrawer();

@@ -32,34 +32,64 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
     final loginService = Provider.of<LoginService>(context);
     if (inspeccionService.isSaving) return LoadingScreen();
     return Scaffold(
-      appBar: AppBar(),
       body: Container(
         color: Colors.grey[200],
-        child: GestureDetector(
-          onPanStart: (details) {
-            setState(() {
-              _points = [details.localPosition];
-              _redoStack.clear();
-            });
-          },
-          onPanUpdate: (details) {
-            setState(() {
-              _points.add(details.localPosition);
-            });
-          },
-          onPanEnd: (details) {
-            setState(() {
-              if (_points.isNotEmpty) {
-                _strokes.add(List.from(_points));
-                _undoStack.add(List.from(_points));
-                _points = [];
-              }
-            });
-          },
-          child: CustomPaint(
-            painter: SignaturePainter(_strokes, _points),
-            size: Size(screenSize.width, screenSize.height * 0.9),
-          ),
+        child: Stack(
+          children: [
+            // Botón de volver atrás
+            Positioned(
+              left: 20,
+              top: 50,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ),
+            // Área de firma
+            GestureDetector(
+              onPanStart: (details) {
+                setState(() {
+                  _points = [details.localPosition];
+                  _redoStack.clear();
+                });
+              },
+              onPanUpdate: (details) {
+                setState(() {
+                  _points.add(details.localPosition);
+                });
+              },
+              onPanEnd: (details) {
+                setState(() {
+                  if (_points.isNotEmpty) {
+                    _strokes.add(List.from(_points));
+                    _undoStack.add(List.from(_points));
+                    _points = [];
+                  }
+                });
+              },
+              child: CustomPaint(
+                painter: SignaturePainter(_strokes, _points),
+                size: Size(screenSize.width, screenSize.height * 0.9),
+              ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: Container(
