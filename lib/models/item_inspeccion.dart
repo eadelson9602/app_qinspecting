@@ -1,16 +1,15 @@
 import 'dart:convert';
 
 class ItemInspeccion {
-  ItemInspeccion({
-    required this.id,
-    required this.placa,
-    required this.tipoVehiculo,
-    required this.idCategoria,
-    required this.categoria,
-    required this.idItem,
-    required this.item,
-    required this.base
-  });
+  ItemInspeccion(
+      {required this.id,
+      required this.placa,
+      required this.tipoVehiculo,
+      required this.idCategoria,
+      required this.categoria,
+      required this.idItem,
+      required this.item,
+      required this.base});
 
   String id;
   String placa;
@@ -27,15 +26,14 @@ class ItemInspeccion {
   String toJson() => json.encode(toMap());
 
   factory ItemInspeccion.fromMap(Map<String, dynamic> json) => ItemInspeccion(
-        id: json["id"],
-        placa: json["placa"],
-        tipoVehiculo: json["tipoVehiculo"],
-        idCategoria: json["idCategoria"],
-        categoria: json["categoria"],
-        idItem: json["idItem"],
-        item: json["item"],
-        base: json["base"]
-      );
+      id: json["id"],
+      placa: json["placa"],
+      tipoVehiculo: json["tipoVehiculo"],
+      idCategoria: json["idCategoria"],
+      categoria: json["categoria"],
+      idItem: json["idItem"],
+      item: json["item"],
+      base: json["base"]);
 
   Map<String, dynamic> toMap() => {
         "id": id,
@@ -67,29 +65,27 @@ class ItemsVehiculo {
   String toJson() => json.encode(toMap());
 
   factory ItemsVehiculo.fromMap(Map<String, dynamic> json) => ItemsVehiculo(
-    idCategoria: json["idCategoria"],
-    categoria: json["categoria"],
-    items: List<Item>.from(json["items"].map((x) => Item.fromMap(x))
-  ));
+      idCategoria: json["idCategoria"],
+      categoria: json["categoria"],
+      items: List<Item>.from(json["items"].map((x) => Item.fromMap(x))));
 
   Map<String, dynamic> toMap() => {
-    "idCategoria": idCategoria,
-    "categoria": categoria,
-    "items": List<dynamic>.from(items.map((x) => x.toMap())
-  )};
+        "idCategoria": idCategoria,
+        "categoria": categoria,
+        "items": List<dynamic>.from(items.map((x) => x.toMap()))
+      };
 }
 
 class Item {
-  Item({
-    this.idCategoria,
-    required this.idItem,
-    required this.item,
-    this.respuesta,
-    this.adjunto,
-    this.observaciones,
-    this.fkPreoperacional,
-    this.base
-  });
+  Item(
+      {this.idCategoria,
+      required this.idItem,
+      required this.item,
+      this.respuesta,
+      this.adjunto,
+      this.observaciones,
+      this.fkPreoperacional,
+      this.base});
 
   int? idCategoria;
   String idItem;
@@ -105,24 +101,26 @@ class Item {
   String toJson() => json.encode(toMap());
 
   factory Item.fromMap(Map<String, dynamic> json) => Item(
-    idCategoria: json['idCategoria'],
-    idItem: json["idItem"].toString(), // Mantener como string para compatibilidad
-    item: json["item"],
-    respuesta: json["respuesta"],
-    adjunto: json["adjunto"],
-    observaciones: json["observaciones"],
-    fkPreoperacional: json["Id"],
-    base: json["base"],
-  );
+        idCategoria: json['idCategoria'],
+        idItem: json["idItem"]
+            .toString(), // Mantener como string para compatibilidad
+        item: json["item"],
+        respuesta: json["respuesta"],
+        adjunto: json["adjunto"],
+        observaciones: json["observaciones"],
+        fkPreoperacional: json["Id"],
+        base: json["base"],
+      );
 
   Map<String, dynamic> toMap() => {
-    "idCategoria": idCategoria,
-    "idItem": int.tryParse(idItem) ?? 0, // Convertir a entero para el backend
-    "item": item,
-    "respuesta": respuesta,
-    "adjunto": adjunto,
-    "observaciones": observaciones,
-    "fkPreoperacional": fkPreoperacional,
-    "base": base,
-  };
+        "idCategoria": idCategoria,
+        "idItem":
+            int.tryParse(idItem) ?? 0, // Convertir a entero para el backend
+        "item": item,
+        "respuesta": respuesta,
+        "adjunto": adjunto,
+        "observaciones": observaciones,
+        "fkPreoperacional": fkPreoperacional,
+        "base": base,
+      };
 }

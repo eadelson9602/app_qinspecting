@@ -151,7 +151,8 @@ class NotificationPermissionDialog extends StatelessWidget {
           await _startBackgroundUpload(context);
           print('✅ DEBUG: NotificationPermissionDialog - Subida iniciada');
         } else {
-          print('⚠️ DEBUG: Contexto desactivado, no se puede iniciar subida automática');
+          print(
+              '⚠️ DEBUG: Contexto desactivado, no se puede iniciar subida automática');
         }
 
         onPermissionGranted();
@@ -181,7 +182,8 @@ class NotificationPermissionDialog extends StatelessWidget {
 
     // Verificar que el contexto sigue siendo válido antes de continuar
     if (!context.mounted) {
-      print('⚠️ DEBUG: Contexto desactivado en _startBackgroundUpload, cancelando');
+      print(
+          '⚠️ DEBUG: Contexto desactivado en _startBackgroundUpload, cancelando');
       return;
     }
 

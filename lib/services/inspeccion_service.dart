@@ -619,6 +619,8 @@ class InspeccionService extends ChangeNotifier {
             data: inspeccion.toJson());
         final resumen = Respuesta.fromMap(responseResumen.data);
 
+        print('resumen: ${resumen.toJson()}');
+
         if (inspeccion.respuestas != null &&
             inspeccion.respuestas!.isNotEmpty) {
           print(
