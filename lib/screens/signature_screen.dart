@@ -125,8 +125,8 @@ class MyStatelessWidget extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(
                   20, 50, 20, 0), // Reducido el espacio superior
               child: Center(
-                child:
-                    _widgetOptions.elementAt(firmaService.indexTabaCreateSignature),
+                child: _widgetOptions
+                    .elementAt(firmaService.indexTabaCreateSignature),
               ),
             ),
           ],

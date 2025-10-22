@@ -31,7 +31,7 @@ class SendPendingInspectionScreen extends StatelessWidget {
                 top: 50,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
+                    color: AppTheme.primaryGreen.withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
