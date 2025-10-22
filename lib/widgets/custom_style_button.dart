@@ -40,7 +40,7 @@ class CustomStyleButton extends StatelessWidget {
         padding: buttonPadding,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(20),
         ),
       ),
       child: Row(
@@ -125,7 +125,7 @@ class CustomStyleButtonCard extends StatelessWidget {
       padding: padding ?? const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: cardBgColor,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: cardBorderColor),
       ),
       child: Column(
