@@ -56,6 +56,10 @@ class PdfScreenOffline extends StatelessWidget {
                 canDebug: false,
                 allowSharing: false,
                 allowPrinting: false,
+                allowZoom: true,
+                maxScale: 3.0,
+                minScale: 0.5,
+                initialPageFormat: PdfPageFormat.a4,
               ),
             );
           }
