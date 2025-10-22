@@ -260,14 +260,39 @@ class NotificationService {
 
   /// Solicita permisos de notificación
   static Future<bool> requestPermissions() async {
-    final androidPlugin = _notifications.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    try {
+      print('🔐 DEBUG: NotificationService.requestPermissions iniciado');
 
-    if (androidPlugin != null) {
-      final granted = await androidPlugin.requestNotificationsPermission();
-      return granted ?? false;
+      final androidPlugin =
+          _notifications.resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
+
+      if (androidPlugin != null) {
+        print('🔐 DEBUG: Plugin Android encontrado, solicitando permisos...');
+        final granted = await androidPlugin.requestNotificationsPermission();
+        print('🔐 DEBUG: Resultado del plugin Android: $granted');
+
+        // Verificar también el estado actual
+        final areEnabled = await areNotificationsEnabled();
+        print('🔐 DEBUG: Estado actual de notificaciones: $areEnabled');
+
+        // Si el plugin devuelve null o false, pero las notificaciones están habilitadas, devolver true
+        if (granted == null || granted == false) {
+          if (areEnabled) {
+            print(
+                '🔐 DEBUG: Notificaciones habilitadas manualmente, devolviendo true');
+            return true;
+          }
+        }
+
+        return granted ?? false;
+      }
+
+      print('🔐 DEBUG: No es Android, devolviendo true (iOS)');
+      return true; // iOS maneja los permisos automáticamente
+    } catch (e) {
+      print('❌ DEBUG: Error en requestPermissions: $e');
+      return false;
     }
-
-    return true; // iOS maneja los permisos automáticamente
   }
 }
