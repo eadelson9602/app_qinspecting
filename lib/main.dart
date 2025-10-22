@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'firebase_options.dart';
 
 import 'screens/screens.dart';
@@ -28,11 +30,25 @@ void main() async {
 
     // Inicializar Crashlytics
     await CrashlyticsService.initialize();
-
-    // Configurar manejo de errores de Flutter (Crashlytics ya maneja esto)
+    
+    // Configurar Crashlytics para modo debug
+    if (kDebugMode) {
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+      print('[Firebase] 🔍 Crashlytics habilitado para debug');
+    }
+    
+    // Configurar manejo de errores de Flutter
     FlutterError.onError = (FlutterErrorDetails details) {
+      FirebaseCrashlytics.instance.recordFlutterFatalError(details);
       FlutterError.presentError(details);
       print('Flutter Error: ${details.exception}');
+    };
+    
+    // Configurar manejo de errores de plataforma
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      print('Platform Error: $error');
+      return true;
     };
 
     // Inicializar servicios de notificaciones y trabajo en segundo plano

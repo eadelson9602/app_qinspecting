@@ -13,3 +13,4 @@ export 'package:app_qinspecting/widgets/no_internet.dart';
 export 'package:app_qinspecting/widgets/terminos_condiciones.dart';
 export 'package:app_qinspecting/widgets/text_button_personalized.dart';
 export 'package:app_qinspecting/widgets/crashlytics_test_widget.dart';
+export 'package:app_qinspecting/widgets/simple_crashlytics_test.dart';
