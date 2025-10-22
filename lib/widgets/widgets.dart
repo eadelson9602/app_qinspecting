@@ -2,6 +2,7 @@ export 'package:app_qinspecting/widgets/auth_background.dart';
 export 'package:app_qinspecting/widgets/board_image.dart';
 export 'package:app_qinspecting/widgets/custom_style_button.dart';
 export 'package:app_qinspecting/widgets/card_inspeccion_desktop.dart';
+export 'package:app_qinspecting/widgets/custom_bottom_navigation.dart';
 export 'package:app_qinspecting/widgets/custom_drawer.dart';
 export 'package:app_qinspecting/widgets/guia_transporte_widget.dart';
 export 'package:app_qinspecting/widgets/info_remolque_widget.dart';
