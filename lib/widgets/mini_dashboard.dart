@@ -55,7 +55,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
 
   Widget _buildLoadingState() {
     return Container(
-      height: 180, // Ajustado para coincidir con el dashboard
+      height: 160, // Ajustado para coincidir con el dashboard
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
         borderRadius: BorderRadius.circular(20),
@@ -84,7 +84,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
 
   Widget _buildDashboardGrid() {
     return Container(
-      height: 180, // Reducido de 200 a 180
+      height: 160, // Reducido de 180 a 160
       child: Column(
         children: [
           // Primera fila
@@ -101,7 +101,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
                     changeText: '↑ 2.1%',
                   ),
                 ),
-                SizedBox(width: 8), // Reducido de 12 a 8
+                SizedBox(width: 6), // Reducido de 8 a 6
                 Expanded(
                   child: _buildStatCard(
                     title: 'Hoy',
@@ -115,7 +115,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
               ],
             ),
           ),
-          SizedBox(height: 8), // Reducido de 12 a 8
+          SizedBox(height: 6), // Reducido de 8 a 6
           // Segunda fila
           Expanded(
             child: Row(
@@ -130,7 +130,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
                     changeText: '↑ 2.1%',
                   ),
                 ),
-                SizedBox(width: 8), // Reducido de 12 a 8
+                SizedBox(width: 6), // Reducido de 8 a 6
                 Expanded(
                   child: _buildStatCard(
                     title: 'Total',
@@ -160,99 +160,99 @@ class _MiniDashboardState extends State<MiniDashboard> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12), // Reducido de 16 a 12
+        borderRadius: BorderRadius.circular(10), // Reducido de 12 a 10
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 15, // Reducido de 20 a 15
-            offset: Offset(0, 3), // Reducido de 4 a 3
+            color: Colors.black.withValues(alpha: 0.06), // Reducido de 0.08 a 0.06
+            blurRadius: 10, // Reducido de 15 a 10
+            offset: Offset(0, 2), // Reducido de 3 a 2
             spreadRadius: 0,
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 4, // Reducido de 6 a 4
-            offset: Offset(0, 1), // Reducido de 2 a 1
+            color: Colors.black.withValues(alpha: 0.03), // Reducido de 0.04 a 0.03
+            blurRadius: 3, // Reducido de 4 a 3
+            offset: Offset(0, 1),
             spreadRadius: 0,
           ),
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.all(12), // Reducido de 16 a 12
+        padding: EdgeInsets.all(8), // Reducido de 12 a 8
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min, // Agregado para evitar overflow
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Header con icono y título
             Row(
               children: [
                 Container(
-                  width: 28, // Reducido de 32 a 28
-                  height: 28, // Reducido de 32 a 28
+                  width: 24, // Reducido de 28 a 24
+                  height: 24, // Reducido de 28 a 24
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(6), // Reducido de 8 a 6
+                    borderRadius: BorderRadius.circular(5), // Reducido de 6 a 5
                   ),
                   child: Icon(
                     icon,
                     color: color,
-                    size: 16, // Reducido de 18 a 16
+                    size: 14, // Reducido de 16 a 14
                   ),
                 ),
-                SizedBox(width: 6), // Reducido de 8 a 6
+                SizedBox(width: 4), // Reducido de 6 a 4
                 Expanded(
                   child: Text(
                     title,
                     style: TextStyle(
-                      fontSize: 12, // Reducido de 14 a 12
+                      fontSize: 11, // Reducido de 12 a 11
                       fontWeight: FontWeight.w600,
                       color: Color(0xFF333333),
                     ),
-                    overflow: TextOverflow.ellipsis, // Agregado para evitar overflow
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 8), // Reducido de 12 a 8
+            SizedBox(height: 6), // Reducido de 8 a 6
             // Valor principal
             Text(
               _formatValue(value),
               style: TextStyle(
-                fontSize: 20, // Reducido de 24 a 20
+                fontSize: 18, // Reducido de 20 a 18
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF333333),
                 height: 1.0,
               ),
             ),
-            SizedBox(height: 2), // Reducido de 4 a 2
+            SizedBox(height: 2),
             // Subtítulo
             Text(
               subtitle,
               style: TextStyle(
-                fontSize: 10, // Reducido de 12 a 10
+                fontSize: 9, // Reducido de 10 a 9
                 color: Colors.grey.shade600,
                 fontWeight: FontWeight.w500,
               ),
-              overflow: TextOverflow.ellipsis, // Agregado para evitar overflow
+              overflow: TextOverflow.ellipsis,
             ),
-            SizedBox(height: 4), // Reemplazado Spacer() con SizedBox fijo
+            SizedBox(height: 2), // Reducido de 4 a 2
             // Indicador de cambio
             Row(
               children: [
                 Icon(
                   Icons.trending_up,
                   color: Color(0xFF4CAF50),
-                  size: 12, // Reducido de 14 a 12
+                  size: 10, // Reducido de 12 a 10
                 ),
-                SizedBox(width: 2), // Reducido de 4 a 2
+                SizedBox(width: 2),
                 Expanded(
                   child: Text(
                     changeText,
                     style: TextStyle(
-                      fontSize: 9, // Reducido de 11 a 9
+                      fontSize: 8, // Reducido de 9 a 8
                       color: Color(0xFF4CAF50),
                       fontWeight: FontWeight.w500,
                     ),
-                    overflow: TextOverflow.ellipsis, // Agregado para evitar overflow
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
