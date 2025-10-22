@@ -21,8 +21,12 @@ class InspeccionRemolqueScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(),
       body: ItemsInspeccionarRemolque(),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.save),
+      floatingActionButton: CustomStyleButton(
+        text: 'Finalizar',
+        icon: Icons.check_circle,
+        backgroundColor: Colors.green,
+        fontSize: 14,
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
         onPressed: () async {
           inspeccionProvider.updateSaving(true);
           List<dynamic> tempRespuestas = [];

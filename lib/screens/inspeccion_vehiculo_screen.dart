@@ -21,10 +21,16 @@ class InspeccionVehiculoScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(),
       body: ItemsInspeccionarVehiculo(),
-      floatingActionButton: FloatingActionButton(
-        child: inspeccionProvider.tieneRemolque
-            ? Icon(Icons.arrow_forward_ios_sharp)
-            : Icon(Icons.save),
+      floatingActionButton: CustomStyleButton(
+        text: inspeccionProvider.tieneRemolque ? 'Siguiente' : 'Guardar',
+        icon: inspeccionProvider.tieneRemolque 
+            ? Icons.arrow_forward_ios_sharp 
+            : Icons.save,
+        backgroundColor: inspeccionProvider.tieneRemolque 
+            ? Colors.blue 
+            : Colors.green,
+        fontSize: 14,
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
         onPressed: () async {
           // Si tiene remolque
           if (inspeccionProvider.tieneRemolque) {
