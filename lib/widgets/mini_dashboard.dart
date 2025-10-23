@@ -14,11 +14,26 @@ class MiniDashboard extends StatefulWidget {
 class _MiniDashboardState extends State<MiniDashboard> {
   Map<String, int> _stats = {};
   bool _isLoading = true;
+  DateTime? _lastUpdate;
+  static const Duration _updateCooldown = Duration(seconds: 2);
 
   @override
   void initState() {
     super.initState();
     _loadDashboardStats();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Actualizar datos cada vez que cambien las dependencias (navegación)
+    // pero solo si ha pasado suficiente tiempo desde la última actualización
+    final now = DateTime.now();
+    if (_lastUpdate == null || 
+        now.difference(_lastUpdate!) > _updateCooldown) {
+      print('🔄 MiniDashboard: Actualizando datos por cambio de dependencias');
+      _loadDashboardStats();
+    }
   }
 
   Future<void> _loadDashboardStats() async {
@@ -44,19 +59,28 @@ class _MiniDashboardState extends State<MiniDashboard> {
         setState(() {
           _stats = stats;
           _isLoading = false;
+          _lastUpdate = DateTime.now();
         });
       } else {
         print('⚠️ MiniDashboard: Datos de usuario o empresa nulos');
         setState(() {
           _isLoading = false;
+          _lastUpdate = DateTime.now();
         });
       }
     } catch (e) {
       print('❌ Error loading dashboard stats: $e');
       setState(() {
         _isLoading = false;
+        _lastUpdate = DateTime.now();
       });
     }
+  }
+
+  /// Método público para refrescar manualmente el dashboard
+  Future<void> refreshStats() async {
+    print('🔄 MiniDashboard: Refrescando manualmente');
+    await _loadDashboardStats();
   }
 
   @override
@@ -297,11 +321,4 @@ class _MiniDashboardState extends State<MiniDashboard> {
     }
   }
 
-  /// Método para refrescar las estadísticas
-  Future<void> refreshStats() async {
-    setState(() {
-      _isLoading = true;
-    });
-    await _loadDashboardStats();
-  }
 }
