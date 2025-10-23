@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -294,13 +295,19 @@ class InspeccionService extends ChangeNotifier {
       });
 
       print('📤 DEBUG: Enviando petición al servidor...');
+      print(
+          '📤 DEBUG: Archivo: $fileName, Tamaño: ${await File(path).length()} bytes');
+
       Response response = await dio.post(
           '${loginService.baseUrl}/upload_file/${company.toLowerCase()}/${folder}',
           data: formData,
           options: Options(
             headers: loginService.options.headers,
-            sendTimeout: Duration(seconds: 30),
-            receiveTimeout: Duration(seconds: 30),
+            sendTimeout: Duration(seconds: 60), // Aumentado a 60 segundos
+            receiveTimeout: Duration(seconds: 60), // Aumentado a 60 segundos
+            validateStatus: (status) {
+              return status! < 500; // Aceptar códigos de estado menores a 500
+            },
           ));
 
       print(
@@ -310,16 +317,55 @@ class InspeccionService extends ChangeNotifier {
       return resp.toMap();
     } on DioException catch (error) {
       print('❌ ERROR: Error en uploadImage: ${error.message}');
+
+      // Manejo específico de diferentes tipos de errores
+      if (error.type == DioExceptionType.receiveTimeout) {
+        print(
+            '❌ ERROR: Timeout de recepción - El servidor tardó más de 60 segundos en responder');
+        showSimpleNotification(
+          Text(
+              'El servidor está tardando mucho en responder. Intenta nuevamente.'),
+          leading: Icon(Icons.timer_off),
+          autoDismiss: true,
+          background: Colors.orange,
+          position: NotificationPosition.bottom,
+        );
+      } else if (error.type == DioExceptionType.sendTimeout) {
+        print(
+            '❌ ERROR: Timeout de envío - No se pudo enviar el archivo en 60 segundos');
+        showSimpleNotification(
+          Text('No se pudo enviar el archivo. Verifica tu conexión.'),
+          leading: Icon(Icons.wifi_off),
+          autoDismiss: true,
+          background: Colors.red,
+          position: NotificationPosition.bottom,
+        );
+      } else if (error.type == DioExceptionType.connectionTimeout) {
+        print('❌ ERROR: Timeout de conexión - No se pudo conectar al servidor');
+        showSimpleNotification(
+          Text('No se pudo conectar al servidor. Verifica tu conexión.'),
+          leading: Icon(Icons.cloud_off),
+          autoDismiss: true,
+          background: Colors.red,
+          position: NotificationPosition.bottom,
+        );
+      } else {
+        print('❌ ERROR: Otro tipo de error: ${error.type}');
+        showSimpleNotification(
+          Text('Error al subir la imagen. Intenta nuevamente.'),
+          leading: Icon(Icons.error),
+          autoDismiss: true,
+          background: Colors.orange,
+          position: NotificationPosition.bottom,
+        );
+      }
+
       if (error.response != null) {
         print('❌ ERROR: Response data: ${error.response!.data}');
       } else {
         print('❌ ERROR: No response data available');
       }
-      showSimpleNotification(Text('No se ha podido subir la foto al servidor'),
-          leading: Icon(Icons.check),
-          autoDismiss: true,
-          background: Colors.orange,
-          position: NotificationPosition.bottom);
+
       return Future.error(error.response?.data ?? error.message);
     } catch (e) {
       print('❌ ERROR: Error inesperado en uploadImage: $e');

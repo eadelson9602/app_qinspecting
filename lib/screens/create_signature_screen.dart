@@ -46,7 +46,11 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
               },
               onPanUpdate: (details) {
                 setState(() {
-                  _points.add(details.localPosition);
+                  // Solo agregar puntos si hay suficiente distancia para evitar puntos muy cercanos
+                  if (_points.isEmpty ||
+                      (_points.last - details.localPosition).distance > 2.0) {
+                    _points.add(details.localPosition);
+                  }
                 });
               },
               onPanEnd: (details) {
@@ -228,31 +232,62 @@ class SignaturePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = Colors.black
-      ..strokeWidth = 2.0
+      ..strokeWidth = 3.0
       ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
+      ..strokeJoin = StrokeJoin.round
+      ..style = PaintingStyle.stroke;
 
     // Draw completed strokes
     for (final stroke in strokes) {
       if (stroke.length > 1) {
-        final path = Path();
-        path.moveTo(stroke[0].dx, stroke[0].dy);
-        for (int i = 1; i < stroke.length; i++) {
-          path.lineTo(stroke[i].dx, stroke[i].dy);
-        }
-        canvas.drawPath(path, paint);
+        _drawSmoothPath(canvas, paint, stroke);
       }
     }
 
     // Draw current stroke
     if (currentPoints.length > 1) {
-      final path = Path();
-      path.moveTo(currentPoints[0].dx, currentPoints[0].dy);
-      for (int i = 1; i < currentPoints.length; i++) {
-        path.lineTo(currentPoints[i].dx, currentPoints[i].dy);
-      }
-      canvas.drawPath(path, paint);
+      _drawSmoothPath(canvas, paint, currentPoints);
     }
+  }
+
+  void _drawSmoothPath(Canvas canvas, Paint paint, List<Offset> points) {
+    if (points.length < 2) return;
+
+    final path = Path();
+    path.moveTo(points[0].dx, points[0].dy);
+
+    if (points.length == 2) {
+      // Si solo hay 2 puntos, dibujar una línea recta
+      path.lineTo(points[1].dx, points[1].dy);
+    } else {
+      // Para más de 2 puntos, usar curvas suaves
+      for (int i = 1; i < points.length - 1; i++) {
+        final currentPoint = points[i];
+        final nextPoint = points[i + 1];
+
+        // Calcular punto de control para curva suave
+        final controlPoint1 = Offset(
+          currentPoint.dx + (nextPoint.dx - currentPoint.dx) * 0.3,
+          currentPoint.dy + (nextPoint.dy - currentPoint.dy) * 0.3,
+        );
+
+        final controlPoint2 = Offset(
+          currentPoint.dx + (nextPoint.dx - currentPoint.dx) * 0.7,
+          currentPoint.dy + (nextPoint.dy - currentPoint.dy) * 0.7,
+        );
+
+        path.cubicTo(
+          controlPoint1.dx,
+          controlPoint1.dy,
+          controlPoint2.dx,
+          controlPoint2.dy,
+          nextPoint.dx,
+          nextPoint.dy,
+        );
+      }
+    }
+
+    canvas.drawPath(path, paint);
   }
 
   @override
