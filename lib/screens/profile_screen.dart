@@ -19,7 +19,6 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final loginService = Provider.of<LoginService>(context, listen: true);
     final perfilForm = Provider.of<PerfilFormProvider>(context, listen: true);
-    final base = loginService.userDataLogged.base ?? '';
 
     // Verificar si hay una imagen pendiente de actualizar
     _checkPendingPhotoUpdate(context, perfilForm, loginService);
@@ -50,11 +49,12 @@ class ProfileScreen extends StatelessWidget {
               // Header con gradiente y avatar
               Consumer<PerfilFormProvider>(
                 builder: (context, perfilForm, child) {
+                  final nombreQi = loginService.selectedEmpresa.nombreQi ?? '';
                   return ModernHeader(
                     userName:
                         '${perfilForm.userDataLogged?.nombres} ${perfilForm.userDataLogged?.apellidos}',
                     userPhoto: perfilForm.getDisplayImage(),
-                    onPhotoTap: () => _showPhotoOptions(context, base, context),
+                    onPhotoTap: () => _showPhotoOptions(context, nombreQi),
                   );
                 },
               ),
@@ -75,13 +75,12 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  void _showPhotoOptions(
-      BuildContext context, String base, BuildContext parentContext) {
+  void _showPhotoOptions(BuildContext context, String base) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => Container(
+      builder: (modalContext) => Container(
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -90,7 +89,7 @@ class ProfileScreen extends StatelessWidget {
           left: 20,
           right: 20,
           top: 20,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          bottom: MediaQuery.of(modalContext).viewInsets.bottom + 20,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -106,7 +105,7 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 20),
             Text(
               'Seleccionar foto de perfil',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              style: Theme.of(modalContext).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: AppTheme.primaryGreen,
                   ),
@@ -119,8 +118,8 @@ class ProfileScreen extends StatelessWidget {
                     icon: Icons.camera_alt,
                     label: 'Cámara',
                     onTap: () async {
-                      Navigator.pop(context);
-                      await _pickImage(parentContext, ImageSource.camera, base);
+                      Navigator.pop(modalContext);
+                      await _pickImage(context, ImageSource.camera);
                     },
                   ),
                 ),
@@ -130,9 +129,8 @@ class ProfileScreen extends StatelessWidget {
                     icon: Icons.photo_library,
                     label: 'Galería',
                     onTap: () async {
-                      Navigator.pop(context);
-                      await _pickImage(
-                          parentContext, ImageSource.gallery, base);
+                      Navigator.pop(modalContext);
+                      await _pickImage(context, ImageSource.gallery);
                     },
                   ),
                 ),
@@ -142,7 +140,7 @@ class ProfileScreen extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: TextButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => Navigator.pop(modalContext),
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
@@ -166,14 +164,8 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _pickImage(
-      BuildContext context, ImageSource source, String base) async {
+  Future<void> _pickImage(BuildContext context, ImageSource source) async {
     try {
-      // Verificar si el contexto está montado antes de acceder a providers
-      if (!context.mounted) {
-        return;
-      }
-
       // Verificar permisos para cámara
       if (source == ImageSource.camera) {
         // Verificar el estado actual del permiso
@@ -226,7 +218,7 @@ class ProfileScreen extends StatelessWidget {
 
       if (image != null) {
         // Subir imagen directamente sin depender del contexto
-        _uploadImageDirectly(context, image.path, base);
+        _uploadImageDirectly(context, image.path);
       }
     } on PlatformException catch (e) {
       String errorMessage = 'Error al seleccionar la imagen';
@@ -416,46 +408,29 @@ class ProfileScreen extends StatelessWidget {
 
   /// Función para subir imagen directamente sin depender del contexto
   Future<void> _uploadImageDirectly(
-      BuildContext context, String imagePath, String base) async {
+      BuildContext context, String imagePath) async {
     try {
-      print('[PHOTO DIRECT] === INICIANDO SUBIDA DE IMAGEN ===');
-      print('[PHOTO DIRECT] Ruta de imagen: $imagePath');
-      print('[PHOTO DIRECT] Base de datos: $base');
-
       final loginService = Provider.of<LoginService>(context, listen: false);
-      print('[PHOTO DIRECT] LoginService obtenido correctamente');
-      print(
-          '[PHOTO DIRECT] Usuario actual: ${loginService.userDataLogged.nombres} ${loginService.userDataLogged.apellidos}');
-      print(
-          '[PHOTO DIRECT] Imagen actual: ${loginService.userDataLogged.urlFoto}');
 
       // Usar el loginService directamente para crear InspeccionService
       final inspeccionService = InspeccionService();
-      print('[PHOTO DIRECT] InspeccionService creado');
 
       // El loginService ya tiene el token configurado, solo necesitamos copiarlo
       inspeccionService.loginService.options.headers =
           loginService.options.headers;
-      print('[PHOTO DIRECT] Headers de autenticación configurados');
 
-      // Subir imagen al servidor
-      print('[PHOTO DIRECT] Llamando a uploadImage...');
       final uploadResult = await inspeccionService.uploadImage(
         path: imagePath,
-        company: base,
+        company: loginService.selectedEmpresa.nombreQi ?? '',
         folder: 'perfiles',
       );
       print('[PHOTO DIRECT] Resultado de uploadImage: $uploadResult');
 
       if (uploadResult != null && uploadResult['path'] != null) {
         final newImageUrl = uploadResult['path'] as String;
-        print('[PHOTO DIRECT] ✅ Imagen subida exitosamente');
-        print('[PHOTO DIRECT] Nueva URL: $newImageUrl');
-        print(
-            '[PHOTO DIRECT] URL anterior: ${loginService.userDataLogged.urlFoto}');
 
         // También intentar actualizar inmediatamente si es posible
-        await _updateUserDataWithNewUrl(context, newImageUrl, base);
+        await _updateUserDataWithNewUrl(context, newImageUrl);
       } else {
         print(
             '[PHOTO DIRECT] ❌ Error: No se pudo obtener la URL de la imagen subida');
@@ -467,7 +442,7 @@ class ProfileScreen extends StatelessWidget {
 
   /// Actualiza los datos del usuario con la nueva URL de imagen
   Future<void> _updateUserDataWithNewUrl(
-      BuildContext context, String newImageUrl, String base) async {
+      BuildContext context, String newImageUrl) async {
     try {
       // Obtener providers desde el contexto
       final loginService = Provider.of<LoginService>(context, listen: false);
@@ -493,7 +468,7 @@ class ProfileScreen extends StatelessWidget {
         'fechaNacimiento': loginService.userDataLogged.fechaNacimiento,
         'lugarExpDocumento': loginService.userDataLogged.lugarExpDocumento,
         'genero': loginService.userDataLogged.genero,
-        'base': base,
+        'base': loginService.selectedEmpresa.nombreBase,
       };
 
       // Llamar al backend para persistir el cambio
@@ -516,13 +491,8 @@ class ProfileScreen extends StatelessWidget {
   Future<void> _syncProfilePhotoWithServer(
       BuildContext context, LoginService loginService) async {
     try {
-      print('[SYNC PHOTO] Iniciando sincronización automática de imagen...');
-
       final baseEmpresa = loginService.selectedEmpresa.nombreBase;
       final usuario = loginService.selectedEmpresa.numeroDocumento;
-
-      print(
-          '[SYNC PHOTO] Obteniendo datos del servidor: $baseEmpresa/$usuario');
 
       // Obtener datos actualizados del servidor
       final response = await loginService.dio.get(
@@ -533,15 +503,8 @@ class ProfileScreen extends StatelessWidget {
         final serverUserData = UserData.fromJson(response.toString());
         serverUserData.empresa = loginService.selectedEmpresa.nombreQi;
 
-        print(
-            '[SYNC PHOTO] Imagen local: ${loginService.userDataLogged.urlFoto}');
-        print('[SYNC PHOTO] Imagen servidor: ${serverUserData.urlFoto}');
-
         // Comparar URLs de imagen
         if (loginService.userDataLogged.urlFoto != serverUserData.urlFoto) {
-          print(
-              '[SYNC PHOTO] ⚠️ Desincronización detectada! Actualizando imagen local...');
-
           // Actualizar la imagen local con la del servidor
           loginService.userDataLogged.urlFoto = serverUserData.urlFoto;
 
@@ -550,8 +513,6 @@ class ProfileScreen extends StatelessWidget {
 
           // Notificar cambios usando el método público del LoginService
           loginService.userDataLogged = loginService.userDataLogged;
-
-          print('[SYNC PHOTO] ✅ Imagen sincronizada exitosamente');
         } else {
           print('[SYNC PHOTO] ✅ Imagen ya está sincronizada');
         }
