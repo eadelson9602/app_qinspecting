@@ -8,6 +8,7 @@ import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/screens/screens.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/ui/input_decorations.dart';
+import 'package:app_qinspecting/ui/app_theme.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 
 class RememberPasswordScreen extends StatelessWidget {
@@ -92,21 +93,35 @@ class _ButtonRememberAccount extends StatelessWidget {
     final inspeccionService =
         Provider.of<InspeccionService>(context, listen: false);
 
-    return MaterialButton(
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-      minWidth: 300,
-      child: CustomStyleButton(
-          text: loginForm.isLoading
-              ? 'Recuperando datos...'
-              : 'Recuperar contraseña'),
-      onPressed: loginForm.isLoading
-          ? null
-          : () async {
-              if (!loginForm.isValidForm()) return;
-              rememberAccount(
-                  context, loginForm, loginService, inspeccionService);
-            },
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton(
+        onPressed: loginForm.isLoading
+            ? null
+            : () async {
+                if (!loginForm.isValidForm()) return;
+                rememberAccount(
+                    context, loginForm, loginService, inspeccionService);
+              },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppTheme.primaryGreen,
+          foregroundColor: Colors.white,
+          elevation: 4,
+          shadowColor: AppTheme.primaryGreen.withValues(alpha: 0.3),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        child: Text(
+          loginForm.isLoading ? 'Recuperando datos...' : 'Recuperar contraseña',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ),
     );
   }
 
