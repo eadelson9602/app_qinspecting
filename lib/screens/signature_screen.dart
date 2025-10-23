@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/services/services.dart';
-import 'package:app_qinspecting/ui/app_theme.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 
 class SignatureScreen extends StatelessWidget {
@@ -18,8 +17,24 @@ class SignatureScreen extends StatelessWidget {
   }
 }
 
-class MyStatelessWidget extends StatelessWidget {
+class MyStatelessWidget extends StatefulWidget {
   const MyStatelessWidget({Key? key}) : super(key: key);
+
+  @override
+  State<MyStatelessWidget> createState() => _MyStatelessWidgetState();
+}
+
+class _MyStatelessWidgetState extends State<MyStatelessWidget> {
+  @override
+  void initState() {
+    super.initState();
+    // Resetear estado cuando se inicializa la pantalla
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final firmaService = Provider.of<FirmaService>(context, listen: false);
+      firmaService.updateTerminos('NO');
+      firmaService.updateTabIndex(0);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,26 +115,14 @@ class MyStatelessWidget extends StatelessWidget {
               top: 20,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(28),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  color: Colors.green,
+                  borderRadius: BorderRadius.circular(25),
                 ),
                 child: IconButton(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(
                     Icons.arrow_back_ios_new_rounded,
-                    color: AppTheme.primaryGreen,
+                    color: Colors.white,
                     size: 24,
                   ),
                 ),
@@ -251,70 +254,75 @@ class CardFirma extends StatelessWidget {
     final sizeScreen = MediaQuery.of(context).size;
 
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.only(top: 25, bottom: 20, left: 1, right: 1),
       child: Container(
         height: sizeScreen.height * 1,
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Card de imagen de firma con estilo iOS
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            child: Column(
+              children: [
+                // Card de imagen de firma con estilo iOS
+                Container(
+                  width: sizeScreen.width * 0.9,
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: _SignatureImage(
+                      source: infoFirma.firma?.toString(),
+                      height: sizeScreen.height * 0.4,
                     ),
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: _SignatureImage(
-                    source: infoFirma.firma?.toString(),
-                    height: sizeScreen.height * 0.4,
                   ),
                 ),
-              ),
-              SizedBox(height: 24),
+                SizedBox(height: 24),
 
-              // Información del usuario con iconos coloridos
-              _buildInfoCard(
-                icon: Icons.person_outline_rounded,
-                iconColor: Color(0xFF2196F3), // Azul
-                title: 'Usuario',
-                subtitle: '${infoFirma.fkNumeroDoc}',
-              ),
+                // Información del usuario con iconos coloridos
+                _buildInfoCard(
+                  icon: Icons.person_outline_rounded,
+                  iconColor: Color(0xFF2196F3), // Azul
+                  title: 'Usuario',
+                  subtitle: '${infoFirma.fkNumeroDoc}',
+                ),
 
-              SizedBox(height: 16),
+                SizedBox(height: 16),
 
-              // Términos y condiciones
-              _buildInfoCard(
-                icon: Icons.fact_check_outlined,
-                iconColor: Color(0xFF4CAF50), // Verde
-                title: 'Aceptó términos y condiciones?',
-                subtitle: '${infoFirma.terminosCondiciones}',
-              ),
+                // Términos y condiciones
+                _buildInfoCard(
+                  icon: Icons.fact_check_outlined,
+                  iconColor: Color(0xFF4CAF50), // Verde
+                  title: 'Aceptó términos y condiciones?',
+                  subtitle: '${infoFirma.terminosCondiciones}',
+                ),
 
-              SizedBox(height: 16),
+                SizedBox(height: 16),
 
-              // Fecha de realización
-              _buildInfoCard(
-                icon: Icons.calendar_today_outlined,
-                iconColor: Color(0xFFFF9800), // Naranja
-                title: 'Fecha de realización',
-                subtitle: '${infoFirma.fechaControl}',
-              ),
+                // Fecha de realización
+                _buildInfoCard(
+                  icon: Icons.calendar_today_outlined,
+                  iconColor: Color(0xFFFF9800), // Naranja
+                  title: 'Fecha de realización',
+                  subtitle: '${infoFirma.fechaControl}',
+                ),
 
-              SizedBox(height: 24),
-            ],
+                SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
