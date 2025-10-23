@@ -692,7 +692,7 @@ class InspeccionService extends ChangeNotifier {
           );
         }
 
-        final responseBatch = await dio.post(
+        await dio.post(
             '${loginService.baseUrl}/insert_respuestas_preoperacional',
             options: loginService.options,
             data: {

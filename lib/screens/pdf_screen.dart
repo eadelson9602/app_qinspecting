@@ -27,6 +27,7 @@ class _PdfScreenState extends State<PdfScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print(_lastError);
     final Object? args = ModalRoute.of(context)?.settings.arguments;
     if (args is! List ||
         args.isEmpty ||
