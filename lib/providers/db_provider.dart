@@ -654,15 +654,50 @@ class DBProvider {
 
   Future<int?> deleteResumenPreoperacional(int idResumen) async {
     final db = await database;
-    final res = await db?.update(
-        'ResumenPreoperacional',
-        {
-          'eliminado': 1,
-          'fechaEliminacion': DateTime.now().toIso8601String(),
-        },
-        where: 'id = ?',
-        whereArgs: [idResumen]);
-    return res;
+    if (db == null) return null;
+
+    try {
+      // Verificar si las columnas eliminado y fechaEliminacion existen
+      final tableInfo =
+          await db.rawQuery('PRAGMA table_info(ResumenPreoperacional)');
+      final hasEliminado = tableInfo.any((col) => col['name'] == 'eliminado');
+      final hasFechaEliminacion =
+          tableInfo.any((col) => col['name'] == 'fechaEliminacion');
+
+      if (hasEliminado && hasFechaEliminacion) {
+        // Usar soft delete si las columnas existen
+        print('🗑️ Usando soft delete para inspección $idResumen');
+        final res = await db.update(
+            'ResumenPreoperacional',
+            {
+              'eliminado': 1,
+              'fechaEliminacion': DateTime.now().toIso8601String(),
+            },
+            where: 'id = ?',
+            whereArgs: [idResumen]);
+        return res;
+      } else {
+        // Usar eliminación física si las columnas no existen (compatibilidad retroactiva)
+        print(
+            '🗑️ Usando eliminación física para inspección $idResumen (estructura antigua)');
+        final res = await db.delete('ResumenPreoperacional',
+            where: 'id = ?', whereArgs: [idResumen]);
+        return res;
+      }
+    } catch (e) {
+      print('❌ Error al eliminar inspección $idResumen: $e');
+      // Fallback a eliminación física en caso de error
+      try {
+        final res = await db.delete('ResumenPreoperacional',
+            where: 'id = ?', whereArgs: [idResumen]);
+        print(
+            '🗑️ Eliminación física exitosa como fallback para inspección $idResumen');
+        return res;
+      } catch (fallbackError) {
+        print('❌ Error en fallback de eliminación física: $fallbackError');
+        return null;
+      }
+    }
   }
 
   Future<int?> deleteRespuestaPreoperacional(int idResumen) async {
