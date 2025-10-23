@@ -138,72 +138,102 @@ class MyStatelessWidget extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: Container(
+        margin: EdgeInsets.all(15),
         decoration: BoxDecoration(
           color: Colors.white,
+          borderRadius: BorderRadius.circular(50),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
+              color: Colors.black.withValues(alpha: 0.2),
               blurRadius: 20,
-              offset: const Offset(0, -8),
+              offset: const Offset(0, 2),
+              spreadRadius: 0,
             ),
           ],
         ),
-        child: SafeArea(
-          child: BottomNavigationBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            items: [
-              BottomNavigationBarItem(
-                icon: Container(
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: firmaService.indexTabaCreateSignature == 0 
-                        ? AppTheme.primaryGreen.withValues(alpha: 0.12)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.gesture_rounded,
-                    color: firmaService.indexTabaCreateSignature == 0 
-                        ? AppTheme.primaryGreen
-                        : Colors.grey[600],
-                    size: 24,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Row(
+            children: [
+              // Botón Firma
+              Expanded(
+                child: InkWell(
+                  onTap: () => firmaService.updateTabIndex(0),
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Icon(
+                              Icons.gesture_rounded,
+                              color: firmaService.indexTabaCreateSignature == 0
+                                  ? Color(0xFF34A853)
+                                  : Color(0xFF606060),
+                              size: 28,
+                            ),
+                            if (firmaService.indexTabaCreateSignature == 0)
+                              Positioned(
+                                bottom: -2,
+                                child: Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF34A853),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                label: 'Firma',
               ),
-              BottomNavigationBarItem(
-                icon: Container(
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: firmaService.indexTabaCreateSignature == 1 
-                        ? AppTheme.primaryGreen.withValues(alpha: 0.12)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.create_rounded,
-                    color: firmaService.indexTabaCreateSignature == 1 
-                        ? AppTheme.primaryGreen
-                        : Colors.grey[600],
-                    size: 24,
+              // Botón Realizar firma
+              Expanded(
+                child: InkWell(
+                  onTap: () => firmaService.updateTabIndex(1),
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Icon(
+                              Icons.create_rounded,
+                              color: firmaService.indexTabaCreateSignature == 1
+                                  ? Color(0xFF34A853)
+                                  : Color(0xFF606060),
+                              size: 28,
+                            ),
+                            if (firmaService.indexTabaCreateSignature == 1)
+                              Positioned(
+                                bottom: -2,
+                                child: Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF34A853),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                label: 'Realizar firma',
               ),
             ],
-            currentIndex: firmaService.indexTabaCreateSignature,
-            selectedItemColor: AppTheme.primaryGreen,
-            unselectedItemColor: Colors.grey[600],
-            selectedLabelStyle: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 12,
-            ),
-            unselectedLabelStyle: TextStyle(
-              fontWeight: FontWeight.w400,
-              fontSize: 12,
-            ),
-            onTap: (value) => firmaService.updateTabIndex(value),
           ),
         ),
       ),
@@ -254,7 +284,7 @@ class CardFirma extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 24),
-              
+
               // Información del usuario con iconos coloridos
               _buildInfoCard(
                 icon: Icons.person_outline_rounded,
@@ -262,9 +292,9 @@ class CardFirma extends StatelessWidget {
                 title: 'Usuario',
                 subtitle: '${infoFirma.fkNumeroDoc}',
               ),
-              
+
               SizedBox(height: 16),
-              
+
               // Términos y condiciones
               _buildInfoCard(
                 icon: Icons.fact_check_outlined,
@@ -272,9 +302,9 @@ class CardFirma extends StatelessWidget {
                 title: 'Aceptó términos y condiciones?',
                 subtitle: '${infoFirma.terminosCondiciones}',
               ),
-              
+
               SizedBox(height: 16),
-              
+
               // Fecha de realización
               _buildInfoCard(
                 icon: Icons.calendar_today_outlined,
@@ -282,7 +312,7 @@ class CardFirma extends StatelessWidget {
                 title: 'Fecha de realización',
                 subtitle: '${infoFirma.fechaControl}',
               ),
-              
+
               SizedBox(height: 24),
             ],
           ),
