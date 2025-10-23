@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:app_qinspecting/models/empresa.dart';
 import 'package:app_qinspecting/screens/screens.dart';
 import 'package:app_qinspecting/ui/input_decorations.dart';
+import 'package:app_qinspecting/ui/app_theme.dart';
 import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
@@ -155,19 +156,35 @@ class _ButtonLogin extends StatelessWidget {
         Provider.of<InspeccionService>(context, listen: false);
     final storage = new FlutterSecureStorage();
 
-    return MaterialButton(
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-      minWidth: 300,
-      child: CustomStyleButton(
-          text: loginForm.isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'),
-      onPressed: loginForm.isLoading
-          ? null
-          : () async {
-              if (!loginForm.isValidForm()) return;
-              login(
-                  context, loginForm, loginService, storage, inspeccionService);
-            },
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton(
+        onPressed: loginForm.isLoading
+            ? null
+            : () async {
+                if (!loginForm.isValidForm()) return;
+                login(context, loginForm, loginService, storage,
+                    inspeccionService);
+              },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppTheme.primaryGreen,
+          foregroundColor: Colors.white,
+          elevation: 4,
+          shadowColor: AppTheme.primaryGreen.withValues(alpha: 0.3),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        child: Text(
+          loginForm.isLoading ? 'Iniciando sesión...' : 'Iniciar sesión',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ),
     );
   }
 
