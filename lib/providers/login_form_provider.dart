@@ -65,11 +65,13 @@ class LoginFormProvider extends ChangeNotifier {
         ),
       );
     } else {
+      print('URL: $url');
       return ClipRRect(
         borderRadius: BorderRadius.all(Radius.circular(50)),
         child: FadeInImage(
           placeholder: const AssetImage('assets/images/loading-2.gif'),
           image: NetworkImage(url),
+          fit: BoxFit.cover,
           imageErrorBuilder: (context, error, stackTrace) {
             // Mostrar imagen por defecto cuando falla la carga
             return const Image(

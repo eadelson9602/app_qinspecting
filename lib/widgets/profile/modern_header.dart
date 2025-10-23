@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:app_qinspecting/providers/providers.dart';
@@ -19,7 +18,9 @@ class ModernHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('[MODERN HEADER] userPhoto: $userPhoto');
+    final imageProvider =
+        Provider.of<LoginFormProvider>(context, listen: false);
+
     return Container(
       height: 280,
       decoration: BoxDecoration(
@@ -80,27 +81,34 @@ class ModernHeader extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(60),
-                    child: FutureBuilder(
-                      future:
-                          Provider.of<InspeccionService>(context, listen: false)
-                              .checkConnection(),
-                      builder: (context, snapshot) {
-                        print('[MODERN HEADER] Mostrando imagen: $userPhoto');
-                        if (snapshot.data == true) {
-                          print('SNAPSHOT DATA: ${userPhoto}');
-                          return _buildImageWidget(context);
-                        }
-                        return Container(
-                          color: AppTheme.primaryGreen.withValues(alpha: 0.1),
-                          child: const Image(
-                            image: AssetImage('assets/images/loading-2.gif'),
-                            fit: BoxFit.cover,
+                  child: FutureBuilder(
+                    future:
+                        Provider.of<InspeccionService>(context, listen: false)
+                            .checkConnection(),
+                    builder: (context, snapshot) {
+                      if (snapshot.data == true) {
+                        return ClipRRect(
+                          borderRadius: BorderRadius.circular(56),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(56),
+                              border: Border.all(
+                                color: AppTheme.cardColor,
+                                width: 4,
+                              ),
+                            ),
+                            child: imageProvider.getImage(userPhoto),
                           ),
                         );
-                      },
-                    ),
+                      }
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: const Image(
+                          image: AssetImage('assets/images/loading-2.gif'),
+                          fit: BoxFit.cover,
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -157,55 +165,5 @@ class ModernHeader extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Widget _buildImageWidget(BuildContext context) {
-    print('[MODERN HEADER] _buildImageWidget userPhoto: $userPhoto');
-    if (userPhoto != null && userPhoto!.isNotEmpty) {
-      print('[MODERN HEADER] userPhoto is not empty');
-      // Verificar si es una ruta local (imagen temporal)
-      if (userPhoto!.startsWith('/')) {
-        print('[MODERN HEADER] userPhoto starts with /');
-        return Image.file(
-          File(userPhoto!),
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            print('[MODERN HEADER] error: $error');
-            return const Image(
-              image: AssetImage('assets/images/no-image.png'),
-              fit: BoxFit.cover,
-            );
-          },
-        );
-      } else {
-        // Es una URL del servidor
-        print(
-            '[MODERN HEADER] Usando LoginFormProvider.getImage() para URL: $userPhoto');
-
-        // Verificar si la URL es válida
-        if (userPhoto!.startsWith('http://') ||
-            userPhoto!.startsWith('https://')) {
-          print('[MODERN HEADER] URL válida detectada');
-          final imageWidget =
-              Provider.of<LoginFormProvider>(context, listen: false)
-                  .getImage(userPhoto!);
-          print(
-              '[MODERN HEADER] Widget de imagen creado: ${imageWidget.runtimeType}');
-          return imageWidget;
-        } else {
-          print('[MODERN HEADER] URL inválida, mostrando imagen por defecto');
-          return const Image(
-            image: AssetImage('assets/images/no-image.png'),
-            fit: BoxFit.cover,
-          );
-        }
-      }
-    } else {
-      print('[MODERN HEADER] userPhoto is empty');
-      return const Image(
-        image: AssetImage('assets/images/no-image.png'),
-        fit: BoxFit.cover,
-      );
-    }
   }
 }
