@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +21,7 @@ class ProfileScreen extends StatelessWidget {
     final base = loginService.userDataLogged.base ?? '';
 
     // Verificar si hay una imagen pendiente de actualizar
-    _checkPendingPhotoUpdate(perfilForm, loginService);
+    _checkPendingPhotoUpdate(context, perfilForm, loginService);
 
     // Actualizar datos del perfil cuando cambien los datos del login service
     // Usar addPostFrameCallback para evitar setState durante build
@@ -51,7 +50,7 @@ class ProfileScreen extends StatelessWidget {
                     userName:
                         '${perfilForm.userDataLogged?.nombres} ${perfilForm.userDataLogged?.apellidos}',
                     userPhoto: perfilForm.getDisplayImage(),
-                    onPhotoTap: () => _showPhotoOptions(context, base),
+                    onPhotoTap: () => _showPhotoOptions(context, base, context),
                   );
                 },
               ),
@@ -72,7 +71,8 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  void _showPhotoOptions(BuildContext context, String base) {
+  void _showPhotoOptions(
+      BuildContext context, String base, BuildContext parentContext) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -116,7 +116,7 @@ class ProfileScreen extends StatelessWidget {
                     label: 'Cámara',
                     onTap: () async {
                       Navigator.pop(context);
-                      await _pickImage(context, ImageSource.camera, base);
+                      await _pickImage(parentContext, ImageSource.camera, base);
                     },
                   ),
                 ),
@@ -127,7 +127,8 @@ class ProfileScreen extends StatelessWidget {
                     label: 'Galería',
                     onTap: () async {
                       Navigator.pop(context);
-                      await _pickImage(context, ImageSource.gallery, base);
+                      await _pickImage(
+                          parentContext, ImageSource.gallery, base);
                     },
                   ),
                 ),
@@ -164,28 +165,25 @@ class ProfileScreen extends StatelessWidget {
   Future<void> _pickImage(
       BuildContext context, ImageSource source, String base) async {
     try {
-      print('[PHOTO PICK] Iniciando pick de imagen: $source');
-      print('[PHOTO PICK] Context: ${context.toString()}');
+      // Verificar si el contexto está montado antes de acceder a providers
+      if (!context.mounted) {
+        return;
+      }
 
       // Verificar permisos para cámara
       if (source == ImageSource.camera) {
         // Verificar el estado actual del permiso
         final currentCameraStatus = await Permission.camera.status;
-        print('Estado actual del permiso de cámara: $currentCameraStatus');
 
         // Solo mostrar diálogo explicativo si el permiso no está otorgado
         if (currentCameraStatus != PermissionStatus.granted) {
           final shouldProceed = await _showCameraPermissionAlert(context);
           if (!shouldProceed) {
-            print('Usuario canceló el permiso de cámara');
             return;
           }
         }
 
-        print('Solicitando permiso de cámara...');
         final cameraStatus = await Permission.camera.request();
-        print(
-            'Estado del permiso de cámara después de solicitar: $cameraStatus');
 
         if (cameraStatus != PermissionStatus.granted) {
           if (cameraStatus == PermissionStatus.permanentlyDenied) {
@@ -196,20 +194,12 @@ class ProfileScreen extends StatelessWidget {
           }
           return;
         }
-
-        print('Permiso de cámara concedido, procediendo a abrir la cámara...');
       }
 
       // Verificar permisos para galería
       if (source == ImageSource.gallery) {
         // Verificar el estado actual del permiso
-        final currentPhotosStatus = await Permission.photos.status;
-        print('Estado actual del permiso de galería: $currentPhotosStatus');
-
-        print('Solicitando permiso de galería...');
         final photosStatus = await Permission.photos.request();
-        print(
-            'Estado del permiso de galería después de solicitar: $photosStatus');
 
         if (photosStatus != PermissionStatus.granted) {
           if (photosStatus == PermissionStatus.permanentlyDenied) {
@@ -220,9 +210,6 @@ class ProfileScreen extends StatelessWidget {
           }
           return;
         }
-
-        print(
-            'Permiso de galería concedido, procediendo a abrir la galería...');
       }
 
       final ImagePicker picker = ImagePicker();
@@ -238,7 +225,6 @@ class ProfileScreen extends StatelessWidget {
         _uploadImageDirectly(context, image.path, base);
       }
     } on PlatformException catch (e) {
-      print('PlatformException capturada: ${e.code} - ${e.message}');
       String errorMessage = 'Error al seleccionar la imagen';
 
       if (e.code == 'camera_access_denied') {
@@ -253,10 +239,8 @@ class ProfileScreen extends StatelessWidget {
             'Acceso a la galería denegado permanentemente. Ve a configuración para habilitarlo';
       }
 
-      print('Mostrando error: $errorMessage');
       _showErrorMessage(context, errorMessage);
     } catch (e) {
-      print('Error inesperado: $e');
       _showErrorMessage(context, 'Error inesperado: $e');
     }
   }
@@ -430,38 +414,24 @@ class ProfileScreen extends StatelessWidget {
   Future<void> _uploadImageDirectly(
       BuildContext context, String imagePath, String base) async {
     try {
-      print('[PHOTO DIRECT] Iniciando subida directa: $imagePath');
+      final loginService = Provider.of<LoginService>(context, listen: false);
 
-      // Obtener datos del storage
-      final storage = FlutterSecureStorage();
-      final token = await storage.read(key: 'token') ?? '';
-
-      if (token.isEmpty) {
-        print('[PHOTO DIRECT] No se encontró token, cancelando subida');
-        return;
-      }
-
-      // Crear instancia de InspeccionService
+      // Usar el loginService directamente para crear InspeccionService
       final inspeccionService = InspeccionService();
 
-      // Configurar el token en el loginService del InspeccionService
-      inspeccionService.loginService.options.headers = {
-        "x-access-token": token
-      };
-      print('[PHOTO DIRECT] Token configurado: ${token.substring(0, 10)}...');
+      // El loginService ya tiene el token configurado, solo necesitamos copiarlo
+      inspeccionService.loginService.options.headers =
+          loginService.options.headers;
 
       // Subir imagen al servidor
-      print('[PHOTO DIRECT] Llamando a uploadImage...');
       final uploadResult = await inspeccionService.uploadImage(
         path: imagePath,
         company: base,
         folder: 'perfiles',
       );
-      print('[PHOTO DIRECT] Resultado de uploadImage: $uploadResult');
 
       if (uploadResult != null && uploadResult['path'] != null) {
         final newImageUrl = uploadResult['path'] as String;
-        print('[PHOTO DIRECT] Imagen subida exitosamente: $newImageUrl');
 
         // También intentar actualizar inmediatamente si es posible
         await _updateUserDataWithNewUrl(context, newImageUrl, base);
@@ -478,43 +448,22 @@ class ProfileScreen extends StatelessWidget {
   Future<void> _updateUserDataWithNewUrl(
       BuildContext context, String newImageUrl, String base) async {
     try {
-      // Obtener datos necesarios del storage
-      final storage = FlutterSecureStorage();
-      final numeroDocumento = await storage.read(key: 'numeroDocumento') ?? '';
+      // Obtener providers desde el contexto
+      final loginService = Provider.of<LoginService>(context, listen: false);
+      final perfilForm =
+          Provider.of<PerfilFormProvider>(context, listen: false);
 
-      final password = await storage.read(key: 'password') ?? '';
-      print('[PHOTO DIRECT] Base: $base');
-      print('[PHOTO DIRECT] Numero de documento: $numeroDocumento');
-      print('[PHOTO DIRECT] Password: $password');
+      // Actualizar la URL de la imagen
+      loginService.userDataLogged.urlFoto = newImageUrl;
 
-      if (numeroDocumento.isEmpty || password.isEmpty || base.isEmpty) {
-        print('[PHOTO DIRECT] Datos de usuario incompletos en storage');
-        return;
-      }
-
-      // Obtener datos del usuario desde SQLite
-      final userData =
-          await DBProvider.db.getUser(numeroDocumento, password, base);
-
-      if (userData != null) {
-        // Actualizar la URL de la imagen
-        userData.urlFoto = newImageUrl;
-
-        // Actualizar en SQLite
-        await DBProvider.db.updateUser(userData);
-        print('[PHOTO DIRECT] Datos actualizados en SQLite');
-
-        // Guardar en storage para sincronización
-        await storage.write(key: 'userDataUpdated', value: 'true');
-        print('[PHOTO DIRECT] Marcado para sincronización');
-      }
+      perfilForm.updateProfile(loginService.userDataLogged);
     } catch (e) {
       print('[PHOTO DIRECT] Error al actualizar datos del usuario: $e');
     }
   }
 
   /// Verifica si hay una imagen pendiente de actualizar desde una subida en background
-  Future<void> _checkPendingPhotoUpdate(
+  Future<void> _checkPendingPhotoUpdate(BuildContext context,
       PerfilFormProvider perfilForm, LoginService loginService) async {
     try {
       final storage = FlutterSecureStorage();
@@ -522,15 +471,12 @@ class ProfileScreen extends StatelessWidget {
       final userDataUpdated = await storage.read(key: 'userDataUpdated');
 
       if (pendingUrl != null && pendingUrl.isNotEmpty) {
-        print('[PHOTO PENDING] Encontrada imagen pendiente: $pendingUrl');
-
         // Actualizar la URL en el provider
         perfilForm.userDataLogged?.urlFoto = pendingUrl;
 
         // Actualizar en SQLite
         if (perfilForm.userDataLogged != null) {
           await DBProvider.db.updateUser(perfilForm.userDataLogged!);
-          print('[PHOTO PENDING] URL actualizada en SQLite');
         }
 
         // Actualizar en LoginService
@@ -538,16 +484,15 @@ class ProfileScreen extends StatelessWidget {
 
         // Limpiar la URL pendiente del storage
         await storage.delete(key: 'pendingPhotoUrl');
-        print('[PHOTO PENDING] Imagen pendiente procesada y limpiada');
 
         // Notificar cambios usando updateProfile
-        perfilForm.updateProfile(perfilForm.userDataLogged!);
+        if (context.mounted) {
+          perfilForm.updateProfile(perfilForm.userDataLogged!);
+        }
       }
 
       // Si hay datos actualizados, refrescar desde SQLite
       if (userDataUpdated == 'true') {
-        print('[PHOTO PENDING] Refrescando datos desde SQLite');
-
         // Obtener datos necesarios del storage
         final numeroDocumento =
             await storage.read(key: 'numeroDocumento') ?? '';
@@ -559,7 +504,7 @@ class ProfileScreen extends StatelessWidget {
             base.isNotEmpty) {
           final userData =
               await DBProvider.db.getUser(numeroDocumento, password, base);
-          if (userData != null) {
+          if (userData != null && context.mounted) {
             perfilForm.updateProfile(userData);
             loginService.userDataLogged = userData;
           }

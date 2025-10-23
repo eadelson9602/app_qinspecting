@@ -235,6 +235,14 @@ class _SignatureImage extends StatelessWidget {
           image: NetworkImage(value),
           height: height,
           fit: BoxFit.contain,
+          imageErrorBuilder: (context, error, stackTrace) {
+            // Mostrar imagen por defecto cuando falla la carga
+            return Image(
+              image: const AssetImage('assets/images/no-image.png'),
+              height: height,
+              fit: BoxFit.contain,
+            );
+          },
         );
       }
 
@@ -264,6 +272,14 @@ class _SignatureImage extends StatelessWidget {
         image: NetworkImage(value),
         height: height,
         fit: BoxFit.contain,
+        imageErrorBuilder: (context, error, stackTrace) {
+          // Mostrar imagen por defecto cuando falla la carga
+          return Image(
+            image: const AssetImage('assets/images/no-image.png'),
+            height: height,
+            fit: BoxFit.contain,
+          );
+        },
       );
     } catch (_) {
       return Image(

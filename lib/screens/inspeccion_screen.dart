@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-
-import 'package:app_qinspecting/screens/screens.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 import 'package:app_qinspecting/ui/app_theme.dart';
 

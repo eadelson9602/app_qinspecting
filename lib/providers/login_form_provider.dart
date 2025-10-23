@@ -27,12 +27,12 @@ class LoginFormProvider extends ChangeNotifier {
   }
 
   Widget getImage(String? url) {
-    if (url == null) {
+    if (url == null || url.isEmpty) {
       return const ClipRRect(
         borderRadius: BorderRadius.all(Radius.circular(50)),
         child: Image(
           image: AssetImage('assets/images/no-image.png'),
-          height: 40,
+          fit: BoxFit.cover,
         ),
       );
     } else if (url.contains('svg')) {
@@ -41,6 +41,16 @@ class LoginFormProvider extends ChangeNotifier {
         semanticsLabel: 'Profile Image!',
         placeholderBuilder: (BuildContext context) =>
             Image(image: AssetImage('assets/images/loading-2.gif')),
+        errorBuilder: (context, error, stackTrace) {
+          // Mostrar imagen por defecto cuando falla la carga del SVG
+          return const ClipRRect(
+            borderRadius: BorderRadius.all(Radius.circular(50)),
+            child: Image(
+              image: AssetImage('assets/images/no-image.png'),
+              fit: BoxFit.cover,
+            ),
+          );
+        },
       );
     }
     // Si es una ruta local (archivo), usar FileImage; si es URL http(s), usar NetworkImage
@@ -58,8 +68,16 @@ class LoginFormProvider extends ChangeNotifier {
       return ClipRRect(
         borderRadius: BorderRadius.all(Radius.circular(50)),
         child: FadeInImage(
-            placeholder: const AssetImage('assets/images/loading-2.gif'),
-            image: NetworkImage(url)),
+          placeholder: const AssetImage('assets/images/loading-2.gif'),
+          image: NetworkImage(url),
+          imageErrorBuilder: (context, error, stackTrace) {
+            // Mostrar imagen por defecto cuando falla la carga
+            return const Image(
+              image: AssetImage('assets/images/no-image.png'),
+              fit: BoxFit.cover,
+            );
+          },
+        ),
       );
     }
   }

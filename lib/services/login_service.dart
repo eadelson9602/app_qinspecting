@@ -34,11 +34,6 @@ class LoginService extends ChangeNotifier {
       isLoading = true;
       notifyListeners();
 
-      print('[LOGIN] Iniciando getToken...');
-      print('[LOGIN] URL: ${baseUrl}/get_token');
-      print('[LOGIN] Usuario: $user');
-      print('[LOGIN] Headers: ${options.headers}');
-
       Response response = await dio.post('${baseUrl}/get_token',
           options: options,
           data: json.encode({'usuario': '$user', 'password': password}));
@@ -211,5 +206,79 @@ class LoginService extends ChangeNotifier {
     }
 
     return {"usuario": idUsuario, "nombreBase": nombreBase};
+  }
+
+  Future<Map<String, dynamic>> updateProfile(
+      Map<String, dynamic> userData) async {
+    // Verificar que el token esté presente
+    if (options.headers == null ||
+        !options.headers!.containsKey('x-access-token')) {
+      print('[UPDATE PROFILE] ERROR: No se encontró token de autenticación');
+      return {
+        "message": "Error de autenticación",
+        "error":
+            "Token de autenticación no encontrado. Por favor, inicia sesión nuevamente."
+      };
+    }
+
+    try {
+      isLoading = true;
+      notifyListeners();
+      Response response = await dio.put('${baseUrl}/update_profile',
+          options: options, data: userData);
+
+      // Si la actualización fue exitosa, refrescar los datos del usuario
+      if (response.statusCode == 200) {
+        print(
+            '[UPDATE PROFILE] Actualización exitosa, refrescando datos del usuario...');
+        await _refreshUserData();
+      }
+
+      return response.data;
+    } on DioException catch (error) {
+      if (error.response?.statusCode == 403) {
+        return {
+          "message": "Error de autorización. Token inválido o expirado.",
+          "error": "Token de autenticación requerido"
+        };
+      }
+
+      return {
+        "message": "Error al actualizar perfil",
+        "error": error.message ?? "Error desconocido"
+      };
+    } catch (e) {
+      print('[UPDATE PROFILE] Error inesperado: $e');
+      return {"message": "Error inesperado", "error": e.toString()};
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Refresca los datos del usuario desde el servidor después de una actualización
+  Future<void> _refreshUserData() async {
+    try {
+      // Obtener datos actualizados del servidor directamente
+      final baseEmpresa = selectedEmpresa.nombreBase;
+      final usuario = selectedEmpresa.numeroDocumento;
+
+      Response response = await dio.get(
+          '${baseUrl}/get_user_data/$baseEmpresa/$usuario',
+          options: options);
+
+      final tempUserData = UserData.fromJson(response.toString());
+      tempUserData.empresa = selectedEmpresa.nombreQi;
+
+      // Actualizar en SQLite usando updateUser en lugar de nuevoUser
+      await DBProvider.db.updateUser(tempUserData);
+
+      // Actualizar datos en memoria
+      userDataLogged = tempUserData;
+      notifyListeners();
+    } catch (e) {
+      print('[REFRESH USER DATA] Error al refrescar datos: $e');
+      // No lanzamos el error para no interrumpir el flujo de actualización
+    }
   }
 }

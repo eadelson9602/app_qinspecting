@@ -33,25 +33,18 @@ class InspeccionService extends ChangeNotifier {
   /// Log del estado de la app para debugging
   void _logAppState(String operation) {
     final state = currentAppState;
-    print('📱 DEBUG: [$operation] Estado de la app: $state');
     switch (state) {
       case AppLifecycleState.resumed:
-        print('🟢 DEBUG: [$operation] APP EN PRIMER PLANO');
         break;
       case AppLifecycleState.paused:
-        print('🟡 DEBUG: [$operation] APP EN SEGUNDO PLANO');
         break;
       case AppLifecycleState.inactive:
-        print('🟠 DEBUG: [$operation] APP INACTIVA');
         break;
       case AppLifecycleState.detached:
-        print('🔴 DEBUG: [$operation] APP DESCONECTADA');
         break;
       case AppLifecycleState.hidden:
-        print('⚫ DEBUG: [$operation] APP OCULTA');
         break;
       case null:
-        print('❓ DEBUG: [$operation] Estado de app desconocido');
         break;
     }
   }
@@ -109,16 +102,19 @@ class InspeccionService extends ChangeNotifier {
 
       // Si es Wi‑Fi, considerar estable inmediatamente (evita falsos negativos por endpoints no disponibles)
       if (connectivity == ConnectivityResult.wifi) {
-        print('[conn] WIFI detected => stable=true');
         return true;
       }
 
       // Probar múltiples endpoints del backend (algunos proyectos no exponen /health)
       final candidates = <String>[
-        '${loginService.baseUrl}/health',
-        '${loginService.baseUrl}/',
-        '${loginService.baseUrl}/status',
-        '${loginService.baseUrl}/ping',
+        '${loginService.baseUrl}/get_user_data',
+        '${loginService.baseUrl}/get_latest_inspections',
+        '${loginService.baseUrl}/list_departments',
+        '${loginService.baseUrl}/list_city',
+        '${loginService.baseUrl}/get_placas_cabezote',
+        '${loginService.baseUrl}/get_placas_trailer',
+        '${loginService.baseUrl}/list_items_x_placa',
+        '${loginService.baseUrl}/list_type_documents',
       ];
 
       int ok = 0;
@@ -129,10 +125,8 @@ class InspeccionService extends ChangeNotifier {
           final res = await dio
               .getUri(uri, options: Options(method: 'GET'))
               .timeout(timeout);
-          print('[conn] GET ${uri.path} -> ${res.statusCode}');
           if (res.statusCode != null && res.statusCode! < 500) ok++;
         } catch (e) {
-          print('[conn] GET error $url: $e');
           // Ignorar y seguir probando otros endpoints
         }
         if (ok >= 2) break; // suficientemente estable
@@ -153,24 +147,14 @@ class InspeccionService extends ChangeNotifier {
     if (connectivityResult) {
       for (int attempt = 1; attempt <= maxRetries; attempt++) {
         try {
-          print(
-              'Attempting to get latest inspections (attempt $attempt/$maxRetries)');
-          print(
-              'URL: ${loginService.baseUrl}/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.numeroDocumento}');
-
           // Buscamos en el storage el token y lo asignamos a la instancia para poderlo usar en todas las peticiones de este servicio
           String token = await storage.read(key: 'token') ?? '';
           loginService.options.headers = {"x-access-token": token};
 
-          print('Starting API call with 30s timeout...');
           Response response = await dio.get(
               '${loginService.baseUrl}/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.numeroDocumento}',
               options: loginService.options,
               queryParameters: {'timeout': 30});
-
-          print(
-              'API call completed successfully. Status: ${response.statusCode}');
-          print('Response data length: ${response.data?.length ?? 0}');
 
           List<ResumenPreoperacionalServer> tempData = [];
           if (response.data != null && response.data is List) {
@@ -180,24 +164,16 @@ class InspeccionService extends ChangeNotifier {
           }
 
           listInspections = [...tempData];
-          print('✅ Successfully obtained latest inspections');
           return true;
         } on DioException catch (error) {
-          print('Error in attempt $attempt: ${error.message}');
-          print('Error type: ${error.type}');
-          print('Error response: ${error.response?.data}');
-
           // Si es un error de timeout o conexión, continuar con el siguiente intento
           if (error.type == DioExceptionType.connectionTimeout ||
               error.type == DioExceptionType.receiveTimeout ||
               error.type == DioExceptionType.sendTimeout ||
               error.type == DioExceptionType.connectionError) {
             if (attempt == maxRetries) {
-              print(
-                  '⚠️ Returning false due to connection issues after $maxRetries attempts');
               return false; // Retornar false en lugar de lanzar excepción
             } else {
-              print('⏳ Waiting before retry...');
               await Future.delayed(Duration(seconds: 2 * attempt));
             }
           } else {
@@ -210,20 +186,15 @@ class InspeccionService extends ChangeNotifier {
             }
           }
         } catch (e) {
-          print('Unexpected error in attempt $attempt: $e');
           if (attempt == maxRetries) {
-            print(
-                '⚠️ Returning false due to unexpected error after $maxRetries attempts');
             return false; // Retornar false en lugar de lanzar excepción
           } else {
             await Future.delayed(Duration(seconds: 2 * attempt));
           }
         }
       }
-      print('⚠️ Returning false after $maxRetries attempts');
       return false; // Retornar false en lugar de lanzar excepción
     } else {
-      print('⚠️ No internet connection, returning false');
       return false; // Retornar false en lugar de lanzar excepción
     }
   }
@@ -314,17 +285,26 @@ class InspeccionService extends ChangeNotifier {
       required String company,
       required String folder}) async {
     try {
-      print('📤 DEBUG: Iniciando subida de imagen: $path');
       _logAppState('UPLOAD_IMAGE');
+
       var fileName = (path.split('/').last);
       var formData = FormData.fromMap({
         'files':
             await MultipartFile.fromFile('${path}', filename: '${fileName}')
       });
+
+      print('📤 DEBUG: Enviando petición al servidor...');
       Response response = await dio.post(
           '${loginService.baseUrl}/upload_file/${company.toLowerCase()}/${folder}',
           data: formData,
-          options: loginService.options);
+          options: Options(
+            headers: loginService.options.headers,
+            sendTimeout: Duration(seconds: 30),
+            receiveTimeout: Duration(seconds: 30),
+          ));
+
+      print(
+          '📤 DEBUG: Respuesta recibida del servidor: ${response.statusCode}');
       final resp = ResponseUploadFile.fromMap(response.data);
       print('✅ DEBUG: Imagen subida exitosamente: ${resp.path}');
       return resp.toMap();
@@ -495,8 +475,6 @@ class InspeccionService extends ChangeNotifier {
           notifyListeners();
         }
 
-        print('Subiendo foto del kilometraje: ${inspeccion.urlFotoKm}');
-
         // Se envia la foto del kilometraje al servidor
         _logAppState('SUBIDA_IMAGEN_KM');
         Map<String, dynamic>? responseUploadKilometraje = await uploadImage(
@@ -522,13 +500,11 @@ class InspeccionService extends ChangeNotifier {
 
         // Se envia la foto de la guia si tiene (basado en existencia de la foto)
         if (inspeccion.urlFotoGuia != null) {
-          print('Subiendo foto de la guia: ${inspeccion.urlFotoGuia}');
           Map<String, dynamic>? responseUploadGuia = await uploadImage(
               path: inspeccion.urlFotoGuia!,
               company: selectedEmpresa.nombreQi!,
               folder: 'inspecciones');
 
-          print('responseUploadGuia: ${responseUploadGuia}');
           inspeccion.urlFotoGuia = responseUploadGuia?['path'];
 
           // Actualizar progreso
@@ -610,22 +586,14 @@ class InspeccionService extends ChangeNotifier {
           notifyListeners();
         }
 
-        print('inspeccion: ${inspeccion.toJson()}');
-
-        _logAppState('GUARDADO_RESUMEN');
         final responseResumen = await dio.post(
             '${loginService.baseUrl}/insert_preoperacional',
             options: loginService.options,
             data: inspeccion.toJson());
         final resumen = Respuesta.fromMap(responseResumen.data);
 
-        print('resumen: ${resumen.toJson()}');
-
         if (inspeccion.respuestas != null &&
             inspeccion.respuestas!.isNotEmpty) {
-          print(
-              '🔍 DEBUG: Obteniendo respuestas desde JSON del objeto inspección');
-
           List tempData = jsonDecode(inspeccion.respuestas!) as List;
 
           tempData.forEach((element) {
@@ -641,9 +609,6 @@ class InspeccionService extends ChangeNotifier {
             // Agregamos todas las respuestas a la lista
             respuestas.addAll(tempRespuestas);
           });
-
-          print(
-              '🔍 DEBUG: Respuestas obtenidas desde JSON: ${respuestas.length}');
         }
 
         // Calcular elementos totales para progreso real (después de cargar respuestas)
@@ -663,18 +628,10 @@ class InspeccionService extends ChangeNotifier {
         // Agregar 1 para el resumen final
         totalElements += 1;
 
-        print('📊 DEBUG: Total elementos a procesar: $totalElements');
-
         // Validar que totalElements sea válido
         if (totalElements <= 0) {
-          print(
-              '⚠️ WARNING: totalElements es $totalElements, estableciendo a 1 para evitar división por cero');
           totalElements = 1;
         }
-
-        // Preparar todas las respuestas para envío en lote
-        print(
-            '🔍 DEBUG: Preparando ${respuestas.length} respuestas para envío en lote');
 
         // Preparar el array de respuestas para el nuevo endpoint
         List<Map<String, dynamic>> respuestasArray = [];
@@ -685,9 +642,6 @@ class InspeccionService extends ChangeNotifier {
 
           final hasAdjunto =
               element.adjunto != null && element.adjunto!.isNotEmpty;
-          print(
-              '🔍 DEBUG: Preparando respuesta ${i + 1}/${respuestas.length} - ID: ${element.idItem}, Adjunto: ${hasAdjunto ? "SÍ" : "NO"}');
-
           // Actualizar progreso
           if (showProgressNotifications) {
             currentElement++;
@@ -708,7 +662,6 @@ class InspeccionService extends ChangeNotifier {
 
           // Subir imagen adjunta si existe
           if (hasAdjunto) {
-            print('📤 DEBUG: Subiendo imagen adjunta: ${element.adjunto}');
             try {
               final responseUpload = await uploadImage(
                   path: element.adjunto!,
@@ -717,13 +670,10 @@ class InspeccionService extends ChangeNotifier {
 
               if (responseUpload != null) {
                 element.adjunto = responseUpload['path'];
-                print('✅ DEBUG: Imagen subida exitosamente');
               } else {
-                print('⚠️ WARNING: Imagen no se subió, enviando sin adjunto');
                 element.adjunto = null;
               }
             } catch (e) {
-              print('❌ ERROR: Error subiendo imagen adjunta: $e');
               element.adjunto = null; // Continuar sin adjunto
             }
           }
@@ -733,9 +683,6 @@ class InspeccionService extends ChangeNotifier {
         }
 
         // Enviar todas las respuestas en una sola petición
-        print(
-            '📤 DEBUG: Enviando ${respuestasArray.length} respuestas en lote al servidor');
-
         if (showProgressNotifications) {
           await NotificationService.showUploadProgressNotification(
             title: 'Subiendo Inspección',
@@ -745,8 +692,6 @@ class InspeccionService extends ChangeNotifier {
           );
         }
 
-        print('respuestasArray: ${jsonEncode(respuestasArray)}');
-
         final responseBatch = await dio.post(
             '${loginService.baseUrl}/insert_respuestas_preoperacional',
             options: loginService.options,
@@ -754,9 +699,6 @@ class InspeccionService extends ChangeNotifier {
               'respuestas': respuestasArray,
               'base': selectedEmpresa.nombreBase,
             });
-
-        print('✅ DEBUG: Respuestas enviadas exitosamente en lote');
-        print('📊 DEBUG: Respuesta del servidor: ${responseBatch.data}');
 
         // Actualizar progreso final
         if (showProgressNotifications) {
@@ -816,28 +758,18 @@ class InspeccionService extends ChangeNotifier {
   /// Envía la inspección en segundo plano con notificaciones
   Future<Map<String, dynamic>> sendInspeccionBackground(
       ResumenPreoperacional inspeccion, Empresa selectedEmpresa) async {
-    print('🚀 DEBUG: Iniciando sendInspeccionBackground');
-    print('📋 DEBUG: Inspección ID: ${inspeccion.id}');
-    print('🏢 DEBUG: Empresa: ${selectedEmpresa.nombreQi}');
-
     try {
-      print('🌐 DEBUG: Verificando conectividad...');
       final connectivityResult = await checkConnection();
       if (!connectivityResult) {
-        print('❌ DEBUG: Sin conexión a internet');
         return {
           "message": 'Sin conexión a internet',
           "ok": false,
           "idInspeccion": 0
         };
       }
-      print('✅ DEBUG: Conectividad verificada');
-
       // Verificar permisos de notificación
-      print('🔔 DEBUG: Verificando permisos de notificación...');
       final hasPermissions = await NotificationService.requestPermissions();
       if (!hasPermissions) {
-        print('❌ DEBUG: Permisos de notificación denegados');
         showSimpleNotification(
           Text(
               'Se requieren permisos de notificación para la subida en segundo plano'),
@@ -852,40 +784,31 @@ class InspeccionService extends ChangeNotifier {
           "idInspeccion": 0
         };
       }
-      print('✅ DEBUG: Permisos de notificación verificados');
-
       // Obtener token de autenticación
-      print('🔑 DEBUG: Obteniendo token de autenticación...');
       String token = await storage.read(key: 'token') ?? '';
       if (token.isEmpty) {
-        print('❌ DEBUG: Token de autenticación no encontrado');
         return {
           "message": 'Token de autenticación no encontrado',
           "ok": false,
           "idInspeccion": 0
         };
       }
-      print('✅ DEBUG: Token obtenido: ${token.substring(0, 10)}...');
 
       // Programar tarea en segundo plano
-      print('📅 DEBUG: Programando tarea en segundo plano...');
       await BackgroundUploadService.scheduleUploadTask(
         inspeccion: inspeccion,
         empresa: selectedEmpresa,
         token: token,
         inspeccionService: this,
       );
-      print('✅ DEBUG: Tarea programada exitosamente');
 
       // Mostrar notificación inicial
-      print('📱 DEBUG: Mostrando notificación inicial...');
       await NotificationService.showUploadProgressNotification(
         title: 'Subiendo Inspección',
         body: 'La subida comenzará en segundo plano...',
         progress: 0,
         total: 100,
       );
-      print('✅ DEBUG: Notificación inicial mostrada');
 
       // Mostrar notificación en la app - COMENTADA para evitar duplicación
       // print('📱 DEBUG: Mostrando notificación en la app...');
@@ -904,7 +827,6 @@ class InspeccionService extends ChangeNotifier {
       isSaving = false;
       notifyListeners();
 
-      print('🎉 DEBUG: sendInspeccionBackground completado exitosamente');
       return {
         "message": 'Subida iniciada en segundo plano',
         "ok": true,
@@ -912,7 +834,6 @@ class InspeccionService extends ChangeNotifier {
         "background": true,
       };
     } catch (e) {
-      print('❌ ERROR: Error iniciando subida en segundo plano: $e');
       showSimpleNotification(
         Text('Error iniciando subida en segundo plano'),
         leading: Icon(Icons.error),
@@ -956,16 +877,11 @@ class InspeccionService extends ChangeNotifier {
       {int maxRetries = 3}) async {
     for (int attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        print(
-            'Starting detatilPdf for inspection: ${inspeccion.resuPreId} (attempt $attempt/$maxRetries)');
-
         // Check connectivity first
         bool hasConnection = await checkConnection();
         if (!hasConnection) {
           throw Exception('Sin conexión a internet');
         }
-
-        print('Network connectivity confirmed');
 
         Response response = await dio
             .get(
@@ -973,7 +889,6 @@ class InspeccionService extends ChangeNotifier {
                 options: loginService.options)
             .timeout(Duration(seconds: 60)); // Aumentado para segundo plano
 
-        print('API call completed successfully');
         Pdf temData = Pdf.fromJson(response.toString());
 
         // Helper function to validate and process image
@@ -985,12 +900,10 @@ class InspeccionService extends ChangeNotifier {
               // Try to download the image
               var response =
                   await get(Uri.parse(imageUrl)).timeout(Duration(seconds: 8));
-              print('Successfully downloaded: $imageUrl');
               return {"foto": imageUrl, "data": response, "type": "url"};
             } else if (imageUrl.startsWith('data:image/') ||
                 imageUrl.contains('base64')) {
               // It's a base64 image
-              print('Base64 image detected: $imageUrl');
               return {
                 "foto": imageUrl,
                 "data": null,
@@ -999,7 +912,6 @@ class InspeccionService extends ChangeNotifier {
               };
             } else {
               // Invalid or unsupported format
-              print('Invalid image format: $imageUrl');
               return {
                 "foto": imageUrl,
                 "data": null,
@@ -1008,7 +920,6 @@ class InspeccionService extends ChangeNotifier {
               };
             }
           } catch (error) {
-            print('Error processing image $imageUrl: $error');
             return {
               "foto": imageUrl,
               "data": null,
@@ -1027,8 +938,6 @@ class InspeccionService extends ChangeNotifier {
             }
           });
         });
-
-        print('Found ${imageUrls.length} images to process');
 
         // Process images with validation
         List<Future> promesas = [];
@@ -1049,12 +958,9 @@ class InspeccionService extends ChangeNotifier {
 
         // Wait for all image processing with overall timeout
         if (promesas.isNotEmpty) {
-          print('Starting concurrent image processing...');
           try {
             await Future.wait(promesas).timeout(Duration(seconds: 25));
-            print('Image processing completed');
           } catch (error) {
-            print('Error during image processing: $error');
             // Continue with partial data
           }
         }
@@ -1089,18 +995,14 @@ class InspeccionService extends ChangeNotifier {
           });
         });
 
-        print(
-            'Successfully processed $successfulDownloads URLs, $base64Images base64 images, $invalidImages invalid images out of ${imageUrls.length} total images');
         return temData;
       } catch (e) {
-        print('Error in detatilPdf attempt $attempt: $e');
         if (attempt == maxRetries) {
           throw Exception(
               'Error al obtener datos del PDF después de $maxRetries intentos: $e');
         } else {
           // Wait before retrying with exponential backoff
           int waitTime = 2 * attempt;
-          print('Retrying in $waitTime seconds...');
           await Future.delayed(Duration(seconds: waitTime));
         }
       }

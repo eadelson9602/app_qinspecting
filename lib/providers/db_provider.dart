@@ -327,9 +327,43 @@ class DBProvider {
 
   Future<int?> updateUser(UserData nuevoDatosUsuario) async {
     final db = await database;
-    final res = await db?.update('personal', nuevoDatosUsuario.toMap(),
+
+    // Crear mapa solo con los campos que queremos actualizar
+    final updateData = {
+      'numeroDocumento': nuevoDatosUsuario.numeroDocumento,
+      'password': nuevoDatosUsuario.password,
+      'lugarExpDocumento': nuevoDatosUsuario.lugarExpDocumento,
+      'nombreCiudad': nuevoDatosUsuario.nombreCiudad,
+      'fkIdDepartamento': nuevoDatosUsuario.fkIdDepartamento,
+      'departamento': nuevoDatosUsuario.departamento,
+      'fechaNacimiento': nuevoDatosUsuario.fechaNacimiento,
+      'genero': nuevoDatosUsuario.genero,
+      'rh': nuevoDatosUsuario.rh,
+      'arl': nuevoDatosUsuario.arl,
+      'eps': nuevoDatosUsuario.eps,
+      'afp': nuevoDatosUsuario.afp,
+      'numeroCelular': nuevoDatosUsuario.numeroCelular,
+      'direccion': nuevoDatosUsuario.direccion,
+      'apellidos': nuevoDatosUsuario.apellidos,
+      'nombres': nuevoDatosUsuario.nombres,
+      'email': nuevoDatosUsuario.email,
+      'urlFoto': nuevoDatosUsuario.urlFoto,
+      'idCargo': nuevoDatosUsuario.idCargo,
+      'nombreCargo': nuevoDatosUsuario.nombreCargo,
+      'estadoPersonal': nuevoDatosUsuario.estadoPersonal,
+      'idTipoDocumento': nuevoDatosUsuario.idTipoDocumento,
+      'nombreTipoDocumento': nuevoDatosUsuario.nombreTipoDocumento,
+      'rolId': nuevoDatosUsuario.rolId,
+      'rolNombre': nuevoDatosUsuario.rolNombre,
+      'rolDescripcion': nuevoDatosUsuario.rolDescripcion,
+      'idFirma': nuevoDatosUsuario.idFirma,
+      'empresa': nuevoDatosUsuario.empresa,
+      'base': nuevoDatosUsuario.base,
+    };
+
+    final res = await db?.update('personal', updateData,
         where: 'numeroDocumento= ? AND base = ?',
-        whereArgs: [nuevoDatosUsuario.id, nuevoDatosUsuario.base]);
+        whereArgs: [nuevoDatosUsuario.numeroDocumento, nuevoDatosUsuario.base]);
     return res;
   }
 
