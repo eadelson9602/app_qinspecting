@@ -1,23 +1,36 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/services/services.dart';
-import 'package:app_qinspecting/ui/input_decorations.dart';
 import 'package:app_qinspecting/ui/app_theme.dart';
+import 'package:app_qinspecting/widgets/profile/profile_widgets.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final loginService = Provider.of<LoginService>(context, listen: false);
+    final loginService = Provider.of<LoginService>(context, listen: true);
     final perfilForm = Provider.of<PerfilFormProvider>(context, listen: true);
-    perfilForm.userDataLogged = loginService.userDataLogged;
+    final base = loginService.userDataLogged.base ?? '';
+
+    // Verificar si hay una imagen pendiente de actualizar
+    _checkPendingPhotoUpdate(perfilForm, loginService);
+
+    // Actualizar datos del perfil cuando cambien los datos del login service
+    // Usar addPostFrameCallback para evitar setState durante build
+    if (perfilForm.userDataLogged != loginService.userDataLogged) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        perfilForm.updateProfile(loginService.userDataLogged);
+      });
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -32,20 +45,24 @@ class ProfileScreen extends StatelessWidget {
           child: Column(
             children: [
               // Header con gradiente y avatar
-              _ModernHeader(
-                userName:
-                    '${perfilForm.userDataLogged?.nombres} ${perfilForm.userDataLogged?.apellidos}',
-                userPhoto: perfilForm.userDataLogged?.urlFoto,
-                onPhotoTap: () => _showPhotoOptions(context),
+              Consumer<PerfilFormProvider>(
+                builder: (context, perfilForm, child) {
+                  return ModernHeader(
+                    userName:
+                        '${perfilForm.userDataLogged?.nombres} ${perfilForm.userDataLogged?.apellidos}',
+                    userPhoto: perfilForm.getDisplayImage(),
+                    onPhotoTap: () => _showPhotoOptions(context, base),
+                  );
+                },
               ),
 
               // Información del usuario
-              _UserInfoCard(
+              UserInfoCard(
                 userData: perfilForm.userDataLogged,
               ),
 
               // Formulario de datos personales
-              const _ModernFormProfile(),
+              const ModernFormProfile(),
 
               const SizedBox(height: 20),
             ],
@@ -55,7 +72,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  void _showPhotoOptions(BuildContext context) {
+  void _showPhotoOptions(BuildContext context, String base) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -94,23 +111,23 @@ class ProfileScreen extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: _PhotoOptionButton(
+                  child: PhotoOptionButton(
                     icon: Icons.camera_alt,
                     label: 'Cámara',
                     onTap: () async {
                       Navigator.pop(context);
-                      await _pickImage(context, ImageSource.camera);
+                      await _pickImage(context, ImageSource.camera, base);
                     },
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: _PhotoOptionButton(
+                  child: PhotoOptionButton(
                     icon: Icons.photo_library,
                     label: 'Galería',
                     onTap: () async {
                       Navigator.pop(context);
-                      await _pickImage(context, ImageSource.gallery);
+                      await _pickImage(context, ImageSource.gallery, base);
                     },
                   ),
                 ),
@@ -144,20 +161,31 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _pickImage(BuildContext context, ImageSource source) async {
+  Future<void> _pickImage(
+      BuildContext context, ImageSource source, String base) async {
     try {
+      print('[PHOTO PICK] Iniciando pick de imagen: $source');
+      print('[PHOTO PICK] Context: ${context.toString()}');
+
       // Verificar permisos para cámara
       if (source == ImageSource.camera) {
-        // Mostrar alerta explicativa antes de solicitar permiso
-        final shouldProceed = await _showCameraPermissionAlert(context);
-        if (!shouldProceed) {
-          print('Usuario canceló el permiso de cámara');
-          return;
+        // Verificar el estado actual del permiso
+        final currentCameraStatus = await Permission.camera.status;
+        print('Estado actual del permiso de cámara: $currentCameraStatus');
+
+        // Solo mostrar diálogo explicativo si el permiso no está otorgado
+        if (currentCameraStatus != PermissionStatus.granted) {
+          final shouldProceed = await _showCameraPermissionAlert(context);
+          if (!shouldProceed) {
+            print('Usuario canceló el permiso de cámara');
+            return;
+          }
         }
 
         print('Solicitando permiso de cámara...');
         final cameraStatus = await Permission.camera.request();
-        print('Estado del permiso de cámara: $cameraStatus');
+        print(
+            'Estado del permiso de cámara después de solicitar: $cameraStatus');
 
         if (cameraStatus != PermissionStatus.granted) {
           if (cameraStatus == PermissionStatus.permanentlyDenied) {
@@ -174,9 +202,14 @@ class ProfileScreen extends StatelessWidget {
 
       // Verificar permisos para galería
       if (source == ImageSource.gallery) {
+        // Verificar el estado actual del permiso
+        final currentPhotosStatus = await Permission.photos.status;
+        print('Estado actual del permiso de galería: $currentPhotosStatus');
+
         print('Solicitando permiso de galería...');
         final photosStatus = await Permission.photos.request();
-        print('Estado del permiso de galería: $photosStatus');
+        print(
+            'Estado del permiso de galería después de solicitar: $photosStatus');
 
         if (photosStatus != PermissionStatus.granted) {
           if (photosStatus == PermissionStatus.permanentlyDenied) {
@@ -192,8 +225,6 @@ class ProfileScreen extends StatelessWidget {
             'Permiso de galería concedido, procediendo a abrir la galería...');
       }
 
-      print(
-          'Creando ImagePicker y abriendo ${source == ImageSource.camera ? 'cámara' : 'galería'}...');
       final ImagePicker picker = ImagePicker();
       final XFile? image = await picker.pickImage(
         source: source,
@@ -202,44 +233,9 @@ class ProfileScreen extends StatelessWidget {
         imageQuality: 85,
       );
 
-      print('ImagePicker completado. Imagen seleccionada: ${image?.path}');
       if (image != null) {
-        // Mostrar indicador de carga
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => const Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryGreen),
-            ),
-          ),
-        );
-
-        try {
-          // Simular procesamiento de la imagen
-          await Future.delayed(const Duration(seconds: 2));
-
-          // Cerrar el diálogo de carga
-          if (context.mounted) {
-            Navigator.pop(context);
-          }
-
-          // Actualizar preview localmente: guardar ruta en provider
-          if (context.mounted) {
-            final perfilForm =
-                Provider.of<PerfilFormProvider>(context, listen: false);
-            // Guardamos la ruta local en urlFoto para que el header la muestre
-            perfilForm.userDataLogged?.urlFoto = image.path;
-            // Forzar reconstrucción del header escuchando al provider en build()
-            _showSuccessMessage(context, 'Foto actualizada correctamente');
-          }
-        } catch (e) {
-          // Cerrar el diálogo de carga si hay error
-          if (context.mounted) {
-            Navigator.pop(context);
-            _showErrorMessage(context, 'Error al procesar la imagen: $e');
-          }
-        }
+        // Subir imagen directamente sin depender del contexto
+        _uploadImageDirectly(context, image.path, base);
       }
     } on PlatformException catch (e) {
       print('PlatformException capturada: ${e.code} - ${e.message}');
@@ -265,37 +261,26 @@ class ProfileScreen extends StatelessWidget {
     }
   }
 
-  void _showSuccessMessage(BuildContext context, String message) {
-    try {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: AppTheme.successColor,
-          behavior: SnackBarBehavior.floating,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
-    } catch (e) {
-      // Si hay error al mostrar el SnackBar, usar print como fallback
-      print('Error al mostrar mensaje de éxito: $message');
-    }
-  }
-
   void _showErrorMessage(BuildContext context, String message) {
     try {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: AppTheme.errorColor,
-          behavior: SnackBarBehavior.floating,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
+      // Verificar si el contexto está montado antes de mostrar el mensaje
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: AppTheme.errorColor,
+            behavior: SnackBarBehavior.floating,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      } else {
+        // Si el contexto no está montado, usar print como fallback
+        print('Contexto no montado, no se puede mostrar mensaje: $message');
+      }
     } catch (e) {
       // Si hay error al mostrar el SnackBar, usar print como fallback
-      print('Error al mostrar mensaje: $message');
+      print('Error al mostrar mensaje: $message - Error: $e');
     }
   }
 
@@ -440,892 +425,149 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
   }
-}
 
-class _ModernHeader extends StatelessWidget {
-  const _ModernHeader({
-    Key? key,
-    required this.userName,
-    this.userPhoto,
-    this.onPhotoTap,
-  }) : super(key: key);
-
-  final String userName;
-  final String? userPhoto;
-  final VoidCallback? onPhotoTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 280,
-      decoration: BoxDecoration(
-        gradient: AppTheme.primaryGradient,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(30),
-          bottomRight: Radius.circular(30),
-        ),
-      ),
-      child: Stack(
-        children: [
-          // Botón de volver
-          Positioned(
-            left: 20,
-            top: 40,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(25),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(
-                  Icons.arrow_back,
-                  color: Colors.green,
-                  size: 30,
-                ),
-              ),
-            ),
-          ),
-
-          // Avatar circular
-          Positioned(
-            top: 100,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: GestureDetector(
-                onTap: onPhotoTap,
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(60),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(60),
-                    child: FutureBuilder(
-                      future:
-                          Provider.of<InspeccionService>(context, listen: false)
-                              .checkConnection(),
-                      builder: (context, snapshot) {
-                        if (snapshot.data == true) {
-                          return Provider.of<LoginFormProvider>(context,
-                                  listen: false)
-                              .getImage(userPhoto ?? '');
-                        }
-                        return Container(
-                          color: AppTheme.primaryGreen.withValues(alpha: 0.1),
-                          child: const Image(
-                            image: AssetImage('assets/images/loading-2.gif'),
-                            fit: BoxFit.cover,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // Botón de cámara
-          Positioned(
-            bottom: 80,
-            right: MediaQuery.of(context).size.width / 2 - 15,
-            child: GestureDetector(
-              onTap: onPhotoTap,
-              child: Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryGreen,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.camera_alt,
-                  color: Colors.white,
-                  size: 16,
-                ),
-              ),
-            ),
-          ),
-
-          // Nombre del usuario
-          Positioned(
-            bottom: 20,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Text(
-                userName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _UserInfoCard extends StatelessWidget {
-  const _UserInfoCard({
-    Key? key,
-    required this.userData,
-  }) : super(key: key);
-
-  final dynamic userData;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            _buildInfoRow(
-              Icons.location_on,
-              'Ubicación',
-              '${userData?.departamento ?? 'N/A'}, ${userData?.nombreCiudad ?? 'N/A'}',
-            ),
-            _buildDivider(),
-            _buildInfoRow(
-              Icons.business,
-              'Empresa',
-              userData?.empresa ?? 'N/A',
-            ),
-            _buildDivider(),
-            _buildDocumentInfo(),
-            _buildDivider(),
-            _buildInfoRow(
-              Icons.cake,
-              'Fecha de nacimiento',
-              userData?.fechaNacimiento ?? 'N/A',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppTheme.primaryGreen.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              icon,
-              color: AppTheme.primaryGreen,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    color: Colors.black87,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDocumentInfo() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppTheme.primaryGreen.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              Icons.badge,
-              color: AppTheme.primaryGreen,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Documento',
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  userData?.nombreTipoDocumento ?? 'N/A',
-                  style: const TextStyle(
-                    color: Colors.black87,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  userData?.numeroDocumento ?? 'N/A',
-                  style: TextStyle(
-                    color: Colors.grey.shade700,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDivider() {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      height: 1,
-      color: Colors.grey.shade200,
-    );
-  }
-}
-
-class _ModernFormProfile extends StatefulWidget {
-  const _ModernFormProfile({Key? key}) : super(key: key);
-
-  @override
-  State<_ModernFormProfile> createState() => _ModernFormProfileState();
-}
-
-class _ModernFormProfileState extends State<_ModernFormProfile> {
-  String? _fechaNacimiento;
-  late final TextEditingController _fechaCtrl;
-  int? _selectedDepartamentoId;
-  int? _selectedCiudadId;
-  Timer? _loadDataTimer;
-
-  @override
-  void initState() {
-    super.initState();
-    final perfilForm = Provider.of<PerfilFormProvider>(context, listen: false);
-    _fechaNacimiento = perfilForm.userDataLogged?.fechaNacimiento;
-    final normalized = (_fechaNacimiento == null ||
-            _fechaNacimiento!.isEmpty ||
-            _fechaNacimiento == '0000-00-00' ||
-            _fechaNacimiento == '000-00-00')
-        ? ''
-        : _fechaNacimiento!;
-    _fechaCtrl = TextEditingController(text: normalized);
-
-    // Cargar datos iniciales con un delay para asegurar que el widget esté montado
-    _loadDataTimer = Timer(const Duration(milliseconds: 100), () {
-      if (mounted) {
-        _loadInitialData();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _loadDataTimer?.cancel();
-    _fechaCtrl.dispose();
-    super.dispose();
-  }
-
-  Future<void> _loadInitialData() async {
-    if (!mounted) return;
-
+  /// Función para subir imagen directamente sin depender del contexto
+  Future<void> _uploadImageDirectly(
+      BuildContext context, String imagePath, String base) async {
     try {
-      // Verificar que el contexto aún sea válido
-      final context = this.context;
-      if (!mounted) return;
+      print('[PHOTO DIRECT] Iniciando subida directa: $imagePath');
 
-      final inspeccionProvider =
-          Provider.of<InspeccionProvider>(context, listen: false);
-      final perfilForm =
-          Provider.of<PerfilFormProvider>(context, listen: false);
+      // Obtener datos del storage
+      final storage = FlutterSecureStorage();
+      final token = await storage.read(key: 'token') ?? '';
 
-      // Cargar departamentos
-      await inspeccionProvider.listarDepartamentos();
-
-      if (!mounted) return;
-
-      // Buscar el departamento del usuario
-      if (perfilForm.userDataLogged?.departamento != null &&
-          inspeccionProvider.departamentos.isNotEmpty) {
-        try {
-          final departamento = inspeccionProvider.departamentos.firstWhere(
-            (d) => d.label == perfilForm.userDataLogged!.departamento,
-          );
-          _selectedDepartamentoId = departamento.value;
-
-          // Cargar ciudades del departamento seleccionado
-          await inspeccionProvider.listarCiudades(_selectedDepartamentoId!);
-
-          if (!mounted) return;
-
-          // Buscar la ciudad del usuario
-          if (perfilForm.userDataLogged?.nombreCiudad != null &&
-              inspeccionProvider.ciudades.isNotEmpty) {
-            try {
-              final ciudad = inspeccionProvider.ciudades.firstWhere(
-                (c) => c.label == perfilForm.userDataLogged!.nombreCiudad,
-              );
-              _selectedCiudadId = ciudad.value;
-            } catch (e) {
-              // Si no encuentra la ciudad, usar la primera disponible
-              _selectedCiudadId = inspeccionProvider.ciudades.first.value;
-            }
-          }
-        } catch (e) {
-          // Si no encuentra el departamento, usar el primero disponible
-          _selectedDepartamentoId =
-              inspeccionProvider.departamentos.first.value;
-        }
-      }
-
-      if (mounted) {
-        setState(() {});
-      }
-    } catch (e) {
-      // Manejar errores silenciosamente
-      print('Error loading initial data: $e');
-    }
-  }
-
-  String? _getTipoDocumentoCode(String? tipoDocumento) {
-    if (tipoDocumento == null) return null;
-
-    switch (tipoDocumento) {
-      case 'Cédula de Ciudadanía':
-        return 'CC';
-      case 'Cédula de Extranjería':
-        return 'CE';
-      case 'Tarjeta de Identidad':
-        return 'TI';
-      default:
-        return null;
-    }
-  }
-
-  String? _getTipoDocumentoLabel(String? codigo) {
-    if (codigo == null) return null;
-
-    switch (codigo) {
-      case 'CC':
-        return 'Cédula de Ciudadanía';
-      case 'CE':
-        return 'Cédula de Extranjería';
-      case 'TI':
-        return 'Tarjeta de Identidad';
-      default:
-        return null;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final perfilForm = Provider.of<PerfilFormProvider>(context, listen: false);
-    final inspeccionProvider =
-        Provider.of<InspeccionProvider>(context, listen: true);
-    final userData = perfilForm.userDataLogged;
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Form(
-          key: perfilForm.formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Datos Personales',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.primaryGreen,
-                    ),
-              ),
-              const SizedBox(height: 20),
-
-              // Nombres
-              TextFormField(
-                initialValue: userData?.nombres ?? '',
-                decoration: InputDecorations.authInputDecorations(
-                  hintText: 'Nombres',
-                  labelText: 'Nombres',
-                  prefixIcon: Icons.person_outline,
-                ),
-                onChanged: (value) {
-                  userData?.nombres = value;
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Los nombres son requeridos';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Apellidos
-              TextFormField(
-                initialValue: userData?.apellidos ?? '',
-                decoration: InputDecorations.authInputDecorations(
-                  hintText: 'Apellidos',
-                  labelText: 'Apellidos',
-                  prefixIcon: Icons.person_outline,
-                ),
-                onChanged: (value) {
-                  userData?.apellidos = value;
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Los apellidos son requeridos';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Departamento
-              DropdownButtonFormField<int>(
-                value: _selectedDepartamentoId,
-                decoration: InputDecorations.authInputDecorations(
-                  hintText: 'Seleccionar departamento',
-                  labelText: 'Departamento',
-                  prefixIcon: Icons.location_city,
-                ),
-                items: inspeccionProvider.departamentos.map((departamento) {
-                  return DropdownMenuItem<int>(
-                    value: departamento.value,
-                    child: Text(departamento.label),
-                  );
-                }).toList(),
-                onChanged: (value) async {
-                  setState(() {
-                    _selectedDepartamentoId = value;
-                    _selectedCiudadId =
-                        null; // Reset ciudad when departamento changes
-                  });
-
-                  // Actualizar el dato del usuario
-                  final departamento =
-                      inspeccionProvider.departamentos.firstWhere(
-                    (d) => d.value == value,
-                  );
-                  userData?.departamento = departamento.label;
-
-                  // Cargar ciudades del departamento seleccionado
-                  await inspeccionProvider.listarCiudades(value!);
-                },
-                validator: (value) {
-                  if (value == null) {
-                    return 'El departamento es requerido';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Ciudad
-              DropdownButtonFormField<int>(
-                value: _selectedCiudadId,
-                decoration: InputDecorations.authInputDecorations(
-                  hintText: 'Seleccionar ciudad',
-                  labelText: 'Ciudad',
-                  prefixIcon: Icons.location_on,
-                ),
-                items: inspeccionProvider.ciudades.map((ciudad) {
-                  return DropdownMenuItem<int>(
-                    value: ciudad.value,
-                    child: Text(ciudad.label),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedCiudadId = value;
-                  });
-
-                  // Actualizar el dato del usuario
-                  final ciudad = inspeccionProvider.ciudades.firstWhere(
-                    (c) => c.value == value,
-                  );
-                  userData?.nombreCiudad = ciudad.label;
-                },
-                validator: (value) {
-                  if (value == null) {
-                    return 'La ciudad es requerida';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Tipo de documento
-              DropdownButtonFormField<String>(
-                value: _getTipoDocumentoCode(userData?.nombreTipoDocumento),
-                decoration: InputDecorations.authInputDecorations(
-                  hintText: 'Seleccionar tipo de documento',
-                  labelText: 'Tipo de documento',
-                  prefixIcon: Icons.badge,
-                ),
-                items: const [
-                  DropdownMenuItem(
-                      value: 'CC', child: Text('Cédula de Ciudadanía')),
-                  DropdownMenuItem(
-                      value: 'CE', child: Text('Cédula de Extranjería')),
-                  DropdownMenuItem(
-                      value: 'TI', child: Text('Tarjeta de Identidad')),
-                ],
-                onChanged: (value) {
-                  userData?.nombreTipoDocumento = _getTipoDocumentoLabel(value);
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'El tipo de documento es requerido';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Número de documento
-              TextFormField(
-                initialValue: userData?.numeroDocumento ?? '',
-                decoration: InputDecorations.authInputDecorations(
-                  hintText: 'Número de documento',
-                  labelText: 'Número de documento',
-                  prefixIcon: Icons.numbers,
-                ),
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  userData?.numeroDocumento = value;
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'El número de documento es requerido';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Fecha de nacimiento
-              TextFormField(
-                controller: _fechaCtrl,
-                decoration: InputDecorations.authInputDecorations(
-                  hintText: 'Seleccionar fecha de nacimiento',
-                  labelText: 'Fecha de nacimiento',
-                  prefixIcon: Icons.calendar_today,
-                ),
-                readOnly: true,
-                onTap: () async {
-                  final DateTime? picked = await showDatePicker(
-                    context: context,
-                    initialDate:
-                        DateTime.now().subtract(const Duration(days: 365 * 25)),
-                    firstDate: DateTime(1900),
-                    lastDate: DateTime.now(),
-                    builder: (context, child) {
-                      return Theme(
-                        data: Theme.of(context).copyWith(
-                          colorScheme: const ColorScheme.light(
-                            primary: AppTheme.primaryGreen,
-                            onPrimary: Colors.white,
-                            surface: Colors.white,
-                            onSurface: Colors.black,
-                          ),
-                        ),
-                        child: child!,
-                      );
-                    },
-                  );
-                  if (picked != null) {
-                    setState(() {
-                      final formatted =
-                          '${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
-                      _fechaNacimiento = formatted;
-                      _fechaCtrl.text = formatted;
-                      userData?.fechaNacimiento = formatted;
-                    });
-                  }
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'La fecha de nacimiento es requerida';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-
-              // Género
-              Text(
-                'Género',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.primaryGreen,
-                    ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Row(
-                    children: [
-                      Radio(
-                        activeColor: AppTheme.primaryGreen,
-                        groupValue: userData?.genero,
-                        value: 'MASCULINO',
-                        onChanged: (value) =>
-                            perfilForm.updateGenero(value.toString()),
-                      ),
-                      Text('Masculino'),
-                    ],
-                  ),
-                  const SizedBox(width: 20),
-                  Row(
-                    children: [
-                      Radio(
-                        activeColor: AppTheme.errorColor,
-                        groupValue: userData?.genero,
-                        value: 'FEMENINO',
-                        onChanged: (value) =>
-                            perfilForm.updateGenero(value.toString()),
-                      ),
-                      Text('Femenino'),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-
-              // Botón de guardar cambios
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => _saveProfileData(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryGreen,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 2,
-                  ),
-                  child: const Text(
-                    'Guardar Cambios',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _saveProfileData(BuildContext context) async {
-    try {
-      final perfilForm =
-          Provider.of<PerfilFormProvider>(context, listen: false);
-
-      // Validar el formulario
-      if (!perfilForm.isValidForm()) {
-        _showErrorMessage(
-            context, 'Por favor, completa todos los campos requeridos');
+      if (token.isEmpty) {
+        print('[PHOTO DIRECT] No se encontró token, cancelando subida');
         return;
       }
 
-      // Mostrar indicador de carga
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryGreen),
-          ),
-        ),
+      // Crear instancia de InspeccionService
+      final inspeccionService = InspeccionService();
+
+      // Configurar el token en el loginService del InspeccionService
+      inspeccionService.loginService.options.headers = {
+        "x-access-token": token
+      };
+      print('[PHOTO DIRECT] Token configurado: ${token.substring(0, 10)}...');
+
+      // Subir imagen al servidor
+      print('[PHOTO DIRECT] Llamando a uploadImage...');
+      final uploadResult = await inspeccionService.uploadImage(
+        path: imagePath,
+        company: base,
+        folder: 'perfiles',
       );
+      print('[PHOTO DIRECT] Resultado de uploadImage: $uploadResult');
 
-      // Simular guardado (aquí puedes agregar la lógica real de guardado)
-      await Future.delayed(const Duration(seconds: 2));
+      if (uploadResult != null && uploadResult['path'] != null) {
+        final newImageUrl = uploadResult['path'] as String;
+        print('[PHOTO DIRECT] Imagen subida exitosamente: $newImageUrl');
 
-      // Cerrar indicador de carga
-      Navigator.pop(context);
-
-      // Mostrar mensaje de éxito
-      _showSuccessMessage(
-          context, 'Datos del perfil actualizados correctamente');
+        // También intentar actualizar inmediatamente si es posible
+        await _updateUserDataWithNewUrl(context, newImageUrl, base);
+      } else {
+        print(
+            '[PHOTO DIRECT] Error: No se pudo obtener la URL de la imagen subida');
+      }
     } catch (e) {
-      // Cerrar indicador de carga si está abierto
-      if (Navigator.canPop(context)) {
-        Navigator.pop(context);
+      print('[PHOTO DIRECT] Error al subir imagen: $e');
+    }
+  }
+
+  /// Actualiza los datos del usuario con la nueva URL de imagen
+  Future<void> _updateUserDataWithNewUrl(
+      BuildContext context, String newImageUrl, String base) async {
+    try {
+      // Obtener datos necesarios del storage
+      final storage = FlutterSecureStorage();
+      final numeroDocumento = await storage.read(key: 'numeroDocumento') ?? '';
+
+      final password = await storage.read(key: 'password') ?? '';
+      print('[PHOTO DIRECT] Base: $base');
+      print('[PHOTO DIRECT] Numero de documento: $numeroDocumento');
+      print('[PHOTO DIRECT] Password: $password');
+
+      if (numeroDocumento.isEmpty || password.isEmpty || base.isEmpty) {
+        print('[PHOTO DIRECT] Datos de usuario incompletos en storage');
+        return;
       }
 
-      _showErrorMessage(context, 'Error al guardar los datos: $e');
-    }
-  }
+      // Obtener datos del usuario desde SQLite
+      final userData =
+          await DBProvider.db.getUser(numeroDocumento, password, base);
 
-  void _showSuccessMessage(BuildContext context, String message) {
-    try {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: AppTheme.successColor,
-          behavior: SnackBarBehavior.floating,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
+      if (userData != null) {
+        // Actualizar la URL de la imagen
+        userData.urlFoto = newImageUrl;
+
+        // Actualizar en SQLite
+        await DBProvider.db.updateUser(userData);
+        print('[PHOTO DIRECT] Datos actualizados en SQLite');
+
+        // Guardar en storage para sincronización
+        await storage.write(key: 'userDataUpdated', value: 'true');
+        print('[PHOTO DIRECT] Marcado para sincronización');
+      }
     } catch (e) {
-      // Si hay error al mostrar el SnackBar, usar print como fallback
-      print('Error al mostrar mensaje de éxito: $message');
+      print('[PHOTO DIRECT] Error al actualizar datos del usuario: $e');
     }
   }
 
-  void _showErrorMessage(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppTheme.errorColor,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
-  }
-}
+  /// Verifica si hay una imagen pendiente de actualizar desde una subida en background
+  Future<void> _checkPendingPhotoUpdate(
+      PerfilFormProvider perfilForm, LoginService loginService) async {
+    try {
+      final storage = FlutterSecureStorage();
+      final pendingUrl = await storage.read(key: 'pendingPhotoUrl');
+      final userDataUpdated = await storage.read(key: 'userDataUpdated');
 
-class _PhotoOptionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
+      if (pendingUrl != null && pendingUrl.isNotEmpty) {
+        print('[PHOTO PENDING] Encontrada imagen pendiente: $pendingUrl');
 
-  const _PhotoOptionButton({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
+        // Actualizar la URL en el provider
+        perfilForm.userDataLogged?.urlFoto = pendingUrl;
 
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(
-            border:
-                Border.all(color: AppTheme.primaryGreen.withValues(alpha: 0.3)),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            children: [
-              Icon(
-                icon,
-                size: 32,
-                color: AppTheme.primaryGreen,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  color: AppTheme.primaryGreen,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+        // Actualizar en SQLite
+        if (perfilForm.userDataLogged != null) {
+          await DBProvider.db.updateUser(perfilForm.userDataLogged!);
+          print('[PHOTO PENDING] URL actualizada en SQLite');
+        }
+
+        // Actualizar en LoginService
+        loginService.userDataLogged.urlFoto = pendingUrl;
+
+        // Limpiar la URL pendiente del storage
+        await storage.delete(key: 'pendingPhotoUrl');
+        print('[PHOTO PENDING] Imagen pendiente procesada y limpiada');
+
+        // Notificar cambios usando updateProfile
+        perfilForm.updateProfile(perfilForm.userDataLogged!);
+      }
+
+      // Si hay datos actualizados, refrescar desde SQLite
+      if (userDataUpdated == 'true') {
+        print('[PHOTO PENDING] Refrescando datos desde SQLite');
+
+        // Obtener datos necesarios del storage
+        final numeroDocumento =
+            await storage.read(key: 'numeroDocumento') ?? '';
+        final password = await storage.read(key: 'password') ?? '';
+        final base = await storage.read(key: 'base') ?? '';
+
+        if (numeroDocumento.isNotEmpty &&
+            password.isNotEmpty &&
+            base.isNotEmpty) {
+          final userData =
+              await DBProvider.db.getUser(numeroDocumento, password, base);
+          if (userData != null) {
+            perfilForm.updateProfile(userData);
+            loginService.userDataLogged = userData;
+          }
+        }
+        await storage.delete(key: 'userDataUpdated');
+      }
+    } catch (e) {
+      print('[PHOTO PENDING] Error al procesar imagen pendiente: $e');
+    }
   }
 }
