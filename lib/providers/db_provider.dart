@@ -654,19 +654,29 @@ class DBProvider {
 
   Future<int?> deleteResumenPreoperacional(int idResumen) async {
     final db = await database;
-    if (db == null) return null;
+    if (db == null) {
+      print(
+          '❌ Base de datos no disponible para eliminar inspección $idResumen');
+      return null;
+    }
 
     try {
       // Verificar si las columnas eliminado y fechaEliminacion existen
       final tableInfo =
           await db.rawQuery('PRAGMA table_info(ResumenPreoperacional)');
-      final hasEliminado = tableInfo.any((col) => col['name'] == 'eliminado');
-      final hasFechaEliminacion =
-          tableInfo.any((col) => col['name'] == 'fechaEliminacion');
+      final columnNames =
+          tableInfo.map((col) => col['name'] as String).toList();
+      final hasEliminado = columnNames.contains('eliminado');
+      final hasFechaEliminacion = columnNames.contains('fechaEliminacion');
+
+      print('🔍 Estructura de tabla ResumenPreoperacional: $columnNames');
+      print('🔍 Tiene columna eliminado: $hasEliminado');
+      print('🔍 Tiene columna fechaEliminacion: $hasFechaEliminacion');
 
       if (hasEliminado && hasFechaEliminacion) {
-        // Usar soft delete si las columnas existen
-        print('🗑️ Usando soft delete para inspección $idResumen');
+        // Usar soft delete si las columnas existen (estructura nueva)
+        print(
+            '🗑️ Usando SOFT DELETE para inspección $idResumen (estructura nueva)');
         final res = await db.update(
             'ResumenPreoperacional',
             {
@@ -675,23 +685,46 @@ class DBProvider {
             },
             where: 'id = ?',
             whereArgs: [idResumen]);
+
+        if (res > 0) {
+          print(
+              '✅ Soft delete exitoso para inspección $idResumen (registros afectados: $res)');
+        } else {
+          print(
+              '⚠️ Soft delete no afectó registros para inspección $idResumen');
+        }
         return res;
       } else {
         // Usar eliminación física si las columnas no existen (compatibilidad retroactiva)
         print(
-            '🗑️ Usando eliminación física para inspección $idResumen (estructura antigua)');
+            '🗑️ Usando ELIMINACIÓN FÍSICA para inspección $idResumen (estructura antigua)');
         final res = await db.delete('ResumenPreoperacional',
             where: 'id = ?', whereArgs: [idResumen]);
+
+        if (res > 0) {
+          print(
+              '✅ Eliminación física exitosa para inspección $idResumen (registros eliminados: $res)');
+        } else {
+          print(
+              '⚠️ Eliminación física no afectó registros para inspección $idResumen');
+        }
         return res;
       }
     } catch (e) {
       print('❌ Error al eliminar inspección $idResumen: $e');
+      print('🔄 Intentando eliminación física como fallback...');
+
       // Fallback a eliminación física en caso de error
       try {
         final res = await db.delete('ResumenPreoperacional',
             where: 'id = ?', whereArgs: [idResumen]);
-        print(
-            '🗑️ Eliminación física exitosa como fallback para inspección $idResumen');
+
+        if (res > 0) {
+          print(
+              '✅ Eliminación física exitosa como fallback para inspección $idResumen (registros eliminados: $res)');
+        } else {
+          print('⚠️ Fallback no afectó registros para inspección $idResumen');
+        }
         return res;
       } catch (fallbackError) {
         print('❌ Error en fallback de eliminación física: $fallbackError');
