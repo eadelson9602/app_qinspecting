@@ -297,7 +297,11 @@ class InspeccionService extends ChangeNotifier {
       print('📤 DEBUG: Enviando petición al servidor...');
       print(
           '📤 DEBUG: Archivo: $fileName, Tamaño: ${await File(path).length()} bytes');
+      print(
+          '📤 DEBUG: URL: ${loginService.baseUrl}/upload_file/${company.toLowerCase()}/${folder}');
+      print('📤 DEBUG: Headers: ${loginService.options.headers}');
 
+      final startTime = DateTime.now();
       Response response = await dio.post(
           '${loginService.baseUrl}/upload_file/${company.toLowerCase()}/${folder}',
           data: formData,
@@ -309,6 +313,10 @@ class InspeccionService extends ChangeNotifier {
               return status! < 500; // Aceptar códigos de estado menores a 500
             },
           ));
+
+      final endTime = DateTime.now();
+      final duration = endTime.difference(startTime);
+      print('📤 DEBUG: Petición completada en ${duration.inSeconds} segundos');
 
       print(
           '📤 DEBUG: Respuesta recibida del servidor: ${response.statusCode}');

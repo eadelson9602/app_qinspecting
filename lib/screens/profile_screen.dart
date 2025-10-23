@@ -421,7 +421,7 @@ class ProfileScreen extends StatelessWidget {
 
       final uploadResult = await inspeccionService.uploadImage(
         path: imagePath,
-        company: loginService.selectedEmpresa.nombreQi ?? '',
+        company: loginService.selectedEmpresa.nombreQi?.toLowerCase() ?? '',
         folder: 'perfiles',
       );
       print('[PHOTO DIRECT] Resultado de uploadImage: $uploadResult');

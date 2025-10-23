@@ -25,28 +25,41 @@ class MyStatelessWidget extends StatefulWidget {
 }
 
 class _MyStatelessWidgetState extends State<MyStatelessWidget> {
+  bool _hasInitialized = false;
+
   @override
   void initState() {
     super.initState();
-    // Resetear estado cuando se inicializa la pantalla
+    // Resetear estado solo cuando se inicializa la pantalla por primera vez
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _resetState();
+      if (!_hasInitialized) {
+        _resetState();
+        _hasInitialized = true;
+      }
     });
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Resetear estado cada vez que se vuelve a la pantalla
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _resetState();
-    });
+    // Solo resetear si no se ha inicializado aún
+    if (!_hasInitialized) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _resetState();
+        _hasInitialized = true;
+      });
+    }
   }
 
   void _resetState() {
+    print('🔄 Resetting state in signature_screen');
     final firmaService = Provider.of<FirmaService>(context, listen: false);
+    print(
+        '📊 Before reset - aceptaTerminos: ${firmaService.aceptaTerminos}, tabIndex: ${firmaService.indexTabaCreateSignature}');
     firmaService.updateTerminos('NO');
     firmaService.updateTabIndex(0);
+    print(
+        '📊 After reset - aceptaTerminos: ${firmaService.aceptaTerminos}, tabIndex: ${firmaService.indexTabaCreateSignature}');
   }
 
   @override
@@ -54,25 +67,33 @@ class _MyStatelessWidgetState extends State<MyStatelessWidget> {
     final firmaService = Provider.of<FirmaService>(context);
     final loginService = Provider.of<LoginService>(context);
     final inspeccionService = Provider.of<InspeccionService>(context);
+    print(
+        '🏗️ Building signature_screen - tabIndex: ${firmaService.indexTabaCreateSignature}');
 
     List<Widget> _widgetOptions = <Widget>[
       FutureBuilder(
           future: inspeccionService.checkConnection(),
           builder: (context, snapshot) {
+            print(
+                '🔍 Connection check: ${snapshot.connectionState}, data: ${snapshot.data}');
             if (snapshot.data == true) {
               return FutureBuilder(
                   future:
                       firmaService.getInfoFirma(loginService.selectedEmpresa),
                   builder: (context, snapshot) {
+                    print(
+                        '🔍 Firma data: ${snapshot.connectionState}, data: ${snapshot.data}');
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(child: CircularProgressIndicator());
                     } else {
                       if (snapshot.data != null) {
                         final Firma dataFirma = snapshot.data as Firma;
+                        print('✅ Firma data loaded: ${dataFirma.fkNumeroDoc}');
                         return CardFirma(
                           infoFirma: dataFirma,
                         );
                       } else {
+                        print('❌ No firma data available');
                         return Column(
                           children: [
                             SizedBox(
@@ -109,6 +130,7 @@ class _MyStatelessWidgetState extends State<MyStatelessWidget> {
                     }
                   });
             } else {
+              print('❌ No internet connection');
               return Padding(
                 padding: const EdgeInsets.all(15),
                 child: NoInternet(),

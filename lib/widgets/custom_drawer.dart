@@ -137,14 +137,14 @@ class CustomDrawer extends StatelessWidget {
                       icon: Icons.privacy_tip_outlined,
                       title: 'Política de Privacidad',
                       onTap: () => _launchUrlWithContext(context,
-                          'https://www.qinspecting.com/privacy-policy'),
+                          'https://www.qinspecting.com/politica-tratamiento-datos-personales'),
                     ),
                     _buildMenuItem(
                       context: context,
                       icon: Icons.description_outlined,
                       title: 'Términos y Condiciones',
                       onTap: () => _launchUrlWithContext(context,
-                          'https://www.qinspecting.com/terms-and-conditions'),
+                          'https://www.qinspecting.com/terminos-y-condiciones'),
                     ),
                     _buildMenuItem(
                       context: context,
