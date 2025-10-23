@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/services/services.dart';
+import 'package:app_qinspecting/ui/app_theme.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 
 class SignatureScreen extends StatelessWidget {
@@ -93,28 +94,33 @@ class MyStatelessWidget extends StatelessWidget {
       body: SafeArea(
         child: Stack(
           children: [
-            // Botón de volver atrás
+            // Botón de volver atrás con estilo iOS
             Positioned(
               left: 20,
               top: 20,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(25),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
                 child: IconButton(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(
-                    Icons.arrow_back,
-                    color: Colors.green,
-                    size: 30,
+                    Icons.arrow_back_ios_new_rounded,
+                    color: AppTheme.primaryGreen,
+                    size: 24,
                   ),
                 ),
               ),
@@ -131,20 +137,75 @@ class MyStatelessWidget extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.gesture),
-            label: 'Firma',
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 20,
+              offset: const Offset(0, -8),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: BottomNavigationBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            items: [
+              BottomNavigationBarItem(
+                icon: Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: firmaService.indexTabaCreateSignature == 0 
+                        ? AppTheme.primaryGreen.withValues(alpha: 0.12)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.gesture_rounded,
+                    color: firmaService.indexTabaCreateSignature == 0 
+                        ? AppTheme.primaryGreen
+                        : Colors.grey[600],
+                    size: 24,
+                  ),
+                ),
+                label: 'Firma',
+              ),
+              BottomNavigationBarItem(
+                icon: Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: firmaService.indexTabaCreateSignature == 1 
+                        ? AppTheme.primaryGreen.withValues(alpha: 0.12)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.create_rounded,
+                    color: firmaService.indexTabaCreateSignature == 1 
+                        ? AppTheme.primaryGreen
+                        : Colors.grey[600],
+                    size: 24,
+                  ),
+                ),
+                label: 'Realizar firma',
+              ),
+            ],
+            currentIndex: firmaService.indexTabaCreateSignature,
+            selectedItemColor: AppTheme.primaryGreen,
+            unselectedItemColor: Colors.grey[600],
+            selectedLabelStyle: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+            ),
+            unselectedLabelStyle: TextStyle(
+              fontWeight: FontWeight.w400,
+              fontSize: 12,
+            ),
+            onTap: (value) => firmaService.updateTabIndex(value),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.create),
-            label: 'Realizar firma',
-          ),
-        ],
-        currentIndex: firmaService.indexTabaCreateSignature,
-        selectedItemColor: Colors.green,
-        onTap: (value) => firmaService.updateTabIndex(value),
+        ),
       ),
     );
   }
@@ -160,44 +221,140 @@ class CardFirma extends StatelessWidget {
     final sizeScreen = MediaQuery.of(context).size;
 
     return Padding(
-      padding: const EdgeInsets.all(15),
+      padding: const EdgeInsets.all(20),
       child: Container(
-        height: sizeScreen.height * 1, // Reducir altura para evitar overflow
+        height: sizeScreen.height * 1,
         child: SingleChildScrollView(
           child: Column(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: _SignatureImage(
-                  source: infoFirma.firma?.toString(),
-                  height: sizeScreen.height * 0.4,
+              // Card de imagen de firma con estilo iOS
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: _SignatureImage(
+                    source: infoFirma.firma?.toString(),
+                    height: sizeScreen.height * 0.4,
+                  ),
                 ),
               ),
-              SizedBox(height: 10),
-              Divider(
-                height: 15,
+              SizedBox(height: 24),
+              
+              // Información del usuario con iconos coloridos
+              _buildInfoCard(
+                icon: Icons.person_outline_rounded,
+                iconColor: Color(0xFF2196F3), // Azul
+                title: 'Usuario',
+                subtitle: '${infoFirma.fkNumeroDoc}',
               ),
-              ListTile(
-                leading: Icon(Icons.person_outline),
-                title: Text('Usuario',
-                    style: TextStyle(color: Colors.black87, fontSize: 16)),
-                subtitle: Text('${infoFirma.fkNumeroDoc}'),
+              
+              SizedBox(height: 16),
+              
+              // Términos y condiciones
+              _buildInfoCard(
+                icon: Icons.fact_check_outlined,
+                iconColor: Color(0xFF4CAF50), // Verde
+                title: 'Aceptó términos y condiciones?',
+                subtitle: '${infoFirma.terminosCondiciones}',
               ),
-              ListTile(
-                leading: Icon(Icons.fact_check_outlined),
-                title: Text('Aceptó términos y condiciones?',
-                    style: TextStyle(color: Colors.black87, fontSize: 16)),
-                subtitle: Text('${infoFirma.terminosCondiciones}'),
+              
+              SizedBox(height: 16),
+              
+              // Fecha de realización
+              _buildInfoCard(
+                icon: Icons.calendar_today_outlined,
+                iconColor: Color(0xFFFF9800), // Naranja
+                title: 'Fecha de realización',
+                subtitle: '${infoFirma.fechaControl}',
               ),
-              ListTile(
-                leading: Icon(Icons.date_range),
-                title: Text('Fecha de realización',
-                    style: TextStyle(color: Colors.black87, fontSize: 16)),
-                subtitle: Text('${infoFirma.fechaControl}'),
-              ),
-              SizedBox(height: 10),
+              
+              SizedBox(height: 24),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoCard({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          children: [
+            // Icono circular colorido
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: iconColor.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Icon(
+                icon,
+                color: iconColor,
+                size: 24,
+              ),
+            ),
+            SizedBox(width: 16),
+            // Información
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

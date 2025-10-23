@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/providers/providers.dart';
@@ -7,6 +8,48 @@ import '../ui/app_theme.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({Key? key}) : super(key: key);
+
+  /// Función para abrir URLs directamente en el navegador
+  Future<void> _launchUrlWithContext(BuildContext context, String url) async {
+    try {
+      // Asegurar que la URL tenga un esquema válido
+      if (!url.startsWith('http://') &&
+          !url.startsWith('https://') &&
+          !url.startsWith('mailto:')) {
+        throw Exception('URL sin esquema válido: $url');
+      }
+
+      final Uri uri = Uri.parse(url);
+
+      // Verificar que la URL sea válida antes de intentar abrirla
+      if (!uri.hasScheme) {
+        throw Exception('URI sin esquema: $uri');
+      }
+
+      // Intentar abrir directamente en el navegador externo
+      bool launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+
+      if (!launched) {
+        throw Exception('No se pudo abrir la URL: $url');
+      }
+    } catch (e) {
+      print('Error al abrir URL: $e');
+      // Si falla, intentar con modo por defecto como fallback
+      try {
+        final Uri uri = Uri.parse(url);
+        bool launched = await launchUrl(uri);
+
+        if (!launched) {
+          print('Error: No se pudo abrir la URL con ningún método: $url');
+        }
+      } catch (e2) {
+        print('Error secundario al abrir URL: $e2');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,38 +136,36 @@ class CustomDrawer extends StatelessWidget {
                       context: context,
                       icon: Icons.privacy_tip_outlined,
                       title: 'Política de Privacidad',
-                      onTap: () {
-                        uiProvider.selectedMenuOpt = 0;
-                        Navigator.popAndPushNamed(context, 'home');
-                      },
+                      onTap: () => _launchUrlWithContext(context,
+                          'https://www.qinspecting.com/privacy-policy'),
                     ),
                     _buildMenuItem(
                       context: context,
                       icon: Icons.description_outlined,
                       title: 'Términos y Condiciones',
-                      onTap: () =>
-                          Navigator.popAndPushNamed(context, 'profile'),
+                      onTap: () => _launchUrlWithContext(context,
+                          'https://www.qinspecting.com/terms-and-conditions'),
                     ),
                     _buildMenuItem(
                       context: context,
                       icon: Icons.contact_mail_outlined,
                       title: 'Contacto',
-                      onTap: () =>
-                          Navigator.popAndPushNamed(context, 'send_pending'),
+                      onTap: () => _launchUrlWithContext(context,
+                          'https://api.whatsapp.com/send?phone=573137840166&text=Hola!%20Estoy%20en%20la%20p%C3%A1gina%20web%20de%20Qinspecting%20y%20quiero%20m%C3%A1s%20informaci%C3%B3n%20acerca%20de%20su%20Plataforma.%20Mi%20nombre%20es...'),
                     ),
                     _buildMenuItem(
                       context: context,
                       icon: Icons.help_outline,
                       title: 'Ayuda',
-                      onTap: () =>
-                          Navigator.popAndPushNamed(context, 'signature'),
+                      onTap: () => _launchUrlWithContext(
+                          context, 'mailto:soporte@qinspecting.com  '),
                     ),
                     _buildMenuItem(
                       context: context,
                       icon: Icons.info_outline,
                       title: 'Acerca de',
-                      onTap: () =>
-                          Navigator.popAndPushNamed(context, 'settings'),
+                      onTap: () => _launchUrlWithContext(
+                          context, 'https://www.qinspecting.com/about'),
                     ),
                   ],
                 ),
