@@ -30,10 +30,23 @@ class _MyStatelessWidgetState extends State<MyStatelessWidget> {
     super.initState();
     // Resetear estado cuando se inicializa la pantalla
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final firmaService = Provider.of<FirmaService>(context, listen: false);
-      firmaService.updateTerminos('NO');
-      firmaService.updateTabIndex(0);
+      _resetState();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Resetear estado cada vez que se vuelve a la pantalla
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _resetState();
+    });
+  }
+
+  void _resetState() {
+    final firmaService = Provider.of<FirmaService>(context, listen: false);
+    firmaService.updateTerminos('NO');
+    firmaService.updateTabIndex(0);
   }
 
   @override
