@@ -10,6 +10,7 @@ import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/ui/app_theme.dart';
 import 'package:app_qinspecting/widgets/profile/profile_widgets.dart';
+import 'package:app_qinspecting/models/models.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -22,6 +23,9 @@ class ProfileScreen extends StatelessWidget {
 
     // Verificar si hay una imagen pendiente de actualizar
     _checkPendingPhotoUpdate(context, perfilForm, loginService);
+
+    // Sincronizar automáticamente la imagen del perfil con el servidor
+    _syncProfilePhotoWithServer(context, loginService);
 
     // Actualizar datos del perfil cuando cambien los datos del login service
     // Usar addPostFrameCallback para evitar setState durante build
@@ -414,33 +418,50 @@ class ProfileScreen extends StatelessWidget {
   Future<void> _uploadImageDirectly(
       BuildContext context, String imagePath, String base) async {
     try {
+      print('[PHOTO DIRECT] === INICIANDO SUBIDA DE IMAGEN ===');
+      print('[PHOTO DIRECT] Ruta de imagen: $imagePath');
+      print('[PHOTO DIRECT] Base de datos: $base');
+
       final loginService = Provider.of<LoginService>(context, listen: false);
+      print('[PHOTO DIRECT] LoginService obtenido correctamente');
+      print(
+          '[PHOTO DIRECT] Usuario actual: ${loginService.userDataLogged.nombres} ${loginService.userDataLogged.apellidos}');
+      print(
+          '[PHOTO DIRECT] Imagen actual: ${loginService.userDataLogged.urlFoto}');
 
       // Usar el loginService directamente para crear InspeccionService
       final inspeccionService = InspeccionService();
+      print('[PHOTO DIRECT] InspeccionService creado');
 
       // El loginService ya tiene el token configurado, solo necesitamos copiarlo
       inspeccionService.loginService.options.headers =
           loginService.options.headers;
+      print('[PHOTO DIRECT] Headers de autenticación configurados');
 
       // Subir imagen al servidor
+      print('[PHOTO DIRECT] Llamando a uploadImage...');
       final uploadResult = await inspeccionService.uploadImage(
         path: imagePath,
         company: base,
         folder: 'perfiles',
       );
+      print('[PHOTO DIRECT] Resultado de uploadImage: $uploadResult');
 
       if (uploadResult != null && uploadResult['path'] != null) {
         final newImageUrl = uploadResult['path'] as String;
+        print('[PHOTO DIRECT] ✅ Imagen subida exitosamente');
+        print('[PHOTO DIRECT] Nueva URL: $newImageUrl');
+        print(
+            '[PHOTO DIRECT] URL anterior: ${loginService.userDataLogged.urlFoto}');
 
         // También intentar actualizar inmediatamente si es posible
         await _updateUserDataWithNewUrl(context, newImageUrl, base);
       } else {
         print(
-            '[PHOTO DIRECT] Error: No se pudo obtener la URL de la imagen subida');
+            '[PHOTO DIRECT] ❌ Error: No se pudo obtener la URL de la imagen subida');
       }
     } catch (e) {
-      print('[PHOTO DIRECT] Error al subir imagen: $e');
+      print('[PHOTO DIRECT] ❌ Error al subir imagen: $e');
     }
   }
 
@@ -453,12 +474,93 @@ class ProfileScreen extends StatelessWidget {
       final perfilForm =
           Provider.of<PerfilFormProvider>(context, listen: false);
 
-      // Actualizar la URL de la imagen
+      // Actualizar la URL de la imagen en memoria
       loginService.userDataLogged.urlFoto = newImageUrl;
+      print(
+          '[UPDATE USER DATA] URL actualizada en memoria: ${loginService.userDataLogged.urlFoto}');
 
+      // Actualizar en el provider local
       perfilForm.updateProfile(loginService.userDataLogged);
+
+      // Preparar datos para enviar al backend
+      final updateData = {
+        'numeroDocumento': loginService.userDataLogged.numeroDocumento,
+        'nombres': loginService.userDataLogged.nombres,
+        'apellidos': loginService.userDataLogged.apellidos,
+        'email': loginService.userDataLogged.email,
+        'numeroCelular': loginService.userDataLogged.numeroCelular,
+        'urlFoto': newImageUrl, // Usar la nueva URL
+        'fechaNacimiento': loginService.userDataLogged.fechaNacimiento,
+        'lugarExpDocumento': loginService.userDataLogged.lugarExpDocumento,
+        'genero': loginService.userDataLogged.genero,
+        'base': base,
+      };
+
+      // Llamar al backend para persistir el cambio
+      final result = await loginService.updateProfile(updateData);
+      print('[UPDATE USER DATA] Resultado del backend: $result');
+
+      if (result['message']?.contains('exitosamente') == true) {
+        print(
+            '[UPDATE USER DATA] ✅ Perfil actualizado exitosamente en el servidor');
+      } else {
+        print(
+            '[UPDATE USER DATA] ❌ Error al actualizar en el servidor: $result');
+      }
     } catch (e) {
-      print('[PHOTO DIRECT] Error al actualizar datos del usuario: $e');
+      print('[UPDATE USER DATA] ❌ Error al actualizar datos del usuario: $e');
+    }
+  }
+
+  /// Sincroniza automáticamente la imagen del perfil con el servidor
+  Future<void> _syncProfilePhotoWithServer(
+      BuildContext context, LoginService loginService) async {
+    try {
+      print('[SYNC PHOTO] Iniciando sincronización automática de imagen...');
+
+      final baseEmpresa = loginService.selectedEmpresa.nombreBase;
+      final usuario = loginService.selectedEmpresa.numeroDocumento;
+
+      print(
+          '[SYNC PHOTO] Obteniendo datos del servidor: $baseEmpresa/$usuario');
+
+      // Obtener datos actualizados del servidor
+      final response = await loginService.dio.get(
+          '${loginService.baseUrl}/get_user_data/$baseEmpresa/$usuario',
+          options: loginService.options);
+
+      if (response.statusCode == 200) {
+        final serverUserData = UserData.fromJson(response.toString());
+        serverUserData.empresa = loginService.selectedEmpresa.nombreQi;
+
+        print(
+            '[SYNC PHOTO] Imagen local: ${loginService.userDataLogged.urlFoto}');
+        print('[SYNC PHOTO] Imagen servidor: ${serverUserData.urlFoto}');
+
+        // Comparar URLs de imagen
+        if (loginService.userDataLogged.urlFoto != serverUserData.urlFoto) {
+          print(
+              '[SYNC PHOTO] ⚠️ Desincronización detectada! Actualizando imagen local...');
+
+          // Actualizar la imagen local con la del servidor
+          loginService.userDataLogged.urlFoto = serverUserData.urlFoto;
+
+          // Actualizar en SQLite
+          await DBProvider.db.updateUser(loginService.userDataLogged);
+
+          // Notificar cambios usando el método público del LoginService
+          loginService.userDataLogged = loginService.userDataLogged;
+
+          print('[SYNC PHOTO] ✅ Imagen sincronizada exitosamente');
+        } else {
+          print('[SYNC PHOTO] ✅ Imagen ya está sincronizada');
+        }
+      } else {
+        print(
+            '[SYNC PHOTO] ❌ Error al obtener datos del servidor: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('[SYNC PHOTO] ❌ Error en sincronización automática: $e');
     }
   }
 
