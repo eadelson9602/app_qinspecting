@@ -995,6 +995,10 @@ class InspeccionService extends ChangeNotifier {
           });
         });
 
+        // Log image processing statistics
+        print(
+            '📊 Image processing stats: $successfulDownloads successful, $base64Images base64, $invalidImages invalid');
+
         return temData;
       } catch (e) {
         if (attempt == maxRetries) {
