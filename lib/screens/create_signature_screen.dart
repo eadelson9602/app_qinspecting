@@ -36,32 +36,6 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
         color: Colors.grey[200],
         child: Stack(
           children: [
-            // Botón de volver atrás
-            Positioned(
-              left: 20,
-              top: 50,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ),
-            ),
             // Área de firma
             GestureDetector(
               onPanStart: (details) {
@@ -87,6 +61,32 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
               child: CustomPaint(
                 painter: SignaturePainter(_strokes, _points),
                 size: Size(screenSize.width, screenSize.height * 0.9),
+              ),
+            ),
+            // Botón de volver atrás (al final para estar por delante)
+            Positioned(
+              left: 20,
+              top: 40,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                  borderRadius: BorderRadius.circular(25),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
               ),
             ),
           ],
