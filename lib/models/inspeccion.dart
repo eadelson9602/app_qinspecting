@@ -171,7 +171,9 @@ class ResumenPreoperacionalServer {
     this.creado,
     this.hora,
     this.detalle,
+    this.placaVehiculo,
     this.resuPreId,
+    this.kilometraje,
     this.tanqueo,
     this.numeroGuia,
     this.grave,
@@ -186,7 +188,9 @@ class ResumenPreoperacionalServer {
   String? creado;
   String? hora;
   String? detalle;
+  String? placaVehiculo;
   int? resuPreId;
+  int? kilometraje;
   String? tanqueo;
   String? numeroGuia;
   int? grave;
@@ -207,7 +211,9 @@ class ResumenPreoperacionalServer {
         creado: json["creado"],
         hora: json["hora"],
         detalle: json["detalle"],
+        placaVehiculo: json["placaVehiculo"],
         resuPreId: json["resuPreId"],
+        kilometraje: json["kilometraje"],
         tanqueo: json["tanqueo"],
         numeroGuia: json["numeroGuia"],
         grave: json["grave"],
@@ -223,7 +229,9 @@ class ResumenPreoperacionalServer {
         "creado": creado,
         "hora": hora,
         "detalle": detalle,
+        "placaVehiculo": placaVehiculo,
         "resuPreId": resuPreId,
+        "kilometraje": kilometraje,
         "tanqueo": tanqueo,
         "numeroGuia": numeroGuia,
         "grave": grave,

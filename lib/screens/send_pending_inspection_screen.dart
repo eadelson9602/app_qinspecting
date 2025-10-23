@@ -8,7 +8,6 @@ import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/services/background_upload_service.dart';
 import 'package:app_qinspecting/services/notification_service.dart';
-import 'package:app_qinspecting/ui/app_theme.dart';
 import 'package:app_qinspecting/models/inspeccion.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 import 'package:app_qinspecting/widgets/upload_progress_widgets.dart';
@@ -25,18 +24,27 @@ class SendPendingInspectionScreen extends StatelessWidget {
           height: double.infinity,
           child: Stack(
             children: [
-              // Botón de volver atrás
+              // Contenido principal
+              Container(
+                padding: EdgeInsets.only(
+                    top: 60,
+                    left: 10,
+                    right: 10,
+                    bottom: 50), // Reducido el espacio superior
+                child: ContentCardInspectionPending(),
+              ),
+              // Botón de volver atrás (al final para estar por delante)
               Positioned(
                 left: 20,
-                top: 50,
+                top: 40,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryGreen.withValues(alpha: 0.9),
-                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.green.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(25),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 10,
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 15,
                         offset: const Offset(0, 5),
                       ),
                     ],
@@ -44,21 +52,12 @@ class SendPendingInspectionScreen extends StatelessWidget {
                   child: IconButton(
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
+                      Icons.arrow_back,
                       color: Colors.white,
-                      size: 20,
+                      size: 30,
                     ),
                   ),
                 ),
-              ),
-              // Contenido principal
-              Container(
-                padding: EdgeInsets.only(
-                    top: 50,
-                    left: 10,
-                    right: 10,
-                    bottom: 50), // Reducido el espacio superior
-                child: ContentCardInspectionPending(),
               ),
             ],
           )),
@@ -275,6 +274,11 @@ class _ContentCardInspectionPendingState
                     ),
                     // Card de la inspección
                     Card(
+                      elevation: 10,
+                      shadowColor: Colors.black.withValues(alpha: 0.4),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
                       child: (inspeccionService.isSaving &&
                                   inspeccionService.indexSelected == i) ||
                               (_isBackgroundUploadActive &&
@@ -344,73 +348,154 @@ class _ContentCardInspectionPendingState
                           : Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                ListTile(
-                                  title: Text('Inspección No. ${i + 1}'),
-                                  subtitle: Text(
-                                      'Realizado el ${allInspecciones[i].fechaPreoperacional}'),
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.delete,
-                                        color: Colors.red,
+                                Container(
+                                  padding: EdgeInsets.all(16),
+                                  child: Row(
+                                    children: [
+                                      // Icono circular con color
+                                      Container(
+                                        width: 50,
+                                        height: 50,
+                                        decoration: BoxDecoration(
+                                          color: Color(0xFF2196F3), // Azul
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          Icons.description_outlined,
+                                          color: Colors.white,
+                                          size: 24,
+                                        ),
                                       ),
-                                      onPressed: inspeccionService.isSaving
-                                          ? null
-                                          : () async {
-                                              final responseDelete =
+                                      SizedBox(width: 16),
+                                      // Información de la inspección
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Inspección No. ${i + 1}',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                            SizedBox(height: 4),
+                                            Text(
+                                              'Realizado el ${allInspecciones[i].fechaPreoperacional}',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 8),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      // Botón eliminar
+                                      Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: Color(0xFFF44336), // Rojo
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: IconButton(
+                                          icon: Icon(
+                                            Icons.delete_outline,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                          onPressed: inspeccionService.isSaving
+                                              ? null
+                                              : () async {
+                                                  final responseDelete =
+                                                      await inspeccionProvider
+                                                          .eliminarResumenPreoperacional(
+                                                              allInspecciones[i]
+                                                                  .id!);
                                                   await inspeccionProvider
-                                                      .eliminarResumenPreoperacional(
+                                                      .eliminarRespuestaPreoperacional(
                                                           allInspecciones[i]
                                                               .id!);
-                                              await inspeccionProvider
-                                                  .eliminarRespuestaPreoperacional(
-                                                      allInspecciones[i].id!);
-                                              showSimpleNotification(
-                                                  Text(
-                                                      'Inspección ${responseDelete} eliminada'),
-                                                  leading: Icon(Icons.check),
-                                                  autoDismiss: true,
-                                                  background: Colors.green,
-                                                  position: NotificationPosition
-                                                      .bottom);
-                                            },
-                                    ),
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.picture_as_pdf_sharp,
-                                        color: Colors.red,
-                                      ),
-                                      onPressed: inspeccionService.isSaving
-                                          ? null
-                                          : () async {
-                                              inspeccionService.indexSelected =
-                                                  i;
-                                              Navigator.pushNamed(
-                                                  context, 'pdf_offline',
-                                                  arguments: [
-                                                    allInspecciones[i]
-                                                  ]);
-                                            },
-                                    ),
-                                    IconButton(
-                                        icon: Icon(
-                                          Icons.send,
-                                          color: Colors.green,
+                                                  showSimpleNotification(
+                                                      Text(
+                                                          'Inspección ${responseDelete} eliminada'),
+                                                      leading:
+                                                          Icon(Icons.check),
+                                                      autoDismiss: true,
+                                                      background: Colors.green,
+                                                      position:
+                                                          NotificationPosition
+                                                              .bottom);
+                                                },
                                         ),
-                                        onPressed: inspeccionService.isSaving
-                                            ? null
-                                            : () async {
-                                                // Iniciar envío en segundo plano directamente
-                                                await _startBackgroundUploadDirectly(
-                                                    context,
-                                                    allInspecciones[i],
-                                                    i);
-                                              }),
-                                    const SizedBox(width: 8),
-                                  ],
+                                      ),
+                                      SizedBox(width: 12),
+                                      // Botón PDF
+                                      Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: Color(0xFFE91E63), // Rosa/Rojo
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: IconButton(
+                                          icon: Icon(
+                                            Icons.picture_as_pdf_outlined,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                          onPressed: inspeccionService.isSaving
+                                              ? null
+                                              : () async {
+                                                  inspeccionService
+                                                      .indexSelected = i;
+                                                  Navigator.pushNamed(
+                                                      context, 'pdf_offline',
+                                                      arguments: [
+                                                        allInspecciones[i]
+                                                      ]);
+                                                },
+                                        ),
+                                      ),
+                                      SizedBox(width: 12),
+                                      // Botón enviar
+                                      Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: Color(0xFF4CAF50), // Verde
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: IconButton(
+                                          icon: Icon(
+                                            Icons.send_outlined,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                          onPressed: inspeccionService.isSaving
+                                              ? null
+                                              : () async {
+                                                  // Iniciar envío en segundo plano directamente
+                                                  await _startBackgroundUploadDirectly(
+                                                      context,
+                                                      allInspecciones[i],
+                                                      i);
+                                                },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),

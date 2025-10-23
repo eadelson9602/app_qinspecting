@@ -12,10 +12,17 @@ class InspeccionScreen extends StatelessWidget {
     return Scaffold(
       drawer: CustomDrawer(),
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(
-              20, 50, 20, 0), // Reducido el espacio superior
-          child: InspeccionForm(),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: MediaQuery.of(context).size.height -
+                MediaQuery.of(context).padding.top -
+                MediaQuery.of(context).padding.bottom -
+                100,
+          ),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(20, 50, 20, 0),
+            child: Text('Inspección'),
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(

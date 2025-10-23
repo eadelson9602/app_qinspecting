@@ -86,34 +86,81 @@ class _HomeScreenState extends State<HomeScreen> {
     return await showDialog(
           context: context,
           builder: (context) => AlertDialog(
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            surfaceTintColor: Colors.transparent,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(28),
             ),
-            title: Row(
-              children: [
-                Icon(Icons.warning_rounded, color: AppTheme.warningColor),
-                const SizedBox(width: 8),
-                const Text('Confirmar salida'),
-              ],
-            ),
-            content: const Text(
-              '¿Seguro que quieres salir de la aplicación?',
+            elevation: 6,
+            shadowColor:
+                Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
+            title: Text(
+              '¿Desea salir de la aplicación?',
               textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w900,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
             ),
+            content: Text(
+              'Puedes perder tus datos sin guardar.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+            actionsPadding:
+                EdgeInsets.only(top: 0, bottom: 10, left: 10, right: 10),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancelar'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context, true);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.errorColor,
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Salir'),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      style: OutlinedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        side: BorderSide(
+                          color: Theme.of(context).colorScheme.outline,
+                          width: 1,
+                        ),
+                      ),
+                      child: Text(
+                        'Cancelar',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              color: AppTheme.primaryGreen,
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () {
+                        Navigator.pop(context, true);
+                      },
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppTheme.errorColor,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        'Salir',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -136,7 +183,6 @@ class DesktopScreen extends StatelessWidget {
         SizedBox(height: 5), // Reducido el espacio inicial
         // Mini Dashboard con estadísticas
         MiniDashboard(),
-        SizedBox(height: 16),
         FutureBuilder(
             future: inspeccionService
                 .getLatesInspections(loginService.selectedEmpresa),
@@ -157,11 +203,11 @@ class DesktopScreen extends StatelessWidget {
                   );
                 }
                 return Container(
-                  height: 300,
+                  height: 410,
                   child: Swiper(
                     layout: SwiperLayout.STACK,
-                    itemHeight: 250, // Altura fija del card
-                    itemWidth: 200,  // Ancho fijo del card
+                    itemHeight: 410, // Altura fija del card
+                    itemWidth: 500, // Ancho fijo del card
                     itemBuilder: (BuildContext context, int i) {
                       return CardInspeccionDesktop(
                           resumenPreoperacional:

@@ -21,28 +21,35 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            // Header con gradiente y avatar
-            _ModernHeader(
-              userName:
-                  '${perfilForm.userDataLogged?.nombres} ${perfilForm.userDataLogged?.apellidos}',
-              userPhoto: perfilForm.userDataLogged?.urlFoto,
-              onPhotoTap: () => _showPhotoOptions(context),
-            ),
+      body: ConstrainedBox(
+        constraints: BoxConstraints(
+          minHeight: MediaQuery.of(context).size.height -
+              MediaQuery.of(context).padding.top -
+              MediaQuery.of(context).padding.bottom,
+        ),
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            children: [
+              // Header con gradiente y avatar
+              _ModernHeader(
+                userName:
+                    '${perfilForm.userDataLogged?.nombres} ${perfilForm.userDataLogged?.apellidos}',
+                userPhoto: perfilForm.userDataLogged?.urlFoto,
+                onPhotoTap: () => _showPhotoOptions(context),
+              ),
 
-            // Información del usuario
-            _UserInfoCard(
-              userData: perfilForm.userDataLogged,
-            ),
+              // Información del usuario
+              _UserInfoCard(
+                userData: perfilForm.userDataLogged,
+              ),
 
-            // Formulario de datos personales
-            const _ModernFormProfile(),
+              // Formulario de datos personales
+              const _ModernFormProfile(),
 
-            const SizedBox(height: 20),
-          ],
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );
@@ -463,11 +470,11 @@ class _ModernHeader extends StatelessWidget {
           // Botón de volver
           Positioned(
             left: 20,
-            top: 50,
+            top: 40,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(20),
+                color: Colors.white.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(25),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.1),
@@ -479,9 +486,9 @@ class _ModernHeader extends StatelessWidget {
               child: IconButton(
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Colors.white,
-                  size: 20,
+                  Icons.arrow_back,
+                  color: Colors.green,
+                  size: 30,
                 ),
               ),
             ),

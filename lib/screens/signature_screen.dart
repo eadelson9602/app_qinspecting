@@ -96,11 +96,11 @@ class MyStatelessWidget extends StatelessWidget {
             // Botón de volver atrás
             Positioned(
               left: 20,
-              top: 50,
+              top: 20,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(25),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.1),
@@ -112,9 +112,9 @@ class MyStatelessWidget extends StatelessWidget {
                 child: IconButton(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: Colors.white,
-                    size: 20,
+                    Icons.arrow_back,
+                    color: Colors.green,
+                    size: 30,
                   ),
                 ),
               ),
@@ -158,11 +158,11 @@ class CardFirma extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sizeScreen = MediaQuery.of(context).size;
-    print(infoFirma.firma);
+
     return Padding(
       padding: const EdgeInsets.all(15),
       child: Container(
-        height: sizeScreen.height * 1,
+        height: sizeScreen.height * 1, // Reducir altura para evitar overflow
         child: SingleChildScrollView(
           child: Column(
             children: [

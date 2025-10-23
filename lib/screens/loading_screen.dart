@@ -45,8 +45,9 @@ class _LoadingScreenState extends State<LoadingScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: Container(
+    return Container(
+      width: MediaQuery.of(context).size.width * 1,
+      height: MediaQuery.of(context).size.height * 0.8,
       color: const Color(0xFFFFFFFF),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -99,6 +100,6 @@ class _LoadingScreenState extends State<LoadingScreen>
           )
         ],
       ),
-    ));
+    );
   }
 }

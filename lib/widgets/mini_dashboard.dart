@@ -69,7 +69,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
 
   Widget _buildLoadingState() {
     return Container(
-      height: 200, // Tamaño original restaurado
+      height: 190, // Tamaño original restaurado
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
         borderRadius: BorderRadius.circular(20),
