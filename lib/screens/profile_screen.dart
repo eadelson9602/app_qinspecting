@@ -51,8 +51,8 @@ class ProfileScreen extends StatelessWidget {
                 builder: (context, perfilForm, child) {
                   final nombreQi = loginService.selectedEmpresa.nombreQi ?? '';
                   return ModernHeader(
-                    userName:
-                        '${perfilForm.userDataLogged?.nombres} ${perfilForm.userDataLogged?.apellidos}',
+                    userName: '${perfilForm.userDataLogged?.nombres}',
+                    lastName: '${perfilForm.userDataLogged?.apellidos}',
                     userPhoto: perfilForm.getDisplayImage(),
                     onPhotoTap: () => _showPhotoOptions(context, nombreQi),
                   );
@@ -313,7 +313,8 @@ class ProfileScreen extends StatelessWidget {
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
                 style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).textTheme.bodyMedium?.color,
+                  foregroundColor:
+                      Theme.of(context).textTheme.bodyMedium?.color,
                 ),
                 child: const Text('Cancelar'),
               ),

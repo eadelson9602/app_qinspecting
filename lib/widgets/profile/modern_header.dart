@@ -7,11 +7,13 @@ class ModernHeader extends StatelessWidget {
   const ModernHeader({
     Key? key,
     required this.userName,
+    required this.lastName,
     this.userPhoto,
     this.onPhotoTap,
   }) : super(key: key);
 
   final String userName;
+  final String lastName;
   final String? userPhoto;
   final VoidCallback? onPhotoTap;
 
@@ -22,22 +24,12 @@ class ModernHeader extends StatelessWidget {
 
     return Container(
       height: 280,
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(30),
-          bottomRight: Radius.circular(30),
-        ),
-      ),
       child: Stack(
         children: [
           // Fondo con imagen de perfil
           if (userPhoto != null && userPhoto!.isNotEmpty)
             Positioned.fill(
               child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
-                ),
                 child: imageProvider.getImage(userPhoto),
               ),
             ),
@@ -51,10 +43,6 @@ class ModernHeader extends StatelessWidget {
                         76) // Verde con transparencia para modo oscuro
                     : const Color.fromARGB(180, 68, 173,
                         68), // Verde con transparencia para modo claro
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
-                ),
               ),
             ),
           ),
@@ -97,7 +85,7 @@ class ModernHeader extends StatelessWidget {
             right: 0,
             child: Center(
               child: Text(
-                'PERFIL',
+                'Perfil',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -108,9 +96,9 @@ class ModernHeader extends StatelessWidget {
             ),
           ),
 
-          // Avatar circular
+          // Avatar circular - centrado en la mitad del header
           Positioned(
-            top: 100,
+            top: 140, // Centrado en la mitad del header (280/2 = 140)
             left: 0,
             right: 0,
             child: Center(
@@ -166,7 +154,7 @@ class ModernHeader extends StatelessWidget {
 
           // Botón de cámara
           Positioned(
-            bottom: 70,
+            bottom: 110, // Ajustado para estar alineado con el avatar centrado
             right: MediaQuery.of(context).size.width / 2 - 15,
             child: GestureDetector(
               onTap: onPhotoTap,
@@ -174,7 +162,7 @@ class ModernHeader extends StatelessWidget {
                 width: 30,
                 height: 30,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(15),
                   boxShadow: [
                     BoxShadow(
@@ -195,12 +183,31 @@ class ModernHeader extends StatelessWidget {
 
           // Nombre del usuario
           Positioned(
-            bottom: 20,
+            bottom: 60, // Más cerca del avatar
             left: 0,
             right: 0,
             child: Center(
               child: Text(
                 userName,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+
+          // Apellido del usuario
+          Positioned(
+            bottom: 30, // Más cerca del nombre
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Text(
+                lastName,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 24,
