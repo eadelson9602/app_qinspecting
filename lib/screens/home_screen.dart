@@ -198,7 +198,9 @@ class DesktopScreen extends StatelessWidget {
                     alignment: Alignment.center,
                     child: Text(
                       'No hay inspecciones recientes',
-                      style: TextStyle(fontSize: 16, color: Theme.of(context).textTheme.bodyMedium?.color),
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: Theme.of(context).textTheme.bodyMedium?.color),
                     ),
                   );
                 }

@@ -76,28 +76,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
 
-                      // Botones de cancelar y cerrar subida de foto
-                      Positioned(
-                        top: MediaQuery.of(context).size.height * 0.18,
-                        child: Row(
-                          children: [
-                            IconButton(
-                              onPressed: () {
-                                perfilForm.updateProfilePhoto(false);
-                              },
-                              icon: const Icon(Icons.close),
-                            ),
-                            const SizedBox(width: 10),
-                            IconButton(
-                              onPressed: () {
-                                perfilForm.updateProfilePhoto(false);
-                              },
-                              icon: const Icon(Icons.plus_one),
-                            ),
-                          ],
-                        ),
-                      ),
-
                       // Nombre del usuario
                       Positioned(
                         top: MediaQuery.of(context).size.height * 0.34,
@@ -233,9 +211,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               // Loader overlay para subida de foto
-              if (perfilForm.isUploadingPhoto)
+              if (loadingProgress.isLoading)
                 Container(
-                  color: Colors.black.withValues(alpha: 0.5),
+                  color: Colors.black.withValues(alpha: 0.9),
                   child: Center(
                     child: CustomLoadingTruck(
                       progress: loadingProgress.progress,
@@ -587,6 +565,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       BuildContext context, String imagePath) async {
     final loadingProgress =
         Provider.of<LoadingProgressProvider>(context, listen: false);
+    final perfilForm = Provider.of<PerfilFormProvider>(context, listen: false);
 
     // Iniciar loading con progreso
     loadingProgress.startLoading(message: 'Preparando imagen...');
@@ -632,12 +611,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         print(
             '[PHOTO DIRECT] ❌ Error: No se pudo obtener la URL de la imagen subida');
         loadingProgress.stopLoading();
+        perfilForm.updateProfilePhoto(false);
       }
     } catch (e) {
       print('[PHOTO DIRECT] ❌ Error al subir imagen: $e');
       loadingProgress.stopLoading();
+      perfilForm.updateProfilePhoto(false);
     } finally {
       loadingProgress.finishLoading();
+      perfilForm.updateProfilePhoto(false);
     }
   }
 

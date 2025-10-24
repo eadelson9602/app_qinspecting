@@ -29,8 +29,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
     // Actualizar datos cada vez que cambien las dependencias (navegación)
     // pero solo si ha pasado suficiente tiempo desde la última actualización
     final now = DateTime.now();
-    if (_lastUpdate == null || 
-        now.difference(_lastUpdate!) > _updateCooldown) {
+    if (_lastUpdate == null || now.difference(_lastUpdate!) > _updateCooldown) {
       print('🔄 MiniDashboard: Actualizando datos por cambio de dependencias');
       _loadDashboardStats();
     }
@@ -205,13 +204,13 @@ class _MiniDashboardState extends State<MiniDashboard> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context).shadowColor,
+                color: Theme.of(context).shadowColor.withValues(alpha: 0.2),
                 blurRadius: 20,
                 offset: Offset(0, 4),
                 spreadRadius: 0,
               ),
               BoxShadow(
-                color: Theme.of(context).shadowColor.withValues(alpha: 0.5),
+                color: Theme.of(context).shadowColor.withValues(alpha: 0.2),
                 blurRadius: 6,
                 offset: Offset(0, 2),
                 spreadRadius: 0,
@@ -320,5 +319,4 @@ class _MiniDashboardState extends State<MiniDashboard> {
       return value.toString();
     }
   }
-
 }

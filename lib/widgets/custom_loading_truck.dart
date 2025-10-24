@@ -6,6 +6,7 @@ class CustomLoadingTruck extends StatefulWidget {
   final String message;
   final Color? primaryColor;
   final Color? backgroundColor;
+  final double opacity;
 
   const CustomLoadingTruck({
     Key? key,
@@ -13,6 +14,7 @@ class CustomLoadingTruck extends StatefulWidget {
     this.message = 'Cargando...',
     this.primaryColor,
     this.backgroundColor,
+    this.opacity = 0.9,
   }) : super(key: key);
 
   @override
@@ -27,7 +29,7 @@ class _CustomLoadingTruckState extends State<CustomLoadingTruck>
   @override
   void initState() {
     super.initState();
-    
+
     // Solo controlador para las ruedas giratorias
     _wheelsController = AnimationController(
       duration: const Duration(milliseconds: 500),
@@ -42,8 +44,7 @@ class _CustomLoadingTruckState extends State<CustomLoadingTruck>
       parent: _wheelsController,
       curve: Curves.linear,
     ));
-
-    // Iniciar animación de ruedas
+    // Iniciar animaciones
     _wheelsController.repeat();
   }
 
@@ -56,126 +57,100 @@ class _CustomLoadingTruckState extends State<CustomLoadingTruck>
   @override
   Widget build(BuildContext context) {
     final primaryColor = widget.primaryColor ?? AppTheme.primaryGreen;
-    final backgroundColor = widget.backgroundColor ?? Theme.of(context).cardColor;
+    final backgroundColor =
+        widget.backgroundColor ?? Theme.of(context).cardColor;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Contenedor del camión y la carretera
-          SizedBox(
-            height: 120,
-            width: 300,
-            child: Stack(
-              children: [
-                // Carretera
-                Container(
-                  height: 8,
-                  width: 300,
-                  margin: const EdgeInsets.only(top: 80),
-                  decoration: BoxDecoration(
-                    color: isDark ? Colors.grey[700] : Colors.grey[300],
-                    borderRadius: BorderRadius.circular(4),
+    return Opacity(
+      opacity: widget.opacity,
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Contenedor del camión y la carretera
+            SizedBox(
+              height: 120,
+              width: 300,
+              child: Stack(
+                children: [
+                  // Camión sincronizado con el progreso
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                    left: widget.progress.clamp(0.0, 1.0) *
+                        250, // Posición basada en progreso
+                    top: 50,
+                    child: _buildTruck(primaryColor, isDark),
                   ),
-                ),
-                
-                // Líneas de la carretera
-                Positioned(
-                  top: 84,
-                  left: 0,
-                  right: 0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: List.generate(6, (index) {
-                      return Container(
-                        width: 20,
-                        height: 2,
-                        decoration: BoxDecoration(
-                          color: isDark ? Colors.grey[500] : Colors.grey[400],
-                          borderRadius: BorderRadius.circular(1),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
 
-                // Camión sincronizado con el progreso
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  left: widget.progress.clamp(0.0, 1.0) * 250, // Posición basada en progreso
-                  top: 50,
-                  child: _buildTruck(primaryColor, isDark),
-                ),
-
-                // Barra de progreso
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: isDark ? Colors.grey[700] : Colors.grey[200],
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                    child: FractionallySizedBox(
-                      alignment: Alignment.centerLeft,
-                      widthFactor: widget.progress.clamp(0.0, 1.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              primaryColor,
-                              primaryColor.withValues(alpha: 0.7),
-                            ],
+                  // Barra de progreso
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.grey[700] : Colors.grey[200],
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      child: FractionallySizedBox(
+                        alignment: Alignment.centerLeft,
+                        widthFactor: widget.progress.clamp(0.0, 1.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                primaryColor,
+                                primaryColor.withValues(alpha: 0.7),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(3),
                           ),
-                          borderRadius: BorderRadius.circular(3),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          
-          const SizedBox(height: 20),
-          
-          // Mensaje
-          Text(
-            widget.message,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: Theme.of(context).textTheme.bodyLarge?.color,
-              fontWeight: FontWeight.w500,
+
+            const SizedBox(height: 20),
+
+            // Mensaje
+            Text(
+              widget.message,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                    fontWeight: FontWeight.w500,
+                  ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-          
-          const SizedBox(height: 8),
-          
-          // Porcentaje de progreso
-          Text(
-            '${(widget.progress * 100).toInt()}%',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: primaryColor,
-              fontWeight: FontWeight.bold,
+
+            const SizedBox(height: 8),
+
+            // Porcentaje de progreso
+            Text(
+              '${(widget.progress * 100).toInt()}%',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: primaryColor,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -184,129 +159,42 @@ class _CustomLoadingTruckState extends State<CustomLoadingTruck>
     return AnimatedBuilder(
       animation: _wheelsAnimation,
       builder: (context, child) {
-        // Calcular velocidad de rotación basada en el progreso
-        final rotationSpeed = widget.progress.clamp(0.0, 1.0) * 2 * 3.14159;
-        final wheelRotation = _wheelsAnimation.value * rotationSpeed;
-        
         return Container(
-          width: 50,
-          height: 30,
+          width: 100,
+          height: 70,
           child: Stack(
             children: [
-              // Cuerpo del camión
-              Container(
-                width: 40,
-                height: 20,
-                decoration: BoxDecoration(
-                  color: primaryColor,
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(
-                    color: isDark ? Colors.grey[600]! : Colors.grey[400]!,
-                    width: 1,
-                  ),
-                ),
-                child: Stack(
-                  children: [
-                    // Ventana del conductor
-                    Positioned(
-                      left: 2,
-                      top: 2,
-                      child: Container(
-                        width: 8,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          color: isDark ? Colors.grey[800] : Colors.blue[100],
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
-                    // Luces delanteras
-                    Positioned(
-                      right: 1,
-                      top: 3,
-                      child: Container(
-                        width: 3,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: Colors.yellow[300],
-                          borderRadius: BorderRadius.circular(1),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      right: 1,
-                      bottom: 3,
-                      child: Container(
-                        width: 3,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: Colors.yellow[300],
-                          borderRadius: BorderRadius.circular(1),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              // Ruedas
+              // Camión usando el GIF
               Positioned(
-                left: 5,
-                bottom: 0,
-                child: Transform.rotate(
-                  angle: wheelRotation,
-                  child: Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.grey[600]!,
-                        width: 1,
-                      ),
-                    ),
-                    child: Center(
-                      child: Container(
-                        width: 3,
-                        height: 3,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[400],
-                          shape: BoxShape.circle,
+                left: 0,
+                top: 0,
+                child: Image.asset(
+                  'assets/images/truck.gif',
+                  width: 100,
+                  height: 70,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    // Fallback en caso de error con el GIF
+                    return Container(
+                      width: 60,
+                      height: 35,
+                      decoration: BoxDecoration(
+                        color: primaryColor,
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(
+                          color: isDark ? Colors.grey[600]! : Colors.grey[400]!,
+                          width: 1,
                         ),
                       ),
-                    ),
-                  ),
-                ),
-              ),
-              
-              Positioned(
-                right: 5,
-                bottom: 0,
-                child: Transform.rotate(
-                  angle: wheelRotation,
-                  child: Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.grey[600]!,
-                        width: 1,
-                      ),
-                    ),
-                    child: Center(
-                      child: Container(
-                        width: 3,
-                        height: 3,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[400],
-                          shape: BoxShape.circle,
+                      child: Center(
+                        child: Icon(
+                          Icons.local_shipping,
+                          color: Colors.white,
+                          size: 24,
                         ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
             ],

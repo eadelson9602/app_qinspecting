@@ -259,7 +259,7 @@ class _ButtonLogin extends StatelessWidget {
                                 child: Image(
                                     fit: BoxFit.cover,
                                     image: AssetImage(
-                                        'assets/images/loading_4.gif')))),
+                                        'assets/images/truck.gif')))),
                     title: Text(empresas[i].nombreQi.toString()),
                     trailing: const Icon(Icons.arrow_right),
                     onTap: () async {

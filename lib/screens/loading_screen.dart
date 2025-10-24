@@ -48,13 +48,13 @@ class _LoadingScreenState extends State<LoadingScreen>
     return Container(
       width: MediaQuery.of(context).size.width * 1,
       height: MediaQuery.of(context).size.height * 0.8,
-      color: const Color(0xFFFFFFFF),
+      color: Theme.of(context).scaffoldBackgroundColor,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Center(
             child: Image(
-              image: AssetImage('assets/images/loading_4.gif'),
+              image: AssetImage('assets/images/truck.gif'),
               width: 180,
             ),
           ),
@@ -64,11 +64,13 @@ class _LoadingScreenState extends State<LoadingScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
+              Text(
                 'Cargando',
                 style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                ),
               ),
               const SizedBox(width: 4),
               AnimatedBuilder(
@@ -84,9 +86,13 @@ class _LoadingScreenState extends State<LoadingScreen>
                             child: Text(
                               '.',
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                  color: Theme.of(context).textTheme.bodyLarge?.color),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.color,
+                              ),
                             ),
                           );
                         },

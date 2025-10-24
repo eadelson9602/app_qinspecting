@@ -289,8 +289,8 @@ class _ContentCardInspectionPendingState
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(100),
                                   child: Image(
-                                    image: AssetImage(
-                                        'assets/images/loading_3.gif'),
+                                    image:
+                                        AssetImage('assets/images/truck.gif'),
                                     // fit: BoxFit.cover,
                                     height: 50,
                                   ),
@@ -337,7 +337,10 @@ class _ContentCardInspectionPendingState
                                         'Progreso: ${(inspeccionService.batchProgress * 100).toStringAsFixed(1)}%',
                                         style: TextStyle(
                                           fontSize: 14,
-                                          color: Theme.of(context).textTheme.bodySmall?.color,
+                                          color: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.color,
                                         ),
                                       ),
                                     ],
@@ -378,7 +381,10 @@ class _ContentCardInspectionPendingState
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.bold,
-                                                color: Theme.of(context).textTheme.titleMedium?.color,
+                                                color: Theme.of(context)
+                                                    .textTheme
+                                                    .titleMedium
+                                                    ?.color,
                                               ),
                                             ),
                                             SizedBox(height: 4),
@@ -386,7 +392,10 @@ class _ContentCardInspectionPendingState
                                               'Realizado el ${allInspecciones[i].fechaPreoperacional}',
                                               style: TextStyle(
                                                 fontSize: 14,
-                                                color: Theme.of(context).textTheme.bodySmall?.color,
+                                                color: Theme.of(context)
+                                                    .textTheme
+                                                    .bodySmall
+                                                    ?.color,
                                               ),
                                             ),
                                           ],
