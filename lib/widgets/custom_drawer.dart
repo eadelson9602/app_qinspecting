@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:app_qinspecting/services/services.dart';
+import 'package:app_qinspecting/services/theme_service.dart';
 import 'package:app_qinspecting/providers/providers.dart';
 import '../ui/app_theme.dart';
 
@@ -57,19 +58,23 @@ class CustomDrawer extends StatelessWidget {
     final loginService = Provider.of<LoginService>(context, listen: false);
 
     return Drawer(
-      backgroundColor: Theme.of(context).cardColor,
+      backgroundColor: Theme.of(context).brightness == Brightness.light
+          ? Colors.transparent
+          : Theme.of(context).cardColor,
       elevation: 0,
       child: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          gradient: Theme.of(context).brightness == Brightness.dark
+          color: Theme.of(context).brightness == Brightness.light
+              ? null
+              : Theme.of(context).cardColor,
+          gradient: Theme.of(context).brightness == Brightness.light
               ? LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Theme.of(context).cardColor,
-                    Theme.of(context).cardColor,
-                    Theme.of(context).cardColor,
+                    AppTheme.primaryGreen,
+                    AppTheme.primaryGreenLight,
+                    AppTheme.accentGreen,
                   ],
                   stops: const [0.0, 0.6, 1.0],
                 )
@@ -77,9 +82,9 @@ class CustomDrawer extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppTheme.primaryGreen,
-                    AppTheme.primaryGreenLight,
-                    AppTheme.accentGreen,
+                    Theme.of(context).cardColor,
+                    Theme.of(context).cardColor,
+                    Theme.of(context).cardColor,
                   ],
                   stops: const [0.0, 0.6, 1.0],
                 ),
@@ -96,7 +101,9 @@ class CustomDrawer extends StatelessWidget {
                 margin:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).dividerColor,
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Colors.white.withValues(alpha: 0.2)
+                      : Theme.of(context).dividerColor,
                   borderRadius: BorderRadius.circular(1),
                 ),
               ),
@@ -199,7 +206,7 @@ class CustomDrawer extends StatelessWidget {
     String url = loginService.userDataLogged.urlFoto;
 
     return Container(
-      padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 10),
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 0),
       child: Column(
         children: [
           // Botón de cerrar drawer
@@ -211,12 +218,16 @@ class CustomDrawer extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).dividerColor,
+                    color: Theme.of(context).brightness == Brightness.light
+                        ? Colors.white.withValues(alpha: 0.2)
+                        : Theme.of(context).dividerColor,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
                     Icons.arrow_back_ios_new,
-                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                    color: Theme.of(context).brightness == Brightness.light
+                        ? Colors.white
+                        : Theme.of(context).textTheme.bodyLarge?.color,
                     size: 20,
                   ),
                 ),
@@ -225,13 +236,17 @@ class CustomDrawer extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).dividerColor,
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Colors.white.withValues(alpha: 0.2)
+                      : Theme.of(context).dividerColor,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   'V2.1.0',
                   style: TextStyle(
-                    color: Theme.of(context).textTheme.bodySmall?.color,
+                    color: Theme.of(context).brightness == Brightness.light
+                        ? Colors.white.withValues(alpha: 0.8)
+                        : Theme.of(context).textTheme.bodySmall?.color,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -248,7 +263,11 @@ class CustomDrawer extends StatelessWidget {
             height: 80,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Theme.of(context).dividerColor, width: 3),
+              border: Border.all(
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Colors.white
+                      : Theme.of(context).dividerColor,
+                  width: 3),
               boxShadow: [
                 BoxShadow(
                   color: Theme.of(context).shadowColor,
@@ -288,7 +307,9 @@ class CustomDrawer extends StatelessWidget {
           Text(
             loginService.userDataLogged.nombres ?? 'Usuario',
             style: TextStyle(
-              color: Theme.of(context).textTheme.titleLarge?.color,
+              color: Theme.of(context).brightness == Brightness.light
+                  ? Colors.white
+                  : Theme.of(context).textTheme.titleLarge?.color,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
@@ -301,11 +322,51 @@ class CustomDrawer extends StatelessWidget {
           Text(
             loginService.selectedEmpresa.nombres ?? 'Empresa',
             style: TextStyle(
-              color: Theme.of(context).textTheme.bodySmall?.color,
+              color: Theme.of(context).brightness == Brightness.light
+                  ? Colors.white.withValues(alpha: 0.8)
+                  : Theme.of(context).textTheme.bodySmall?.color,
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
             textAlign: TextAlign.center,
+          ),
+
+          Consumer<ThemeService>(
+            builder: (context, themeService, child) {
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 8),
+                child: IconButton(
+                  onPressed: () => themeService.toggleTheme(),
+                  icon: Icon(
+                    themeService.isDarkMode
+                        ? Icons.light_mode
+                        : Icons.dark_mode,
+                    color: Theme.of(context).brightness == Brightness.light
+                        ? Colors.white.withValues(alpha: 0.8)
+                        : Theme.of(context).textTheme.bodyLarge?.color,
+                    size: 16,
+                  ),
+                  style: IconButton.styleFrom(
+                    backgroundColor:
+                        Theme.of(context).brightness == Brightness.light
+                            ? Colors.white.withValues(alpha: 0.1)
+                            : Theme.of(context).dividerColor,
+                    foregroundColor:
+                        Theme.of(context).brightness == Brightness.light
+                            ? Colors.white.withValues(alpha: 0.8)
+                            : Theme.of(context).textTheme.bodyLarge?.color,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      side: BorderSide(
+                        color: Theme.of(context).brightness == Brightness.light
+                            ? Colors.white.withValues(alpha: 0.2)
+                            : Theme.of(context).dividerColor,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -330,18 +391,25 @@ class CustomDrawer extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: isSelected
-                  ? Theme.of(context).dividerColor
+                  ? (Theme.of(context).brightness == Brightness.light
+                      ? Colors.white.withValues(alpha: 0.2)
+                      : Theme.of(context).dividerColor)
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(12),
               border: isSelected
-                  ? Border.all(color: Theme.of(context).dividerColor)
+                  ? Border.all(
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? Colors.white.withValues(alpha: 0.3)
+                          : Theme.of(context).dividerColor)
                   : null,
             ),
             child: Row(
               children: [
                 Icon(
                   icon,
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Colors.white
+                      : Theme.of(context).textTheme.bodyLarge?.color,
                   size: 24,
                 ),
                 const SizedBox(width: 16),
@@ -349,7 +417,9 @@ class CustomDrawer extends StatelessWidget {
                   child: Text(
                     title,
                     style: TextStyle(
-                      color: Theme.of(context).textTheme.bodyLarge?.color,
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? Colors.white
+                          : Theme.of(context).textTheme.bodyLarge?.color,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
@@ -360,7 +430,9 @@ class CustomDrawer extends StatelessWidget {
                     width: 6,
                     height: 6,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).textTheme.bodyLarge?.color,
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? Colors.white
+                          : Theme.of(context).textTheme.bodyLarge?.color,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -382,7 +454,9 @@ class CustomDrawer extends StatelessWidget {
             height: 1,
             margin: const EdgeInsets.only(bottom: 20),
             decoration: BoxDecoration(
-              color: Theme.of(context).dividerColor,
+              color: Theme.of(context).brightness == Brightness.light
+                  ? Colors.white.withValues(alpha: 0.2)
+                  : Theme.of(context).dividerColor,
               borderRadius: BorderRadius.circular(1),
             ),
           ),
@@ -403,24 +477,32 @@ class CustomDrawer extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).dividerColor,
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Colors.white.withValues(alpha: 0.1)
+                      : Theme.of(context).dividerColor,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Theme.of(context).dividerColor,
+                    color: Theme.of(context).brightness == Brightness.light
+                        ? Colors.white.withValues(alpha: 0.2)
+                        : Theme.of(context).dividerColor,
                   ),
                 ),
                 child: Row(
                   children: [
                     Icon(
                       Icons.logout_outlined,
-                      color: Theme.of(context).textTheme.bodyLarge?.color,
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? Colors.white.withValues(alpha: 0.8)
+                          : Theme.of(context).textTheme.bodyLarge?.color,
                       size: 20,
                     ),
                     const SizedBox(width: 12),
                     Text(
                       'Cerrar sesión',
                       style: TextStyle(
-                        color: Theme.of(context).textTheme.bodyLarge?.color,
+                        color: Theme.of(context).brightness == Brightness.light
+                            ? Colors.white.withValues(alpha: 0.8)
+                            : Theme.of(context).textTheme.bodyLarge?.color,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
