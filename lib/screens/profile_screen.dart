@@ -60,12 +60,20 @@ class ProfileScreen extends StatelessWidget {
               ),
 
               // Información del usuario
-              UserInfoCard(
-                userData: perfilForm.userDataLogged,
+              Padding(
+                padding:
+                    const EdgeInsets.only(top: 60), // Espacio para el avatar
+                child: UserInfoCard(
+                  userData: perfilForm.userDataLogged,
+                ),
               ),
 
               // Formulario de datos personales
-              const ModernFormProfile(),
+              Padding(
+                padding:
+                    const EdgeInsets.only(top: 60), // Espacio para el avatar
+                child: const ModernFormProfile(),
+              ),
 
               const SizedBox(height: 20),
             ],
