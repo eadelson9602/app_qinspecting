@@ -8,7 +8,6 @@ import 'firebase_options.dart';
 
 import 'screens/screens.dart';
 import 'utils/error_handler.dart';
-import 'ui/app_theme.dart';
 
 import 'package:app_qinspecting/providers/providers.dart';
 
@@ -16,6 +15,7 @@ import 'services/services.dart';
 import 'services/notification_service.dart';
 import 'services/background_upload_service.dart';
 import 'services/real_background_upload_service.dart';
+import 'services/theme_service.dart';
 
 void main() async {
   // Configurar Flutter para evitar errores del mouse tracker
@@ -87,6 +87,7 @@ class AppState extends StatelessWidget {
       ChangeNotifierProvider(create: (_) => PerfilFormProvider()),
       ChangeNotifierProvider(create: (_) => InspeccionService()),
       ChangeNotifierProvider(create: (_) => FirmaService()),
+      ChangeNotifierProvider(create: (_) => ThemeService()),
       Provider<DBProvider>(create: (_) => DBProvider.db),
     ], child: const MyApp());
   }
@@ -98,37 +99,46 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return OverlaySupport.global(
-        child: MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Qinspecting',
-      theme: AppTheme.lightTheme,
-      initialRoute: 'check_auth',
-      routes: {
-        'login': (_) => const LoginScreen(),
-        'home': (_) => const HomeScreen(),
-        'profile': (_) => const ProfileScreen(),
-        'inspeccion': (_) => const InspeccionScreen(),
-        'signature': (_) => const SignatureScreen(),
-        'send_pending': (_) => const SendPendingInspectionScreen(),
-        'settings': (_) => const SettingScreen(),
-        'inspeccion_vehiculo': (_) => const InspeccionVehiculoScreen(),
-        'inspeccion_remolque': (_) => const InspeccionRemolqueScreen(),
-        'create_signature': (_) => const CreateSignatureScreen(),
-        'check_auth': (_) => CheckScreen(),
-        'get_data': (_) => GetDataScreen(),
-        'pdf': (_) => PdfScreen(),
-        'pdf_offline': (_) => PdfScreenOffline(),
-        'remember_password': (_) => RememberPasswordScreen(),
+    return Consumer<ThemeService>(
+      builder: (context, themeService, child) {
+        return OverlaySupport.global(
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Qinspecting',
+            theme: themeService.lightTheme,
+            darkTheme: themeService.darkTheme,
+            themeMode:
+                themeService.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            initialRoute: 'check_auth',
+            routes: {
+              'login': (_) => const LoginScreen(),
+              'home': (_) => const HomeScreen(),
+              'profile': (_) => const ProfileScreen(),
+              'inspeccion': (_) => const InspeccionScreen(),
+              'signature': (_) => const SignatureScreen(),
+              'send_pending': (_) => const SendPendingInspectionScreen(),
+              'settings': (_) => const SettingScreen(),
+              'inspeccion_vehiculo': (_) => const InspeccionVehiculoScreen(),
+              'inspeccion_remolque': (_) => const InspeccionRemolqueScreen(),
+              'create_signature': (_) => const CreateSignatureScreen(),
+              'check_auth': (_) => CheckScreen(),
+              'get_data': (_) => GetDataScreen(),
+              'pdf': (_) => PdfScreen(),
+              'pdf_offline': (_) => PdfScreenOffline(),
+              'remember_password': (_) => RememberPasswordScreen(),
+            },
+            // Se usa para controlar pagina que no existes 404
+            onGenerateRoute: (settings) {
+              return MaterialPageRoute(
+                  builder: (context) => const HomeScreen());
+            },
+            // Configurar builder para manejar errores
+            builder: (context, child) {
+              return ErrorHandler.wrapWithErrorHandler(child!);
+            },
+          ),
+        );
       },
-      // Se usa para controlar pagina que no existes 404
-      onGenerateRoute: (settings) {
-        return MaterialPageRoute(builder: (context) => const HomeScreen());
-      },
-      // Configurar builder para manejar errores
-      builder: (context, child) {
-        return ErrorHandler.wrapWithErrorHandler(child!);
-      },
-    ));
+    );
   }
 }
