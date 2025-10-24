@@ -23,9 +23,6 @@ class ModernHeader extends StatelessWidget {
     return Container(
       height: 280,
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark
-            ? const Color(0xFF6A4C93) // Púrpura más oscuro para modo oscuro
-            : const Color(0xFF8E44AD), // Púrpura sólido para modo claro
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(30),
           bottomRight: Radius.circular(30),
@@ -33,6 +30,52 @@ class ModernHeader extends StatelessWidget {
       ),
       child: Stack(
         children: [
+          // Fondo con imagen de perfil
+          if (userPhoto != null && userPhoto!.isNotEmpty)
+            Positioned.fill(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30),
+                ),
+                child: imageProvider.getImage(userPhoto),
+              ),
+            ),
+
+          // Overlay verde con transparencia
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? const Color.fromARGB(180, 84, 147,
+                        76) // Verde con transparencia para modo oscuro
+                    : const Color.fromARGB(180, 68, 173,
+                        68), // Verde con transparencia para modo claro
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30),
+                ),
+              ),
+            ),
+          ),
+
+          // Fallback: fondo verde sólido si no hay imagen
+          if (userPhoto == null || userPhoto!.isEmpty)
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? const Color.fromARGB(
+                          255, 84, 147, 76) // Verde sólido para modo oscuro
+                      : const Color.fromARGB(
+                          255, 68, 173, 68), // Verde sólido para modo claro
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(30),
+                    bottomRight: Radius.circular(30),
+                  ),
+                ),
+              ),
+            ),
           // Botón de volver
           Positioned(
             left: 20,
@@ -40,7 +83,7 @@ class ModernHeader extends StatelessWidget {
             child: IconButton(
               onPressed: () => Navigator.pop(context),
               icon: const Icon(
-                Icons.menu,
+                Icons.arrow_back,
                 color: Colors.white,
                 size: 28,
               ),
@@ -61,23 +104,6 @@ class ModernHeader extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.2,
                 ),
-              ),
-            ),
-          ),
-
-          // Botón de configuración
-          Positioned(
-            right: 20,
-            top: 40,
-            child: IconButton(
-              onPressed: () {
-                // Navegar a configuración
-                Navigator.pushNamed(context, 'settings');
-              },
-              icon: const Icon(
-                Icons.settings,
-                color: Colors.white,
-                size: 28,
               ),
             ),
           ),
