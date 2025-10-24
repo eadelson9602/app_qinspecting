@@ -64,8 +64,9 @@ class ProfileScreen extends StatelessWidget {
 
                   // Información del usuario
                   Padding(
-                    padding: const EdgeInsets.only(
-                        top: 60), // Espacio para el avatar
+                    padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).size.height *
+                            0.08), // 8% de la altura de pantalla
                     child: UserInfoCard(
                       userData: perfilForm.userDataLogged,
                     ),
@@ -73,18 +74,19 @@ class ProfileScreen extends StatelessWidget {
 
                   // Formulario de datos personales
                   Padding(
-                    padding: const EdgeInsets.only(
-                        top: 60), // Espacio para el avatar
+                    padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).size.height *
+                            0.02), // 2% de la altura de pantalla
                     child: const ModernFormProfile(),
                   ),
-
                   const SizedBox(height: 20),
                 ],
               ),
 
               // Avatar flotante con z-index alto - ahora dentro del scroll
               Positioned(
-                top: 220, // Posición calculada para estar encima de las cards
+                top: MediaQuery.of(context).size.height *
+                    0.28, // 28% de la altura de pantalla
                 left: 0,
                 right: 0,
                 child: Center(
@@ -130,11 +132,13 @@ class ProfileScreen extends StatelessWidget {
 
               // Botón de cámara flotante - ahora dentro del scroll
               Positioned(
-                top: 280, // Posición calculada para estar alineado con el avatar
+                top: MediaQuery.of(context).size.height * 0.28 +
+                    80, // Avatar + offset
                 right: MediaQuery.of(context).size.width / 2 - 15,
                 child: Consumer<PerfilFormProvider>(
                   builder: (context, perfilForm, child) {
-                    final nombreQi = loginService.selectedEmpresa.nombreQi ?? '';
+                    final nombreQi =
+                        loginService.selectedEmpresa.nombreQi ?? '';
                     return GestureDetector(
                       onTap: () => _showPhotoOptions(context, nombreQi),
                       child: Container(
