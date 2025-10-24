@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:app_qinspecting/providers/providers.dart';
-import 'package:app_qinspecting/services/services.dart';
 
 class ModernHeader extends StatelessWidget {
   const ModernHeader({
     Key? key,
-    required this.userName,
-    required this.lastName,
     this.userPhoto,
     this.onPhotoTap,
   }) : super(key: key);
 
-  final String userName;
-  final String lastName;
   final String? userPhoto;
   final VoidCallback? onPhotoTap;
 
@@ -23,7 +18,15 @@ class ModernHeader extends StatelessWidget {
         Provider.of<LoginFormProvider>(context, listen: false);
 
     return Container(
-      height: 280,
+      height: 200,
+      // decoration: BoxDecoration(
+      //   border: Border(
+      //     bottom: BorderSide(
+      //       color: Colors.white,
+      //       width: 4,
+      //     ),
+      //   ),
+      // ),
       child: Stack(
         children: [
           // Fondo con imagen de perfil
@@ -34,29 +37,63 @@ class ModernHeader extends StatelessWidget {
               ),
             ),
 
-          // Overlay verde con transparencia
+          // Overlay verde con degradado
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? const Color.fromARGB(180, 84, 147,
-                        76) // Verde con transparencia para modo oscuro
-                    : const Color.fromARGB(180, 68, 173,
-                        68), // Verde con transparencia para modo claro
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: Theme.of(context).brightness == Brightness.dark
+                      ? [
+                          const Color.fromARGB(
+                              200, 84, 147, 76), // Verde más opaco arriba
+                          const Color.fromARGB(
+                              120, 84, 147, 76), // Verde más transparente abajo
+                          Colors
+                              .transparent, // Completamente transparente al final
+                        ]
+                      : [
+                          const Color.fromARGB(
+                              200, 68, 173, 68), // Verde más opaco arriba
+                          const Color.fromARGB(
+                              120, 68, 173, 68), // Verde más transparente abajo
+                          Colors
+                              .transparent, // Completamente transparente al final
+                        ],
+                  stops: const [0.0, 0.7, 1.0],
+                ),
               ),
             ),
           ),
 
-          // Fallback: fondo verde sólido si no hay imagen
+          // Fallback: fondo verde con degradado si no hay imagen
           if (userPhoto == null || userPhoto!.isEmpty)
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? const Color.fromARGB(
-                          255, 84, 147, 76) // Verde sólido para modo oscuro
-                      : const Color.fromARGB(
-                          255, 68, 173, 68), // Verde sólido para modo claro
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: Theme.of(context).brightness == Brightness.dark
+                        ? [
+                            const Color.fromARGB(
+                                255, 84, 147, 76), // Verde sólido arriba
+                            const Color.fromARGB(200, 84, 147,
+                                76), // Verde más transparente abajo
+                            const Color.fromARGB(100, 84, 147,
+                                76), // Verde muy transparente al final
+                          ]
+                        : [
+                            const Color.fromARGB(
+                                255, 68, 173, 68), // Verde sólido arriba
+                            const Color.fromARGB(200, 68, 173,
+                                68), // Verde más transparente abajo
+                            const Color.fromARGB(100, 68, 173,
+                                68), // Verde muy transparente al final
+                          ],
+                    stops: const [0.0, 0.7, 1.0],
+                  ),
                   borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(30),
                     bottomRight: Radius.circular(30),
@@ -92,47 +129,6 @@ class ModernHeader extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.2,
                 ),
-              ),
-            ),
-          ),
-
-          // Avatar circular - removido para evitar duplicación
-          // El avatar ahora se maneja desde profile_screen.dart con z-index
-
-          // Nombre del usuario
-          Positioned(
-            bottom: 80, // Más arriba para estar en el header
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Text(
-                userName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-
-          // Apellido del usuario
-          Positioned(
-            bottom: 50, // Más arriba para estar en el header
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Text(
-                lastName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
-                ),
-                textAlign: TextAlign.center,
               ),
             ),
           ),
