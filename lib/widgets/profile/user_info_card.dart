@@ -14,11 +14,11 @@ class UserInfoCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Theme.of(context).shadowColor,
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -29,20 +29,23 @@ class UserInfoCard extends StatelessWidget {
         child: Column(
           children: [
             _buildInfoRow(
+              context,
               Icons.location_on,
               'Ubicación',
               '${userData?.departamento ?? 'N/A'}, ${userData?.nombreCiudad ?? 'N/A'}',
             ),
-            _buildDivider(),
+            _buildDivider(context),
             _buildInfoRow(
+              context,
               Icons.business,
               'Empresa',
               userData?.empresa ?? 'N/A',
             ),
-            _buildDivider(),
-            _buildDocumentInfo(),
-            _buildDivider(),
+            _buildDivider(context),
+            _buildDocumentInfo(context),
+            _buildDivider(context),
             _buildInfoRow(
+              context,
               Icons.cake,
               'Fecha de nacimiento',
               userData?.fechaNacimiento ?? 'N/A',
@@ -53,7 +56,7 @@ class UserInfoCard extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value) {
+  Widget _buildInfoRow(BuildContext context, IconData icon, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -78,7 +81,7 @@ class UserInfoCard extends StatelessWidget {
                 Text(
                   label,
                   style: TextStyle(
-                    color: Colors.grey.shade600,
+                    color: Theme.of(context).textTheme.bodySmall?.color,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -86,8 +89,8 @@ class UserInfoCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: const TextStyle(
-                    color: Colors.black87,
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.titleMedium?.color,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -100,7 +103,7 @@ class UserInfoCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDocumentInfo() {
+  Widget _buildDocumentInfo(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -125,7 +128,7 @@ class UserInfoCard extends StatelessWidget {
                 Text(
                   'Documento',
                   style: TextStyle(
-                    color: Colors.grey.shade600,
+                    color: Theme.of(context).textTheme.bodySmall?.color,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -133,8 +136,8 @@ class UserInfoCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   userData?.nombreTipoDocumento ?? 'N/A',
-                  style: const TextStyle(
-                    color: Colors.black87,
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.titleMedium?.color,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -143,7 +146,7 @@ class UserInfoCard extends StatelessWidget {
                 Text(
                   userData?.numeroDocumento ?? 'N/A',
                   style: TextStyle(
-                    color: Colors.grey.shade700,
+                    color: Theme.of(context).textTheme.bodySmall?.color,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
@@ -156,11 +159,11 @@ class UserInfoCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDivider() {
+  Widget _buildDivider(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       height: 1,
-      color: Colors.grey.shade200,
+      color: Theme.of(context).dividerColor,
     );
   }
 }

@@ -149,11 +149,11 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Theme.of(context).shadowColor,
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -182,6 +182,7 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
                   hintText: 'Nombres',
                   labelText: 'Nombres',
                   prefixIcon: Icons.person_outline,
+                  context: context,
                 ),
                 onChanged: (value) {
                   userData?.nombres = value;
@@ -202,6 +203,7 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
                   hintText: 'Apellidos',
                   labelText: 'Apellidos',
                   prefixIcon: Icons.person_outline,
+                  context: context,
                 ),
                 onChanged: (value) {
                   userData?.apellidos = value;
@@ -222,6 +224,7 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
                   hintText: 'Correo electrónico',
                   labelText: 'Email',
                   prefixIcon: Icons.email_outlined,
+                  context: context,
                 ),
                 keyboardType: TextInputType.emailAddress,
                 onChanged: (value) {
@@ -247,6 +250,7 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
                   hintText: 'Número de celular',
                   labelText: 'Celular',
                   prefixIcon: Icons.phone_outlined,
+                  context: context,
                 ),
                 keyboardType: TextInputType.phone,
                 onChanged: (value) {
@@ -271,6 +275,7 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
                   hintText: 'Seleccionar departamento',
                   labelText: 'Departamento expedición',
                   prefixIcon: Icons.location_city,
+                  context: context,
                 ),
                 items: inspeccionProvider.departamentos.map((departamento) {
                   return DropdownMenuItem<int>(
@@ -312,6 +317,7 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
                   hintText: 'Seleccionar ciudad',
                   labelText: 'Ciudad expedición',
                   prefixIcon: Icons.location_on,
+                  context: context,
                 ),
                 items: inspeccionProvider.ciudades.map((ciudad) {
                   return DropdownMenuItem<int>(
@@ -346,6 +352,7 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
                   hintText: 'Seleccionar tipo de documento',
                   labelText: 'Tipo de documento',
                   prefixIcon: Icons.badge,
+                  context: context,
                 ),
                 items: const [
                   DropdownMenuItem(
@@ -375,6 +382,7 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
                   hintText: 'Número de documento',
                   labelText: 'Número de documento',
                   prefixIcon: Icons.numbers,
+                  context: context,
                 ),
                 keyboardType: TextInputType.number,
                 onChanged: (value) {
@@ -396,6 +404,7 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
                   hintText: 'Seleccionar fecha de nacimiento',
                   labelText: 'Fecha de nacimiento',
                   prefixIcon: Icons.calendar_today,
+                  context: context,
                 ),
                 readOnly: true,
                 onTap: () async {
@@ -458,7 +467,12 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
                         onChanged: (value) =>
                             perfilForm.updateGenero(value.toString()),
                       ),
-                      Text('Masculino'),
+                      Text(
+                        'Masculino',
+                        style: TextStyle(
+                          color: Theme.of(context).textTheme.bodyMedium?.color,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(width: 20),
@@ -471,7 +485,12 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
                         onChanged: (value) =>
                             perfilForm.updateGenero(value.toString()),
                       ),
-                      Text('Femenino'),
+                      Text(
+                        'Femenino',
+                        style: TextStyle(
+                          color: Theme.of(context).textTheme.bodyMedium?.color,
+                        ),
+                      ),
                     ],
                   ),
                 ],
