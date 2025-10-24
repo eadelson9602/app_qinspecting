@@ -21,35 +21,18 @@ class CustomLoadingTruck extends StatefulWidget {
 
 class _CustomLoadingTruckState extends State<CustomLoadingTruck>
     with TickerProviderStateMixin {
-  late AnimationController _truckController;
   late AnimationController _wheelsController;
-  late Animation<double> _truckAnimation;
   late Animation<double> _wheelsAnimation;
 
   @override
   void initState() {
     super.initState();
     
-    // Controlador para el movimiento del camión
-    _truckController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
-      vsync: this,
-    );
-    
-    // Controlador para las ruedas giratorias
+    // Solo controlador para las ruedas giratorias
     _wheelsController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-
-    // Animación del camión moviéndose de izquierda a derecha
-    _truckAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _truckController,
-      curve: Curves.easeInOut,
-    ));
 
     // Animación de las ruedas girando
     _wheelsAnimation = Tween<double>(
@@ -60,14 +43,12 @@ class _CustomLoadingTruckState extends State<CustomLoadingTruck>
       curve: Curves.linear,
     ));
 
-    // Iniciar animaciones
-    _truckController.repeat();
+    // Iniciar animación de ruedas
     _wheelsController.repeat();
   }
 
   @override
   void dispose() {
-    _truckController.dispose();
     _wheelsController.dispose();
     super.dispose();
   }
@@ -131,17 +112,13 @@ class _CustomLoadingTruckState extends State<CustomLoadingTruck>
                   ),
                 ),
 
-                // Camión animado
-                AnimatedBuilder(
-                  animation: _truckAnimation,
-                  builder: (context, child) {
-                    final truckPosition = _truckAnimation.value * 250; // Rango de movimiento
-                    return Positioned(
-                      left: truckPosition,
-                      top: 50,
-                      child: _buildTruck(primaryColor, isDark),
-                    );
-                  },
+                // Camión sincronizado con el progreso
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  left: widget.progress.clamp(0.0, 1.0) * 250, // Posición basada en progreso
+                  top: 50,
+                  child: _buildTruck(primaryColor, isDark),
                 ),
 
                 // Barra de progreso
@@ -207,6 +184,10 @@ class _CustomLoadingTruckState extends State<CustomLoadingTruck>
     return AnimatedBuilder(
       animation: _wheelsAnimation,
       builder: (context, child) {
+        // Calcular velocidad de rotación basada en el progreso
+        final rotationSpeed = widget.progress.clamp(0.0, 1.0) * 2 * 3.14159;
+        final wheelRotation = _wheelsAnimation.value * rotationSpeed;
+        
         return Container(
           width: 50,
           height: 30,
@@ -273,7 +254,7 @@ class _CustomLoadingTruckState extends State<CustomLoadingTruck>
                 left: 5,
                 bottom: 0,
                 child: Transform.rotate(
-                  angle: _wheelsAnimation.value * 2 * 3.14159,
+                  angle: wheelRotation,
                   child: Container(
                     width: 8,
                     height: 8,
@@ -303,7 +284,7 @@ class _CustomLoadingTruckState extends State<CustomLoadingTruck>
                 right: 5,
                 bottom: 0,
                 child: Transform.rotate(
-                  angle: _wheelsAnimation.value * 2 * 3.14159,
+                  angle: wheelRotation,
                   child: Container(
                     width: 8,
                     height: 8,

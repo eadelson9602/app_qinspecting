@@ -26,7 +26,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final loginService = Provider.of<LoginService>(context, listen: true);
     final perfilForm = Provider.of<PerfilFormProvider>(context, listen: true);
-    final loadingProgress = Provider.of<LoadingProgressProvider>(context, listen: true);
+    final loadingProgress =
+        Provider.of<LoadingProgressProvider>(context, listen: true);
 
     // Verificar si hay una imagen pendiente de actualizar
     _checkPendingPhotoUpdate(context, perfilForm, loginService);
@@ -75,13 +76,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
 
+                      // Botones de cancelar y cerrar subida de foto
                       Positioned(
                         top: MediaQuery.of(context).size.height * 0.18,
                         child: Row(
                           children: [
                             IconButton(
                               onPressed: () {
-                                perfilForm.updateProfilePhoto(true);
+                                perfilForm.updateProfilePhoto(false);
                               },
                               icon: const Icon(Icons.close),
                             ),
@@ -90,7 +92,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               onPressed: () {
                                 perfilForm.updateProfilePhoto(false);
                               },
-                              icon: const Icon(Icons.cancel),
+                              icon: const Icon(Icons.plus_one),
                             ),
                           ],
                         ),
@@ -230,19 +232,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
               ),
-               // Loader overlay para subida de foto
-               if (loadingProgress.isLoading)
-                 Container(
-                   color: Colors.black.withValues(alpha: 0.5),
-                   child: Center(
-                     child: CustomLoadingTruck(
-                       progress: loadingProgress.progress,
-                       message: loadingProgress.message,
-                       primaryColor: AppTheme.primaryGreen,
-                       backgroundColor: Theme.of(context).cardColor,
-                     ),
-                   ),
-                 ),
+              // Loader overlay para subida de foto
+              if (perfilForm.isUploadingPhoto)
+                Container(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  child: Center(
+                    child: CustomLoadingTruck(
+                      progress: loadingProgress.progress,
+                      message: loadingProgress.message,
+                      primaryColor: AppTheme.primaryGreen,
+                      backgroundColor: Theme.of(context).cardColor,
+                    ),
+                  ),
+                ),
             ],
           )),
     );
@@ -583,16 +585,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   /// Función para subir imagen directamente sin depender del contexto
   Future<void> _uploadImageDirectly(
       BuildContext context, String imagePath) async {
-    final loadingProgress = Provider.of<LoadingProgressProvider>(context, listen: false);
-    
+    final loadingProgress =
+        Provider.of<LoadingProgressProvider>(context, listen: false);
+
     // Iniciar loading con progreso
     loadingProgress.startLoading(message: 'Preparando imagen...');
-    
+
     try {
       // Simular progreso inicial
       await Future.delayed(const Duration(milliseconds: 500));
-      loadingProgress.updateProgress(0.2, message: 'Conectando con servidor...');
-      
+      loadingProgress.updateProgress(0.2,
+          message: 'Conectando con servidor...');
+
       final loginService = Provider.of<LoginService>(context, listen: false);
 
       // Usar el loginService directamente para crear InspeccionService
@@ -609,9 +613,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         company: loginService.selectedEmpresa.nombreQi?.toLowerCase() ?? '',
         folder: 'perfiles',
       );
-      
+
       loadingProgress.updateProgress(0.7, message: 'Procesando imagen...');
-      
+
       print('[PHOTO DIRECT] Resultado de uploadImage: $uploadResult');
 
       if (uploadResult != null && uploadResult['path'] != null) {
@@ -621,7 +625,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         // También intentar actualizar inmediatamente si es posible
         await _updateUserDataWithNewUrl(context, newImageUrl);
-        
+
         loadingProgress.updateProgress(1.0, message: '¡Completado!');
         await Future.delayed(const Duration(milliseconds: 500));
       } else {
