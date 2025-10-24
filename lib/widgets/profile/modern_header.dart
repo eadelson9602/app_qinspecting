@@ -96,9 +96,10 @@ class ModernHeader extends StatelessWidget {
             ),
           ),
 
-          // Avatar circular - centrado en la mitad del header
+          // Avatar circular - posicionado en el borde del header
           Positioned(
-            top: 140, // Centrado en la mitad del header (280/2 = 140)
+            bottom:
+                -60, // La mitad del avatar (60px) está en el header, la otra mitad en el contenido
             left: 0,
             right: 0,
             child: Center(
@@ -154,7 +155,8 @@ class ModernHeader extends StatelessWidget {
 
           // Botón de cámara
           Positioned(
-            bottom: 110, // Ajustado para estar alineado con el avatar centrado
+            bottom:
+                10, // Ajustado para estar alineado con el avatar en el borde
             right: MediaQuery.of(context).size.width / 2 - 15,
             child: GestureDetector(
               onTap: onPhotoTap,
@@ -183,7 +185,7 @@ class ModernHeader extends StatelessWidget {
 
           // Nombre del usuario
           Positioned(
-            bottom: 60, // Más cerca del avatar
+            bottom: 80, // Más arriba para estar en el header
             left: 0,
             right: 0,
             child: Center(
@@ -202,7 +204,7 @@ class ModernHeader extends StatelessWidget {
 
           // Apellido del usuario
           Positioned(
-            bottom: 30, // Más cerca del nombre
+            bottom: 50, // Más arriba para estar en el header
             left: 0,
             right: 0,
             child: Center(
