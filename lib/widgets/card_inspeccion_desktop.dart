@@ -16,11 +16,11 @@ class CardInspeccionDesktop extends StatelessWidget {
       height: 500,
       width: 350,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: Theme.of(context).shadowColor,
             spreadRadius: 0,
             blurRadius: 20,
             offset: const Offset(0, 8),
@@ -56,8 +56,8 @@ class CardInspeccionDesktop extends StatelessWidget {
                         children: [
                           Text(
                             'Inspección',
-                            style: const TextStyle(
-                              color: Colors.black87,
+                            style: TextStyle(
+                              color: Theme.of(context).textTheme.titleLarge?.color,
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
@@ -116,6 +116,7 @@ class CardInspeccionDesktop extends StatelessWidget {
                         resumenPreoperacional.creado.toString(),
                         Icons.person_outline,
                         const Color(0xFF1976D2), // Blue
+                        context,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -125,6 +126,7 @@ class CardInspeccionDesktop extends StatelessWidget {
                         resumenPreoperacional.placaVehiculo.toString(),
                         Icons.local_shipping_outlined,
                         const Color(0xFF2196F3), // Dark Blue
+                        context,
                       ),
                     ),
                   ]),
@@ -137,6 +139,7 @@ class CardInspeccionDesktop extends StatelessWidget {
                           resumenPreoperacional.fechaPreoperacional.toString(),
                           Icons.calendar_today_outlined,
                           const Color(0xFF4CAF50), // Green
+                          context,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -145,8 +148,9 @@ class CardInspeccionDesktop extends StatelessWidget {
                           'Hora',
                           resumenPreoperacional.hora.toString(),
                           Icons.access_time_outlined,
-                          const Color(0xFFFF9800), // Orange
-                        ),
+                        const Color(0xFFFF9800), // Orange
+                        context,
+                      ),
                       ),
                     ],
                   ),
@@ -158,6 +162,7 @@ class CardInspeccionDesktop extends StatelessWidget {
                         resumenPreoperacional.kilometraje.toString(),
                         Icons.directions_run_outlined,
                         const Color(0xFF4CAF50), // Green
+                        context,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -167,6 +172,7 @@ class CardInspeccionDesktop extends StatelessWidget {
                         resumenPreoperacional.tanqueo.toString(),
                         Icons.local_gas_station_outlined,
                         const Color(0xFF9C27B0), // Purple
+                        context,
                       ),
                     ),
                   ]),
@@ -178,8 +184,9 @@ class CardInspeccionDesktop extends StatelessWidget {
                           'Fallas graves',
                           resumenPreoperacional.grave.toString(),
                           Icons.warning_outlined,
-                          const Color(0xFFF44336), // Red
-                        ),
+                        const Color(0xFFF44336), // Red
+                        context,
+                      ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -187,8 +194,9 @@ class CardInspeccionDesktop extends StatelessWidget {
                           'Fallas moderadas',
                           resumenPreoperacional.moderada.toString(),
                           Icons.info_outline,
-                          const Color(0xFFFF9800), // Orange
-                        ),
+                        const Color(0xFFFF9800), // Orange
+                        context,
+                      ),
                       ),
                     ],
                   ),
@@ -216,10 +224,10 @@ class CardInspeccionDesktop extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Text(
+                Text(
                   'Estado',
                   style: TextStyle(
-                    color: Colors.grey,
+                    color: Theme.of(context).textTheme.bodySmall?.color,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
@@ -257,7 +265,7 @@ class CardInspeccionDesktop extends StatelessWidget {
   }
 
   Widget _buildInfoRow(
-      String label, String value, IconData icon, Color iconColor) {
+      String label, String value, IconData icon, Color iconColor, BuildContext context) {
     return Row(
       children: [
         Container(
@@ -280,7 +288,7 @@ class CardInspeccionDesktop extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  color: Colors.grey.shade600,
+                  color: Theme.of(context).textTheme.bodySmall?.color,
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
                 ),
@@ -288,8 +296,8 @@ class CardInspeccionDesktop extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 value,
-                style: const TextStyle(
-                  color: Colors.black87,
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.titleMedium?.color,
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
                 ),
