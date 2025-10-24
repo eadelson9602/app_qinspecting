@@ -42,99 +42,64 @@ class ProfileScreen extends StatelessWidget {
               MediaQuery.of(context).padding.top -
               MediaQuery.of(context).padding.bottom,
         ),
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Stack(
-            children: [
-              Column(
-                children: [
-                  // Header con gradiente y avatar
-                  Consumer<PerfilFormProvider>(
-                    builder: (context, perfilForm, child) {
-                      final nombreQi =
-                          loginService.selectedEmpresa.nombreQi ?? '';
-                      return ModernHeader(
-                        userName: '${perfilForm.userDataLogged?.nombres}',
-                        lastName: '${perfilForm.userDataLogged?.apellidos}',
-                        userPhoto: perfilForm.getDisplayImage(),
-                        onPhotoTap: () => _showPhotoOptions(context, nombreQi),
-                      );
-                    },
-                  ),
+        child: Stack(
+          children: [
+            // Header con gradiente y avatar
+            Consumer<PerfilFormProvider>(
+              builder: (context, perfilForm, child) {
+                final nombreQi =
+                    loginService.selectedEmpresa.nombreQi ?? '';
+                return ModernHeader(
+                  userPhoto: perfilForm.getDisplayImage(),
+                  onPhotoTap: () => _showPhotoOptions(context, nombreQi),
+                );
+              },
+            ),
 
-                  // Información del usuario
-                  Padding(
-                    padding: EdgeInsets.only(
-                        top: MediaQuery.of(context).size.height *
-                            0.08), // 8% de la altura de pantalla
-                    child: UserInfoCard(
-                      userData: perfilForm.userDataLogged,
-                    ),
+            // Nombre del usuario
+            Positioned(
+              top: MediaQuery.of(context).size.height * 0.12,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Text(
+                  '${perfilForm.userDataLogged?.nombres}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
                   ),
-
-                  // Formulario de datos personales
-                  Padding(
-                    padding: EdgeInsets.only(
-                        top: MediaQuery.of(context).size.height *
-                            0.02), // 2% de la altura de pantalla
-                    child: const ModernFormProfile(),
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              ),
-
-              // Avatar flotante con z-index alto - ahora dentro del scroll
-              Positioned(
-                top: MediaQuery.of(context).size.height *
-                    0.28, // 28% de la altura de pantalla
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: Consumer<PerfilFormProvider>(
-                    builder: (context, perfilForm, child) {
-                      final nombreQi =
-                          loginService.selectedEmpresa.nombreQi ?? '';
-                      return GestureDetector(
-                        onTap: () => _showPhotoOptions(context, nombreQi),
-                        child: Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(60),
-                            border: Border.all(
-                              color: Colors.white,
-                              width: 4,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.2),
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(56),
-                            child: Consumer<LoginFormProvider>(
-                              builder: (context, imageProvider, child) {
-                                return imageProvider
-                                    .getImage(perfilForm.getDisplayImage());
-                              },
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                  textAlign: TextAlign.center,
                 ),
               ),
+            ),
 
-              // Botón de cámara flotante - ahora dentro del scroll
-              Positioned(
-                top: MediaQuery.of(context).size.height * 0.28 +
-                    80, // Avatar + offset
-                right: MediaQuery.of(context).size.width / 2 - 15,
+            // Apellido del usuario
+            Positioned(
+              top: MediaQuery.of(context).size.height * 0.15,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Text(
+                  '${perfilForm.userDataLogged?.apellidos}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+
+            // Avatar flotante con z-index alto
+            Positioned(
+              top: MediaQuery.of(context).size.height * 0.17,
+              left: 0,
+              right: 0,
+              child: Center(
                 child: Consumer<PerfilFormProvider>(
                   builder: (context, perfilForm, child) {
                     final nombreQi =
@@ -142,31 +107,151 @@ class ProfileScreen extends StatelessWidget {
                     return GestureDetector(
                       onTap: () => _showPhotoOptions(context, nombreQi),
                       child: Container(
-                        width: 30,
-                        height: 30,
+                        width: 120,
+                        height: 120,
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(60),
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 4,
+                          ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
-                              blurRadius: 6,
-                              offset: const Offset(0, 3),
+                              color: Colors.black.withValues(alpha: 0.2),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
                             ),
                           ],
                         ),
-                        child: const Icon(
-                          Icons.camera_alt,
-                          color: Colors.black54,
-                          size: 16,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(56),
+                          child: Consumer<LoginFormProvider>(
+                            builder: (context, imageProvider, child) {
+                              return imageProvider
+                                  .getImage(perfilForm.getDisplayImage());
+                            },
+                          ),
                         ),
                       ),
                     );
                   },
                 ),
               ),
-            ],
-          ),
+            ),
+
+            // Botón de cámara flotante
+            Positioned(
+              top: MediaQuery.of(context).size.height * 0.18,
+              right: MediaQuery.of(context).size.width * 0.05,
+              child: Consumer<PerfilFormProvider>(
+                builder: (context, perfilForm, child) {
+                  final nombreQi =
+                      loginService.selectedEmpresa.nombreQi ?? '';
+                  return GestureDetector(
+                    onTap: () => _showPhotoOptions(context, nombreQi),
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.camera_alt,
+                        color: Colors.black54,
+                        size: 16,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // Contenido con pestañas
+            Positioned(
+              top: MediaQuery.of(context).size.height * 0.25,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: DefaultTabController(
+                length: 2,
+                child: Column(
+                  children: [
+                    // TabBar personalizado
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(25),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Theme.of(context).shadowColor,
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: TabBar(
+                        indicator: BoxDecoration(
+                          color: AppTheme.primaryGreen,
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        labelColor: Colors.white,
+                        unselectedLabelColor: Theme.of(context).textTheme.bodyMedium?.color,
+                        labelStyle: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                        unselectedLabelStyle: const TextStyle(
+                          fontWeight: FontWeight.normal,
+                          fontSize: 16,
+                        ),
+                        tabs: const [
+                          Tab(
+                            icon: Icon(Icons.person_outline),
+                            text: 'Información',
+                          ),
+                          Tab(
+                            icon: Icon(Icons.edit_outlined),
+                            text: 'Editar',
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    // Contenido de las pestañas
+                    Expanded(
+                      child: TabBarView(
+                        children: [
+                          // Pestaña de Información
+                          SingleChildScrollView(
+                            padding: const EdgeInsets.all(20),
+                            child: UserInfoCard(
+                              userData: perfilForm.userDataLogged,
+                            ),
+                          ),
+                          
+                          // Pestaña de Editar
+                          SingleChildScrollView(
+                            padding: const EdgeInsets.all(20),
+                            child: const ModernFormProfile(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
