@@ -95,7 +95,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
     return Container(
       height: 190, // Tamaño original restaurado
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Center(
@@ -109,7 +109,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
             Text(
               'Cargando estadísticas...',
               style: TextStyle(
-                color: Colors.grey.shade600,
+                color: Theme.of(context).textTheme.bodySmall?.color,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -201,17 +201,17 @@ class _MiniDashboardState extends State<MiniDashboard> {
           height: 100,
           margin: EdgeInsets.only(top: 10, right: 10),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
+                color: Theme.of(context).shadowColor,
                 blurRadius: 20,
                 offset: Offset(0, 4),
                 spreadRadius: 0,
               ),
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
+                color: Theme.of(context).shadowColor.withValues(alpha: 0.5),
                 blurRadius: 6,
                 offset: Offset(0, 2),
                 spreadRadius: 0,
@@ -229,7 +229,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF333333),
+                    color: Theme.of(context).textTheme.titleMedium?.color,
                   ),
                 ),
                 SizedBox(height: 8),
@@ -239,7 +239,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF333333),
+                    color: Theme.of(context).textTheme.titleLarge?.color,
                     height: 1.0,
                   ),
                 ),
@@ -248,7 +248,7 @@ class _MiniDashboardState extends State<MiniDashboard> {
                 Container(
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
+                    color: Theme.of(context).dividerColor,
                     borderRadius: BorderRadius.circular(2),
                   ),
                   child: FractionallySizedBox(
