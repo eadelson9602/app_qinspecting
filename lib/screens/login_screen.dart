@@ -86,7 +86,8 @@ class _FormLogin extends StatelessWidget {
                       decoration: InputDecorations.authInputDecorations(
                           hintText: '',
                           labelText: 'Usuario',
-                          prefixIcon: Icons.person),
+                          prefixIcon: Icons.person,
+                          context: context),
                     ),
                     TextFormField(
                       autocorrect: false,
@@ -101,6 +102,7 @@ class _FormLogin extends StatelessWidget {
                           hintText: '******',
                           labelText: 'Contraseña',
                           prefixIcon: Icons.lock_outline_sharp,
+                          context: context,
                           suffixIcon: IconButton(
                               onPressed: () => loginForm.updateObscureText(
                                   loginForm.obscureText ? false : true),
