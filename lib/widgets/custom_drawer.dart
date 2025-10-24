@@ -61,16 +61,28 @@ class CustomDrawer extends StatelessWidget {
       elevation: 0,
       child: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppTheme.primaryGreen,
-              AppTheme.primaryGreenLight,
-              AppTheme.accentGreen,
-            ],
-            stops: const [0.0, 0.6, 1.0],
-          ),
+          color: Theme.of(context).cardColor,
+          gradient: Theme.of(context).brightness == Brightness.dark
+              ? LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Theme.of(context).cardColor,
+                    Theme.of(context).cardColor.withValues(alpha: 0.8),
+                    Theme.of(context).cardColor.withValues(alpha: 0.6),
+                  ],
+                  stops: const [0.0, 0.6, 1.0],
+                )
+              : LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppTheme.primaryGreen,
+                    AppTheme.primaryGreenLight,
+                    AppTheme.accentGreen,
+                  ],
+                  stops: const [0.0, 0.6, 1.0],
+                ),
         ),
         child: SafeArea(
           child: Column(
@@ -84,7 +96,7 @@ class CustomDrawer extends StatelessWidget {
                 margin:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Theme.of(context).dividerColor,
                   borderRadius: BorderRadius.circular(1),
                 ),
               ),
@@ -199,12 +211,12 @@ class CustomDrawer extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
+                    color: Theme.of(context).dividerColor,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.arrow_back_ios_new,
-                    color: Colors.white,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                     size: 20,
                   ),
                 ),
@@ -213,13 +225,13 @@ class CustomDrawer extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Theme.of(context).dividerColor,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   'V2.1.0',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.8),
+                    color: Theme.of(context).textTheme.bodySmall?.color,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -236,10 +248,10 @@ class CustomDrawer extends StatelessWidget {
             height: 80,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 3),
+              border: Border.all(color: Theme.of(context).dividerColor, width: 3),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
+                  color: Theme.of(context).shadowColor,
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -275,8 +287,8 @@ class CustomDrawer extends StatelessWidget {
           // Nombre del usuario
           Text(
             loginService.userDataLogged.nombres ?? 'Usuario',
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: Theme.of(context).textTheme.titleLarge?.color,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
@@ -289,7 +301,7 @@ class CustomDrawer extends StatelessWidget {
           Text(
             loginService.selectedEmpresa.nombres ?? 'Empresa',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.8),
+              color: Theme.of(context).textTheme.bodySmall?.color,
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
@@ -318,26 +330,26 @@ class CustomDrawer extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: isSelected
-                  ? Colors.white.withValues(alpha: 0.2)
+                  ? Theme.of(context).dividerColor
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(12),
               border: isSelected
-                  ? Border.all(color: Colors.white.withValues(alpha: 0.3))
+                  ? Border.all(color: Theme.of(context).dividerColor)
                   : null,
             ),
             child: Row(
               children: [
                 Icon(
                   icon,
-                  color: Colors.white,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
                   size: 24,
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
                     title,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
@@ -347,8 +359,8 @@ class CustomDrawer extends StatelessWidget {
                   Container(
                     width: 6,
                     height: 6,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -370,7 +382,7 @@ class CustomDrawer extends StatelessWidget {
             height: 1,
             margin: const EdgeInsets.only(bottom: 20),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: Theme.of(context).dividerColor,
               borderRadius: BorderRadius.circular(1),
             ),
           ),
@@ -391,24 +403,24 @@ class CustomDrawer extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.1),
+                  color: Theme.of(context).dividerColor,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.2),
+                    color: Theme.of(context).dividerColor,
                   ),
                 ),
                 child: Row(
                   children: [
                     Icon(
                       Icons.logout_outlined,
-                      color: Colors.white.withValues(alpha: 0.8),
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                       size: 20,
                     ),
                     const SizedBox(width: 12),
                     Text(
                       'Cerrar sesión',
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.8),
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
