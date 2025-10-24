@@ -32,9 +32,7 @@ class ModernHeader extends StatelessWidget {
           // Fondo con imagen de perfil
           if (userPhoto != null && userPhoto!.isNotEmpty)
             Positioned.fill(
-              child: ClipRRect(
-                child: imageProvider.getImage(userPhoto),
-              ),
+              child: imageProvider.getImage(userPhoto),
             ),
 
           // Overlay verde con degradado
@@ -93,10 +91,6 @@ class ModernHeader extends StatelessWidget {
                                 68), // Verde muy transparente al final
                           ],
                     stops: const [0.0, 0.7, 1.0],
-                  ),
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(30),
                   ),
                 ),
               ),
