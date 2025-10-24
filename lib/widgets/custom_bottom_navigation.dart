@@ -53,7 +53,9 @@ class CustomBottomNavigation extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.grid_view_rounded,
-                          color: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
+                          color: Theme.of(context)
+                              .bottomNavigationBarTheme
+                              .unselectedItemColor,
                           size: 28,
                         ),
                         // SizedBox(height: 6),
@@ -90,8 +92,12 @@ class CustomBottomNavigation extends StatelessWidget {
                           Icon(
                             Icons.home_outlined,
                             color: selectedIndex == 0
-                                ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor
-                                : Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
+                                ? Theme.of(context)
+                                    .bottomNavigationBarTheme
+                                    .selectedItemColor
+                                : Theme.of(context)
+                                    .bottomNavigationBarTheme
+                                    .unselectedItemColor,
                             size: 28,
                           ),
                           if (selectedIndex == 0)
@@ -101,7 +107,9 @@ class CustomBottomNavigation extends StatelessWidget {
                                 width: 6,
                                 height: 6,
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
+                                  color: Theme.of(context)
+                                      .bottomNavigationBarTheme
+                                      .selectedItemColor,
                                   shape: BoxShape.circle,
                                 ),
                               ),
@@ -145,8 +153,12 @@ class CustomBottomNavigation extends StatelessWidget {
                       Icon(
                         Icons.checklist_rounded,
                         color: selectedIndex == 1
-                            ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor
-                            : Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
+                            ? Theme.of(context)
+                                .bottomNavigationBarTheme
+                                .selectedItemColor
+                            : Theme.of(context)
+                                .bottomNavigationBarTheme
+                                .unselectedItemColor,
                         size: 28,
                       ),
                       // SizedBox(height: 6),

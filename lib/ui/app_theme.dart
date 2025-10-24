@@ -40,6 +40,7 @@ class AppTheme {
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
+    scaffoldBackgroundColor: Colors.white,
 
     // Esquema de colores
     colorScheme: const ColorScheme.light(
@@ -141,7 +142,7 @@ class AppTheme {
 
     // Cards modernas
     cardTheme: CardThemeData(
-      color: cardColor,
+      color: Colors.white, // Color fijo para evitar modificaciones de Flutter
       elevation: 2,
       shadowColor: Colors.black.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(
@@ -287,7 +288,7 @@ class AppTheme {
 
   // Tema oscuro (opcional para futuro)
   static ThemeData darkTheme = ThemeData(
-    useMaterial3: true,
+    useMaterial3: false,
     brightness: Brightness.dark,
     colorScheme: const ColorScheme.dark(
       primary: primaryGreenLight,
@@ -297,4 +298,34 @@ class AppTheme {
       error: errorColor,
     ),
   );
+
+  // Método para obtener tema con color fijo de cards
+  static ThemeData getLightThemeWithFixedCards(BuildContext context) {
+    return Theme.of(context).copyWith(
+      cardTheme: CardThemeData(
+        color: Colors.white, // Color fijo
+        elevation: 2,
+        shadowColor: Colors.black.withValues(alpha: 0.1),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        margin: const EdgeInsets.all(8),
+      ),
+    );
+  }
+
+  // Método para obtener tema oscuro con color fijo de cards
+  static ThemeData getDarkThemeWithFixedCards(BuildContext context) {
+    return Theme.of(context).copyWith(
+      cardTheme: CardThemeData(
+        color: Theme.of(context).cardColor, // Mantiene el color del tema oscuro
+        elevation: 2,
+        shadowColor: Theme.of(context).shadowColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        margin: const EdgeInsets.all(8),
+      ),
+    );
+  }
 }

@@ -13,14 +13,16 @@ class CardInspeccionDesktop extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      height: 500,
-      width: 350,
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: Theme.of(context).brightness == Brightness.light
+            ? Colors.white
+            : Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).shadowColor,
+            color: Theme.of(context).brightness == Brightness.light
+                ? Colors.black.withValues(alpha: 0.08)
+                : Theme.of(context).shadowColor.withValues(alpha: 0.2),
             spreadRadius: 0,
             blurRadius: 20,
             offset: const Offset(0, 8),

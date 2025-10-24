@@ -94,7 +94,9 @@ class _MiniDashboardState extends State<MiniDashboard> {
     return Container(
       height: 190, // Tamaño original restaurado
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: Theme.of(context).brightness == Brightness.light
+            ? Colors.white
+            : Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Center(
@@ -200,17 +202,23 @@ class _MiniDashboardState extends State<MiniDashboard> {
           height: 100,
           margin: EdgeInsets.only(top: 10, right: 10),
           decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
+            color: Theme.of(context).brightness == Brightness.light
+                ? Colors.white
+                : Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context).shadowColor.withValues(alpha: 0.2),
+                color: Theme.of(context).brightness == Brightness.light
+                    ? Colors.black.withValues(alpha: 0.08)
+                    : Theme.of(context).shadowColor.withValues(alpha: 0.2),
                 blurRadius: 20,
                 offset: Offset(0, 4),
                 spreadRadius: 0,
               ),
               BoxShadow(
-                color: Theme.of(context).shadowColor.withValues(alpha: 0.2),
+                color: Theme.of(context).brightness == Brightness.light
+                    ? Colors.black.withValues(alpha: 0.04)
+                    : Theme.of(context).shadowColor.withValues(alpha: 0.2),
                 blurRadius: 6,
                 offset: Offset(0, 2),
                 spreadRadius: 0,
