@@ -35,7 +35,7 @@ class ModernHeader extends StatelessWidget {
               child: imageProvider.getImage(userPhoto),
             ),
 
-          // Overlay verde con degradado
+          // Overlay verde con degradado más suave
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -45,27 +45,37 @@ class ModernHeader extends StatelessWidget {
                   colors: Theme.of(context).brightness == Brightness.dark
                       ? [
                           const Color.fromARGB(
-                              200, 84, 147, 76), // Verde más opaco arriba
+                              220, 84, 147, 76), // Verde más opaco arriba
+                          const Color.fromARGB(180, 84, 147, 76), // Verde medio
                           const Color.fromARGB(
-                              120, 84, 147, 76), // Verde más transparente abajo
+                              140, 84, 147, 76), // Verde más transparente
+                          const Color.fromARGB(
+                              100, 84, 147, 76), // Verde muy transparente
+                          const Color.fromARGB(
+                              60, 84, 147, 76), // Verde casi transparente
                           Colors
                               .transparent, // Completamente transparente al final
                         ]
                       : [
                           const Color.fromARGB(
-                              200, 68, 173, 68), // Verde más opaco arriba
+                              220, 68, 173, 68), // Verde más opaco arriba
+                          const Color.fromARGB(180, 68, 173, 68), // Verde medio
                           const Color.fromARGB(
-                              120, 68, 173, 68), // Verde más transparente abajo
+                              140, 68, 173, 68), // Verde más transparente
+                          const Color.fromARGB(
+                              100, 68, 173, 68), // Verde muy transparente
+                          const Color.fromARGB(
+                              60, 68, 173, 68), // Verde casi transparente
                           Colors
                               .transparent, // Completamente transparente al final
                         ],
-                  stops: const [0.0, 0.7, 1.0],
+                  stops: const [0.0, 0.3, 0.5, 0.7, 0.85, 1.0],
                 ),
               ),
             ),
           ),
 
-          // Fallback: fondo verde con degradado si no hay imagen
+          // Fallback: fondo verde con degradado más suave si no hay imagen
           if (userPhoto == null || userPhoto!.isEmpty)
             Positioned.fill(
               child: Container(
@@ -75,22 +85,22 @@ class ModernHeader extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: Theme.of(context).brightness == Brightness.dark
                         ? [
-                            const Color.fromARGB(
-                                255, 84, 147, 76), // Verde sólido arriba
-                            const Color.fromARGB(200, 84, 147,
-                                76), // Verde más transparente abajo
-                            const Color.fromARGB(100, 84, 147,
-                                76), // Verde muy transparente al final
+                            const Color.fromARGB(255, 84, 147, 76), // Verde sólido arriba
+                            const Color.fromARGB(220, 84, 147, 76), // Verde más transparente
+                            const Color.fromARGB(180, 84, 147, 76), // Verde medio
+                            const Color.fromARGB(140, 84, 147, 76), // Verde más transparente
+                            const Color.fromARGB(100, 84, 147, 76), // Verde muy transparente
+                            const Color.fromARGB(60, 84, 147, 76),  // Verde casi transparente
                           ]
                         : [
-                            const Color.fromARGB(
-                                255, 68, 173, 68), // Verde sólido arriba
-                            const Color.fromARGB(200, 68, 173,
-                                68), // Verde más transparente abajo
-                            const Color.fromARGB(100, 68, 173,
-                                68), // Verde muy transparente al final
+                            const Color.fromARGB(255, 68, 173, 68), // Verde sólido arriba
+                            const Color.fromARGB(220, 68, 173, 68), // Verde más transparente
+                            const Color.fromARGB(180, 68, 173, 68), // Verde medio
+                            const Color.fromARGB(140, 68, 173, 68), // Verde más transparente
+                            const Color.fromARGB(100, 68, 173, 68), // Verde muy transparente
+                            const Color.fromARGB(60, 68, 173, 68),  // Verde casi transparente
                           ],
-                    stops: const [0.0, 0.7, 1.0],
+                    stops: const [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
                   ),
                 ),
               ),
