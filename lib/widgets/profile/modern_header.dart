@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/services/services.dart';
-import 'package:app_qinspecting/ui/app_theme.dart';
 
 class ModernHeader extends StatelessWidget {
   const ModernHeader({
@@ -24,16 +23,9 @@ class ModernHeader extends StatelessWidget {
     return Container(
       height: 280,
       decoration: BoxDecoration(
-        gradient: Theme.of(context).brightness == Brightness.dark
-            ? LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppTheme.primaryGreen,
-                  AppTheme.primaryGreen.withValues(alpha: 0.8),
-                ],
-              )
-            : AppTheme.primaryGradient,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFF6A4C93) // Púrpura más oscuro para modo oscuro
+            : const Color(0xFF8E44AD), // Púrpura sólido para modo claro
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(30),
           bottomRight: Radius.circular(30),
@@ -45,29 +37,47 @@ class ModernHeader extends StatelessWidget {
           Positioned(
             left: 20,
             top: 40,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white.withValues(alpha: 0.2)
-                    : Colors.white.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(25),
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(context).shadowColor,
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
+            child: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(
+                Icons.menu,
+                color: Colors.white,
+                size: 28,
               ),
-              child: IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: Icon(
-                  Icons.arrow_back,
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : Colors.green,
-                  size: 30,
+            ),
+          ),
+
+          // Título PERFIL
+          Positioned(
+            top: 50,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Text(
+                'PERFIL',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
                 ),
+              ),
+            ),
+          ),
+
+          // Botón de configuración
+          Positioned(
+            right: 20,
+            top: 40,
+            child: IconButton(
+              onPressed: () {
+                // Navegar a configuración
+                Navigator.pushNamed(context, 'settings');
+              },
+              icon: const Icon(
+                Icons.settings,
+                color: Colors.white,
+                size: 28,
               ),
             ),
           ),
@@ -84,15 +94,17 @@ class ModernHeader extends StatelessWidget {
                   width: 120,
                   height: 120,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Theme.of(context).cardColor
-                        : Colors.white,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(60),
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 4,
+                    ),
                     boxShadow: [
                       BoxShadow(
-                        color: Theme.of(context).shadowColor,
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 15,
+                        offset: const Offset(0, 8),
                       ),
                     ],
                   ),
@@ -104,18 +116,12 @@ class ModernHeader extends StatelessWidget {
                       if (snapshot.data == true) {
                         return ClipRRect(
                           borderRadius: BorderRadius.circular(56),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(56),
-                                border: Border.all(
-                                  color: Theme.of(context).brightness == Brightness.dark
-                                      ? Theme.of(context).dividerColor
-                                      : AppTheme.cardColor,
-                                  width: 4,
-                                ),
-                              ),
-                              child: imageProvider.getImage(userPhoto),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(56),
                             ),
+                            child: imageProvider.getImage(userPhoto),
+                          ),
                         );
                       }
                       return ClipRRect(
@@ -142,19 +148,19 @@ class ModernHeader extends StatelessWidget {
                 width: 30,
                 height: 30,
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryGreen,
+                  color: Colors.grey.shade300,
                   borderRadius: BorderRadius.circular(15),
                   boxShadow: [
                     BoxShadow(
-                      color: Theme.of(context).shadowColor,
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 6,
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
                 child: const Icon(
                   Icons.camera_alt,
-                  color: Colors.white,
+                  color: Colors.black54,
                   size: 16,
                 ),
               ),
@@ -171,8 +177,8 @@ class ModernHeader extends StatelessWidget {
                 userName,
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
                   letterSpacing: 0.5,
                 ),
                 textAlign: TextAlign.center,
