@@ -44,38 +44,123 @@ class ProfileScreen extends StatelessWidget {
         ),
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          child: Column(
+          child: Stack(
             children: [
-              // Header con gradiente y avatar
-              Consumer<PerfilFormProvider>(
-                builder: (context, perfilForm, child) {
-                  final nombreQi = loginService.selectedEmpresa.nombreQi ?? '';
-                  return ModernHeader(
-                    userName: '${perfilForm.userDataLogged?.nombres}',
-                    lastName: '${perfilForm.userDataLogged?.apellidos}',
-                    userPhoto: perfilForm.getDisplayImage(),
-                    onPhotoTap: () => _showPhotoOptions(context, nombreQi),
-                  );
-                },
+              Column(
+                children: [
+                  // Header con gradiente y avatar
+                  Consumer<PerfilFormProvider>(
+                    builder: (context, perfilForm, child) {
+                      final nombreQi =
+                          loginService.selectedEmpresa.nombreQi ?? '';
+                      return ModernHeader(
+                        userName: '${perfilForm.userDataLogged?.nombres}',
+                        lastName: '${perfilForm.userDataLogged?.apellidos}',
+                        userPhoto: perfilForm.getDisplayImage(),
+                        onPhotoTap: () => _showPhotoOptions(context, nombreQi),
+                      );
+                    },
+                  ),
+
+                  // Información del usuario
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        top: 60), // Espacio para el avatar
+                    child: UserInfoCard(
+                      userData: perfilForm.userDataLogged,
+                    ),
+                  ),
+
+                  // Formulario de datos personales
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        top: 60), // Espacio para el avatar
+                    child: const ModernFormProfile(),
+                  ),
+
+                  const SizedBox(height: 20),
+                ],
               ),
 
-              // Información del usuario
-              Padding(
-                padding:
-                    const EdgeInsets.only(top: 60), // Espacio para el avatar
-                child: UserInfoCard(
-                  userData: perfilForm.userDataLogged,
+              // Avatar flotante con z-index alto - ahora dentro del scroll
+              Positioned(
+                top: 220, // Posición calculada para estar encima de las cards
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: Consumer<PerfilFormProvider>(
+                    builder: (context, perfilForm, child) {
+                      final nombreQi =
+                          loginService.selectedEmpresa.nombreQi ?? '';
+                      return GestureDetector(
+                        onTap: () => _showPhotoOptions(context, nombreQi),
+                        child: Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(60),
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 4,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.2),
+                                blurRadius: 20,
+                                offset: const Offset(0, 10),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(56),
+                            child: Consumer<LoginFormProvider>(
+                              builder: (context, imageProvider, child) {
+                                return imageProvider
+                                    .getImage(perfilForm.getDisplayImage());
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
 
-              // Formulario de datos personales
-              Padding(
-                padding:
-                    const EdgeInsets.only(top: 60), // Espacio para el avatar
-                child: const ModernFormProfile(),
+              // Botón de cámara flotante - ahora dentro del scroll
+              Positioned(
+                top: 280, // Posición calculada para estar alineado con el avatar
+                right: MediaQuery.of(context).size.width / 2 - 15,
+                child: Consumer<PerfilFormProvider>(
+                  builder: (context, perfilForm, child) {
+                    final nombreQi = loginService.selectedEmpresa.nombreQi ?? '';
+                    return GestureDetector(
+                      onTap: () => _showPhotoOptions(context, nombreQi),
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 6,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.camera_alt,
+                          color: Colors.black54,
+                          size: 16,
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
-
-              const SizedBox(height: 20),
             ],
           ),
         ),
