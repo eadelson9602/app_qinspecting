@@ -57,7 +57,7 @@ class CustomDrawer extends StatelessWidget {
     final loginService = Provider.of<LoginService>(context, listen: false);
 
     return Drawer(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Theme.of(context).cardColor,
       elevation: 0,
       child: Container(
         decoration: BoxDecoration(
@@ -68,8 +68,8 @@ class CustomDrawer extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     Theme.of(context).cardColor,
-                    Theme.of(context).cardColor.withValues(alpha: 0.8),
-                    Theme.of(context).cardColor.withValues(alpha: 0.6),
+                    Theme.of(context).cardColor,
+                    Theme.of(context).cardColor,
                   ],
                   stops: const [0.0, 0.6, 1.0],
                 )
