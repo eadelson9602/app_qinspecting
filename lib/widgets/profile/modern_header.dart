@@ -24,7 +24,16 @@ class ModernHeader extends StatelessWidget {
     return Container(
       height: 280,
       decoration: BoxDecoration(
-        gradient: AppTheme.primaryGradient,
+        gradient: Theme.of(context).brightness == Brightness.dark
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppTheme.primaryGreen,
+                  AppTheme.primaryGreen.withValues(alpha: 0.8),
+                ],
+              )
+            : AppTheme.primaryGradient,
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(30),
           bottomRight: Radius.circular(30),
@@ -38,11 +47,13 @@ class ModernHeader extends StatelessWidget {
             top: 40,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.5),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white.withValues(alpha: 0.2)
+                    : Colors.white.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(25),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
+                    color: Theme.of(context).shadowColor,
                     blurRadius: 10,
                     offset: const Offset(0, 5),
                   ),
@@ -50,9 +61,11 @@ class ModernHeader extends StatelessWidget {
               ),
               child: IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(
+                icon: Icon(
                   Icons.arrow_back,
-                  color: Colors.green,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.green,
                   size: 30,
                 ),
               ),
@@ -71,11 +84,13 @@ class ModernHeader extends StatelessWidget {
                   width: 120,
                   height: 120,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Theme.of(context).cardColor
+                        : Colors.white,
                     borderRadius: BorderRadius.circular(60),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
+                        color: Theme.of(context).shadowColor,
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -89,16 +104,18 @@ class ModernHeader extends StatelessWidget {
                       if (snapshot.data == true) {
                         return ClipRRect(
                           borderRadius: BorderRadius.circular(56),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(56),
-                              border: Border.all(
-                                color: AppTheme.cardColor,
-                                width: 4,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(56),
+                                border: Border.all(
+                                  color: Theme.of(context).brightness == Brightness.dark
+                                      ? Theme.of(context).dividerColor
+                                      : AppTheme.cardColor,
+                                  width: 4,
+                                ),
                               ),
+                              child: imageProvider.getImage(userPhoto),
                             ),
-                            child: imageProvider.getImage(userPhoto),
-                          ),
                         );
                       }
                       return ClipRRect(
@@ -129,7 +146,7 @@ class ModernHeader extends StatelessWidget {
                   borderRadius: BorderRadius.circular(15),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.2),
+                      color: Theme.of(context).shadowColor,
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
