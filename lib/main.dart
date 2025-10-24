@@ -10,6 +10,7 @@ import 'screens/screens.dart';
 import 'utils/error_handler.dart';
 
 import 'package:app_qinspecting/providers/providers.dart';
+import 'package:app_qinspecting/providers/loading_progress_provider.dart';
 
 import 'services/services.dart';
 import 'services/notification_service.dart';
@@ -88,6 +89,7 @@ class AppState extends StatelessWidget {
       ChangeNotifierProvider(create: (_) => InspeccionService()),
       ChangeNotifierProvider(create: (_) => FirmaService()),
       ChangeNotifierProvider(create: (_) => ThemeService()),
+      ChangeNotifierProvider(create: (_) => LoadingProgressProvider()),
       Provider<DBProvider>(create: (_) => DBProvider.db),
     ], child: const MyApp());
   }
