@@ -57,7 +57,8 @@ class CardInspeccionDesktop extends StatelessWidget {
                           Text(
                             'Inspección',
                             style: TextStyle(
-                              color: Theme.of(context).textTheme.titleLarge?.color,
+                              color:
+                                  Theme.of(context).textTheme.titleLarge?.color,
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
@@ -148,9 +149,9 @@ class CardInspeccionDesktop extends StatelessWidget {
                           'Hora',
                           resumenPreoperacional.hora.toString(),
                           Icons.access_time_outlined,
-                        const Color(0xFFFF9800), // Orange
-                        context,
-                      ),
+                          const Color(0xFFFF9800), // Orange
+                          context,
+                        ),
                       ),
                     ],
                   ),
@@ -184,9 +185,9 @@ class CardInspeccionDesktop extends StatelessWidget {
                           'Fallas graves',
                           resumenPreoperacional.grave.toString(),
                           Icons.warning_outlined,
-                        const Color(0xFFF44336), // Red
-                        context,
-                      ),
+                          const Color(0xFFF44336), // Red
+                          context,
+                        ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -194,9 +195,9 @@ class CardInspeccionDesktop extends StatelessWidget {
                           'Fallas moderadas',
                           resumenPreoperacional.moderada.toString(),
                           Icons.info_outline,
-                        const Color(0xFFFF9800), // Orange
-                        context,
-                      ),
+                          const Color(0xFFFF9800), // Orange
+                          context,
+                        ),
                       ),
                     ],
                   ),
@@ -264,8 +265,8 @@ class CardInspeccionDesktop extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(
-      String label, String value, IconData icon, Color iconColor, BuildContext context) {
+  Widget _buildInfoRow(String label, String value, IconData icon,
+      Color iconColor, BuildContext context) {
     return Row(
       children: [
         Container(

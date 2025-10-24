@@ -29,10 +29,27 @@ class ModernHeader extends StatelessWidget {
       // ),
       child: Stack(
         children: [
-          // Fondo con imagen de perfil
+          // Fondo con imagen de perfil y degradado
           if (userPhoto != null && userPhoto!.isNotEmpty)
             Positioned.fill(
-              child: imageProvider.getImage(userPhoto),
+              child: ShaderMask(
+                shaderCallback: (bounds) => LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.white, // Opaco arriba
+                    Colors.white.withValues(alpha: 0.9), // Casi opaco
+                    Colors.white.withValues(alpha: 0.7), // Semi-transparente
+                    Colors.white.withValues(alpha: 0.5), // Más transparente
+                    Colors.white.withValues(alpha: 0.3), // Muy transparente
+                    Colors.white.withValues(alpha: 0.1), // Casi invisible
+                    Colors.transparent, // Completamente transparente
+                  ],
+                  stops: const [0.0, 0.2, 0.4, 0.6, 0.75, 0.9, 1.0],
+                ).createShader(bounds),
+                blendMode: BlendMode.dstIn,
+                child: imageProvider.getImage(userPhoto),
+              ),
             ),
 
           // Overlay verde con degradado más suave
@@ -52,7 +69,9 @@ class ModernHeader extends StatelessWidget {
                           const Color.fromARGB(
                               100, 84, 147, 76), // Verde muy transparente
                           const Color.fromARGB(
-                              60, 84, 147, 76), // Verde casi transparente
+                              40, 84, 147, 76), // Verde muy transparente
+                          const Color.fromARGB(
+                              20, 84, 147, 76), // Verde casi invisible
                           Colors
                               .transparent, // Completamente transparente al final
                         ]
@@ -65,11 +84,13 @@ class ModernHeader extends StatelessWidget {
                           const Color.fromARGB(
                               100, 68, 173, 68), // Verde muy transparente
                           const Color.fromARGB(
-                              60, 68, 173, 68), // Verde casi transparente
+                              40, 68, 173, 68), // Verde muy transparente
+                          const Color.fromARGB(
+                              20, 68, 173, 68), // Verde casi invisible
                           Colors
                               .transparent, // Completamente transparente al final
                         ],
-                  stops: const [0.0, 0.3, 0.5, 0.7, 0.85, 1.0],
+                  stops: const [0.0, 0.2, 0.4, 0.6, 0.75, 0.9, 1.0],
                 ),
               ),
             ),
@@ -85,22 +106,38 @@ class ModernHeader extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: Theme.of(context).brightness == Brightness.dark
                         ? [
-                            const Color.fromARGB(255, 84, 147, 76), // Verde sólido arriba
-                            const Color.fromARGB(220, 84, 147, 76), // Verde más transparente
-                            const Color.fromARGB(180, 84, 147, 76), // Verde medio
-                            const Color.fromARGB(140, 84, 147, 76), // Verde más transparente
-                            const Color.fromARGB(100, 84, 147, 76), // Verde muy transparente
-                            const Color.fromARGB(60, 84, 147, 76),  // Verde casi transparente
+                            const Color.fromARGB(
+                                255, 84, 147, 76), // Verde sólido arriba
+                            const Color.fromARGB(
+                                220, 84, 147, 76), // Verde más transparente
+                            const Color.fromARGB(
+                                180, 84, 147, 76), // Verde medio
+                            const Color.fromARGB(
+                                140, 84, 147, 76), // Verde más transparente
+                            const Color.fromARGB(
+                                100, 84, 147, 76), // Verde muy transparente
+                            const Color.fromARGB(
+                                40, 84, 147, 76), // Verde muy transparente
+                            const Color.fromARGB(
+                                20, 84, 147, 76), // Verde casi invisible
                           ]
                         : [
-                            const Color.fromARGB(255, 68, 173, 68), // Verde sólido arriba
-                            const Color.fromARGB(220, 68, 173, 68), // Verde más transparente
-                            const Color.fromARGB(180, 68, 173, 68), // Verde medio
-                            const Color.fromARGB(140, 68, 173, 68), // Verde más transparente
-                            const Color.fromARGB(100, 68, 173, 68), // Verde muy transparente
-                            const Color.fromARGB(60, 68, 173, 68),  // Verde casi transparente
+                            const Color.fromARGB(
+                                255, 68, 173, 68), // Verde sólido arriba
+                            const Color.fromARGB(
+                                220, 68, 173, 68), // Verde más transparente
+                            const Color.fromARGB(
+                                180, 68, 173, 68), // Verde medio
+                            const Color.fromARGB(
+                                140, 68, 173, 68), // Verde más transparente
+                            const Color.fromARGB(
+                                100, 68, 173, 68), // Verde muy transparente
+                            const Color.fromARGB(
+                                40, 68, 173, 68), // Verde muy transparente
+                            const Color.fromARGB(
+                                20, 68, 173, 68), // Verde casi invisible
                           ],
-                    stops: const [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
+                    stops: const [0.0, 0.2, 0.4, 0.6, 0.75, 0.9, 1.0],
                   ),
                 ),
               ),

@@ -222,8 +222,12 @@ class _MyStatelessWidgetState extends State<MyStatelessWidget> {
                             Icon(
                               Icons.gesture_rounded,
                               color: firmaService.indexTabaCreateSignature == 0
-                                  ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor
-                                  : Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
+                                  ? Theme.of(context)
+                                      .bottomNavigationBarTheme
+                                      .selectedItemColor
+                                  : Theme.of(context)
+                                      .bottomNavigationBarTheme
+                                      .unselectedItemColor,
                               size: 28,
                             ),
                             if (firmaService.indexTabaCreateSignature == 0)
@@ -233,7 +237,9 @@ class _MyStatelessWidgetState extends State<MyStatelessWidget> {
                                   width: 6,
                                   height: 6,
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
+                                    color: Theme.of(context)
+                                        .bottomNavigationBarTheme
+                                        .selectedItemColor,
                                     shape: BoxShape.circle,
                                   ),
                                 ),
@@ -261,8 +267,12 @@ class _MyStatelessWidgetState extends State<MyStatelessWidget> {
                             Icon(
                               Icons.create_rounded,
                               color: firmaService.indexTabaCreateSignature == 1
-                                  ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor
-                                  : Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
+                                  ? Theme.of(context)
+                                      .bottomNavigationBarTheme
+                                      .selectedItemColor
+                                  : Theme.of(context)
+                                      .bottomNavigationBarTheme
+                                      .unselectedItemColor,
                               size: 28,
                             ),
                             if (firmaService.indexTabaCreateSignature == 1)
@@ -272,7 +282,9 @@ class _MyStatelessWidgetState extends State<MyStatelessWidget> {
                                   width: 6,
                                   height: 6,
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
+                                    color: Theme.of(context)
+                                        .bottomNavigationBarTheme
+                                        .selectedItemColor,
                                     shape: BoxShape.circle,
                                   ),
                                 ),

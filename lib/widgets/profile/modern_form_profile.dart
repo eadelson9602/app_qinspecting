@@ -147,7 +147,7 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
     final userData = perfilForm.userDataLogged;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
+      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
@@ -280,7 +280,13 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
                 items: inspeccionProvider.departamentos.map((departamento) {
                   return DropdownMenuItem<int>(
                     value: departamento.value,
-                    child: Text(departamento.label),
+                    child: Flexible(
+                      child: Text(
+                        departamento.label,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
                   );
                 }).toList(),
                 onChanged: (value) async {
@@ -322,7 +328,13 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
                 items: inspeccionProvider.ciudades.map((ciudad) {
                   return DropdownMenuItem<int>(
                     value: ciudad.value,
-                    child: Text(ciudad.label),
+                    child: Flexible(
+                      child: Text(
+                        ciudad.label,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -356,11 +368,32 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
                 ),
                 items: const [
                   DropdownMenuItem(
-                      value: 'CC', child: Text('Cédula de Ciudadanía')),
+                      value: 'CC',
+                      child: Flexible(
+                        child: Text(
+                          'Cédula de Ciudadanía',
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      )),
                   DropdownMenuItem(
-                      value: 'CE', child: Text('Cédula de Extranjería')),
+                      value: 'CE',
+                      child: Flexible(
+                        child: Text(
+                          'Cédula de Extranjería',
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      )),
                   DropdownMenuItem(
-                      value: 'TI', child: Text('Tarjeta de Identidad')),
+                      value: 'TI',
+                      child: Flexible(
+                        child: Text(
+                          'Tarjeta de Identidad',
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      )),
                 ],
                 onChanged: (value) {
                   userData?.nombreTipoDocumento = _getTipoDocumentoLabel(value);

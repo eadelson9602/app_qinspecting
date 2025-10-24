@@ -12,7 +12,7 @@ class UserInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
@@ -25,7 +25,7 @@ class UserInfoCard extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(12),
         child: Column(
           children: [
             _buildInfoRow(
@@ -56,13 +56,14 @@ class UserInfoCard extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(BuildContext context, IconData icon, String label, String value) {
+  Widget _buildInfoRow(
+      BuildContext context, IconData icon, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: AppTheme.primaryGreen.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
@@ -70,7 +71,7 @@ class UserInfoCard extends StatelessWidget {
             child: Icon(
               icon,
               color: AppTheme.primaryGreen,
-              size: 20,
+              size: 18,
             ),
           ),
           const SizedBox(width: 12),
@@ -105,11 +106,11 @@ class UserInfoCard extends StatelessWidget {
 
   Widget _buildDocumentInfo(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: AppTheme.primaryGreen.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
@@ -117,7 +118,7 @@ class UserInfoCard extends StatelessWidget {
             child: Icon(
               Icons.badge,
               color: AppTheme.primaryGreen,
-              size: 20,
+              size: 18,
             ),
           ),
           const SizedBox(width: 12),
@@ -161,7 +162,7 @@ class UserInfoCard extends StatelessWidget {
 
   Widget _buildDivider(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
+      margin: const EdgeInsets.symmetric(vertical: 4),
       height: 1,
       color: Theme.of(context).dividerColor,
     );
