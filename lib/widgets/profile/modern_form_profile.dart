@@ -160,7 +160,7 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
         child: Form(
           key: perfilForm.formKey,
           child: Column(
