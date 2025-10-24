@@ -67,22 +67,32 @@ class _MyStatelessWidgetState extends State<MyStatelessWidget> {
     final firmaService = Provider.of<FirmaService>(context);
     final loginService = Provider.of<LoginService>(context);
     final inspeccionService = Provider.of<InspeccionService>(context);
-    print(
-        '🏗️ Building signature_screen - tabIndex: ${firmaService.indexTabaCreateSignature}');
 
     List<Widget> _widgetOptions = <Widget>[
-      FutureBuilder(
+      FutureBuilder<bool>(
           future: inspeccionService.checkConnection(),
+          initialData: true, // Asumir conexión inicialmente para evitar flash
           builder: (context, snapshot) {
-            print(
-                '🔍 Connection check: ${snapshot.connectionState}, data: ${snapshot.data}');
+            // Si está cargando la conexión, mostrar loading
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
+
+            // Si no hay conexión, mostrar mensaje
+            if (snapshot.data != true) {
+              print('❌ No internet connection');
+              return Padding(
+                padding: const EdgeInsets.all(15),
+                child: NoInternet(),
+              );
+            }
+
+            // Si hay conexión, cargar datos de firma
             if (snapshot.data == true) {
               return FutureBuilder(
                   future:
                       firmaService.getInfoFirma(loginService.selectedEmpresa),
                   builder: (context, snapshot) {
-                    print(
-                        '🔍 Firma data: ${snapshot.connectionState}, data: ${snapshot.data}');
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(child: CircularProgressIndicator());
                     } else {
