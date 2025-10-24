@@ -300,7 +300,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                       content: Text(
                         message,
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.black),
+                        style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
                       ),
                       duration: const Duration(seconds: 2),
                       width: 280.0,

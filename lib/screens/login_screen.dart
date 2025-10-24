@@ -60,7 +60,7 @@ class _FormLogin extends StatelessWidget {
               Text(
                 'Iniciar sesión',
                 style: TextStyle(
-                    color: Colors.black,
+                    color: Theme.of(context).textTheme.headlineMedium?.color,
                     fontSize: 25,
                     fontWeight: FontWeight.w800),
               ),
@@ -134,7 +134,7 @@ class _FormLogin extends StatelessWidget {
                       curve: Curves.bounceIn),
                   child: Text('Recuperar contraseña',
                       style: TextStyle(
-                          color: Colors.black,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
                           fontSize: 16,
                           fontWeight: FontWeight.w800)))
             ],

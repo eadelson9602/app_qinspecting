@@ -26,7 +26,7 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
     super.initState();
     _controller = SignatureController(
       penStrokeWidth: 3,
-      penColor: Colors.black,
+      penColor: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
       exportBackgroundColor: Colors.transparent,
     );
   }
@@ -46,7 +46,7 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
     if (inspeccionService.isSaving) return LoadingScreen();
     return Scaffold(
       body: Container(
-        color: Colors.grey[200],
+        color: Theme.of(context).scaffoldBackgroundColor,
         child: Stack(
           children: [
             // Área de firma usando la librería signature
@@ -88,14 +88,14 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(color: Colors.grey),
+        decoration: BoxDecoration(color: Theme.of(context).cardColor),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           mainAxisSize: MainAxisSize.max,
           children: [
             IconButton(
               icon: const Icon(Icons.check),
-              color: Colors.black,
+              color: Theme.of(context).iconTheme.color,
               onPressed: () async {
                 if (_controller.isNotEmpty) {
                   try {
@@ -162,7 +162,7 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
             ),
             IconButton(
               icon: const Icon(Icons.undo),
-              color: Colors.black,
+              color: Theme.of(context).iconTheme.color,
               onPressed: () {
                 // La librería signature no tiene undo/redo nativo
                 // Se puede implementar con un stack de puntos si es necesario
@@ -170,7 +170,7 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
             ),
             IconButton(
               icon: const Icon(Icons.redo),
-              color: Colors.black,
+              color: Theme.of(context).iconTheme.color,
               onPressed: () {
                 // La librería signature no tiene undo/redo nativo
                 // Se puede implementar con un stack de puntos si es necesario
@@ -178,7 +178,7 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
             ),
             IconButton(
               icon: const Icon(Icons.clear),
-              color: Colors.black,
+              color: Theme.of(context).iconTheme.color,
               onPressed: () {
                 _controller.clear();
               },

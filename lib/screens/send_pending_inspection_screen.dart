@@ -275,7 +275,7 @@ class _ContentCardInspectionPendingState
                     // Card de la inspección
                     Card(
                       elevation: 10,
-                      shadowColor: Colors.black.withValues(alpha: 0.4),
+                      shadowColor: Theme.of(context).shadowColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -337,7 +337,7 @@ class _ContentCardInspectionPendingState
                                         'Progreso: ${(inspeccionService.batchProgress * 100).toStringAsFixed(1)}%',
                                         style: TextStyle(
                                           fontSize: 14,
-                                          color: Colors.grey[600],
+                                          color: Theme.of(context).textTheme.bodySmall?.color,
                                         ),
                                       ),
                                     ],
@@ -378,7 +378,7 @@ class _ContentCardInspectionPendingState
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.bold,
-                                                color: Colors.black87,
+                                                color: Theme.of(context).textTheme.titleMedium?.color,
                                               ),
                                             ),
                                             SizedBox(height: 4),
@@ -386,7 +386,7 @@ class _ContentCardInspectionPendingState
                                               'Realizado el ${allInspecciones[i].fechaPreoperacional}',
                                               style: TextStyle(
                                                 fontSize: 14,
-                                                color: Colors.grey[600],
+                                                color: Theme.of(context).textTheme.bodySmall?.color,
                                               ),
                                             ),
                                           ],

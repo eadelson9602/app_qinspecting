@@ -118,7 +118,10 @@ class _MyStatelessWidgetState extends State<MyStatelessWidget> {
                                   style: TextStyle(
                                       fontSize: 30.0,
                                       fontFamily: 'Agne',
-                                      color: Colors.black),
+                                      color: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge
+                                          ?.color),
                                   child: GestureDetector(
                                     onTap: () {
                                       print("Tap Event");
@@ -188,7 +191,7 @@ class _MyStatelessWidgetState extends State<MyStatelessWidget> {
       bottomNavigationBar: Container(
         margin: EdgeInsets.all(15),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(50),
           boxShadow: [
             BoxShadow(
@@ -312,7 +315,7 @@ class CardFirma extends StatelessWidget {
                   width: sizeScreen.width * 0.9,
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
@@ -339,6 +342,7 @@ class CardFirma extends StatelessWidget {
 
                 // Información del usuario con iconos coloridos
                 _buildInfoCard(
+                  context: context,
                   icon: Icons.person_outline_rounded,
                   iconColor: Color(0xFF2196F3), // Azul
                   title: 'Usuario',
@@ -349,6 +353,7 @@ class CardFirma extends StatelessWidget {
 
                 // Términos y condiciones
                 _buildInfoCard(
+                  context: context,
                   icon: Icons.fact_check_outlined,
                   iconColor: Color(0xFF4CAF50), // Verde
                   title: 'Aceptó términos y condiciones?',
@@ -359,6 +364,7 @@ class CardFirma extends StatelessWidget {
 
                 // Fecha de realización
                 _buildInfoCard(
+                  context: context,
                   icon: Icons.calendar_today_outlined,
                   iconColor: Color(0xFFFF9800), // Naranja
                   title: 'Fecha de realización',
@@ -375,6 +381,7 @@ class CardFirma extends StatelessWidget {
   }
 
   Widget _buildInfoCard({
+    required BuildContext context,
     required IconData icon,
     required Color iconColor,
     required String title,
@@ -382,7 +389,7 @@ class CardFirma extends StatelessWidget {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -419,7 +426,7 @@ class CardFirma extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      color: Colors.black87,
+                      color: Theme.of(context).textTheme.titleMedium?.color,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.2,
@@ -429,7 +436,7 @@ class CardFirma extends StatelessWidget {
                   Text(
                     subtitle,
                     style: TextStyle(
-                      color: Colors.grey[600],
+                      color: Theme.of(context).textTheme.bodySmall?.color,
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                     ),

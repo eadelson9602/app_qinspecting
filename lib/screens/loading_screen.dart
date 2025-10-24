@@ -68,8 +68,7 @@ class _LoadingScreenState extends State<LoadingScreen>
                 'Cargando',
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    color: Colors.black),
+                    fontSize: 18),
               ),
               const SizedBox(width: 4),
               AnimatedBuilder(
@@ -82,12 +81,12 @@ class _LoadingScreenState extends State<LoadingScreen>
                         builder: (context, child) {
                           return Opacity(
                             opacity: _dotAnimations[index].value,
-                            child: const Text(
+                            child: Text(
                               '.',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18,
-                                  color: Colors.black),
+                                  color: Theme.of(context).textTheme.bodyLarge?.color),
                             ),
                           );
                         },
