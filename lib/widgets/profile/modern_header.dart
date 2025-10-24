@@ -98,8 +98,7 @@ class ModernHeader extends StatelessWidget {
 
           // Avatar circular - posicionado en el borde del header
           Positioned(
-            bottom:
-                -60, // La mitad del avatar (60px) está en el header, la otra mitad en el contenido
+            bottom: -80, // Más abajo para estar encima del card de información
             left: 0,
             right: 0,
             child: Center(
@@ -156,7 +155,7 @@ class ModernHeader extends StatelessWidget {
           // Botón de cámara
           Positioned(
             bottom:
-                10, // Ajustado para estar alineado con el avatar en el borde
+                30, // Ajustado para estar alineado con el avatar encima del card
             right: MediaQuery.of(context).size.width / 2 - 15,
             child: GestureDetector(
               onTap: onPhotoTap,
