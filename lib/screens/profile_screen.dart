@@ -47,8 +47,7 @@ class ProfileScreen extends StatelessWidget {
             // Header con gradiente y avatar
             Consumer<PerfilFormProvider>(
               builder: (context, perfilForm, child) {
-                final nombreQi =
-                    loginService.selectedEmpresa.nombreQi ?? '';
+                final nombreQi = loginService.selectedEmpresa.nombreQi ?? '';
                 return ModernHeader(
                   userPhoto: perfilForm.getDisplayImage(),
                   onPhotoTap: () => _showPhotoOptions(context, nombreQi),
@@ -58,7 +57,7 @@ class ProfileScreen extends StatelessWidget {
 
             // Nombre del usuario
             Positioned(
-              top: MediaQuery.of(context).size.height * 0.12,
+              top: MediaQuery.of(context).size.height * 0.34,
               left: 0,
               right: 0,
               child: Center(
@@ -77,7 +76,7 @@ class ProfileScreen extends StatelessWidget {
 
             // Apellido del usuario
             Positioned(
-              top: MediaQuery.of(context).size.height * 0.15,
+              top: MediaQuery.of(context).size.height * 0.37,
               left: 0,
               right: 0,
               child: Center(
@@ -146,8 +145,7 @@ class ProfileScreen extends StatelessWidget {
               right: MediaQuery.of(context).size.width * 0.05,
               child: Consumer<PerfilFormProvider>(
                 builder: (context, perfilForm, child) {
-                  final nombreQi =
-                      loginService.selectedEmpresa.nombreQi ?? '';
+                  final nombreQi = loginService.selectedEmpresa.nombreQi ?? '';
                   return GestureDetector(
                     onTap: () => _showPhotoOptions(context, nombreQi),
                     child: Container(
@@ -177,7 +175,7 @@ class ProfileScreen extends StatelessWidget {
 
             // Contenido con pestañas
             Positioned(
-              top: MediaQuery.of(context).size.height * 0.25,
+              top: MediaQuery.of(context).size.height * 0.45,
               left: 0,
               right: 0,
               bottom: 0,
@@ -185,48 +183,47 @@ class ProfileScreen extends StatelessWidget {
                 length: 2,
                 child: Column(
                   children: [
-                    // TabBar personalizado
+                    // TabBar personalizado con estilo sutil
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 20),
                       decoration: BoxDecoration(
                         color: Theme.of(context).cardColor,
-                        borderRadius: BorderRadius.circular(25),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Theme.of(context).shadowColor,
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(
+                          color: Theme.of(context).dividerColor,
+                          width: 1,
+                        ),
                       ),
                       child: TabBar(
                         indicator: BoxDecoration(
-                          color: AppTheme.primaryGreen,
-                          borderRadius: BorderRadius.circular(25),
+                          color: Theme.of(context).dividerColor.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        labelColor: Colors.white,
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        indicatorPadding: const EdgeInsets.all(4),
+                        labelColor: Theme.of(context).textTheme.bodyLarge?.color,
                         unselectedLabelColor: Theme.of(context).textTheme.bodyMedium?.color,
                         labelStyle: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
                         ),
                         unselectedLabelStyle: const TextStyle(
-                          fontWeight: FontWeight.normal,
-                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 14,
                         ),
                         tabs: const [
                           Tab(
-                            icon: Icon(Icons.person_outline),
+                            icon: Icon(Icons.person_outline, size: 20),
                             text: 'Información',
                           ),
                           Tab(
-                            icon: Icon(Icons.edit_outlined),
+                            icon: Icon(Icons.edit_outlined, size: 20),
                             text: 'Editar',
                           ),
                         ],
                       ),
                     ),
-                    
+
                     // Contenido de las pestañas
                     Expanded(
                       child: TabBarView(
@@ -238,7 +235,7 @@ class ProfileScreen extends StatelessWidget {
                               userData: perfilForm.userDataLogged,
                             ),
                           ),
-                          
+
                           // Pestaña de Editar
                           SingleChildScrollView(
                             padding: const EdgeInsets.all(20),
