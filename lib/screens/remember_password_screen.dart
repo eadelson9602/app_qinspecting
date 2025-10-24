@@ -63,7 +63,8 @@ class _FormLogin extends StatelessWidget {
                 decoration: InputDecorations.authInputDecorations(
                     hintText: '',
                     labelText: 'Usuario',
-                    prefixIcon: Icons.person),
+                    prefixIcon: Icons.person,
+                    context: context),
               ),
               const _ButtonRememberAccount(),
               TextButton(

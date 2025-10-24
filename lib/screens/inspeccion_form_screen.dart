@@ -49,7 +49,8 @@ class _InspeccionFormState extends State<InspeccionForm> {
                   decoration: InputDecorations.authInputDecorations(
                       prefixIcon: Icons.local_shipping,
                       hintText: '',
-                      labelText: 'Placa del vehículo'),
+                      labelText: 'Placa del vehículo',
+                      context: context),
                   validator: (value) {
                     if (value == null) return 'Seleccione una placa';
                     return null;
@@ -79,7 +80,8 @@ class _InspeccionFormState extends State<InspeccionForm> {
                   decoration: InputDecorations.authInputDecorations(
                       prefixIcon: Icons.place,
                       hintText: '',
-                      labelText: 'Departamento de inspección'),
+                      labelText: 'Departamento de inspección',
+                      context: context),
                   validator: (value) {
                     if (value == null) return 'Seleccione un departamento';
                     return null;
@@ -100,7 +102,8 @@ class _InspeccionFormState extends State<InspeccionForm> {
                   decoration: InputDecorations.authInputDecorations(
                       prefixIcon: Icons.location_city,
                       hintText: '',
-                      labelText: 'Ciudad de inspección'),
+                      labelText: 'Ciudad de inspección',
+                      context: context),
                   validator: (value) {
                     if (value == null) return 'Seleccione una ciudad';
                     return null;
@@ -136,7 +139,8 @@ class _InspeccionFormState extends State<InspeccionForm> {
                 decoration: InputDecorations.authInputDecorations(
                     hintText: '',
                     labelText: 'Kilometraje',
-                    prefixIcon: Icons.speed),
+                    prefixIcon: Icons.speed,
+                    context: context),
               ),
               const SizedBox(
                 height: 16,

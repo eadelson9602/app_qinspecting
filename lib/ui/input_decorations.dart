@@ -6,35 +6,65 @@ class InputDecorations {
       {required String hintText,
       required String labelText,
       IconData? prefixIcon,
-      Widget? suffixIcon}) {
+      Widget? suffixIcon,
+      BuildContext? context}) {
     return InputDecoration(
         filled: true,
-        fillColor: AppTheme.surfaceColor,
+        fillColor: context != null 
+            ? Theme.of(context).inputDecorationTheme.fillColor
+            : AppTheme.surfaceColor,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(
+            color: context != null 
+                ? Theme.of(context).inputDecorationTheme.enabledBorder?.borderSide.color ?? Colors.grey.shade300
+                : Colors.grey.shade300
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppTheme.primaryGreen, width: 2),
+          borderSide: BorderSide(
+            color: context != null 
+                ? Theme.of(context).inputDecorationTheme.focusedBorder?.borderSide.color ?? AppTheme.primaryGreen
+                : AppTheme.primaryGreen, 
+            width: 2
+          ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppTheme.errorColor),
+          borderSide: BorderSide(
+            color: context != null 
+                ? Theme.of(context).inputDecorationTheme.errorBorder?.borderSide.color ?? AppTheme.errorColor
+                : AppTheme.errorColor
+          ),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppTheme.errorColor, width: 2),
+          borderSide: BorderSide(
+            color: context != null 
+                ? Theme.of(context).inputDecorationTheme.focusedErrorBorder?.borderSide.color ?? AppTheme.errorColor
+                : AppTheme.errorColor, 
+            width: 2
+          ),
         ),
         hintText: hintText,
         labelText: labelText,
         labelStyle: TextStyle(
-          color: Colors.grey.shade600,
+          color: context != null 
+              ? Theme.of(context).inputDecorationTheme.labelStyle?.color ?? Colors.grey.shade600
+              : Colors.grey.shade600,
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
+        floatingLabelStyle: TextStyle(
+          color: context != null 
+              ? Theme.of(context).inputDecorationTheme.floatingLabelStyle?.color ?? AppTheme.primaryGreen
+              : AppTheme.primaryGreen,
+        ),
         hintStyle: TextStyle(
-          color: Colors.grey.shade500,
+          color: context != null 
+              ? Theme.of(context).inputDecorationTheme.hintStyle?.color ?? Colors.grey.shade500
+              : Colors.grey.shade500,
           fontSize: 14,
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),

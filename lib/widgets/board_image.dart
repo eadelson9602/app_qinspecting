@@ -28,9 +28,31 @@ class BoardImage extends StatelessWidget {
           ]);
   Widget getImage(String? picture) {
     if (picture == null) {
-      return Image(
-        image: AssetImage('assets/images/no-image.png'),
-        // fit: BoxFit.cover,
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.camera_alt_outlined,
+                size: 80,
+                color: Colors.grey[600],
+              ),
+              SizedBox(height: 8),
+              Text(
+                'No hay imagen',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        ),
       );
     }
     return Image.file(

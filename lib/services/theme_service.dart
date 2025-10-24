@@ -181,8 +181,9 @@ class ThemeService extends ChangeNotifier {
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(color: const Color(0xFF39FF14), width: 2),
       ),
-      labelStyle: TextStyle(color: const Color(0xFFA0A0A0)),
+      labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.w500), // Blanco para mejor contraste
       hintStyle: TextStyle(color: const Color(0xFF808080)),
+      floatingLabelStyle: TextStyle(color: const Color(0xFF39FF14)), // Verde cuando está enfocado
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: const Color(0xFF121212), // Mismo color que el fondo principal
