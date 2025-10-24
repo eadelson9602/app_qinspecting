@@ -280,12 +280,10 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
                 items: inspeccionProvider.departamentos.map((departamento) {
                   return DropdownMenuItem<int>(
                     value: departamento.value,
-                    child: Flexible(
-                      child: Text(
-                        departamento.label,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
+                    child: Text(
+                      departamento.label,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
                   );
                 }).toList(),
@@ -328,12 +326,10 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
                 items: inspeccionProvider.ciudades.map((ciudad) {
                   return DropdownMenuItem<int>(
                     value: ciudad.value,
-                    child: Flexible(
-                      child: Text(
-                        ciudad.label,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
+                    child: Text(
+                      ciudad.label,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
                   );
                 }).toList(),
@@ -369,30 +365,24 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
                 items: const [
                   DropdownMenuItem(
                       value: 'CC',
-                      child: Flexible(
-                        child: Text(
-                          'Cédula de Ciudadanía',
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
+                      child: Text(
+                        'Cédula de Ciudadanía',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       )),
                   DropdownMenuItem(
                       value: 'CE',
-                      child: Flexible(
-                        child: Text(
-                          'Cédula de Extranjería',
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
+                      child: Text(
+                        'Cédula de Extranjería',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       )),
                   DropdownMenuItem(
                       value: 'TI',
-                      child: Flexible(
-                        child: Text(
-                          'Tarjeta de Identidad',
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
+                      child: Text(
+                        'Tarjeta de Identidad',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       )),
                 ],
                 onChanged: (value) {

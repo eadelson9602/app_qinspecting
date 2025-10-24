@@ -5,6 +5,7 @@ import 'package:app_qinspecting/models/models.dart';
 class PerfilFormProvider extends ChangeNotifier {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
+  bool isUploadingPhoto = true;
   UserData? userDataLogged;
 
   updateProfile(UserData value) {
@@ -13,6 +14,11 @@ class PerfilFormProvider extends ChangeNotifier {
     userDataLogged = value;
     notifyListeners();
     print('[PERFIL FORM] Perfil actualizado y notificado');
+  }
+
+  updateProfilePhoto(bool value) {
+    isUploadingPhoto = value;
+    notifyListeners();
   }
 
   updateGenero(String value) {

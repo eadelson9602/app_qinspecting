@@ -12,9 +12,14 @@ import 'package:app_qinspecting/ui/app_theme.dart';
 import 'package:app_qinspecting/widgets/profile/profile_widgets.dart';
 import 'package:app_qinspecting/models/models.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
 
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final loginService = Provider.of<LoginService>(context, listen: true);
@@ -34,165 +39,207 @@ class ProfileScreen extends StatelessWidget {
       });
     }
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: ConstrainedBox(
-        constraints: BoxConstraints(
-          minHeight: MediaQuery.of(context).size.height -
-              MediaQuery.of(context).padding.top -
-              MediaQuery.of(context).padding.bottom,
-        ),
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height *
-                1.54, // Altura suficiente para scroll
-            child: Stack(
-              children: [
-                // Header con gradiente y avatar
-                Consumer<PerfilFormProvider>(
-                  builder: (context, perfilForm, child) {
-                    final nombreQi =
-                        loginService.selectedEmpresa.nombreQi ?? '';
-                    return ModernHeader(
-                      userPhoto: perfilForm.getDisplayImage(),
-                      onPhotoTap: () => _showPhotoOptions(context, nombreQi),
-                    );
-                  },
-                ),
+    print('[PROFILE SCREEN] isUploadingPhoto: ${perfilForm.isUploadingPhoto}');
 
-                // Nombre del usuario
-                Positioned(
-                  top: MediaQuery.of(context).size.height * 0.34,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: Text(
-                      '${perfilForm.userDataLogged?.nombres}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
+    return Stack(
+      children: [
+        // Loader overlay para subida de foto
+        if (perfilForm.isUploadingPhoto)
+          Container(
+            color: Colors.black.withValues(alpha: 0.5),
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        AppTheme.primaryGreen,
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                  ),
-                ),
-
-                // Apellido del usuario
-                Positioned(
-                  top: MediaQuery.of(context).size.height * 0.37,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: Text(
-                      '${perfilForm.userDataLogged?.apellidos}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                      textAlign: TextAlign.center,
+                    const SizedBox(height: 16),
+                    Text(
+                      'Actualizando foto de perfil...',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Theme.of(context).textTheme.bodyLarge?.color,
+                            fontWeight: FontWeight.w500,
+                          ),
                     ),
-                  ),
+                  ],
                 ),
+              ),
+            ),
+          ),
 
-                // Avatar flotante con z-index alto
-                Positioned(
-                  top: MediaQuery.of(context).size.height * 0.17,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: Consumer<PerfilFormProvider>(
+        // Body del perfil
+        Scaffold(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          body: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top -
+                  MediaQuery.of(context).padding.bottom,
+            ),
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height *
+                    1.54, // Altura suficiente para scroll
+                child: Stack(
+                  children: [
+                    // Header con gradiente y avatar
+                    Consumer<PerfilFormProvider>(
                       builder: (context, perfilForm, child) {
                         final nombreQi =
                             loginService.selectedEmpresa.nombreQi ?? '';
-                        return GestureDetector(
-                          onTap: () => _showPhotoOptions(context, nombreQi),
-                          child: Container(
-                            width: 120,
-                            height: 120,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(60),
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 4,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.2),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 10),
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(56),
-                              child: Consumer<LoginFormProvider>(
-                                builder: (context, imageProvider, child) {
-                                  return imageProvider
-                                      .getImage(perfilForm.getDisplayImage());
-                                },
-                              ),
-                            ),
-                          ),
+                        return ModernHeader(
+                          userPhoto: perfilForm.getDisplayImage(),
+                          onPhotoTap: () =>
+                              _showPhotoOptions(context, nombreQi),
                         );
                       },
                     ),
-                  ),
-                ),
 
-                // Botón de cámara flotante
-                Positioned(
-                  top: MediaQuery.of(context).size.height * 0.18,
-                  right: MediaQuery.of(context).size.width * 0.05,
-                  child: Consumer<PerfilFormProvider>(
-                    builder: (context, perfilForm, child) {
-                      final nombreQi =
-                          loginService.selectedEmpresa.nombreQi ?? '';
-                      return GestureDetector(
-                        onTap: () => _showPhotoOptions(context, nombreQi),
-                        child: Container(
-                          width: 30,
-                          height: 30,
-                          decoration: BoxDecoration(
+                    // Nombre del usuario
+                    Positioned(
+                      top: MediaQuery.of(context).size.height * 0.34,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Text(
+                          '${perfilForm.userDataLogged?.nombres}',
+                          style: const TextStyle(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(15),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.1),
-                                blurRadius: 6,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
                           ),
-                          child: const Icon(
-                            Icons.camera_alt,
-                            color: Colors.black54,
-                            size: 16,
-                          ),
+                          textAlign: TextAlign.center,
                         ),
-                      );
-                    },
-                  ),
-                ),
+                      ),
+                    ),
 
-                // Formulario de perfil
-                Positioned(
-                  top: MediaQuery.of(context).size.height * 0.42,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: const ModernFormProfile(),
+                    // Apellido del usuario
+                    Positioned(
+                      top: MediaQuery.of(context).size.height * 0.37,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Text(
+                          '${perfilForm.userDataLogged?.apellidos}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+
+                    // Avatar flotante con z-index alto
+                    Positioned(
+                      top: MediaQuery.of(context).size.height * 0.17,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Consumer<PerfilFormProvider>(
+                          builder: (context, perfilForm, child) {
+                            final nombreQi =
+                                loginService.selectedEmpresa.nombreQi ?? '';
+                            return GestureDetector(
+                              onTap: () => _showPhotoOptions(context, nombreQi),
+                              child: Container(
+                                width: 120,
+                                height: 120,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(60),
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 4,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.2),
+                                      blurRadius: 20,
+                                      offset: const Offset(0, 10),
+                                    ),
+                                  ],
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(56),
+                                  child: Consumer<LoginFormProvider>(
+                                    builder: (context, imageProvider, child) {
+                                      return imageProvider.getImage(
+                                          perfilForm.getDisplayImage());
+                                    },
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+
+                    // Botón de cámara flotante
+                    Positioned(
+                      top: MediaQuery.of(context).size.height * 0.18,
+                      right: MediaQuery.of(context).size.width * 0.05,
+                      child: Consumer<PerfilFormProvider>(
+                        builder: (context, perfilForm, child) {
+                          final nombreQi =
+                              loginService.selectedEmpresa.nombreQi ?? '';
+                          return GestureDetector(
+                            onTap: () => _showPhotoOptions(context, nombreQi),
+                            child: Container(
+                              width: 30,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(15),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.1),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt,
+                                color: Colors.black54,
+                                size: 16,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+
+                    // Formulario de perfil
+                    Positioned(
+                      top: MediaQuery.of(context).size.height * 0.42,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: const ModernFormProfile(),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 
@@ -531,6 +578,8 @@ class ProfileScreen extends StatelessWidget {
   /// Función para subir imagen directamente sin depender del contexto
   Future<void> _uploadImageDirectly(
       BuildContext context, String imagePath) async {
+    final perfilForm = Provider.of<PerfilFormProvider>(context, listen: false);
+    perfilForm.updateProfilePhoto(true);
     try {
       final loginService = Provider.of<LoginService>(context, listen: false);
 
@@ -559,6 +608,8 @@ class ProfileScreen extends StatelessWidget {
       }
     } catch (e) {
       print('[PHOTO DIRECT] ❌ Error al subir imagen: $e');
+    } finally {
+      perfilForm.updateProfilePhoto(false);
     }
   }
 
