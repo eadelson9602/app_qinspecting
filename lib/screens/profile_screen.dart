@@ -22,6 +22,17 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  bool _hasInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Solo cargar después del primer frame para evitar setState durante build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadInitialUserData();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final loginService = Provider.of<LoginService>(context, listen: true);
@@ -43,7 +54,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
     }
 
+    // Verificar si necesitamos cargar datos iniciales
+    if (!perfilForm.hasCompleteData &&
+        !perfilForm.isLoadingInitialData &&
+        !_hasInitialized) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadInitialUserData();
+      });
+    }
+
+    // Si los datos están completos pero el loader sigue activo, ocultarlo
+    if (perfilForm.hasCompleteData && perfilForm.isLoadingInitialData) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        perfilForm.finishLoadingInitialData();
+      });
+    }
+
     print('[PROFILE SCREEN] isUploadingPhoto: ${perfilForm.isUploadingPhoto}');
+    print(
+        '[PROFILE SCREEN] isLoadingInitialData: ${perfilForm.isLoadingInitialData}');
+    print('[PROFILE SCREEN] hasCompleteData: ${perfilForm.hasCompleteData}');
 
     return // Body del perfil
         Scaffold(
@@ -82,15 +112,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         left: 0,
                         right: 0,
                         child: Center(
-                          child: Text(
-                            '${perfilForm.userDataLogged?.nombres}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
-                            ),
-                            textAlign: TextAlign.center,
+                          child: Consumer<PerfilFormProvider>(
+                            builder: (context, perfilForm, child) {
+                              // Fallback al LoginService si PerfilFormProvider no tiene datos
+                              final nombres =
+                                  perfilForm.userDataLogged?.nombres ??
+                                      Provider.of<LoginService>(context,
+                                              listen: false)
+                                          .userDataLogged
+                                          .nombres ??
+                                      'Cargando...';
+                              return Text(
+                                nombres,
+                                style: TextStyle(
+                                  color: Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? Colors.white
+                                      : Colors
+                                          .black, // Mantener blanco para contraste con el gradiente verde
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                ),
+                                textAlign: TextAlign.center,
+                              );
+                            },
                           ),
                         ),
                       ),
@@ -101,15 +147,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         left: 0,
                         right: 0,
                         child: Center(
-                          child: Text(
-                            '${perfilForm.userDataLogged?.apellidos}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
-                            ),
-                            textAlign: TextAlign.center,
+                          child: Consumer<PerfilFormProvider>(
+                            builder: (context, perfilForm, child) {
+                              // Fallback al LoginService si PerfilFormProvider no tiene datos
+                              final apellidos =
+                                  perfilForm.userDataLogged?.apellidos ??
+                                      Provider.of<LoginService>(context,
+                                              listen: false)
+                                          .userDataLogged
+                                          .apellidos ??
+                                      'Cargando...';
+                              return Text(
+                                apellidos,
+                                style: TextStyle(
+                                  color: Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? Colors.white
+                                      : Colors
+                                          .black, // Mantener blanco para contraste con el gradiente verde
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                ),
+                                textAlign: TextAlign.center,
+                              );
+                            },
                           ),
                         ),
                       ),
@@ -131,10 +193,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   width: 120,
                                   height: 120,
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? Colors.grey[800]
+                                        : Colors.white,
                                     borderRadius: BorderRadius.circular(60),
                                     border: Border.all(
-                                      color: Colors.white,
+                                      color: Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? Colors.grey[600]!
+                                          : Colors.white,
                                       width: 4,
                                     ),
                                     boxShadow: [
@@ -176,7 +244,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 width: 30,
                                 height: 30,
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? Colors.grey[700]
+                                      : Colors.white,
                                   borderRadius: BorderRadius.circular(15),
                                   boxShadow: [
                                     BoxShadow(
@@ -218,6 +289,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: CustomLoadingTruck(
                       progress: loadingProgress.progress,
                       message: loadingProgress.message,
+                      primaryColor: AppTheme.primaryGreen,
+                      backgroundColor: Theme.of(context).cardColor,
+                    ),
+                  ),
+                ),
+
+              // Loader overlay para carga inicial de datos
+              if (perfilForm.isLoadingInitialData)
+                Container(
+                  color: Colors.black.withValues(alpha: 0.9),
+                  child: Center(
+                    child: CustomLoadingTruck(
+                      progress: 0.5, // Progreso fijo para carga inicial
+                      message: 'Cargando datos del usuario...',
                       primaryColor: AppTheme.primaryGreen,
                       backgroundColor: Theme.of(context).cardColor,
                     ),
@@ -475,7 +560,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onPressed: () => Navigator.pop(context, true),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryGreen,
-                  foregroundColor: Colors.white,
+                  foregroundColor: Theme.of(context).brightness ==
+                          Brightness.dark
+                      ? Colors.white
+                      : Colors
+                          .white, // Mantener blanco para contraste con verde
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -548,7 +637,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryGreen,
-              foregroundColor: Colors.white,
+              foregroundColor: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : Colors.white, // Mantener blanco para contraste con verde
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -759,6 +850,107 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     } catch (e) {
       print('[PHOTO PENDING] Error al procesar imagen pendiente: $e');
+    }
+  }
+
+  /// Carga los datos iniciales del usuario desde SQLite
+  Future<void> _loadInitialUserData() async {
+    final perfilForm = Provider.of<PerfilFormProvider>(context, listen: false);
+    final loginService = Provider.of<LoginService>(context, listen: false);
+
+    // Si ya está cargando, no hacer nada
+    if (perfilForm.isLoadingInitialData) {
+      print('[LOAD INITIAL DATA] Ya está cargando, omitiendo...');
+      return;
+    }
+
+    print('[LOAD INITIAL DATA] Iniciando carga de datos iniciales...');
+    print('[LOAD INITIAL DATA] hasCompleteData: ${perfilForm.hasCompleteData}');
+    print(
+        '[LOAD INITIAL DATA] LoginService nombres: ${loginService.userDataLogged.nombres}');
+
+    // Solo cargar si no hay datos completos
+    if (!perfilForm.hasCompleteData) {
+      perfilForm.startLoadingInitialData();
+
+      try {
+        // Verificar primero si ya hay datos válidos en LoginService
+        if (loginService.userDataLogged.nombres != null &&
+            loginService.userDataLogged.nombres!.isNotEmpty &&
+            loginService.userDataLogged.apellidos != null &&
+            loginService.userDataLogged.apellidos!.isNotEmpty) {
+          print(
+              '[LOAD INITIAL DATA] Datos válidos encontrados en LoginService');
+          // Usar addPostFrameCallback para evitar setState durante build
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            perfilForm.updateProfile(loginService.userDataLogged);
+            // Finalizar loading inmediatamente después de actualizar
+            perfilForm.finishLoadingInitialData();
+            // Forzar reconstrucción del widget
+            if (mounted) {
+              setState(() {});
+            }
+          });
+        } else {
+          print(
+              '[LOAD INITIAL DATA] Datos incompletos en LoginService, cargando desde SQLite...');
+          // Intentar cargar desde SQLite usando datos almacenados
+          final storage = FlutterSecureStorage();
+          final numeroDocumento =
+              await storage.read(key: 'numeroDocumento') ?? '';
+          final password = await storage.read(key: 'password') ?? '';
+          final base = await storage.read(key: 'base') ?? '';
+
+          print(
+              '[LOAD INITIAL DATA] Datos de storage - Doc: $numeroDocumento, Base: $base');
+
+          if (numeroDocumento.isNotEmpty &&
+              password.isNotEmpty &&
+              base.isNotEmpty) {
+            print('[LOAD INITIAL DATA] Cargando desde SQLite...');
+            final userData =
+                await DBProvider.db.getUser(numeroDocumento, password, base);
+
+            if (userData != null) {
+              print(
+                  '[LOAD INITIAL DATA] Datos cargados desde SQLite: ${userData.nombres} ${userData.apellidos}');
+              // Usar addPostFrameCallback para evitar setState durante build
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                perfilForm.updateProfile(userData);
+                loginService.userDataLogged = userData;
+                // Finalizar loading inmediatamente después de actualizar
+                perfilForm.finishLoadingInitialData();
+                // Forzar reconstrucción del widget
+                if (mounted) {
+                  setState(() {});
+                }
+              });
+            } else {
+              print('[LOAD INITIAL DATA] ❌ No se encontraron datos en SQLite');
+            }
+          } else {
+            print(
+                '[LOAD INITIAL DATA] ❌ Datos de autenticación incompletos en storage');
+          }
+        }
+
+        // Simular tiempo mínimo para mostrar el loader
+        await Future.delayed(const Duration(milliseconds: 300));
+      } catch (e) {
+        print('[LOAD INITIAL DATA] ❌ Error al cargar datos iniciales: $e');
+      } finally {
+        // Solo finalizar loading si aún está activo
+        if (perfilForm.isLoadingInitialData) {
+          perfilForm.finishLoadingInitialData();
+        }
+        print('[LOAD INITIAL DATA] ✅ Carga de datos iniciales completada');
+      }
+    } else {
+      print('[LOAD INITIAL DATA] Datos ya están completos, omitiendo carga');
+      // Si los datos ya están completos pero el loader está activo, ocultarlo
+      if (perfilForm.isLoadingInitialData) {
+        perfilForm.finishLoadingInitialData();
+      }
     }
   }
 }

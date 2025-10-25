@@ -6,6 +6,7 @@ class PerfilFormProvider extends ChangeNotifier {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   bool isUploadingPhoto = false;
+  bool isLoadingInitialData = false;
   UserData? userDataLogged;
 
   updateProfile(UserData value) {
@@ -39,5 +40,40 @@ class PerfilFormProvider extends ChangeNotifier {
 
   bool isValidForm() {
     return formKey.currentState?.validate() ?? false;
+  }
+
+  /// Inicia la carga de datos iniciales
+  void startLoadingInitialData() {
+    isLoadingInitialData = true;
+    notifyListeners();
+  }
+
+  /// Finaliza la carga de datos iniciales
+  void finishLoadingInitialData() {
+    isLoadingInitialData = false;
+    notifyListeners();
+  }
+
+  /// Verifica si los datos están completamente cargados
+  bool get hasCompleteData {
+    if (userDataLogged == null) {
+      print('[PERFIL FORM] hasCompleteData: false - userDataLogged es null');
+      return false;
+    }
+
+    final hasNames =
+        userDataLogged!.nombres != null && userDataLogged!.nombres!.isNotEmpty;
+    final hasSurnames = userDataLogged!.apellidos != null &&
+        userDataLogged!.apellidos!.isNotEmpty;
+    final hasEmail =
+        userDataLogged!.email != null && userDataLogged!.email!.isNotEmpty;
+    final hasPhone = userDataLogged!.numeroCelular != null &&
+        userDataLogged!.numeroCelular!.isNotEmpty;
+
+    final result = hasNames && hasSurnames && hasEmail && hasPhone;
+    print(
+        '[PERFIL FORM] hasCompleteData: $result - Names: $hasNames, Surnames: $hasSurnames, Email: $hasEmail, Phone: $hasPhone');
+
+    return result;
   }
 }

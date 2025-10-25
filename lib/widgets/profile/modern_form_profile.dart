@@ -16,6 +16,11 @@ class ModernFormProfile extends StatefulWidget {
 class _ModernFormProfileState extends State<ModernFormProfile> {
   String? _fechaNacimiento;
   late final TextEditingController _fechaCtrl;
+  late final TextEditingController _nombresCtrl;
+  late final TextEditingController _apellidosCtrl;
+  late final TextEditingController _emailCtrl;
+  late final TextEditingController _celularCtrl;
+  late final TextEditingController _numeroDocumentoCtrl;
   int? _selectedDepartamentoId;
   int? _selectedCiudadId;
   Timer? _loadDataTimer;
@@ -24,6 +29,8 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
   void initState() {
     super.initState();
     final perfilForm = Provider.of<PerfilFormProvider>(context, listen: false);
+
+    // Inicializar controladores con datos del provider
     _fechaNacimiento = perfilForm.userDataLogged?.fechaNacimiento;
     final normalized = (_fechaNacimiento == null ||
             _fechaNacimiento!.isEmpty ||
@@ -32,6 +39,18 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
         ? ''
         : _fechaNacimiento!;
     _fechaCtrl = TextEditingController(text: normalized);
+
+    // Inicializar controladores para los campos principales
+    _nombresCtrl =
+        TextEditingController(text: perfilForm.userDataLogged?.nombres ?? '');
+    _apellidosCtrl =
+        TextEditingController(text: perfilForm.userDataLogged?.apellidos ?? '');
+    _emailCtrl =
+        TextEditingController(text: perfilForm.userDataLogged?.email ?? '');
+    _celularCtrl = TextEditingController(
+        text: perfilForm.userDataLogged?.numeroCelular ?? '');
+    _numeroDocumentoCtrl = TextEditingController(
+        text: perfilForm.userDataLogged?.numeroDocumento ?? '');
 
     // Cargar datos iniciales con un delay para asegurar que el widget esté montado
     _loadDataTimer = Timer(const Duration(milliseconds: 100), () {
@@ -45,7 +64,38 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
   void dispose() {
     _loadDataTimer?.cancel();
     _fechaCtrl.dispose();
+    _nombresCtrl.dispose();
+    _apellidosCtrl.dispose();
+    _emailCtrl.dispose();
+    _celularCtrl.dispose();
+    _numeroDocumentoCtrl.dispose();
     super.dispose();
+  }
+
+  /// Actualiza los controladores cuando los datos del provider cambien
+  void _updateControllersFromProvider() {
+    final perfilForm = Provider.of<PerfilFormProvider>(context, listen: false);
+
+    if (perfilForm.userDataLogged != null) {
+      _nombresCtrl.text = perfilForm.userDataLogged!.nombres ?? '';
+      _apellidosCtrl.text = perfilForm.userDataLogged!.apellidos ?? '';
+      _emailCtrl.text = perfilForm.userDataLogged!.email ?? '';
+      _celularCtrl.text = perfilForm.userDataLogged!.numeroCelular ?? '';
+      _numeroDocumentoCtrl.text =
+          perfilForm.userDataLogged!.numeroDocumento ?? '';
+
+      // Actualizar fecha de nacimiento
+      _fechaNacimiento = perfilForm.userDataLogged!.fechaNacimiento;
+      final normalized = (_fechaNacimiento == null ||
+              _fechaNacimiento!.isEmpty ||
+              _fechaNacimiento == '0000-00-00' ||
+              _fechaNacimiento == '000-00-00')
+          ? ''
+          : _fechaNacimiento!;
+      _fechaCtrl.text = normalized;
+
+      print('[MODERN FORM] Controladores actualizados con datos del provider');
+    }
   }
 
   Future<void> _loadInitialData() async {
@@ -60,6 +110,9 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
           Provider.of<InspeccionProvider>(context, listen: false);
       final perfilForm =
           Provider.of<PerfilFormProvider>(context, listen: false);
+
+      // Actualizar controladores con datos del provider
+      _updateControllersFromProvider();
 
       // Cargar departamentos
       await inspeccionProvider.listarDepartamentos();
@@ -146,6 +199,13 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
         Provider.of<InspeccionProvider>(context, listen: true);
     final userData = perfilForm.userDataLogged;
 
+    // Actualizar controladores cuando los datos del provider cambien
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _updateControllersFromProvider();
+      }
+    });
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       decoration: BoxDecoration(
@@ -177,7 +237,7 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
 
               // Nombres
               TextFormField(
-                initialValue: userData?.nombres ?? '',
+                controller: _nombresCtrl,
                 decoration: InputDecorations.authInputDecorations(
                   hintText: 'Nombres',
                   labelText: 'Nombres',
@@ -198,7 +258,7 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
 
               // Apellidos
               TextFormField(
-                initialValue: userData?.apellidos ?? '',
+                controller: _apellidosCtrl,
                 decoration: InputDecorations.authInputDecorations(
                   hintText: 'Apellidos',
                   labelText: 'Apellidos',
@@ -219,7 +279,7 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
 
               // Email
               TextFormField(
-                initialValue: userData?.email ?? '',
+                controller: _emailCtrl,
                 decoration: InputDecorations.authInputDecorations(
                   hintText: 'Correo electrónico',
                   labelText: 'Email',
@@ -245,7 +305,7 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
 
               // Número de celular
               TextFormField(
-                initialValue: userData?.numeroCelular ?? '',
+                controller: _celularCtrl,
                 decoration: InputDecorations.authInputDecorations(
                   hintText: 'Número de celular',
                   labelText: 'Celular',
@@ -399,7 +459,7 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
 
               // Número de documento
               TextFormField(
-                initialValue: userData?.numeroDocumento ?? '',
+                controller: _numeroDocumentoCtrl,
                 enabled: false,
                 decoration: InputDecorations.authInputDecorations(
                   hintText: 'Número de documento',
