@@ -13,7 +13,7 @@ class BoardImage extends StatelessWidget {
       width: double.infinity,
       child: ClipRRect(
         borderRadius: BorderRadius.all(Radius.circular(15)),
-        child: getImage(url),
+        child: getImage(url, context),
       ),
     );
   }
@@ -26,11 +26,12 @@ class BoardImage extends StatelessWidget {
                 blurRadius: 2,
                 offset: Offset(0, 5))
           ]);
-  Widget getImage(String? picture) {
+  Widget getImage(String? picture, BuildContext context) {
     if (picture == null) {
+      final isDark = Theme.of(context).brightness == Brightness.dark;
       return Container(
         decoration: BoxDecoration(
-          color: Colors.grey[200],
+          color: isDark ? Colors.grey[800] : Colors.grey[200],
           borderRadius: BorderRadius.circular(15),
         ),
         child: Center(
@@ -40,13 +41,13 @@ class BoardImage extends StatelessWidget {
               Icon(
                 Icons.camera_alt_outlined,
                 size: 80,
-                color: Colors.grey[600],
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
               ),
               SizedBox(height: 8),
               Text(
                 'No hay imagen',
                 style: TextStyle(
-                  color: Colors.grey[600],
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
                   fontSize: 16,
                 ),
               ),

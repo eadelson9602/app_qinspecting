@@ -177,6 +177,12 @@ class DesktopScreen extends StatelessWidget {
     final loginService = Provider.of<LoginService>(context, listen: false);
     final inspeccionService =
         Provider.of<InspeccionService>(context, listen: false);
+    final inspeccionProvider =
+        Provider.of<InspeccionProvider>(context, listen: false);
+
+    if (inspeccionProvider.vehiculoSelected?.modelo != null) {
+      inspeccionProvider.clearData();
+    }
 
     return Column(
       children: [

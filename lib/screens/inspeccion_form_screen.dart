@@ -145,7 +145,14 @@ class _InspeccionFormState extends State<InspeccionForm> {
               const SizedBox(
                 height: 16,
               ),
-              Text('Foto kilometraje'),
+              Text(
+                'Foto kilometraje',
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
               Stack(
                 children: [
                   BoardImage(url: inspeccionProvider.pathFileKilometraje),
@@ -188,7 +195,14 @@ class _InspeccionFormState extends State<InspeccionForm> {
               const SizedBox(
                 height: 16,
               ),
-              Text('Foto Cabezote'),
+              Text(
+                'Foto Cabezote',
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
               Stack(
                 children: [
                   BoardImage(url: inspeccionProvider.pathFileCabezote),
@@ -304,7 +318,9 @@ class _InspeccionFormState extends State<InspeccionForm> {
                       content: Text(
                         message,
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
+                        style: TextStyle(
+                            color:
+                                Theme.of(context).textTheme.bodyLarge?.color),
                       ),
                       duration: const Duration(seconds: 2),
                       width: 280.0,
