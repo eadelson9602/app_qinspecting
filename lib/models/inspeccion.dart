@@ -21,6 +21,7 @@ class ResumenPreoperacional {
     this.respuestas,
     this.urlFotoRemolque,
     this.urlFotoCabezote,
+    this.positionGps,
     this.enviado,
     this.fechaEnvio,
     this.eliminado,
@@ -37,6 +38,7 @@ class ResumenPreoperacional {
   String? urlFotoKm;
   String? urlFotoRemolque;
   String? urlFotoCabezote;
+  String? positionGps;
   String? usuarioPreoperacional;
   String? numeroGuia;
   String? urlFotoGuia;
@@ -68,6 +70,7 @@ class ResumenPreoperacional {
           urlFotoKm: json["urlFotoKm"],
           urlFotoRemolque: json["urlFotoRemolque"],
           urlFotoCabezote: json["urlFotoCabezote"],
+          positionGps: json["positionGps"],
           usuarioPreoperacional: json["usuarioPreoperacional"],
           numeroGuia: json["numeroGuia"],
           urlFotoGuia: json["urlFotoGuia"],
@@ -98,6 +101,7 @@ class ResumenPreoperacional {
         "placaRemolque": placaRemolque,
         "urlFotoCabezote": urlFotoCabezote,
         "urlFotoRemolque": urlFotoRemolque,
+        "positionGps": positionGps,
         "idCiudad": idCiudad,
         "ciudad": ciudad,
         "base": base,
@@ -107,7 +111,6 @@ class ResumenPreoperacional {
         "eliminado": eliminado,
         "fechaEliminacion": fechaEliminacion
       };
-}
 
 class Respuesta {
   Respuesta({
