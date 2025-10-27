@@ -37,6 +37,118 @@ class _InspeccionFormState extends State<InspeccionForm> {
     return formKey.currentState?.validate() ?? false;
   }
 
+  /// Muestra bottom sheet para seleccionar fuente de imagen
+  void _showImageSourceBottomSheet(
+    BuildContext context, {
+    required String tipo,
+    required Function(String path) onImageSelected,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 16),
+              Text(
+                'Seleccionar $tipo',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                ),
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                leading: const Icon(Icons.camera_alt, size: 28),
+                title: const Text('Tomar foto'),
+                subtitle: const Text('Usar la cámara del dispositivo'),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  await _selectImageFromSource(
+                    ImageSource.camera,
+                    tipo,
+                    onImageSelected,
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library, size: 28),
+                title: const Text('Galeria'),
+                subtitle: const Text('Seleccionar de la galería'),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  await _selectImageFromSource(
+                    ImageSource.gallery,
+                    tipo,
+                    onImageSelected,
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// Selecciona una imagen desde la fuente especificada
+  Future<void> _selectImageFromSource(
+    ImageSource source,
+    String tipo,
+    Function(String path) onImageSelected,
+  ) async {
+    try {
+      final _picker = ImagePicker();
+      print('[pick] solicitando $tipo desde ${source == ImageSource.camera ? "cámara" : "galería"}...');
+      
+      final XFile? photo = await _picker.pickImage(
+        source: source,
+        imageQuality: 70,
+        maxWidth: 1080,
+        maxHeight: 1080,
+      );
+
+      if (photo == null) {
+        print('[pick] cancelado $tipo');
+        return;
+      }
+
+      try {
+        print(
+            '[pick] $tipo path=${photo.path} size=${await File(photo.path).length()} bytes');
+      } catch (_) {}
+
+      onImageSelected(photo.path);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Imagen seleccionada correctamente'),
+            duration: const Duration(seconds: 2),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error al seleccionar $tipo: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al seleccionar imagen: $e'),
+            duration: const Duration(seconds: 2),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   /// Obtiene la ubicación GPS actual y busca la ciudad correspondiente
   Future<void> _getCurrentLocation() async {
     setState(() {
@@ -637,24 +749,15 @@ class _InspeccionFormState extends State<InspeccionForm> {
                           final reponsePermission = await inspeccionProvider
                               .requestCameraPermission();
                           if (reponsePermission) {
-                            final _picker = ImagePicker();
-                            print('[pick] solicitando foto kilometraje...');
-                            final XFile? photo = await _picker.pickImage(
-                                source: ImageSource.camera,
-                                imageQuality: 70,
-                                maxWidth: 1080,
-                                maxHeight: 1080);
-                            if (photo == null) {
-                              print('[pick] cancelado foto kilometraje');
-                              return;
-                            }
-                            try {
-                              print(
-                                  '[pick] kilometraje path=${photo.path} size=${await File(photo.path).length()} bytes');
-                            } catch (_) {}
-                            inspeccionService.resumePreoperacional.urlFotoKm =
-                                photo.path;
-                            inspeccionProvider.updateSelectedImage(photo.path);
+                            _showImageSourceBottomSheet(
+                              context,
+                              tipo: 'foto kilometraje',
+                              onImageSelected: (path) {
+                                inspeccionService.resumePreoperacional.urlFotoKm =
+                                    path;
+                                inspeccionProvider.updateSelectedImage(path);
+                              },
+                            );
                           }
                         },
                         icon: Icon(
@@ -687,24 +790,15 @@ class _InspeccionFormState extends State<InspeccionForm> {
                           final reponsePermission = await inspeccionProvider
                               .requestCameraPermission();
                           if (reponsePermission) {
-                            final _picker = ImagePicker();
-                            print('[pick] solicitando foto cabezote...');
-                            final XFile? photo = await _picker.pickImage(
-                                source: ImageSource.camera,
-                                imageQuality: 70,
-                                maxWidth: 1080,
-                                maxHeight: 1080);
-                            if (photo == null) {
-                              print('[pick] cancelado foto cabezote');
-                              return;
-                            }
-                            try {
-                              print(
-                                  '[pick] cabezote path=${photo.path} size=${await File(photo.path).length()} bytes');
-                            } catch (_) {}
-                            inspeccionService.resumePreoperacional
-                                .urlFotoCabezote = photo.path;
-                            inspeccionProvider.updateCabezoteImage(photo.path);
+                            _showImageSourceBottomSheet(
+                              context,
+                              tipo: 'foto cabezote',
+                              onImageSelected: (path) {
+                                inspeccionService.resumePreoperacional
+                                    .urlFotoCabezote = path;
+                                inspeccionProvider.updateCabezoteImage(path);
+                              },
+                            );
                           }
                         },
                         icon: Icon(
