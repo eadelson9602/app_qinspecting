@@ -43,58 +43,69 @@ class _InspeccionFormState extends State<InspeccionForm> {
     required String tipo,
     required Function(String path) onImageSelected,
   }) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (BuildContext context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 16),
-              Text(
-                'Seleccionar $tipo',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: Theme.of(context).cardColor,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (BuildContext context) {
+          return SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 16),
+                Text(
+                  'Seleccionar $tipo',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              ListTile(
-                leading: const Icon(Icons.camera_alt, size: 28),
-                title: const Text('Tomar foto'),
-                subtitle: const Text('Usar la cámara del dispositivo'),
-                onTap: () async {
-                  Navigator.of(context).pop();
-                  await _selectImageFromSource(
-                    ImageSource.camera,
-                    tipo,
-                    onImageSelected,
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_library, size: 28),
-                title: const Text('Galeria'),
-                subtitle: const Text('Seleccionar de la galería'),
-                onTap: () async {
-                  Navigator.of(context).pop();
-                  await _selectImageFromSource(
-                    ImageSource.gallery,
-                    tipo,
-                    onImageSelected,
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        );
-      },
-    );
+                const SizedBox(height: 20),
+                ListTile(
+                  leading: Icon(
+                    Icons.camera_alt,
+                    size: 28,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  title: const Text('Tomar foto'),
+                  subtitle: const Text('Usar la cámara del dispositivo'),
+                  onTap: () async {
+                    Navigator.of(context).pop();
+                    await _selectImageFromSource(
+                      ImageSource.camera,
+                      tipo,
+                      onImageSelected,
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.photo_library,
+                    size: 28,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  title: const Text('Galería'),
+                  subtitle: const Text('Seleccionar de la galería'),
+                  onTap: () async {
+                    Navigator.of(context).pop();
+                    await _selectImageFromSource(
+                      ImageSource.gallery,
+                      tipo,
+                      onImageSelected,
+                    );
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          );
+        },
+      );
+    });
   }
 
   /// Selecciona una imagen desde la fuente especificada
