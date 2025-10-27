@@ -70,11 +70,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
     }
 
-    print('[PROFILE SCREEN] isUploadingPhoto: ${perfilForm.isUploadingPhoto}');
-    print(
-        '[PROFILE SCREEN] isLoadingInitialData: ${perfilForm.isLoadingInitialData}');
-    print('[PROFILE SCREEN] hasCompleteData: ${perfilForm.hasCompleteData}');
-
     return // Body del perfil
         Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
