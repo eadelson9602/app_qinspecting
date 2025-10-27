@@ -419,12 +419,14 @@ class _InspeccionFormState extends State<InspeccionForm> {
                         margin: const EdgeInsets.only(bottom: 8),
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color:
-                              Theme.of(context).primaryColor.withOpacity(0.1),
+                          color: Theme.of(context)
+                              .primaryColor
+                              .withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color:
-                                Theme.of(context).primaryColor.withOpacity(0.3),
+                            color: Theme.of(context)
+                                .primaryColor
+                                .withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(
@@ -487,12 +489,14 @@ class _InspeccionFormState extends State<InspeccionForm> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color:
-                              Theme.of(context).primaryColor.withOpacity(0.1),
+                          color: Theme.of(context)
+                              .primaryColor
+                              .withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color:
-                                Theme.of(context).primaryColor.withOpacity(0.3),
+                            color: Theme.of(context)
+                                .primaryColor
+                                .withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(
@@ -516,7 +520,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                               Icons.lock,
                               color: Theme.of(context)
                                   .primaryColor
-                                  .withOpacity(0.7),
+                                  .withValues(alpha: 0.7),
                               size: 14,
                             ),
                           ],
@@ -526,10 +530,10 @@ class _InspeccionFormState extends State<InspeccionForm> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.1),
+                          color: Colors.red.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: Colors.red.withOpacity(0.3),
+                            color: Colors.red.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(
@@ -556,8 +560,9 @@ class _InspeccionFormState extends State<InspeccionForm> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color:
-                              Theme.of(context).dividerColor.withOpacity(0.1),
+                          color: Theme.of(context)
+                              .dividerColor
+                              .withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
