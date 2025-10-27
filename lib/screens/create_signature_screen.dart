@@ -19,21 +19,26 @@ class CreateSignatureScreen extends StatefulWidget {
 }
 
 class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
-  late SignatureController _controller;
+  SignatureController? _controller;
+  Color _penColor = Colors.black;
 
   @override
-  void initState() {
-    super.initState();
-    _controller = SignatureController(
-      penStrokeWidth: 3,
-      penColor: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
-      exportBackgroundColor: Colors.transparent,
-    );
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Obtener el color del tema y crear el controlador
+    if (_controller == null) {
+      _penColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+      _controller = SignatureController(
+        penStrokeWidth: 3,
+        penColor: _penColor,
+        exportBackgroundColor: Colors.transparent,
+      );
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
@@ -43,6 +48,12 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
     final inspeccionService = Provider.of<InspeccionService>(context);
     final firmaService = Provider.of<FirmaService>(context);
     final loginService = Provider.of<LoginService>(context);
+
+    // Si el controlador aún no está inicializado, mostrar loading
+    if (_controller == null) {
+      return LoadingScreen();
+    }
+
     if (inspeccionService.isSaving) return LoadingScreen();
     return Scaffold(
       body: Container(
@@ -52,7 +63,7 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
             // Área de firma usando la librería signature
             Positioned.fill(
               child: Signature(
-                controller: _controller,
+                controller: _controller!,
                 backgroundColor: Colors.transparent,
                 width: screenSize.width,
                 height: screenSize.height * 0.9,
@@ -97,10 +108,10 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
               icon: const Icon(Icons.check),
               color: Theme.of(context).iconTheme.color,
               onPressed: () async {
-                if (_controller.isNotEmpty) {
+                if (_controller?.isNotEmpty ?? false) {
                   try {
                     inspeccionService.isSaving = true;
-                    final Uint8List? data = await _controller.toPngBytes();
+                    final Uint8List? data = await _controller!.toPngBytes();
                     if (data != null) {
                       final dir = await getExternalStorageDirectory();
                       final myImagePath =
@@ -180,7 +191,7 @@ class _CreateSignatureScreenState extends State<CreateSignatureScreen> {
               icon: const Icon(Icons.clear),
               color: Theme.of(context).iconTheme.color,
               onPressed: () {
-                _controller.clear();
+                _controller?.clear();
               },
             ),
           ],

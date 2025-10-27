@@ -6,7 +6,14 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' show get;
 import 'dart:convert';
 
-import 'package:app_qinspecting/models/models.dart';
+import 'package:app_qinspecting/models/inspeccion.dart';
+import 'package:app_qinspecting/models/empresa.dart';
+import 'package:app_qinspecting/models/departamentos_ciudad.dart';
+import 'package:app_qinspecting/models/vehiculo.dart';
+import 'package:app_qinspecting/models/remolque.dart';
+import 'package:app_qinspecting/models/item_inspeccion.dart';
+import 'package:app_qinspecting/models/user_data.dart';
+import 'package:app_qinspecting/models/pdf.dart';
 import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/services/notification_service.dart';

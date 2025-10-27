@@ -230,13 +230,43 @@ class InspeccionProvider extends ChangeNotifier {
 
   // Validación de permisos
   Future<bool> requestCameraPermission() async {
-    final status = await Permission.camera.request();
+    // Solicitar permiso de cámara
+    final cameraStatus = await Permission.camera.request();
 
-    if (status == PermissionStatus.granted) {
-      return true;
-    } else {
+    if (cameraStatus != PermissionStatus.granted) {
       return await openAppSettings();
     }
+
+    // Solicitar permisos de almacenamiento/fotos para Android
+    if (Platform.isAndroid) {
+      Permission? storagePermission;
+
+      try {
+        // Intentar con Permission.photos (Android 13+)
+        storagePermission = Permission.photos;
+        final photosStatus = await storagePermission.request();
+        if (photosStatus == PermissionStatus.granted) {
+          return true;
+        }
+      } catch (e) {
+        // Fallback para versiones anteriores
+        print('⚠️ Permission.photos no disponible, usando Permission.storage');
+        try {
+          storagePermission = Permission.storage;
+          final storageStatus = await storagePermission.request();
+          if (storageStatus == PermissionStatus.granted) {
+            return true;
+          }
+        } catch (e2) {
+          print('⚠️ Permission.storage tampoco disponible');
+        }
+      }
+
+      // Si los permisos de almacenamiento fueron denegados, abrir configuración
+      return await openAppSettings();
+    }
+
+    return true;
   }
 
   Future<bool> requestLocationPermission() async {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/screens/screens.dart';
+import 'package:app_qinspecting/services/camera_service.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 
 class ItemsInspeccionarRemolque extends StatefulWidget {
@@ -145,18 +145,18 @@ class _ItemsInspeccionarStateRemolque extends State<ItemsInspeccionarRemolque> {
                                   bottom: 10,
                                   child: IconButton(
                                     onPressed: () async {
-                                      final _picker = ImagePicker();
-                                      final XFile? photo =
-                                          await _picker.pickImage(
-                                              source: ImageSource.camera);
+                                      final photoPath =
+                                          await CameraService.capturePhoto(
+                                        context: context,
+                                        logPrefix: '[items remolque] adjunto',
+                                      );
 
-                                      if (photo == null) {
-                                        return;
+                                      if (photoPath != null) {
+                                        setState(() {
+                                          // Se asigna la imagen en un provider para esta sección
+                                          item.adjunto = photoPath;
+                                        });
                                       }
-                                      setState(() {
-                                        // Se asigna la imagen en un provider para esta sección
-                                        item.adjunto = photo.path;
-                                      });
                                     },
                                     icon: Icon(
                                       Icons.camera_alt,

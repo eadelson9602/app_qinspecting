@@ -21,7 +21,10 @@ class CustomBottomNavigation extends StatelessWidget {
         Provider.of<InspeccionService>(context, listen: false);
 
     return Container(
-      margin: EdgeInsets.all(15),
+      // Margen horizontal para mantener separación de los bordes
+      margin: EdgeInsets.symmetric(horizontal: 15),
+      // Margen inferior más pequeño para que no se corte
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       decoration: BoxDecoration(
         color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
         borderRadius: BorderRadius.circular(50),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:app_qinspecting/models/models.dart';
+import 'package:app_qinspecting/models/inspeccion.dart';
 import '../ui/app_theme.dart';
 
 class CardInspeccionDesktop extends StatelessWidget {

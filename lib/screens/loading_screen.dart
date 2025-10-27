@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class LoadingScreen extends StatefulWidget {
-  const LoadingScreen({Key? key}) : super(key: key);
+  final double? progress;
+
+  const LoadingScreen({Key? key, this.progress}) : super(key: key);
 
   @override
   State<LoadingScreen> createState() => _LoadingScreenState();
@@ -61,6 +63,37 @@ class _LoadingScreenState extends State<LoadingScreen>
           const SizedBox(
             height: 20,
           ),
+          // Mostrar barra de progreso si se proporciona
+          if (widget.progress != null) ...[
+            const SizedBox(height: 30),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 60),
+              child: Column(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: LinearProgressIndicator(
+                      value: widget.progress!.clamp(0.0, 1.0),
+                      minHeight: 8,
+                      backgroundColor: Theme.of(context).dividerColor,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Theme.of(context).primaryColor,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    '${(widget.progress!.clamp(0.0, 1.0) * 100).toInt()}%',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -102,7 +135,7 @@ class _LoadingScreenState extends State<LoadingScreen>
                 },
               ),
             ],
-          )
+          ),
         ],
       ),
     );

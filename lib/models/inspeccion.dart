@@ -111,6 +111,7 @@ class ResumenPreoperacional {
         "eliminado": eliminado,
         "fechaEliminacion": fechaEliminacion
       };
+}
 
 class Respuesta {
   Respuesta({

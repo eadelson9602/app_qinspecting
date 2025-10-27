@@ -56,5 +56,13 @@
 	<!-- Configuración de notificaciones -->
 	<key>NSUserNotificationAlertStyle</key>
 	<string>alert</string>
+	
+	<!-- Permisos de ubicación -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>La aplicación necesita acceso a tu ubicación para determinar automáticamente la ciudad de inspección.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>La aplicación necesita acceso a tu ubicación para determinar automáticamente la ciudad de inspección.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>La aplicación necesita acceso a tu ubicación para determinar automáticamente la ciudad de inspección.</string>
 </dict>
 </plist>

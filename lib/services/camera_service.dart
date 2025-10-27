@@ -27,11 +27,32 @@ class CameraService {
         }
       }
 
-      // 2. Verificar permisos de almacenamiento (Android)
+      // 2. Verificar permisos de almacenamiento/fotos (Android)
       if (Platform.isAndroid) {
-        final storageStatus = await Permission.storage.status;
-        if (!storageStatus.isGranted) {
-          final result = await Permission.storage.request();
+        // En Android 13+ se usa Permission.photos, en versiones anteriores Permission.storage
+        Permission? storagePermission;
+        bool isGranted = false;
+
+        try {
+          // Intentar con permission_handler v11+ (Photos)
+          storagePermission = Permission.photos;
+          final photosStatus = await storagePermission.status;
+          isGranted = photosStatus.isGranted;
+        } catch (e) {
+          // Fallback para versiones anteriores de permission_handler
+          print('${logPrefix ?? '[Camera]'} ⚠️ Permission.photos no disponible, usando Permission.storage');
+          try {
+            storagePermission = Permission.storage;
+            final storageStatus = await storagePermission.status;
+            isGranted = storageStatus.isGranted;
+          } catch (e2) {
+            print('${logPrefix ?? '[Camera]'} ⚠️ Permission.storage tampoco disponible');
+            // Continuar sin verificar permisos de almacenamiento
+          }
+        }
+
+        if (storagePermission != null && !isGranted) {
+          final result = await storagePermission.request();
           if (!result.isGranted) {
             await CrashlyticsService.recordCameraError(
               errorType: 'STORAGE_PERMISSION_DENIED',

@@ -69,7 +69,9 @@ class _HomeScreenState extends State<HomeScreen> {
             child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.fromLTRB(
-                20, 20, 20, 0), // Reducido aún más el espacio superior
+                20, 20, 20, 
+                // Padding inferior para evitar que el contenido se corte con el bottom navigation
+                100), // Aumentado para dar espacio al bottom navigation
             child: _widgetOptions.elementAt(_selectedIndex),
           ),
         )),

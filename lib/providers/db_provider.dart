@@ -435,6 +435,13 @@ class DBProvider {
     return res!.isNotEmpty ? res.map((s) => Ciudades.fromMap(s)).toList() : [];
   }
 
+  /// Obtiene todas las ciudades sin filtro de departamento
+  Future<List<Ciudades>> getAllCiudades() async {
+    final db = await database;
+    final res = await db?.query('Ciudades');
+    return res!.isNotEmpty ? res.map((s) => Ciudades.fromMap(s)).toList() : [];
+  }
+
   Future<int?> nuevoVehiculo(Vehiculo nuevoVehiculo) async {
     final db = await database;
     final res = await db?.insert('Vehiculos', nuevoVehiculo.toMap(),

@@ -28,8 +28,10 @@ class _InspeccionFormState extends State<InspeccionForm> {
   Position? _currentPosition;
   String? _gpsCity;
   int? _gpsCityId;
+  int? _gpsDepartmentId;
   bool _isLoadingLocation = false;
   String _locationError = '';
+  bool _cityFoundByGPS = false; // Indica si la ciudad fue encontrada por GPS
 
   bool isValidForm() {
     return formKey.currentState?.validate() ?? false;
@@ -43,25 +45,52 @@ class _InspeccionFormState extends State<InspeccionForm> {
     });
 
     try {
-      // Verificar permisos de ubicación
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          setState(() {
-            _locationError = 'Permisos de ubicación denegados';
-            _isLoadingLocation = false;
-          });
-          return;
-        }
+      // Verificar si el servicio de ubicación está habilitado
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        setState(() {
+          _locationError = 'El servicio de ubicación está deshabilitado';
+          _isLoadingLocation = false;
+        });
+        _showLocationServiceDisabledDialog(context);
+        return;
       }
 
+      // Verificar permisos de ubicación
+      LocationPermission permission = await Geolocator.checkPermission();
+
+      // Si el permiso está denegado permanentemente, primero mostrar opciones para abrir configuración
       if (permission == LocationPermission.deniedForever) {
         setState(() {
           _locationError = 'Permisos de ubicación denegados permanentemente';
           _isLoadingLocation = false;
         });
+        _showPermissionDeniedForeverDialog(context);
         return;
+      }
+
+      // Si el permiso está denegado, solicitarlo
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+
+        if (permission == LocationPermission.denied) {
+          setState(() {
+            _locationError = 'Permisos de ubicación denegados';
+            _isLoadingLocation = false;
+          });
+          _showPermissionDeniedDialog(context);
+          return;
+        }
+
+        // Si después de solicitar el permiso, este fue denegado permanentemente
+        if (permission == LocationPermission.deniedForever) {
+          setState(() {
+            _locationError = 'Permisos de ubicación denegados permanentemente';
+            _isLoadingLocation = false;
+          });
+          _showPermissionDeniedForeverDialog(context);
+          return;
+        }
       }
 
       // Obtener ubicación actual
@@ -103,27 +132,150 @@ class _InspeccionFormState extends State<InspeccionForm> {
         _locationError = 'Error al obtener ubicación: $e';
         _isLoadingLocation = false;
       });
+
+      // Mostrar diálogo de error
+      if (mounted) {
+        _showErrorDialog(
+            context, 'Error al obtener ubicación: ${e.toString()}');
+      }
     }
   }
 
-  /// Busca la ciudad en la base de datos SQLite local
+  /// Muestra un diálogo de error genérico
+  Future<void> _showErrorDialog(BuildContext context, String message) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Muestra un diálogo cuando el permiso de ubicación está denegado
+  Future<void> _showPermissionDeniedDialog(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Permisos de ubicación requeridos'),
+          content: const Text(
+            'La aplicación necesita acceso a tu ubicación para determinar automáticamente la ciudad de inspección. '
+            'Por favor, permite el acceso a la ubicación en la configuración de la aplicación.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Intentar solicitar permiso nuevamente
+                _getCurrentLocation();
+              },
+              child: const Text('Reintentar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Muestra un diálogo cuando el permiso está denegado permanentemente
+  Future<void> _showPermissionDeniedForeverDialog(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Permisos de ubicación denegados permanentemente'),
+          content: const Text(
+            'El acceso a la ubicación ha sido denegado permanentemente. '
+            'Para habilitar la funcionalidad de ubicación automática, '
+            'por favor abre la configuración de la aplicación y permite el acceso a la ubicación.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                // Abrir configuración de la aplicación
+                await Geolocator.openAppSettings();
+              },
+              child: const Text('Abrir configuración'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Muestra un diálogo cuando el servicio de ubicación está deshabilitado
+  Future<void> _showLocationServiceDisabledDialog(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Servicio de ubicación deshabilitado'),
+          content: const Text(
+            'El servicio de ubicación del dispositivo está deshabilitado. '
+            'Por favor, habilita el GPS en la configuración del dispositivo para usar esta funcionalidad.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                // Abrir configuración del dispositivo
+                await Geolocator.openLocationSettings();
+              },
+              child: const Text('Abrir configuración'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Busca la ciudad en la base de datos SQLite local directamente
   Future<void> _findCityInDatabase(String cityName) async {
     try {
-      final inspeccionProvider =
-          Provider.of<InspeccionProvider>(context, listen: false);
+      // Buscar ciudad directamente en SQLite sin filtro de departamento
+      List<Ciudades> ciudades = await DBProvider.db.getAllCiudades();
 
       // Buscar ciudad por nombre (case insensitive)
-      Ciudades? foundCity = inspeccionProvider.ciudades.firstWhere(
-        (city) =>
-            city.label.toLowerCase().contains(cityName.toLowerCase()) ||
-            cityName.toLowerCase().contains(city.label.toLowerCase()),
-        orElse: () => Ciudades(value: 0, label: '', idDepartamento: 0),
-      );
+      Ciudades? foundCity;
+      try {
+        foundCity = ciudades.firstWhere(
+          (city) =>
+              city.label.toLowerCase().contains(cityName.toLowerCase()) ||
+              cityName.toLowerCase().contains(city.label.toLowerCase()),
+        );
+      } catch (e) {
+        // No se encontró la ciudad
+        foundCity = null;
+      }
 
-      if (foundCity.value != 0) {
+      if (foundCity != null && foundCity.value != 0) {
         setState(() {
-          _gpsCity = foundCity.label;
+          _gpsCity = foundCity!.label;
           _gpsCityId = foundCity.value;
+          _gpsDepartmentId = foundCity.idDepartamento;
+          _cityFoundByGPS = true;
           _isLoadingLocation = false;
         });
 
@@ -132,6 +284,14 @@ class _InspeccionFormState extends State<InspeccionForm> {
             Provider.of<InspeccionService>(context, listen: false);
         inspeccionService.resumePreoperacional.idCiudad = foundCity.value;
         inspeccionService.resumePreoperacional.ciudad = foundCity.label;
+
+        // Cargar las ciudades del departamento encontrado y preseleccionar el departamento
+        if (_gpsDepartmentId != null) {
+          // Cargar las ciudades del departamento encontrado
+          final inspeccionProvider =
+              Provider.of<InspeccionProvider>(context, listen: false);
+          inspeccionProvider.listarCiudades(_gpsDepartmentId!);
+        }
 
         // Guardar coordenadas GPS
         if (_currentPosition != null) {
@@ -142,11 +302,12 @@ class _InspeccionFormState extends State<InspeccionForm> {
         }
 
         print(
-            '[GPS] Ciudad encontrada: ${foundCity.label} (ID: ${foundCity.value})');
+            '[GPS] Ciudad encontrada: ${foundCity.label} (ID: ${foundCity.value}, Departamento: ${foundCity.idDepartamento})');
       } else {
         setState(() {
           _locationError =
-              'Ciudad "$cityName" no encontrada en la base de datos';
+              'Ciudad "$cityName" no encontrada en la base de datos. Por favor, selecciona manualmente.';
+          _cityFoundByGPS = false;
           _isLoadingLocation = false;
         });
       }
@@ -215,7 +376,12 @@ class _InspeccionFormState extends State<InspeccionForm> {
                       hintText: '',
                       labelText: 'Departamento de inspección',
                       context: context),
+                  value: _cityFoundByGPS && _gpsDepartmentId != null
+                      ? _gpsDepartmentId
+                      : null,
                   validator: (value) {
+                    // Si la ciudad fue encontrada por GPS, no validar el departamento
+                    if (_cityFoundByGPS) return null;
                     if (value == null) return 'Seleccione un departamento';
                     return null;
                   },
@@ -225,9 +391,11 @@ class _InspeccionFormState extends State<InspeccionForm> {
                       value: e.value,
                     );
                   }).toList(),
-                  onChanged: (value) {
-                    inspeccionProvider.listarCiudades(value!);
-                  }),
+                  onChanged: _cityFoundByGPS
+                      ? null // Deshabilitar si la ciudad fue encontrada por GPS
+                      : (value) {
+                          inspeccionProvider.listarCiudades(value!);
+                        }),
               const SizedBox(
                 height: 16,
               ),
@@ -245,6 +413,40 @@ class _InspeccionFormState extends State<InspeccionForm> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Mensaje informativo cuando la ciudad fue encontrada por GPS
+                    if (_cityFoundByGPS && _gpsCity != null)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color:
+                              Theme.of(context).primaryColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color:
+                                Theme.of(context).primaryColor.withOpacity(0.3),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              size: 16,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Ubicación determinada automáticamente por GPS',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     Row(
                       children: [
                         Icon(
@@ -367,15 +569,19 @@ class _InspeccionFormState extends State<InspeccionForm> {
                               size: 16,
                             ),
                             const SizedBox(width: 8),
-                            Text(
-                              'Presiona el botón de ubicación para obtener la ciudad automáticamente',
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.color,
-                                fontSize: 12,
-                                fontStyle: FontStyle.italic,
+                            Expanded(
+                              child: Text(
+                                'Presiona el botón de ubicación para obtener la ciudad automáticamente',
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.color,
+                                  fontSize: 12,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
