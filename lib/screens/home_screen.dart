@@ -9,6 +9,7 @@ import 'package:app_qinspecting/screens/screens.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 import 'package:app_qinspecting/ui/app_theme.dart';
+import 'package:app_qinspecting/models/models.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -191,46 +192,158 @@ class DesktopScreen extends StatelessWidget {
         SizedBox(height: 5), // Reducido el espacio inicial
         // Mini Dashboard con estadísticas
         MiniDashboard(),
-        FutureBuilder(
-            future: inspeccionService
-                .getLatesInspections(loginService.selectedEmpresa),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
+        FutureBuilder<bool>(
+            future: inspeccionService.checkConnection(),
+            builder: (context, connectionSnapshot) {
+              if (connectionSnapshot.connectionState ==
+                  ConnectionState.waiting) {
                 return Container(
                     height: 300,
                     child: Center(child: CircularProgressIndicator()));
-              } else if (snapshot.data != false) {
-                if (inspeccionService.listInspections.isEmpty) {
-                  return Container(
-                    height: 300,
-                    alignment: Alignment.center,
-                    child: Text(
-                      'No hay inspecciones recientes',
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: Theme.of(context).textTheme.bodyMedium?.color),
-                    ),
-                  );
-                }
-                return Container(
-                  height: 410,
-                  child: Swiper(
-                    layout: SwiperLayout.STACK,
-                    itemHeight: 410, // Altura fija del card
-                    itemWidth: 500, // Ancho fijo del card
-                    itemBuilder: (BuildContext context, int i) {
-                      return CardInspeccionDesktop(
-                          resumenPreoperacional:
-                              inspeccionService.listInspections[i]);
-                    },
-                    itemCount: inspeccionService.listInspections.length,
-                  ),
-                );
+              }
+
+              final hasConnection = connectionSnapshot.data ?? false;
+
+              // Si hay conexión, cargar desde el servicio
+              if (hasConnection) {
+                return FutureBuilder(
+                    future: inspeccionService
+                        .getLatesInspections(loginService.selectedEmpresa),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Container(
+                            height: 300,
+                            child: Center(child: CircularProgressIndicator()));
+                      } else if (snapshot.data != false) {
+                        if (inspeccionService.listInspections.isEmpty) {
+                          return Container(
+                            height: 300,
+                            alignment: Alignment.center,
+                            child: Text(
+                              'No hay inspecciones recientes',
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.color),
+                            ),
+                          );
+                        }
+                        return Container(
+                          height: 410,
+                          child: Swiper(
+                            layout: SwiperLayout.STACK,
+                            itemHeight: 410, // Altura fija del card
+                            itemWidth: 500, // Ancho fijo del card
+                            itemBuilder: (BuildContext context, int i) {
+                              return CardInspeccionDesktop(
+                                  resumenPreoperacional: inspeccionService
+                                      .listInspections[i]);
+                            },
+                            itemCount: inspeccionService.listInspections.length,
+                          ),
+                        );
+                      } else {
+                        // Si hay algún error con el servicio, intentar mostrar offline
+                        return _buildOfflineInspections(
+                            context, loginService, inspeccionProvider);
+                      }
+                    });
               } else {
-                return NoInternet();
+                // No hay conexión, mostrar inspecciones offline
+                return _buildOfflineInspections(
+                    context, loginService, inspeccionProvider);
               }
             }),
       ],
     );
+  }
+
+  Widget _buildOfflineInspections(BuildContext context, LoginService loginService,
+      InspeccionProvider inspeccionProvider) {
+    return FutureBuilder<List<ResumenPreoperacional>?>(
+        future: inspeccionProvider.cargarTodosInspecciones(
+            loginService.userDataLogged.numeroDocumento!,
+            loginService.userDataLogged.base!),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Container(
+                height: 300,
+                child: Center(child: CircularProgressIndicator()));
+          }
+
+          final allInspecciones = snapshot.data ?? [];
+
+          if (allInspecciones.isEmpty) {
+            return Container(
+              height: 300,
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.wifi_off,
+                    size: 64,
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Sin conexión a internet',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).textTheme.titleMedium?.color),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'No hay inspecciones guardadas localmente',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 14,
+                        color: Theme.of(context).textTheme.bodyMedium?.color),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          // Convertir ResumenPreoperacional a ResumenPreoperacionalServer
+          final convertedInspecciones = allInspecciones.map((inspeccion) {
+            return ResumenPreoperacionalServer(
+              resuPreId: inspeccion.id,
+              consecutivo: null, // No disponible en SQLite
+              fechaPreoperacional: inspeccion.fechaPreoperacional,
+              creado: inspeccion.fechaPreoperacional,
+              hora: null, // Extraer de fechaPreoperacional si es necesario
+              detalle: null, // Se carga desde respuestas
+              placaVehiculo: inspeccion.placaVehiculo,
+              kilometraje: inspeccion.kilometraje,
+              tanqueo: inspeccion.cantTanqueoGalones != null && inspeccion.cantTanqueoGalones! > 0
+                  ? 'SI'
+                  : 'NO',
+              numeroGuia: inspeccion.numeroGuia,
+              grave: 0, // Calcular desde respuestas si es necesario
+              moderada: 0, // Calcular desde respuestas si es necesario
+              estado: inspeccion.enviado == 1 ? 'ENVIADO' : 'PENDIENTE',
+              cantFallas: '0',
+              nota: null,
+            );
+          }).toList();
+
+          return Container(
+            height: 410,
+            child: Swiper(
+              layout: SwiperLayout.STACK,
+              itemHeight: 410,
+              itemWidth: 500,
+              itemBuilder: (BuildContext context, int i) {
+                return CardInspeccionDesktop(
+                    resumenPreoperacional: convertedInspecciones[i]);
+              },
+              itemCount: convertedInspecciones.length,
+            ),
+          );
+        });
   }
 }
