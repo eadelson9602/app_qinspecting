@@ -156,14 +156,14 @@ class CustomDrawer extends StatelessWidget {
                       icon: Icons.privacy_tip_outlined,
                       title: 'Política de Privacidad',
                       onTap: () => _launchUrlWithContext(context,
-                          'https://www.qinspecting.com/politica-tratamiento-datos-personales'),
+                          'https://www.qinspecting.com/privacy-policy'),
                     ),
                     _buildMenuItem(
                       context: context,
                       icon: Icons.description_outlined,
                       title: 'Términos y Condiciones',
                       onTap: () => _launchUrlWithContext(context,
-                          'https://www.qinspecting.com/terminos-y-condiciones'),
+                          'https://www.qinspecting.com/terms-and-conditions'),
                     ),
                     _buildMenuItem(
                       context: context,
@@ -184,7 +184,7 @@ class CustomDrawer extends StatelessWidget {
                       icon: Icons.info_outline,
                       title: 'Acerca de',
                       onTap: () => _launchUrlWithContext(
-                          context, 'https://www.qinspecting.com/about'),
+                          context, 'https://appears.com.co/#'),
                     ),
                   ],
                 ),
