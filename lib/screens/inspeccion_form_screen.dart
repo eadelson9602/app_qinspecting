@@ -73,9 +73,9 @@ class _InspeccionFormState extends State<InspeccionForm> {
                   ),
                   title: const Text('Tomar foto'),
                   subtitle: const Text('Usar la cámara del dispositivo'),
-                  onTap: () async {
+                  onTap: () {
                     Navigator.of(context).pop();
-                    await _selectImageFromSource(
+                    _selectImageFromSource(
                       ImageSource.camera,
                       tipo,
                       onImageSelected,
@@ -90,9 +90,9 @@ class _InspeccionFormState extends State<InspeccionForm> {
                   ),
                   title: const Text('Galería'),
                   subtitle: const Text('Seleccionar de la galería'),
-                  onTap: () async {
+                  onTap: () {
                     Navigator.of(context).pop();
-                    await _selectImageFromSource(
+                    _selectImageFromSource(
                       ImageSource.gallery,
                       tipo,
                       onImageSelected,
@@ -115,9 +115,35 @@ class _InspeccionFormState extends State<InspeccionForm> {
     Function(String path) onImageSelected,
   ) async {
     try {
+      final inspeccionProvider =
+          Provider.of<InspeccionProvider>(context, listen: false);
+
+      // Solicitar permisos si es necesario
+      bool hasPermission = false;
+      if (source == ImageSource.camera) {
+        hasPermission = await inspeccionProvider.requestCameraPermission();
+      } else {
+        // Para galería, solicitar permisos de almacenamiento
+        hasPermission = await inspeccionProvider.requestCameraPermission();
+      }
+
+      if (!hasPermission) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Se requieren permisos para acceder a la imagen'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+        return;
+      }
+
       final _picker = ImagePicker();
-      print('[pick] solicitando $tipo desde ${source == ImageSource.camera ? "cámara" : "galería"}...');
-      
+      print(
+          '[pick] solicitando $tipo desde ${source == ImageSource.camera ? "cámara" : "galería"}...');
+
       final XFile? photo = await _picker.pickImage(
         source: source,
         imageQuality: 70,
@@ -131,17 +157,16 @@ class _InspeccionFormState extends State<InspeccionForm> {
       }
 
       try {
-        print(
-            '[pick] $tipo path=${photo.path} size=${await File(photo.path).length()} bytes');
+        print('[pick] $tipo path=${photo.path} size=${await File(photo.path).length()} bytes');
       } catch (_) {}
 
       onImageSelected(photo.path);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Imagen seleccionada correctamente'),
-            duration: const Duration(seconds: 2),
+            duration: Duration(seconds: 2),
             backgroundColor: Colors.green,
           ),
         );
@@ -756,20 +781,16 @@ class _InspeccionFormState extends State<InspeccionForm> {
                       right: 15,
                       bottom: 10,
                       child: IconButton(
-                        onPressed: () async {
-                          final reponsePermission = await inspeccionProvider
-                              .requestCameraPermission();
-                          if (reponsePermission) {
-                            _showImageSourceBottomSheet(
-                              context,
-                              tipo: 'foto kilometraje',
-                              onImageSelected: (path) {
-                                inspeccionService.resumePreoperacional.urlFotoKm =
-                                    path;
-                                inspeccionProvider.updateSelectedImage(path);
-                              },
-                            );
-                          }
+                        onPressed: () {
+                          _showImageSourceBottomSheet(
+                            context,
+                            tipo: 'foto kilometraje',
+                            onImageSelected: (path) {
+                              inspeccionService.resumePreoperacional.urlFotoKm =
+                                  path;
+                              inspeccionProvider.updateSelectedImage(path);
+                            },
+                          );
                         },
                         icon: Icon(
                           Icons.camera_alt,
@@ -797,20 +818,16 @@ class _InspeccionFormState extends State<InspeccionForm> {
                       right: 15,
                       bottom: 10,
                       child: IconButton(
-                        onPressed: () async {
-                          final reponsePermission = await inspeccionProvider
-                              .requestCameraPermission();
-                          if (reponsePermission) {
-                            _showImageSourceBottomSheet(
-                              context,
-                              tipo: 'foto cabezote',
-                              onImageSelected: (path) {
-                                inspeccionService.resumePreoperacional
-                                    .urlFotoCabezote = path;
-                                inspeccionProvider.updateCabezoteImage(path);
-                              },
-                            );
-                          }
+                        onPressed: () {
+                          _showImageSourceBottomSheet(
+                            context,
+                            tipo: 'foto cabezote',
+                            onImageSelected: (path) {
+                              inspeccionService.resumePreoperacional
+                                  .urlFotoCabezote = path;
+                              inspeccionProvider.updateCabezoteImage(path);
+                            },
+                          );
                         },
                         icon: Icon(
                           Icons.camera_alt,
