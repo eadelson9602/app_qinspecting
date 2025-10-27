@@ -103,13 +103,38 @@ class InspeccionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  updateVehiculoSelected(Vehiculo vehiculo) {
+  updateVehiculoSelected(Vehiculo? vehiculo) {
     vehiculoSelected = vehiculo;
+
+    // Si se deselecciona el vehículo, limpiar la información asociada
+    if (vehiculo == null) {
+      realizoTanqueo = false;
+      tieneGuia = false;
+      pathFileKilometraje = null;
+      pathFileCabezote = null;
+      pathFileGuia = null;
+      pictureKilometraje = null;
+      pictureCabezote = null;
+      pictureGuia = null;
+      stepStepper = 0;
+      itemsInspeccion.clear();
+    }
+
     notifyListeners();
   }
 
-  updateRemolqueSelected(Remolque remolque) {
+  updateRemolqueSelected(Remolque? remolque) {
     remolqueSelected = remolque;
+
+    // Si se deselecciona el remolque, limpiar la información asociada
+    if (remolque == null) {
+      tieneRemolque = false;
+      pathFileRemolque = null;
+      pictureRemolque = null;
+      stepStepperRemolque = 0;
+      itemsInspeccionRemolque.clear();
+    }
+
     notifyListeners();
   }
 

@@ -26,8 +26,7 @@ class InspeccionVehiculoScreen extends StatelessWidget {
         icon: inspeccionProvider.tieneRemolque
             ? Icons.arrow_forward_ios_sharp
             : Icons.save,
-        backgroundColor:
-            inspeccionProvider.tieneRemolque ? Colors.blue : Colors.green,
+        backgroundColor: Colors.green,
         fontSize: 14,
         padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
         onPressed: () async {
