@@ -154,42 +154,23 @@ class _MyStatelessWidgetState extends State<MyStatelessWidget> {
     ];
     return Scaffold(
       drawer: CustomDrawer(),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            // Botón de volver atrás con estilo iOS
-            Positioned(
-              left: 20,
-              top: 20,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.green,
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                child: IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-              ),
-            ),
-            // Contenido principal
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                  20, 50, 20, 0), // Reducido el espacio superior
-              child: Center(
-                child: _widgetOptions
-                    .elementAt(firmaService.indexTabaCreateSignature),
-              ),
-            ),
-          ],
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back),
         ),
+        title: const Text('Firma'),
+      ),
+      body: SafeArea(
+        child: Center(
+            child: _widgetOptions
+                .elementAt(firmaService.indexTabaCreateSignature)),
       ),
       bottomNavigationBar: Container(
-        margin: EdgeInsets.all(15),
+        // Margen horizontal para mantener separación de los bordes
+        margin: EdgeInsets.symmetric(horizontal: 15),
+        // Margen inferior más pequeño para que no se corte
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
         decoration: BoxDecoration(
           color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
           borderRadius: BorderRadius.circular(50),
@@ -313,79 +294,86 @@ class CardFirma extends StatelessWidget {
   Widget build(BuildContext context) {
     final sizeScreen = MediaQuery.of(context).size;
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 25, bottom: 20, left: 1, right: 1),
-      child: Container(
-        height: sizeScreen.height * 1,
-        child: SingleChildScrollView(
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            child: Column(
-              children: [
-                // Card de imagen de firma con estilo iOS
-                Container(
-                  width: sizeScreen.width * 0.9,
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.08),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 6,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: _SignatureImage(
-                      source: infoFirma.firma?.toString(),
-                      height: sizeScreen.height * 0.4,
+    return Container(
+      height: sizeScreen.height * 1,
+      child: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+          child: Column(
+            children: [
+              // Card de imagen de firma con estilo iOS
+              Container(
+                width: sizeScreen.width * 0.9,
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Colors.white
+                      : Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? Colors.black.withValues(alpha: 0.08)
+                          : Theme.of(context)
+                              .shadowColor
+                              .withValues(alpha: 0.2),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
                     ),
+                    BoxShadow(
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? Colors.black.withValues(alpha: 0.04)
+                          : Theme.of(context)
+                              .shadowColor
+                              .withValues(alpha: 0.2),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: _SignatureImage(
+                    source: infoFirma.firma?.toString(),
+                    height: sizeScreen.height * 0.4,
                   ),
                 ),
-                SizedBox(height: 24),
+              ),
+              SizedBox(height: 24),
 
-                // Información del usuario con iconos coloridos
-                _buildInfoCard(
-                  context: context,
-                  icon: Icons.person_outline_rounded,
-                  iconColor: Color(0xFF2196F3), // Azul
-                  title: 'Usuario',
-                  subtitle: '${infoFirma.fkNumeroDoc}',
-                ),
+              // Información del usuario con iconos coloridos
+              _buildInfoCard(
+                context: context,
+                icon: Icons.person_outline_rounded,
+                iconColor: Color(0xFF2196F3), // Azul
+                title: 'Usuario',
+                subtitle: '${infoFirma.fkNumeroDoc}',
+              ),
 
-                SizedBox(height: 16),
+              SizedBox(height: 16),
 
-                // Términos y condiciones
-                _buildInfoCard(
-                  context: context,
-                  icon: Icons.fact_check_outlined,
-                  iconColor: Color(0xFF4CAF50), // Verde
-                  title: 'Aceptó términos y condiciones?',
-                  subtitle: '${infoFirma.terminosCondiciones}',
-                ),
+              // Términos y condiciones
+              _buildInfoCard(
+                context: context,
+                icon: Icons.fact_check_outlined,
+                iconColor: Color(0xFF4CAF50), // Verde
+                title: 'Aceptó términos y condiciones?',
+                subtitle: '${infoFirma.terminosCondiciones}',
+              ),
 
-                SizedBox(height: 16),
+              SizedBox(height: 16),
 
-                // Fecha de realización
-                _buildInfoCard(
-                  context: context,
-                  icon: Icons.calendar_today_outlined,
-                  iconColor: Color(0xFFFF9800), // Naranja
-                  title: 'Fecha de realización',
-                  subtitle: '${infoFirma.fechaControl}',
-                ),
+              // Fecha de realización
+              _buildInfoCard(
+                context: context,
+                icon: Icons.calendar_today_outlined,
+                iconColor: Color(0xFFFF9800), // Naranja
+                title: 'Fecha de realización',
+                subtitle: '${infoFirma.fechaControl}',
+              ),
 
-                SizedBox(height: 24),
-              ],
-            ),
+              SizedBox(height: 16),
+            ],
           ),
         ),
       ),
@@ -401,11 +389,15 @@ class CardFirma extends StatelessWidget {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: Theme.of(context).brightness == Brightness.light
+            ? Colors.white
+            : Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: Theme.of(context).brightness == Brightness.light
+                ? Colors.black.withValues(alpha: 0.06)
+                : Theme.of(context).shadowColor.withValues(alpha: 0.2),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),

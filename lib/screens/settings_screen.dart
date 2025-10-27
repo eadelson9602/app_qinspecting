@@ -312,7 +312,7 @@ class _SettingScreenState extends State<SettingScreen> {
     try {
       // Verificar si el servicio de ubicación está habilitado
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      
+
       if (!serviceEnabled) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -396,7 +396,7 @@ class _SettingScreenState extends State<SettingScreen> {
       }
 
       // Si llegamos aquí, el permiso fue otorgado
-      if (permission == LocationPermission.whileInUse || 
+      if (permission == LocationPermission.whileInUse ||
           permission == LocationPermission.always) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -458,7 +458,7 @@ class _SettingScreenState extends State<SettingScreen> {
                 elevation: 0,
                 leading: IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                  icon: const Icon(Icons.arrow_back),
                 ),
                 title: const Text(
                   'Configuración',
