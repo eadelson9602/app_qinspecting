@@ -1,4 +1,5 @@
 import 'package:printing/printing.dart';
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:app_qinspecting/screens/screens.dart';
@@ -8,7 +9,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 
-import 'package:app_qinspecting/models/models.dart';
+import 'package:app_qinspecting/models/inspeccion.dart';
+import 'package:app_qinspecting/models/pdf.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:provider/provider.dart';
 import 'package:app_qinspecting/widgets/error_retry_widget.dart';
@@ -24,6 +26,28 @@ class _PdfScreenState extends State<PdfScreen> {
   bool _isRetrying = false;
   Exception? _lastError;
   Key _futureBuilderKey = UniqueKey();
+  late StreamController<double> _progressController;
+  Future<PdfData>? _pdfFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _progressController = StreamController<double>.broadcast();
+  }
+
+  @override
+  void dispose() {
+    if (!_progressController.isClosed) {
+      _progressController.close();
+    }
+    super.dispose();
+  }
+
+  void _safeAddProgress(double progress) {
+    if (!_progressController.isClosed) {
+      _progressController.add(progress);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,87 +77,103 @@ class _PdfScreenState extends State<PdfScreen> {
         Provider.of<InspeccionService>(context, listen: false);
     final loginService = Provider.of<LoginService>(context, listen: false);
 
-    return FutureBuilder<PdfData>(
-        key: _futureBuilderKey,
-        future: _generatePdf(
-            resumenPreoperacional, inspeccionService, loginService),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return LoadingScreen();
-          } else if (snapshot.hasError) {
-            _lastError = snapshot.error as Exception?;
-            return Scaffold(
-              appBar: AppBar(
-                title: Text(
-                  'Preoperacional ${resumenPreoperacional.resuPreId}',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
-              body: ErrorRetryWidget(
-                message: 'Error al generar el PDF',
-                subtitle:
-                    'No se pudo obtener la información del PDF. Verifica tu conexión a internet.',
-                onRetry: () => _retryPdfGeneration(
-                    resumenPreoperacional, inspeccionService, loginService),
-                isLoading: _isRetrying,
-                icon: Icons.picture_as_pdf,
-              ),
-            );
-          } else if (snapshot.hasData) {
-            var data = snapshot.data as PdfData;
+    // Create or reuse cached future
+    if (_pdfFuture == null && !_isRetrying) {
+      _pdfFuture =
+          _generatePdf(resumenPreoperacional, inspeccionService, loginService);
+    }
 
-            return Scaffold(
-              appBar: AppBar(
-                title: Text(
-                  'Preoperacional ${resumenPreoperacional.resuPreId}',
-                  style: TextStyle(fontSize: 16),
-                ),
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.share),
-                    onPressed: () async {
-                      final params = ShareParams(
-                        text: 'Great picture',
-                        files: [XFile(data.file.path)],
-                      );
-                      await SharePlus.instance.share(params);
-                    },
-                    tooltip: 'Compartir',
-                  )
-                ],
-              ),
-              body: InteractiveViewer(
-                minScale: 0.5,
-                maxScale: 3.0,
-                child: PdfPreview(
-                  build: (format) => data.bytes,
-                  canChangePageFormat: false,
-                  canChangeOrientation: false,
-                  canDebug: false,
-                  allowSharing: false,
-                  allowPrinting: false,
-                ),
-              ),
-            );
-          } else {
-            return Scaffold(
-              appBar: AppBar(
-                title: Text(
-                  'Preoperacional ${resumenPreoperacional.resuPreId}',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
-              body: ErrorRetryWidget(
-                message: 'No se pudo cargar el PDF',
-                subtitle: 'Ocurrió un error inesperado al generar el PDF.',
-                onRetry: () => _retryPdfGeneration(
-                    resumenPreoperacional, inspeccionService, loginService),
-                isLoading: _isRetrying,
-                icon: Icons.picture_as_pdf,
-              ),
-            );
-          }
-        });
+    return StreamBuilder<double>(
+      stream: _progressController.stream,
+      initialData: 0.0,
+      builder: (context, progressSnapshot) {
+        final progress = progressSnapshot.data ?? 0.0;
+
+        return FutureBuilder<PdfData>(
+            key: _futureBuilderKey,
+            future: _pdfFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return LoadingScreen(progress: progress);
+              } else if (snapshot.hasError) {
+                // Convertir el error a Exception si es necesario
+                _lastError = snapshot.error is Exception
+                    ? snapshot.error as Exception
+                    : Exception(snapshot.error.toString());
+                return Scaffold(
+                  appBar: AppBar(
+                    title: Text(
+                      'Preoperacional ${resumenPreoperacional.resuPreId}',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                  body: ErrorRetryWidget(
+                    message: 'Error al generar el PDF',
+                    subtitle:
+                        'No se pudo obtener la información del PDF. Verifica tu conexión a internet.',
+                    onRetry: () => _retryPdfGeneration(
+                        resumenPreoperacional, inspeccionService, loginService),
+                    isLoading: _isRetrying,
+                    icon: Icons.picture_as_pdf,
+                  ),
+                );
+              } else if (snapshot.hasData) {
+                var data = snapshot.data as PdfData;
+
+                return Scaffold(
+                  appBar: AppBar(
+                    title: Text(
+                      'Preoperacional ${resumenPreoperacional.resuPreId}',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    actions: [
+                      IconButton(
+                        icon: const Icon(Icons.share),
+                        onPressed: () async {
+                          final params = ShareParams(
+                            text: 'Great picture',
+                            files: [XFile(data.file.path)],
+                          );
+                          await SharePlus.instance.share(params);
+                        },
+                        tooltip: 'Compartir',
+                      )
+                    ],
+                  ),
+                  body: InteractiveViewer(
+                    minScale: 0.5,
+                    maxScale: 3.0,
+                    child: PdfPreview(
+                      build: (format) => data.bytes,
+                      canChangePageFormat: false,
+                      canChangeOrientation: false,
+                      canDebug: false,
+                      allowSharing: false,
+                      allowPrinting: false,
+                    ),
+                  ),
+                );
+              } else {
+                return Scaffold(
+                  appBar: AppBar(
+                    title: Text(
+                      'Preoperacional ${resumenPreoperacional.resuPreId}',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                  body: ErrorRetryWidget(
+                    message: 'No se pudo cargar el PDF',
+                    subtitle: 'Ocurrió un error inesperado al generar el PDF.',
+                    onRetry: () => _retryPdfGeneration(
+                        resumenPreoperacional, inspeccionService, loginService),
+                    isLoading: _isRetrying,
+                    icon: Icons.picture_as_pdf,
+                  ),
+                );
+              }
+            });
+      },
+    );
   }
 
   Future<void> _retryPdfGeneration(
@@ -141,8 +181,12 @@ class _PdfScreenState extends State<PdfScreen> {
     InspeccionService inspeccionService,
     LoginService loginService,
   ) async {
+    // Reset progress stream when retrying
+    _safeAddProgress(0.0);
+
     setState(() {
       _isRetrying = true;
+      _pdfFuture = null; // Clear cached future
       _futureBuilderKey = UniqueKey(); // Force rebuild of FutureBuilder
     });
 
@@ -158,7 +202,8 @@ class _PdfScreenState extends State<PdfScreen> {
       if (mounted) {
         setState(() {
           _isRetrying = false;
-          _lastError = e as Exception?;
+          // Convertir el error a Exception si es necesario
+          _lastError = e is Exception ? e : Exception(e.toString());
         });
       }
     }
@@ -170,7 +215,8 @@ class _PdfScreenState extends State<PdfScreen> {
       InspeccionService inspeccionService,
       LoginService loginService) async {
     try {
-      print('Starting PDF generation...');
+      print(
+          'Starting PDF generation for inspection ${resumenPreoperacional.resuPreId}...');
 
       Pdf infoPdf = await inspeccionService
           .detatilPdf(loginService.selectedEmpresa, resumenPreoperacional)
@@ -189,6 +235,7 @@ class _PdfScreenState extends State<PdfScreen> {
 
       print(
           'PDF data retrieved successfully, downloading additional images...');
+      _safeAddProgress(0.15);
 
       // Track failed images
       List<String> failedImages = [];
@@ -307,6 +354,7 @@ class _PdfScreenState extends State<PdfScreen> {
       if (failedImages.isNotEmpty) {
         print('Failed to download images: ${failedImages.join(', ')}');
       }
+      _safeAddProgress(0.5);
 
       // Generate PDF
       final PdfDocument document = PdfDocument();
@@ -339,14 +387,18 @@ class _PdfScreenState extends State<PdfScreen> {
           bounds: Rect.fromLTWH(0, resultSummary.bounds.bottom, 0, 0));
 
       // Save the document
+      _safeAddProgress(0.75);
       final List<int> bytes = await document.save();
+      _safeAddProgress(0.90);
       document.dispose();
 
       // Create temporary file
+      _safeAddProgress(0.95);
       final Directory tempDir = await getTemporaryDirectory();
       final File tempFile = File(
           '${tempDir.path}/preoperacional_${resumenPreoperacional.resuPreId}.pdf');
       await tempFile.writeAsBytes(bytes);
+      _safeAddProgress(1.0);
 
       print('PDF generated successfully');
       return PdfData(file: tempFile, bytes: Uint8List.fromList(bytes));
@@ -369,7 +421,7 @@ class _PdfScreenState extends State<PdfScreen> {
         bounds: Rect.fromLTWH(0, 0, 120, 60), pen: PdfPen(PdfColor(0, 0, 0)));
 
     //Dibuja el logo del cliente
-    if (logoCliente != null) {
+    if (logoCliente != null && _isValidImage(logoCliente)) {
       header.graphics
           .drawImage(PdfBitmap(logoCliente), Rect.fromLTWH(1, 1, 118, 57));
     } else if (infoPdf.rutaLogo != null && infoPdf.rutaLogo!.isNotEmpty) {
@@ -450,7 +502,7 @@ class _PdfScreenState extends State<PdfScreen> {
         bounds: Rect.fromLTWH(455, 0, 60, 60), pen: PdfPen(PdfColor(0, 0, 0)));
 
     //Dibuja el logo de QI
-    if (logoQi != null) {
+    if (logoQi != null && _isValidImage(logoQi)) {
       header.graphics
           .drawImage(PdfBitmap(logoQi), Rect.fromLTWH(462, 8, 45, 45));
     } else {
@@ -513,7 +565,7 @@ class _PdfScreenState extends State<PdfScreen> {
     rowSummary2.cells[0].value = 'N°. INSPECCIÓN';
     rowSummary2.cells[1].value = '${infoPdf.consecutivo}';
     rowSummary2.cells[2].value = 'FIRMA CONDUCTOR';
-    if (firmaConductor != null) {
+    if (firmaConductor != null && _isValidImage(firmaConductor)) {
       rowSummary2.cells[3].style =
           PdfGridCellStyle(backgroundImage: PdfBitmap(firmaConductor));
     } else if (infoPdf.firma != null && infoPdf.firma!.isNotEmpty) {
@@ -525,7 +577,7 @@ class _PdfScreenState extends State<PdfScreen> {
     }
     rowSummary2.height = 30;
     rowSummary2.cells[4].value = 'FIRMA DE QUIEN INSPECCIONA';
-    if (firmaAuditor != null) {
+    if (firmaAuditor != null && _isValidImage(firmaAuditor)) {
       rowSummary2.cells[5].style =
           PdfGridCellStyle(backgroundImage: PdfBitmap(firmaAuditor));
     } else if (infoPdf.firmaAuditor != null &&
@@ -748,17 +800,72 @@ class _PdfScreenState extends State<PdfScreen> {
       }
     } else {
       try {
-        row.cells[6].style = PdfGridCellStyle(
-            backgroundImage: PdfBitmap(respuesta.fotoConverted!));
-        row.height = 40;
+        // Verificar si los datos son una imagen válida antes de usarlos
+        if (_isValidImage(respuesta.fotoConverted!)) {
+          row.cells[6].style = PdfGridCellStyle(
+              backgroundImage: PdfBitmap(respuesta.fotoConverted!));
+          row.height = 40;
+        } else {
+          // Si los datos no son una imagen válida, mostrar texto
+          row.cells[6].value = 'Ver en web';
+          row.cells[6].style = PdfGridCellStyle(
+            textBrush: PdfBrushes.black,
+            font: PdfStandardFont(PdfFontFamily.helvetica, 8),
+          );
+        }
       } catch (e) {
         print('Error setting image in PDF: $e');
-        row.cells[6].value = 'No URI';
+        row.cells[6].value = 'Ver en web';
         row.cells[6].style = PdfGridCellStyle(
-          textBrush: PdfBrushes.red,
+          textBrush: PdfBrushes.black,
           font: PdfStandardFont(PdfFontFamily.helvetica, 8),
         );
       }
     }
+  }
+
+  /// Verifica si los bytes son una imagen válida
+  bool _isValidImage(Uint8List bytes) {
+    if (bytes.isEmpty) return false;
+
+    // Verificar firma de imagen por los primeros bytes
+    // JPEG: FF D8 FF
+    // PNG: 89 50 4E 47
+    // GIF: 47 49 46 38
+    // BMP: 42 4D
+    // WebP: RIFF...WEBP
+
+    if (bytes.length < 4) return false;
+
+    // JPEG
+    if (bytes[0] == 0xFF && bytes[1] == 0xD8 && bytes[2] == 0xFF) return true;
+
+    // PNG
+    if (bytes[0] == 0x89 &&
+        bytes[1] == 0x50 &&
+        bytes[2] == 0x4E &&
+        bytes[3] == 0x47) return true;
+
+    // GIF
+    if (bytes[0] == 0x47 &&
+        bytes[1] == 0x49 &&
+        bytes[2] == 0x46 &&
+        bytes[3] == 0x38) return true;
+
+    // BMP
+    if (bytes[0] == 0x42 && bytes[1] == 0x4D) return true;
+
+    // WebP (verificar RIFF al inicio y WEBP más adelante)
+    if (bytes.length >= 12 &&
+        bytes[0] == 0x52 &&
+        bytes[1] == 0x49 &&
+        bytes[2] == 0x46 &&
+        bytes[3] == 0x46 &&
+        bytes[8] == 0x57 &&
+        bytes[9] == 0x45 &&
+        bytes[10] == 0x42 &&
+        bytes[11] == 0x50) return true;
+
+    return false;
   }
 }
