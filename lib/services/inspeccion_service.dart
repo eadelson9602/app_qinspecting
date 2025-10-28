@@ -568,7 +568,7 @@ class InspeccionService extends ChangeNotifier {
       // Asegurar que el token esté configurado antes de cualquier operación
       await loginService.setTokenFromStorage();
       print('[SEND INSPECCION] Token configurado');
-      
+
       final connectivityResult = await checkConnection();
       if (connectivityResult) {
         // Declarar respuestas primero
@@ -920,15 +920,25 @@ class InspeccionService extends ChangeNotifier {
           "idInspeccion": 0
         };
       }
-      // Obtener token de autenticación
-      String token = await storage.read(key: 'token') ?? '';
+      // Configurar el token antes de cualquier operación
+      await loginService.setTokenFromStorage();
+      print('[SEND INSPECCION BACKGROUND] Token configurado');
+      
+      // Obtener token de autenticación usando la clave correcta
+      String nombreBase = await storage.read(key: 'nombreBase') ?? '';
+      String tokenKey = nombreBase.isNotEmpty ? 'token_$nombreBase' : 'token';
+      String token = await storage.read(key: tokenKey) ?? '';
+      print('[SEND INSPECCION BACKGROUND] Token key usada: $tokenKey');
+      
       if (token.isEmpty) {
+        print('[SEND INSPECCION BACKGROUND] ⚠️ Token no encontrado con clave: $tokenKey');
         return {
           "message": 'Token de autenticación no encontrado',
           "ok": false,
           "idInspeccion": 0
         };
       }
+      print('[SEND INSPECCION BACKGROUND] ✅ Token encontrado');
 
       // Programar tarea en segundo plano
       await BackgroundUploadService.scheduleUploadTask(
