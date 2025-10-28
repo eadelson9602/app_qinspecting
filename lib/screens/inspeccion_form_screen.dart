@@ -268,6 +268,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
       final result = await _locationService.getCurrentLocation();
 
       if (result.success) {
+        print('[INSPECCION FORM] _gpsCityId: $_gpsCityId');
         // Ciudad encontrada
         setState(() {
           _gpsCity = result.cityName!;
