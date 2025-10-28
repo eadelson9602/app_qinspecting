@@ -113,10 +113,10 @@ class _ContentCardInspectionPendingState
       inspeccionService.updateSaving(true);
       await inspeccionService.sendInspeccion(
           allInspecciones[0], loginService.selectedEmpresa);
-      await inspeccionProvider
-          .eliminarResumenPreoperacional(allInspecciones[0].id!);
-      await inspeccionProvider
-          .eliminarRespuestaPreoperacional(allInspecciones[0].id!);
+      // await inspeccionProvider
+      //     .eliminarResumenPreoperacional(allInspecciones[0].id!);
+      // await inspeccionProvider
+      //     .eliminarRespuestaPreoperacional(allInspecciones[0].id!);
       if (mounted) setState(() {});
     } finally {
       inspeccionService.updateSaving(false);

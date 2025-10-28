@@ -344,6 +344,14 @@ class InspeccionService extends ChangeNotifier {
       final headers =
           Map<String, dynamic>.from(loginService.dio.options.headers);
       print('📤 DEBUG: Headers: $headers');
+      
+      // Verificar que el token esté presente en los headers
+      if (!headers.containsKey('x-access-token') || 
+          headers['x-access-token'] == null || 
+          headers['x-access-token'].toString().isEmpty) {
+        print('❌ ERROR: Token de autenticación no disponible');
+        throw Exception('Token de autenticación no disponible. Por favor, inicia sesión nuevamente.');
+      }
 
       final startTime = DateTime.now();
       Response response = await dio.post(

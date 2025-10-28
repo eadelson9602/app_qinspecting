@@ -149,11 +149,23 @@ class ConnectivityListenerService {
         return;
       }
 
-      print(
-          '[CONNECTIVITY LISTENER] 📋 Inspecciones pendientes encontradas: ${allInspecciones.length}');
+      print('[CONNECTIVITY LISTENER] 📋 Inspecciones pendientes encontradas: ${allInspecciones.length}');
 
       // Configurar token
       await loginService.setTokenFromStorage();
+      
+      // Verificar que el token existe
+      final nombreBase = loginService.selectedEmpresa.nombreBase;
+      final tokenKey = nombreBase != null ? 'token_$nombreBase' : 'token';
+      final token = await loginService.storage.read(key: tokenKey);
+      
+      if (token == null || token.isEmpty) {
+        print('[CONNECTIVITY LISTENER] ⚠️ No hay token disponible, no se pueden subir inspecciones automáticamente');
+        _isCheckingUpload = false;
+        return;
+      }
+      
+      print('[CONNECTIVITY LISTENER] ✅ Token validado correctamente');
 
       // Subir cada inspección pendiente
       for (final inspeccion in allInspecciones) {
@@ -169,22 +181,25 @@ class ConnectivityListenerService {
 
           // Marcar como en proceso
           _processingIds.add(inspeccion.id!);
-          
+
           // Verificar nuevamente que la inspección sigue siendo pendiente
           final recheckPending = await DBProvider.db.getPendingInspections(
             loginService.selectedEmpresa.numeroDocumento ?? '',
             loginService.selectedEmpresa.nombreBase ?? '',
           );
-          
-          final isStillPending = recheckPending?.any((i) => i.id == inspeccion.id) ?? false;
-          
+
+          final isStillPending =
+              recheckPending?.any((i) => i.id == inspeccion.id) ?? false;
+
           if (!isStillPending) {
-            print('[CONNECTIVITY LISTENER] ⏭️ Inspección ${inspeccion.id} ya fue enviada por otro proceso, omitiendo...');
+            print(
+                '[CONNECTIVITY LISTENER] ⏭️ Inspección ${inspeccion.id} ya fue enviada por otro proceso, omitiendo...');
             _processingIds.remove(inspeccion.id!);
             continue;
           }
-          
-          print('[CONNECTIVITY LISTENER] ⬆️ Subiendo inspección ID: ${inspeccion.id}');
+
+          print(
+              '[CONNECTIVITY LISTENER] ⬆️ Subiendo inspección ID: ${inspeccion.id}');
 
           // Usar el método sendInspeccion
           final resultado = await inspeccionService.sendInspeccion(
@@ -195,12 +210,14 @@ class ConnectivityListenerService {
           );
 
           if (resultado['ok'] == true) {
-            print('[CONNECTIVITY LISTENER] ✅ Inspección ${inspeccion.id} subida exitosamente');
+            print(
+                '[CONNECTIVITY LISTENER] ✅ Inspección ${inspeccion.id} subida exitosamente');
 
             // Marcar como enviada en SQLite
             await DBProvider.db.marcarInspeccionComoEnviada(inspeccion.id!);
 
-            print('[CONNECTIVITY LISTENER] ✅ Inspección ${inspeccion.id} marcada como enviada en SQLite');
+            print(
+                '[CONNECTIVITY LISTENER] ✅ Inspección ${inspeccion.id} marcada como enviada en SQLite');
           } else {
             print(
                 '[CONNECTIVITY LISTENER] ⚠️ Error al subir inspección ${inspeccion.id}: ${resultado['message']}');
