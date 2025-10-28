@@ -763,6 +763,7 @@ class _PdfScreenState extends State<PdfScreen> {
 
     if (respuesta.idItem == -4) {
       row.cells[1].columnSpan = 5;
+      row.cells[1].value = infoPdf.numeroGuia; // Mostrar texto para identificación
       row.cells[1].style.stringFormat = formatColumns;
     }
 
@@ -796,6 +797,7 @@ class _PdfScreenState extends State<PdfScreen> {
           font: PdfStandardFont(PdfFontFamily.helvetica, 8),
         );
       } else {
+        // cuando no hay foto, queda vacio
         row.cells[6].value = '';
       }
     } else {
