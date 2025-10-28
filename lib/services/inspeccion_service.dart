@@ -565,6 +565,10 @@ class InspeccionService extends ChangeNotifier {
       ResumenPreoperacional inspeccion, Empresa selectedEmpresa,
       {bool showProgressNotifications = false}) async {
     try {
+      // Asegurar que el token esté configurado antes de cualquier operación
+      await loginService.setTokenFromStorage();
+      print('[SEND INSPECCION] Token configurado');
+      
       final connectivityResult = await checkConnection();
       if (connectivityResult) {
         // Declarar respuestas primero
