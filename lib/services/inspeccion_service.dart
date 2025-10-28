@@ -344,13 +344,14 @@ class InspeccionService extends ChangeNotifier {
       final headers =
           Map<String, dynamic>.from(loginService.dio.options.headers);
       print('📤 DEBUG: Headers: $headers');
-      
+
       // Verificar que el token esté presente en los headers
-      if (!headers.containsKey('x-access-token') || 
-          headers['x-access-token'] == null || 
+      if (!headers.containsKey('x-access-token') ||
+          headers['x-access-token'] == null ||
           headers['x-access-token'].toString().isEmpty) {
         print('❌ ERROR: Token de autenticación no disponible');
-        throw Exception('Token de autenticación no disponible. Por favor, inicia sesión nuevamente.');
+        throw Exception(
+            'Token de autenticación no disponible. Por favor, inicia sesión nuevamente.');
       }
 
       final startTime = DateTime.now();
@@ -731,19 +732,28 @@ class InspeccionService extends ChangeNotifier {
             inspeccion.respuestas!.isNotEmpty) {
           List tempData = jsonDecode(inspeccion.respuestas!) as List;
 
+          // Crear un Set para evitar duplicados por ID de item
+          final Set<String> processedItemIds = {};
+
           tempData.forEach((element) {
             final data = ItemsVehiculo.fromMap(element);
             // Filtramos los items que tienen respuesta
             final tempRespuestas =
                 data.items.where((item) => item.respuesta != null).toList();
 
-            tempRespuestas.forEach((element) {
-              element.fkPreoperacional = resumen.idInspeccion;
-              element.base = selectedEmpresa.nombreBase;
+            tempRespuestas.forEach((item) {
+              // Evitar duplicados verificando el ID del item
+              if (!processedItemIds.contains(item.idItem)) {
+                item.fkPreoperacional = resumen.idInspeccion;
+                item.base = selectedEmpresa.nombreBase;
+                respuestas.add(item);
+                processedItemIds.add(item.idItem);
+              }
             });
-            // Agregamos todas las respuestas a la lista
-            respuestas.addAll(tempRespuestas);
           });
+
+          print(
+              '[SEND INSPECCION] ✅ Respuestas procesadas: ${respuestas.length} (duplicados evitados)');
         }
 
         // Calcular elementos totales para progreso real (después de cargar respuestas)
