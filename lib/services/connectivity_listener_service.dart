@@ -13,6 +13,7 @@ class ConnectivityListenerService {
   bool _isCheckingUpload = false;
   Timer? _debounceTimer;
   DateTime? _lastUploadAttempt;
+  Set<int> _processingIds = {};
 
   /// Inicializa el listener de conectividad
   void initialize() {
@@ -56,19 +57,22 @@ class ConnectivityListenerService {
   Future<void> _checkAndUploadPending() async {
     // Evitar verificar si ya está en proceso
     if (_isCheckingUpload) {
-      print('[CONNECTIVITY LISTENER] ⏳ Ya hay una verificación en proceso, esperando...');
+      print(
+          '[CONNECTIVITY LISTENER] ⏳ Ya hay una verificación en proceso, esperando...');
       return;
     }
-    
+
     // Verificar cooldown para evitar subidas demasiado frecuentes
     if (_lastUploadAttempt != null) {
-      final timeSinceLastAttempt = DateTime.now().difference(_lastUploadAttempt!);
+      final timeSinceLastAttempt =
+          DateTime.now().difference(_lastUploadAttempt!);
       if (timeSinceLastAttempt.inSeconds < 10) {
-        print('[CONNECTIVITY LISTENER] ⏳ Cooldown activo, esperando... (${10 - timeSinceLastAttempt.inSeconds}s restantes)');
+        print(
+            '[CONNECTIVITY LISTENER] ⏳ Cooldown activo, esperando... (${10 - timeSinceLastAttempt.inSeconds}s restantes)');
         return;
       }
     }
-    
+
     _lastUploadAttempt = DateTime.now();
 
     _isCheckingUpload = true;
@@ -154,33 +158,44 @@ class ConnectivityListenerService {
       // Subir cada inspección pendiente
       for (final inspeccion in allInspecciones) {
         try {
+          if (inspeccion.id == null) continue;
+          
+          // Verificar si esta inspección ya está siendo procesada
+          if (_processingIds.contains(inspeccion.id)) {
+            print('[CONNECTIVITY LISTENER] ⏭️ Inspección ${inspeccion.id} ya está siendo procesada, omitiendo...');
+            continue;
+          }
+          
+          // Marcar como en proceso
+          _processingIds.add(inspeccion.id!);
           print('[CONNECTIVITY LISTENER] ⬆️ Subiendo inspección ID: ${inspeccion.id}');
 
           // Usar el método sendInspeccion
           final resultado = await inspeccionService.sendInspeccion(
             inspeccion,
             loginService.selectedEmpresa,
-            showProgressNotifications:
-                false, // No mostrar notificaciones automáticas
+            showProgressNotifications: false, // No mostrar notificaciones automáticas
           );
 
           if (resultado['ok'] == true) {
-            print(
-                '[CONNECTIVITY LISTENER] ✅ Inspección ${inspeccion.id} subida exitosamente');
+            print('[CONNECTIVITY LISTENER] ✅ Inspección ${inspeccion.id} subida exitosamente');
 
             // Marcar como enviada en SQLite
             await DBProvider.db.marcarInspeccionComoEnviada(inspeccion.id!);
 
-            print(
-                '[CONNECTIVITY LISTENER] ✅ Inspección ${inspeccion.id} marcada como enviada en SQLite');
+            print('[CONNECTIVITY LISTENER] ✅ Inspección ${inspeccion.id} marcada como enviada en SQLite');
           } else {
-            print(
-                '[CONNECTIVITY LISTENER] ⚠️ Error al subir inspección ${inspeccion.id}: ${resultado['message']}');
+            print('[CONNECTIVITY LISTENER] ⚠️ Error al subir inspección ${inspeccion.id}: ${resultado['message']}');
           }
+          
+          // Remover del set de procesamiento
+          _processingIds.remove(inspeccion.id!);
         } catch (e) {
-          print(
-              '[CONNECTIVITY LISTENER] ❌ Error al subir inspección ${inspeccion.id}: $e');
-          // Continuar con la siguiente inspección
+          print('[CONNECTIVITY LISTENER] ❌ Error al subir inspección ${inspeccion.id}: $e');
+          // Remover del set de procesamiento en caso de error
+          if (inspeccion.id != null) {
+            _processingIds.remove(inspeccion.id!);
+          }
         }
       }
 
@@ -189,6 +204,7 @@ class ConnectivityListenerService {
       print('[CONNECTIVITY LISTENER] ❌ Error en el proceso: $e');
     } finally {
       _isCheckingUpload = false;
+      _processingIds.clear(); // Limpiar el set de IDs procesados
     }
   }
 
@@ -199,4 +215,3 @@ class ConnectivityListenerService {
     print('[CONNECTIVITY LISTENER] 🛑 Listener detenido');
   }
 }
-
