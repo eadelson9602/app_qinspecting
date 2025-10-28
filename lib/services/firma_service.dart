@@ -29,10 +29,19 @@ class FirmaService extends ChangeNotifier {
       isLoading = true;
       notifyListeners();
 
-      Response response = await dio.post(
-          '${loginService.baseUrl}/insert_signature',
-          options: loginService.options,
-          data: jsonEncode(firma));
+      // Configurar el token antes de la petición
+      await loginService.setTokenFromStorage();
+      final headers =
+          Map<String, dynamic>.from(loginService.dio.options.headers);
+
+      Response response =
+          await dio.post('${loginService.baseUrl}/insert_signature',
+              options: Options(
+                headers: headers,
+                sendTimeout: Duration(seconds: 60),
+                receiveTimeout: Duration(seconds: 60),
+              ),
+              data: jsonEncode(firma));
 
       isLoading = false;
       notifyListeners();
@@ -52,12 +61,18 @@ class FirmaService extends ChangeNotifier {
 
   Future<Firma?> getInfoFirma(Empresa empresaSelected) async {
     try {
-      // Buscamos en el storage el token y lo asignamos a la instancia para poderlo usar en todas las peticiones de este servicio
-      String token = await storage.read(key: 'token') ?? '';
-      loginService.options.headers = {"x-access-token": token};
+      // Configurar el token antes de la petición
+      await loginService.setTokenFromStorage();
+      final headers =
+          Map<String, dynamic>.from(loginService.dio.options.headers);
+
       Response response = await dio.get(
           '${loginService.baseUrl}/get_info_firma/${empresaSelected.nombreBase}/${empresaSelected.numeroDocumento}',
-          options: loginService.options);
+          options: Options(
+            headers: headers,
+            sendTimeout: Duration(seconds: 60),
+            receiveTimeout: Duration(seconds: 60),
+          ));
 
       return response.data.toString().isNotEmpty
           ? Firma.fromMap(response.data)

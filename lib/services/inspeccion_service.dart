@@ -923,15 +923,16 @@ class InspeccionService extends ChangeNotifier {
       // Configurar el token antes de cualquier operación
       await loginService.setTokenFromStorage();
       print('[SEND INSPECCION BACKGROUND] Token configurado');
-      
+
       // Obtener token de autenticación usando la clave correcta
       String nombreBase = await storage.read(key: 'nombreBase') ?? '';
       String tokenKey = nombreBase.isNotEmpty ? 'token_$nombreBase' : 'token';
       String token = await storage.read(key: tokenKey) ?? '';
       print('[SEND INSPECCION BACKGROUND] Token key usada: $tokenKey');
-      
+
       if (token.isEmpty) {
-        print('[SEND INSPECCION BACKGROUND] ⚠️ Token no encontrado con clave: $tokenKey');
+        print(
+            '[SEND INSPECCION BACKGROUND] ⚠️ Token no encontrado con clave: $tokenKey');
         return {
           "message": 'Token de autenticación no encontrado',
           "ok": false,

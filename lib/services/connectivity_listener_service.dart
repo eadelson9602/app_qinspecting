@@ -12,6 +12,7 @@ class ConnectivityListenerService {
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
   bool _isCheckingUpload = false;
   Timer? _debounceTimer;
+  DateTime? _lastUploadAttempt;
 
   /// Inicializa el listener de conectividad
   void initialize() {
@@ -55,10 +56,20 @@ class ConnectivityListenerService {
   Future<void> _checkAndUploadPending() async {
     // Evitar verificar si ya está en proceso
     if (_isCheckingUpload) {
-      print(
-          '[CONNECTIVITY LISTENER] ⏳ Ya hay una verificación en proceso, esperando...');
+      print('[CONNECTIVITY LISTENER] ⏳ Ya hay una verificación en proceso, esperando...');
       return;
     }
+    
+    // Verificar cooldown para evitar subidas demasiado frecuentes
+    if (_lastUploadAttempt != null) {
+      final timeSinceLastAttempt = DateTime.now().difference(_lastUploadAttempt!);
+      if (timeSinceLastAttempt.inSeconds < 10) {
+        print('[CONNECTIVITY LISTENER] ⏳ Cooldown activo, esperando... (${10 - timeSinceLastAttempt.inSeconds}s restantes)');
+        return;
+      }
+    }
+    
+    _lastUploadAttempt = DateTime.now();
 
     _isCheckingUpload = true;
     print('[CONNECTIVITY LISTENER] 🔍 Verificando inspecciones pendientes...');
@@ -143,8 +154,7 @@ class ConnectivityListenerService {
       // Subir cada inspección pendiente
       for (final inspeccion in allInspecciones) {
         try {
-          print(
-              '[CONNECTIVITY LISTENER] ⬆️ Subiendo inspección ID: ${inspeccion.id}');
+          print('[CONNECTIVITY LISTENER] ⬆️ Subiendo inspección ID: ${inspeccion.id}');
 
           // Usar el método sendInspeccion
           final resultado = await inspeccionService.sendInspeccion(
@@ -189,3 +199,4 @@ class ConnectivityListenerService {
     print('[CONNECTIVITY LISTENER] 🛑 Listener detenido');
   }
 }
+

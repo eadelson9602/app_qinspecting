@@ -20,47 +20,15 @@ class SendPendingInspectionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: CustomDrawer(),
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back),
+        ),
+        title: const Text('Inspecciones por enviar'),
+      ),
       body: Container(
-          height: double.infinity,
-          child: Stack(
-            children: [
-              // Contenido principal
-              Container(
-                padding: EdgeInsets.only(
-                    top: 60,
-                    left: 10,
-                    right: 10,
-                    bottom: 50), // Reducido el espacio superior
-                child: ContentCardInspectionPending(),
-              ),
-              // Botón de volver atrás (al final para estar por delante)
-              Positioned(
-                left: 20,
-                top: 40,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.9),
-                    borderRadius: BorderRadius.circular(25),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
-                        blurRadius: 15,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                      size: 30,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          )),
+          height: double.infinity, child: ContentCardInspectionPending()),
       // floatingActionButton: FloatingActionButton(
       //   mini: true,
       //   onPressed: inspeccionService.isSaving
