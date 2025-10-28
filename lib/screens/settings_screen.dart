@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:provider/provider.dart';
@@ -451,156 +452,211 @@ class _SettingScreenState extends State<SettingScreen> {
       )));
     return Consumer<ThemeService>(
       builder: (context, themeService, child) {
-        return Stack(
-          children: [
-            Scaffold(
-              appBar: AppBar(
-                elevation: 0,
-                leading: IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.arrow_back),
+        return Scaffold(
+          appBar: AppBar(
+            elevation: 0,
+            leading: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(CupertinoIcons.back),
+            ),
+            title: const Text(
+              'Configuración',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            actions: [
+              IconButton(
+                onPressed: _toggleTheme,
+                icon: Icon(
+                  themeService.isDarkMode
+                      ? CupertinoIcons.sun_max
+                      : CupertinoIcons.moon_fill,
                 ),
-                title: const Text(
-                  'Configuración',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                actions: [
-                  IconButton(
-                    onPressed: _toggleTheme,
-                    icon: Icon(
-                      themeService.isDarkMode
-                          ? Icons.light_mode
-                          : Icons.dark_mode,
+              ),
+            ],
+            centerTitle: true,
+          ),
+          body: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            children: [
+              // Grupo: Cache
+              _buildIosGroup(children: [
+                _buildIosTile(
+                  leading: CupertinoIcons.archivebox,
+                  title: 'Gestión de Cache',
+                  subtitle: 'Tamaño del cache',
+                  trailing: Text(
+                    _cacheSize,
+                    style: TextStyle(
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                ],
-              ),
-              body: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Sección de Cache
-                    _buildSectionCard(
-                      context: context,
-                      themeService: themeService,
-                      title: 'Gestión de Cache',
-                      icon: Icons.storage,
-                      children: [
-                        _buildInfoRow(
-                          context: context,
-                          themeService: themeService,
-                          label: 'Tamaño del cache:',
-                          value: _cacheSize,
-                        ),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            onPressed:
-                                loadingProgress.isLoading ? null : _clearCache,
-                            icon: const Icon(Icons.delete_sweep),
-                            label: const Text('Limpiar Cache'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Sección de Tema
-                    _buildSectionCard(
-                      context: context,
-                      themeService: themeService,
-                      title: 'Apariencia',
-                      icon: Icons.palette,
-                      children: [
-                        _buildInfoRow(
-                          context: context,
-                          themeService: themeService,
-                          label: 'Tema actual:',
-                          value: themeService.isDarkMode ? 'Oscuro' : 'Claro',
-                        ),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            onPressed: _toggleTheme,
-                            icon: Icon(themeService.isDarkMode
-                                ? Icons.light_mode
-                                : Icons.dark_mode),
-                            label: Text(themeService.isDarkMode
-                                ? 'Cambiar a Claro'
-                                : 'Cambiar a Oscuro'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: themeService.isDarkMode
-                                  ? Colors.blue
-                                  : Colors.grey[800],
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Sección de GPS (original)
-                    _buildSectionCard(
-                      context: context,
-                      themeService: themeService,
-                      title: 'Ubicación',
-                      icon: Icons.location_on,
-                      children: [
-                        Text(
-                          'Es necesario activar el GPS para el correcto funcionamiento de la aplicación.',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: themeService.isDarkMode
-                                ? Colors.grey[300]
-                                : Colors.grey[600],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            onPressed: _requestLocationPermission,
-                            icon: const Icon(Icons.gps_fixed),
-                            label: const Text('Solicitar Acceso GPS'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
                 ),
-              ),
+                _buildThemedDivider(context),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: CupertinoButton(
+                      color: Colors.red,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      onPressed: loadingProgress.isLoading ? null : _clearCache,
+                      borderRadius: BorderRadius.circular(10),
+                      child: const Text(
+                        'Limpiar Cache',
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                )
+              ]),
 
-              // Overlay del CustomLoadingTruck cuando se está limpiando el cache
-            )
-          ],
+              const SizedBox(height: 16),
+
+              // Grupo: Apariencia
+              _buildIosGroup(children: [
+                _buildIosTile(
+                  leading: CupertinoIcons.paintbrush,
+                  title: 'Apariencia',
+                  subtitle: 'Tema oscuro',
+                  trailing: Switch.adaptive(
+                    value: themeService.isDarkMode,
+                    onChanged: (_) => _toggleTheme(),
+                  ),
+                ),
+              ]),
+
+              const SizedBox(height: 16),
+
+              // Grupo: Ubicación
+              _buildIosGroup(children: [
+                _buildIosTile(
+                  leading: CupertinoIcons.location_solid,
+                  title: 'Ubicación',
+                  subtitle:
+                      'Es necesario activar el GPS para el correcto funcionamiento.',
+                ),
+                _buildThemedDivider(context),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: CupertinoButton(
+                      color: Colors.green,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      onPressed: _requestLocationPermission,
+                      borderRadius: BorderRadius.circular(10),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(CupertinoIcons.location, color: Colors.white),
+                          SizedBox(width: 8),
+                          Text('Solicitar Acceso GPS',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ]),
+            ],
+          ),
         );
       },
+    );
+  }
+
+  Widget _buildIosGroup({required List<Widget> children}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).brightness == Brightness.light
+            ? Colors.white
+            : Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).brightness == Brightness.light
+                ? Colors.black.withValues(alpha: 0.08)
+                : Theme.of(context).shadowColor.withValues(alpha: 0.2),
+            blurRadius: 20,
+            offset: Offset(0, 4),
+            spreadRadius: 0,
+          ),
+          BoxShadow(
+            color: Theme.of(context).brightness == Brightness.light
+                ? Colors.black.withValues(alpha: 0.04)
+                : Theme.of(context).shadowColor.withValues(alpha: 0.2),
+            blurRadius: 6,
+            offset: Offset(0, 2),
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: Column(children: children),
+    );
+  }
+
+  Widget _buildIosTile({
+    required IconData leading,
+    required String title,
+    String? subtitle,
+    Widget? trailing,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(
+            leading,
+            size: 22,
+            color: Theme.of(context).textTheme.bodyLarge?.color,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.grey[400]
+                          : Colors.grey[700],
+                    ),
+                  ),
+                ]
+              ],
+            ),
+          ),
+          if (trailing != null) trailing,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildThemedDivider(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Divider(
+      height: 1,
+      indent: 52,
+      endIndent: 0,
+      color: isDark ? Colors.white12 : Colors.black12,
     );
   }
 

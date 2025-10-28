@@ -140,10 +140,10 @@ class RealBackgroundUploadService with WidgetsBindingObserver {
         print('🗑️ DEBUG: Eliminando datos de la inspección del SQLite...');
         try {
           final inspeccionProvider = InspeccionProvider();
-          // await inspeccionProvider
-          //     .eliminarResumenPreoperacional(inspeccion.id!);
-          // await inspeccionProvider
-          //     .eliminarRespuestaPreoperacional(inspeccion.id!);
+          await inspeccionProvider
+              .eliminarResumenPreoperacional(inspeccion.id!);
+          await inspeccionProvider
+              .eliminarRespuestaPreoperacional(inspeccion.id!);
           print(
               '✅ DEBUG: Datos de la inspección eliminados del SQLite exitosamente');
         } catch (e) {
