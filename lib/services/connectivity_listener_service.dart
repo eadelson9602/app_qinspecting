@@ -149,22 +149,35 @@ class ConnectivityListenerService {
         return;
       }
 
-      print('[CONNECTIVITY LISTENER] 📋 Inspecciones pendientes encontradas: ${allInspecciones.length}');
+      print(
+          '[CONNECTIVITY LISTENER] 📋 Inspecciones pendientes encontradas: ${allInspecciones.length}');
+
+      // Mostrar notificación de inicio
+      if (allInspecciones.length > 0) {
+        await NotificationService.showUploadProgressNotification(
+          title: 'Subida Automática',
+          body:
+              'Iniciando subida de ${allInspecciones.length} inspección(es) pendiente(s)...',
+          progress: 0,
+          total: allInspecciones.length,
+        );
+      }
 
       // Configurar token
       await loginService.setTokenFromStorage();
-      
+
       // Verificar que el token existe
       final nombreBase = loginService.selectedEmpresa.nombreBase;
       final tokenKey = nombreBase != null ? 'token_$nombreBase' : 'token';
       final token = await loginService.storage.read(key: tokenKey);
-      
+
       if (token == null || token.isEmpty) {
-        print('[CONNECTIVITY LISTENER] ⚠️ No hay token disponible, no se pueden subir inspecciones automáticamente');
+        print(
+            '[CONNECTIVITY LISTENER] ⚠️ No hay token disponible, no se pueden subir inspecciones automáticamente');
         _isCheckingUpload = false;
         return;
       }
-      
+
       print('[CONNECTIVITY LISTENER] ✅ Token validado correctamente');
 
       // Subir cada inspección pendiente
@@ -201,12 +214,12 @@ class ConnectivityListenerService {
           print(
               '[CONNECTIVITY LISTENER] ⬆️ Subiendo inspección ID: ${inspeccion.id}');
 
-          // Usar el método sendInspeccion
+          // Usar el método sendInspeccion con notificaciones habilitadas
           final resultado = await inspeccionService.sendInspeccion(
             inspeccion,
             loginService.selectedEmpresa,
             showProgressNotifications:
-                false, // No mostrar notificaciones automáticas
+                true, // Mostrar notificaciones de progreso
           );
 
           if (resultado['ok'] == true) {
@@ -236,8 +249,25 @@ class ConnectivityListenerService {
       }
 
       print('[CONNECTIVITY LISTENER] ✅ Proceso de subida completado');
+
+      // Mostrar notificación de finalización
+      await NotificationService.showSuccessNotification(
+        title: 'Subida Automática',
+        body: 'Subida automática de inspecciones completada',
+      );
+
+      // Descartar notificación de progreso después de 3 segundos
+      Future.delayed(Duration(seconds: 3), () {
+        NotificationService.cancelProgressNotification();
+      });
     } catch (e) {
       print('[CONNECTIVITY LISTENER] ❌ Error en el proceso: $e');
+
+      // Mostrar notificación de error
+      await NotificationService.showErrorNotification(
+        title: 'Error en Subida',
+        body: 'Hubo un error al subir las inspecciones automáticamente',
+      );
     } finally {
       _isCheckingUpload = false;
       _processingIds.clear(); // Limpiar el set de IDs procesados

@@ -38,6 +38,21 @@ class LoginService extends ChangeNotifier {
           nombreBase.isNotEmpty ? _getTokenKey(nombreBase) : 'token';
 
       String token = await storage.read(key: tokenKey) ?? '';
+
+      // Si no hay token para la base, pero existe uno temporal, moverlo
+      if (token.isEmpty && nombreBase.isNotEmpty) {
+        final tempToken = await storage.read(key: 'token');
+        if (tempToken != null && tempToken.isNotEmpty) {
+          await storage.write(key: tokenKey, value: tempToken);
+          await storage.delete(key: 'token');
+          token = tempToken;
+          print(
+              '[SET TOKEN] 🔁 Token temporal movido a clave específica: $tokenKey');
+        }
+      }
+
+      print('[SET TOKEN] ✅ Tokens: ${await storage.readAll()}');
+
       if (token.isNotEmpty) {
         dio.options.headers = {"x-access-token": token};
         options.headers = {"x-access-token": token};
@@ -83,6 +98,17 @@ class LoginService extends ChangeNotifier {
         await storage.write(key: tokenKey, value: response.data['token']);
         dio.options.headers = {"x-access-token": response.data['token']};
         options.headers = {"x-access-token": response.data['token']};
+
+        // Si no se pasó nombreBase pero ya hay una empresa seleccionada, mover a su clave
+        if (nombreBase == null &&
+            selectedEmpresa.nombreBase != null &&
+            selectedEmpresa.nombreBase!.isNotEmpty) {
+          final baseKey = _getTokenKey(selectedEmpresa.nombreBase!);
+          await storage.write(key: baseKey, value: response.data['token']);
+          await storage.delete(key: 'token');
+          print(
+              '[LOGIN] 🔁 Token temporal movido a clave específica: $baseKey');
+        }
 
         // Verificar que el token se guardó correctamente
         final savedToken = await storage.read(key: tokenKey);
@@ -215,6 +241,9 @@ class LoginService extends ChangeNotifier {
       await storage.delete(key: 'token');
     }
 
+    // Asegurar headers actualizados desde storage
+    await setTokenFromStorage();
+
     userDataLogged = tempUserData;
 
     tempUserData.empresa = empresa.nombreQi;
@@ -242,6 +271,18 @@ class LoginService extends ChangeNotifier {
     String tokenKey =
         nombreBase.isNotEmpty ? _getTokenKey(nombreBase) : 'token';
     String token = await storage.read(key: tokenKey) ?? '';
+
+    // Si no hay token para la base pero existe uno temporal, moverlo
+    if (token.isEmpty && nombreBase.isNotEmpty) {
+      final tempToken = await storage.read(key: 'token');
+      if (tempToken != null && tempToken.isNotEmpty) {
+        await storage.write(key: tokenKey, value: tempToken);
+        await storage.delete(key: 'token');
+        token = tempToken;
+        print(
+            '[READ TOKEN] 🔁 Token temporal movido a clave específica: $tokenKey');
+      }
+    }
 
     print('🔍 [READ TOKEN] Verificando datos en storage:');
     print(
@@ -311,6 +352,7 @@ class LoginService extends ChangeNotifier {
     } else {
       print(
           '⚠️ [READ TOKEN] Datos incompletos en storage, redirigiendo a login');
+      return '';
     }
     print(
         '💻 [READ TOKEN] Retornando: ${idUsuario.isEmpty ? "vacío" : idUsuario}');

@@ -19,8 +19,8 @@ class CheckScreen extends StatelessWidget {
               if (!snapshot.hasData) {
                 print('📁data del check auth screen: ${snapshot.hasData}');
                 return LoadingScreen();
-              }
-              ;
+              };
+              print('📁data del check auth screen: ${snapshot.data}');
               if (snapshot.data == '') {
                 Future.microtask(() {
                   Navigator.pushReplacement(

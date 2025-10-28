@@ -732,28 +732,47 @@ class InspeccionService extends ChangeNotifier {
             inspeccion.respuestas!.isNotEmpty) {
           List tempData = jsonDecode(inspeccion.respuestas!) as List;
 
+          print('📦 [CARGA] Cargando respuestas desde inspeccion.respuestas');
+          print('📦 [CARGA] Total de categorías: ${tempData.length}');
+
           // Crear un Set para evitar duplicados por ID de item
           final Set<String> processedItemIds = {};
 
           tempData.forEach((element) {
             final data = ItemsVehiculo.fromMap(element);
+            print(
+                '📦 [CARGA] Categoría: ${data.categoria}, Items: ${data.items.length}');
+
             // Filtramos los items que tienen respuesta
             final tempRespuestas =
                 data.items.where((item) => item.respuesta != null).toList();
 
             tempRespuestas.forEach((item) {
+              print(
+                  '📦 [CARGA] Item: idItem=${item.idItem}, item=${item.item}, adjunto=${item.adjunto}');
+
               // Evitar duplicados verificando el ID del item
               if (!processedItemIds.contains(item.idItem)) {
                 item.fkPreoperacional = resumen.idInspeccion;
                 item.base = selectedEmpresa.nombreBase;
                 respuestas.add(item);
                 processedItemIds.add(item.idItem);
+                print('✅ [CARGA] Item agregado: idItem=${item.idItem}');
+              } else {
+                print(
+                    '⚠️ [CARGA] Item duplicado omitido: idItem=${item.idItem}');
               }
             });
           });
 
           print(
               '[SEND INSPECCION] ✅ Respuestas procesadas: ${respuestas.length} (duplicados evitados)');
+
+          // Log de respuestas cargadas
+          for (int i = 0; i < respuestas.length; i++) {
+            print(
+                '📋 [CARGA] Respuesta $i: idItem=${respuestas[i].idItem}, item=${respuestas[i].item}, adjunto=${respuestas[i].adjunto}');
+          }
         }
 
         // Calcular elementos totales para progreso real (después de cargar respuestas)
@@ -783,10 +802,15 @@ class InspeccionService extends ChangeNotifier {
 
         for (int i = 0; i < respuestas.length; i++) {
           final element = respuestas[i];
+          print(
+              '🔍 [RESPUESTA $i] Procesando: idItem=${element.idItem}, item=${element.item}');
           element.fkPreoperacional = resumen.idInspeccion;
 
           final hasAdjunto =
               element.adjunto != null && element.adjunto!.isNotEmpty;
+          if (hasAdjunto) {
+            print('📷 [RESPUESTA $i] Tiene adjunto: ${element.adjunto}');
+          }
           // Actualizar progreso
           if (showProgressNotifications) {
             currentElement++;
@@ -814,17 +838,25 @@ class InspeccionService extends ChangeNotifier {
                   folder: 'inspecciones');
 
               if (responseUpload != null) {
+                print(
+                    '✅ [RESPUESTA $i] Imagen subida, path antiguo: ${element.adjunto}');
                 element.adjunto = responseUpload['path'];
+                print('✅ [RESPUESTA $i] Nuevo path: ${element.adjunto}');
               } else {
+                print('⚠️ [RESPUESTA $i] uploadImage retornó null');
                 element.adjunto = null;
               }
             } catch (e) {
+              print('❌ [RESPUESTA $i] Error al subir imagen: $e');
               element.adjunto = null; // Continuar sin adjunto
             }
           }
 
           // Agregar respuesta al array
-          respuestasArray.add(jsonDecode(element.toJson()));
+          final itemToAdd = jsonDecode(element.toJson());
+          print(
+              '📋 [RESPUESTA $i] Agregando al array: idItem=${itemToAdd['idItem']}, adjunto=${itemToAdd['adjunto']}');
+          respuestasArray.add(itemToAdd);
         }
 
         // Enviar todas las respuestas en una sola petición
@@ -841,6 +873,15 @@ class InspeccionService extends ChangeNotifier {
         await loginService.setTokenFromStorage();
         final respuestasHeaders =
             Map<String, dynamic>.from(loginService.dio.options.headers);
+
+        // Log final antes de enviar
+        print(
+            '📤 [ENVÍO] Enviando ${respuestasArray.length} respuestas al servidor');
+        for (int i = 0; i < respuestasArray.length; i++) {
+          final resp = respuestasArray[i];
+          print(
+              '  - Respuesta $i: idItem=${resp['idItem']}, adjunto=${resp['adjunto']}');
+        }
 
         await dio
             .post('${loginService.baseUrl}/insert_respuestas_preoperacional',
