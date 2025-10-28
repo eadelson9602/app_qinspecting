@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 
 import 'package:app_qinspecting/models/inspeccion.dart';
+import 'package:app_qinspecting/services/services.dart';
 import '../ui/app_theme.dart';
 
 class CardInspeccionDesktop extends StatelessWidget {
-  const CardInspeccionDesktop({Key? key, required this.resumenPreoperacional})
-      : super(key: key);
+  const CardInspeccionDesktop({
+    Key? key,
+    required this.resumenPreoperacional,
+    this.inspeccionOffline,
+  }) : super(key: key);
 
   final ResumenPreoperacionalServer resumenPreoperacional;
+  final ResumenPreoperacional? inspeccionOffline;
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +81,10 @@ class CardInspeccionDesktop extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          '${resumenPreoperacional.consecutivo}',
+                          // Mostrar ID local si hay datos offline, sino mostrar consecutivo
+                          inspeccionOffline != null
+                              ? '${inspeccionOffline!.id}'
+                              : '${resumenPreoperacional.consecutivo ?? "Pendiente"}',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -96,8 +104,33 @@ class CardInspeccionDesktop extends StatelessWidget {
                   child: IconButton(
                     icon: Icon(Icons.picture_as_pdf_outlined),
                     color: Colors.white,
-                    onPressed: () => Navigator.pushNamed(context, 'pdf',
-                        arguments: [resumenPreoperacional]),
+                    onPressed: () async {
+                      // Verificar conexión
+                      final inspeccionService = InspeccionService();
+                      final hasConnection =
+                          await inspeccionService.checkConnection();
+
+                      if (hasConnection) {
+                        // Con conexión: usar pdf normal
+                        Navigator.pushNamed(context, 'pdf',
+                            arguments: [resumenPreoperacional]);
+                      } else {
+                        // Sin conexión: usar pdf offline
+                        if (inspeccionOffline != null) {
+                          Navigator.pushNamed(context, 'pdf_offline',
+                              arguments: [inspeccionOffline]);
+                        } else {
+                          // Si no hay datos offline, mostrar mensaje
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'No hay datos disponibles para generar el PDF offline'),
+                              backgroundColor: Colors.orange,
+                            ),
+                          );
+                        }
+                      }
+                    },
                   ),
                 ),
               ],
@@ -149,7 +182,9 @@ class CardInspeccionDesktop extends StatelessWidget {
                       Expanded(
                         child: _buildInfoRow(
                           'Hora',
-                          resumenPreoperacional.hora.toString(),
+                          resumenPreoperacional.hora == null
+                              ? '--'
+                              : resumenPreoperacional.hora.toString(),
                           Icons.access_time_outlined,
                           const Color(0xFFFF9800), // Orange
                           context,

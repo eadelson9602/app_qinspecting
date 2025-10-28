@@ -368,8 +368,20 @@ class PdfScreenOffline extends StatelessWidget {
       adjunto: infoPdf.urlFotoCabezote,
     ));
 
+    print('📋 [PDF OFFLINE] Agregando items especiales:');
+    print('   - Guía transporte URL: ${infoPdf.urlFotoGuia}');
+    print('   - Número guía: ${infoPdf.numeroGuia}');
+
     respuestas.last.items.add(Item(
-      idItem: '-2',
+      idItem: '-3',
+      item: 'Guía de transporte',
+      adjunto: infoPdf.urlFotoGuia,
+    ));
+
+    print('   - Remolque URL: ${infoPdf.urlFotoRemolque}');
+
+    respuestas.last.items.add(Item(
+      idItem: '-4',
       item: 'Remolque',
       adjunto: infoPdf.urlFotoRemolque,
     ));
@@ -392,18 +404,38 @@ class PdfScreenOffline extends StatelessWidget {
   //Create and row for the grid.
   void addRows(PdfGrid grid, ResumenPreoperacional infoPdf, Item respuesta,
       PdfStringFormat formatColumns, DateTime fechaHoy) async {
+    // Log para items especiales
+    if (respuesta.idItem == '-3') {
+      print('📄 [ADD ROWS] Procesando Guía de transporte:');
+      print('   - item: ${respuesta.item}');
+      print('   - adjunto: ${respuesta.adjunto}');
+      print('   - numeroGuia: ${infoPdf.numeroGuia}');
+    }
+
     final PdfGridRow row = grid.rows.add();
     row.cells[0].value = '${respuesta.item}';
 
     row.cells[0].style.stringFormat = formatColumns;
-    if (respuesta.respuesta == 'S') {
-      row.cells[1].value = 'X';
-    } else if (respuesta.respuesta == 'N') {
-      row.cells[2].value = 'X';
-    } else if (respuesta.respuesta == 'B') {
-      row.cells[3].value = 'X';
+
+    // Verificar si es un item especial primero
+    if (respuesta.idItem == '-1' ||
+        respuesta.idItem == '-2' ||
+        respuesta.idItem == '-3' ||
+        respuesta.idItem == '-4') {
+      // Para items especiales, no asignamos X en las celdas de respuesta
+      print(
+          '🔍 [ADD ROWS] Item especial: ${respuesta.item} (idItem: ${respuesta.idItem})');
     } else {
-      row.cells[4].value = 'X';
+      // Para items normales, asignar X según la respuesta
+      if (respuesta.respuesta == 'S') {
+        row.cells[1].value = 'X';
+      } else if (respuesta.respuesta == 'N') {
+        row.cells[2].value = 'X';
+      } else if (respuesta.respuesta == 'B') {
+        row.cells[3].value = 'X';
+      } else {
+        row.cells[4].value = 'X';
+      }
     }
 
     // Une las celdas de respuestas S, N, B, M y Observaciones para mostrar el kilometraje al final del pdf
@@ -415,25 +447,52 @@ class PdfScreenOffline extends StatelessWidget {
 
     if (respuesta.idItem == '-2') {
       row.cells[1].columnSpan = 5;
+      row.cells[1].value = 'Cabezote'; // Mostrar texto para identificación
       row.cells[1].style.stringFormat = formatColumns;
     }
 
     if (respuesta.idItem == '-3') {
       row.cells[1].columnSpan = 5;
+      // Mostrar el número de guía si existe
+      String guiaTexto = 'Guía de transporte';
+      if (infoPdf.numeroGuia != null && infoPdf.numeroGuia!.isNotEmpty) {
+        guiaTexto = 'Guía de transporte: ${infoPdf.numeroGuia}';
+      }
+      row.cells[1].value = guiaTexto;
       row.cells[1].style.stringFormat = formatColumns;
     }
 
-    row.cells[5].style.stringFormat = formatColumns;
-    row.cells[5].value =
-        '${respuesta.observaciones == null ? '' : respuesta.observaciones}';
+    if (respuesta.idItem == '-4') {
+      row.cells[1].columnSpan = 5;
+      row.cells[1].value = 'Remolque'; // Mostrar texto para identificación
+      row.cells[1].style.stringFormat = formatColumns;
+    }
 
-    if (respuesta.adjunto == null) {
+    // Solo asignar observaciones si NO es un item especial
+    if (respuesta.idItem != '-1' &&
+        respuesta.idItem != '-2' &&
+        respuesta.idItem != '-3' &&
+        respuesta.idItem != '-4') {
+      row.cells[5].style.stringFormat = formatColumns;
+      row.cells[5].value =
+          '${respuesta.observaciones == null ? '' : respuesta.observaciones}';
+    }
+
+    // Mostrar la imagen si existe adjunto
+    if (respuesta.adjunto == null || respuesta.adjunto!.isEmpty) {
       row.cells[6].value = '';
+      print('⚠️ [ADD ROWS] No hay adjunto para: ${respuesta.item}');
     } else {
-      row.cells[6].style = PdfGridCellStyle(
-          backgroundImage:
-              PdfBitmap(File(respuesta.adjunto!).readAsBytesSync()));
-      row.height = 40;
+      try {
+        row.cells[6].style = PdfGridCellStyle(
+            backgroundImage:
+                PdfBitmap(File(respuesta.adjunto!).readAsBytesSync()));
+        row.height = 40;
+        print('✅ [ADD ROWS] Imagen cargada para: ${respuesta.item}');
+      } catch (e) {
+        print('❌ [ADD ROWS] Error al cargar imagen para ${respuesta.item}: $e');
+        row.cells[6].value = 'Error al cargar imagen';
+      }
     }
   }
 }

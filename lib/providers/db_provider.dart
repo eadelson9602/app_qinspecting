@@ -254,21 +254,41 @@ class DBProvider {
   // Forma corta
   Future<int?> nuevaEmpresa(Empresa nuevaEmpresa) async {
     final db = await database;
-    print(nuevaEmpresa.toJson());
+    print('📝 [nuevaEmpresa] Guardando empresa:');
+    print('   - nombreBase: ${nuevaEmpresa.nombreBase}');
+    print('   - numeroDocumento: ${nuevaEmpresa.numeroDocumento}');
+    print('   - nombreQi: ${nuevaEmpresa.nombreQi}');
+    print('   - idEmpresa: ${nuevaEmpresa.idEmpresa}');
+    print('   - Datos completos: ${nuevaEmpresa.toJson()}');
     final res = await db?.insert('Empresas', nuevaEmpresa.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
+    print('✅ [nuevaEmpresa] Empresa guardada con ID: $res');
     return res;
   }
 
   Future<Empresa?> getEmpresaById(String base) async {
     final db = await database;
+    print('🔍 [getEmpresaById] Buscando empresa con base: $base');
     // Usar índice idx_empresas_nombre_base
     final res = await db?.query('Empresas',
         where: 'nombreBase = ?',
         whereArgs: [base],
         limit: 1 // Optimización: limitar a 1 resultado
         );
-    return res!.isNotEmpty ? Empresa.fromMap(res.first) : null;
+    print('📊 [getEmpresaById] Resultados de consulta: ${res?.length ?? 0}');
+    if (res != null && res.isNotEmpty) {
+      print('📊 [getEmpresaById] Datos encontrados: ${res.first}');
+      final empresa = Empresa.fromMap(res.first);
+      print('📊 [getEmpresaById] Empresa recuperada:');
+      print('   - nombreBase: ${empresa.nombreBase}');
+      print('   - numeroDocumento: ${empresa.numeroDocumento}');
+      print('   - nombreQi: ${empresa.nombreQi}');
+      print('   - idEmpresa: ${empresa.idEmpresa}');
+      return empresa;
+    } else {
+      print('❌ [getEmpresaById] No se encontró empresa con base: $base');
+      return null;
+    }
   }
 
   Future<List<Empresa>?> getAllEmpresas() async {
@@ -660,8 +680,14 @@ class DBProvider {
 
   Future<int?> nuevoInspeccion(ResumenPreoperacional nuevoInspeccion) async {
     final db = await database;
-    print('urlFotoCabezote ${nuevoInspeccion.urlFotoCabezote}');
-    print('urlFotoRemolque ${nuevoInspeccion.urlFotoRemolque}');
+    print('📝 [nuevoInspeccion] Guardando inspección:');
+    print('  - urlFotoKm: ${nuevoInspeccion.urlFotoKm}');
+    print('  - urlFotoCabezote: ${nuevoInspeccion.urlFotoCabezote}');
+    print('  - urlFotoRemolque: ${nuevoInspeccion.urlFotoRemolque}');
+    print('  - urlFotoGuia: ${nuevoInspeccion.urlFotoGuia}');
+    print('  - placaVehiculo: ${nuevoInspeccion.placaVehiculo}');
+    print('  - placaRemolque: ${nuevoInspeccion.placaRemolque}');
+    print('  - tieneGuia: ${nuevoInspeccion.numeroGuia != null}');
 
     Map<String, dynamic> resumenSave = {
       "placa": nuevoInspeccion.placa,

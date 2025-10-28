@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,11 @@ class InspeccionService extends ChangeNotifier {
   ));
   final loginService = LoginService();
   bool isLoading = false;
+
+  // StreamController para emitir progreso de carga de datos
+  final StreamController<double> _dataLoadProgressController =
+      StreamController<double>.broadcast();
+  Stream<double> get dataLoadProgress => _dataLoadProgressController.stream;
   bool isSaving = false;
   // Progreso por lote para subidas masivas de imágenes
   double batchProgress = 0.0; // 0..1 del lote actual
@@ -155,9 +161,8 @@ class InspeccionService extends ChangeNotifier {
     if (connectivityResult) {
       for (int attempt = 1; attempt <= maxRetries; attempt++) {
         try {
-          // Buscamos en el storage el token y lo asignamos a la instancia para poderlo usar en todas las peticiones de este servicio
-          String token = await storage.read(key: 'token') ?? '';
-          loginService.options.headers = {"x-access-token": token};
+          // Configuramos el token desde secure storage
+          await loginService.setTokenFromStorage();
 
           Response response = await dio.get(
               '${loginService.baseUrl}/get_latest_inspections/${selectedEmpresa.nombreBase}/${selectedEmpresa.numeroDocumento}',
@@ -390,13 +395,17 @@ class InspeccionService extends ChangeNotifier {
 
   Future<bool> getData(Empresa selectedEmpresa) async {
     try {
-      // Buscamos en el storage el token y lo asignamos a la instancia para poderlo usar en todas las peticiones de este servicio
-      String token = await storage.read(key: 'token') ?? '';
-      loginService.options.headers = {"x-access-token": token};
+      // Emitir progreso inicial
+      _dataLoadProgressController.add(0.05);
+
+      // Configuramos el token desde secure storage
+      await loginService.setTokenFromStorage();
       final baseEmpresa = selectedEmpresa.nombreBase;
 
+      _dataLoadProgressController.add(0.10);
       await loginService.getUserData(selectedEmpresa);
 
+      _dataLoadProgressController.add(0.15);
       // Perform all API calls in parallel to reduce total time
       List<Future> apiCalls = [];
 
@@ -423,9 +432,11 @@ class InspeccionService extends ChangeNotifier {
           '${loginService.baseUrl}/list_type_documents/$baseEmpresa',
           options: loginService.options));
 
+      _dataLoadProgressController.add(0.20);
       // Wait for all API calls to complete
       List<dynamic> responses = await Future.wait(apiCalls);
 
+      _dataLoadProgressController.add(0.30);
       // Process database operations in batches to reduce lock time
       List<Future> dbOperationsVehiculos = [];
       List<Future> dbOperationsRemolques = [];
@@ -441,6 +452,7 @@ class InspeccionService extends ChangeNotifier {
 
       print('dbOperationsVehiculos: ${dbOperationsVehiculos.length}');
       await Future.wait(dbOperationsVehiculos);
+      _dataLoadProgressController.add(0.40);
 
       print('✅vehiculos cargados');
 
@@ -452,6 +464,7 @@ class InspeccionService extends ChangeNotifier {
 
       print('dbOperationsRemolques: ${dbOperationsRemolques.length}');
       await Future.wait(dbOperationsRemolques);
+      _dataLoadProgressController.add(0.50);
       print('✅remolques cargados');
 
       // Process departments
@@ -463,6 +476,7 @@ class InspeccionService extends ChangeNotifier {
 
       print('dbOperationsDepartamentos: ${dbOperationsDepartamentos.length}');
       await Future.wait(dbOperationsDepartamentos);
+      _dataLoadProgressController.add(0.60);
       print('✅departamentos cargados');
 
       // Process cities
@@ -473,6 +487,7 @@ class InspeccionService extends ChangeNotifier {
 
       // Process items - Limpiar tabla primero para evitar conflictos
       await DBProvider.db.clearItemsInspeccion();
+      _dataLoadProgressController.add(0.65);
       print('✅ Items de inspección limpiados');
 
       for (var item in responses[4].data) {
@@ -482,6 +497,7 @@ class InspeccionService extends ChangeNotifier {
 
       print('dbOperationsItems: ${dbOperationsItems.length}');
       await Future.wait(dbOperationsItems);
+      _dataLoadProgressController.add(0.80);
       print('✅items cargados');
 
       // Verificar que los items se guardaron correctamente
@@ -494,6 +510,9 @@ class InspeccionService extends ChangeNotifier {
         dbOperationsTipoDocumentos
             .add(DBProvider.db.nuevoTipoDocumento(tempTipoDoc));
       }
+
+      _dataLoadProgressController.add(1.0);
+      print('✅ Carga de datos completada');
 
       return true;
     } on DioException catch (error) {
@@ -1074,5 +1093,11 @@ class InspeccionService extends ChangeNotifier {
     }
     throw Exception(
         'Error al obtener datos del PDF después de $maxRetries intentos');
+  }
+
+  @override
+  void dispose() {
+    _dataLoadProgressController.close();
+    super.dispose();
   }
 }

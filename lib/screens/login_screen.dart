@@ -277,11 +277,51 @@ class _ButtonLogin extends StatelessWidget {
                           '${loginForm.password}',
                           '${empresas[i].nombreBase}');
                       loginService.userDataLogged = userData!;
+
+                      // Guardar datos necesarios para sesiones futuras
                       await storage.write(
                           key: 'usuario',
                           value: '${empresas[i].numeroDocumento}');
                       await storage.write(
+                          key: 'nombreBase',
+                          value: '${empresas[i].nombreBase}');
+                      await storage.write(
                           key: 'idEmpresa', value: '${empresas[i].idEmpresa}');
+
+                      print('[LOGIN OFFLINE] Datos guardados en storage:');
+                      print('   - Usuario: ${empresas[i].numeroDocumento}');
+                      print('   - Nombre Base: ${empresas[i].nombreBase}');
+
+                      // Guardar la empresa en SQLite si no existe
+                      await DBProvider.db.nuevaEmpresa(empresas[i]);
+                      print('[LOGIN OFFLINE] ✅ Empresa guardada en SQLite');
+
+                      // Asignar la empresa seleccionada al servicio
+                      loginService.selectedEmpresa = empresas[i];
+                      print(
+                          '[LOGIN OFFLINE] ✅ Empresa asignada al LoginService');
+
+                      // Verificar si hay token guardado de sesión anterior para esta empresa
+                      String tokenKey = 'token_${empresas[i].nombreBase}';
+                      final existingToken = await storage.read(key: tokenKey);
+                      if (existingToken == null || existingToken.isEmpty) {
+                        print(
+                            '⚠️ [LOGIN OFFLINE] No hay token guardado para esta empresa');
+                        print(
+                            '   El usuario necesita conectarse para usar funciones que requieren token');
+                      } else {
+                        print(
+                            '✅ [LOGIN OFFLINE] Token encontrado de sesión anterior para esta empresa');
+                        print('   - Token key: $tokenKey');
+                        // Configurar headers con el token existente
+                        loginService.dio.options.headers = {
+                          "x-access-token": existingToken
+                        };
+                        loginService.options.headers = {
+                          "x-access-token": existingToken
+                        };
+                      }
+
                       Navigator.pushNamed(context, 'home');
                     },
                   ),

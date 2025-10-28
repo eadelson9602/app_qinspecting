@@ -19,7 +19,15 @@ class GetDataScreen extends StatelessWidget {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 print(
                     '📁conection state del data screen: ${snapshot.connectionState}');
-                return LoadingScreen();
+                // StreamBuilder solo para el LoadingScreen, no para todo el widget
+                return StreamBuilder<double>(
+                  stream: inspeccionService.dataLoadProgress,
+                  initialData: 0.0,
+                  builder: (context, progressSnapshot) {
+                    final progress = progressSnapshot.data ?? 0.0;
+                    return LoadingScreen(progress: progress);
+                  },
+                );
               } else {
                 Future.microtask(() {
                   Navigator.pushReplacement(

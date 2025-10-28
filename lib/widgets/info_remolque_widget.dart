@@ -18,7 +18,6 @@ class InfoRemolqueWidget extends StatefulWidget {
 }
 
 class _InfoRemolqueWidgetState extends State<InfoRemolqueWidget> {
-  
   /// Muestra bottom sheet para seleccionar fuente de imagen
   void _showImageSourceBottomSheet(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -52,9 +51,9 @@ class _InfoRemolqueWidgetState extends State<InfoRemolqueWidget> {
               Text(
                 'Seleccionar foto remolque',
                 style: Theme.of(modalContext).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.primaryGreen,
-                ),
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.primaryGreen,
+                    ),
               ),
               const SizedBox(height: 20),
               Row(
@@ -91,7 +90,8 @@ class _InfoRemolqueWidgetState extends State<InfoRemolqueWidget> {
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: Theme.of(modalContext).dividerColor),
+                      side: BorderSide(
+                          color: Theme.of(modalContext).dividerColor),
                     ),
                   ),
                   child: const Text('Cancelar'),
@@ -109,7 +109,8 @@ class _InfoRemolqueWidgetState extends State<InfoRemolqueWidget> {
     try {
       final inspeccionProvider =
           Provider.of<InspeccionProvider>(context, listen: false);
-      final inspeccionService = InspeccionService();
+      final inspeccionService =
+          Provider.of<InspeccionService>(context, listen: false);
 
       // Verificar permisos existentes
       bool hasPermission = false;
@@ -156,7 +157,7 @@ class _InfoRemolqueWidgetState extends State<InfoRemolqueWidget> {
       if (photo != null) {
         inspeccionService.resumePreoperacional.urlFotoRemolque = photo.path;
         inspeccionProvider.updateRemolqueImage(photo.path);
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -184,7 +185,8 @@ class _InfoRemolqueWidgetState extends State<InfoRemolqueWidget> {
   @override
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
-    final inspeccionService = InspeccionService();
+    final inspeccionService =
+        Provider.of<InspeccionService>(context, listen: false);
 
     return Column(children: [
       const SizedBox(

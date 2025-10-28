@@ -292,6 +292,40 @@ class _InspeccionFormState extends State<InspeccionForm> {
         Provider.of<InspeccionService>(context, listen: false);
     final loginService = Provider.of<LoginService>(context, listen: false);
 
+    // Validar que los datos estén disponibles
+    print('[INSPECCION FORM] Verificando datos de empresa:');
+    print('  - nombreBase: ${loginService.selectedEmpresa.nombreBase}');
+    print(
+        '  - numeroDocumento: ${loginService.selectedEmpresa.numeroDocumento}');
+    print('  - nombreQi: ${loginService.selectedEmpresa.nombreQi}');
+
+    if (loginService.selectedEmpresa.nombreBase == null ||
+        loginService.selectedEmpresa.nombreBase!.isEmpty) {
+      print('[INSPECCION FORM] ⚠️ nombreBase es null');
+      return Container(
+        alignment: Alignment.center,
+        padding: EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Colors.orange,
+            ),
+            SizedBox(height: 16),
+            Text(
+              'No se pudo cargar la información de la empresa',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(context).textTheme.bodyMedium?.color),
+            ),
+          ],
+        ),
+      );
+    }
+
     inspeccionService.resumePreoperacional.base =
         loginService.selectedEmpresa.nombreBase!;
 

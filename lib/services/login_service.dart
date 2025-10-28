@@ -28,9 +28,40 @@ class LoginService extends ChangeNotifier {
   // String baseUrl = 'https://apis.qinspecting.com/pflutter';
   String baseUrl = 'https://apis.qinspecting.com/apflutterNew';
   // String baseUrl = 'http://192.168.1.10:3012';
+
+  /// Obtiene el token desde FlutterSecureStorage y lo configura en headers
+  Future<void> setTokenFromStorage() async {
+    try {
+      // Usar la clave específica de la empresa si está disponible
+      String nombreBase = await storage.read(key: 'nombreBase') ?? '';
+      String tokenKey =
+          nombreBase.isNotEmpty ? _getTokenKey(nombreBase) : 'token';
+
+      String token = await storage.read(key: tokenKey) ?? '';
+      if (token.isNotEmpty) {
+        dio.options.headers = {"x-access-token": token};
+        options.headers = {"x-access-token": token};
+        print(
+            '[SET TOKEN] ✅ Token configurado en headers (dio.options y options) desde secure storage');
+        print('[SET TOKEN] ✅ Clave usada: $tokenKey');
+      } else {
+        print(
+            '[SET TOKEN] ⚠️ No hay token en secure storage con clave: $tokenKey');
+      }
+    } catch (e) {
+      print('[SET TOKEN] ❌ Error al leer token: $e');
+    }
+  }
+
   Options options = Options();
 
-  Future<Map<dynamic, dynamic>> getToken(int user, String password) async {
+  /// Obtiene la clave del token para una empresa específica
+  String _getTokenKey(String nombreBase) {
+    return 'token_$nombreBase';
+  }
+
+  Future<Map<dynamic, dynamic>> getToken(int user, String password,
+      {String? nombreBase}) async {
     try {
       isLoading = true;
       notifyListeners();
@@ -44,10 +75,24 @@ class LoginService extends ChangeNotifier {
 
       Map<dynamic, dynamic> resGetToken = response.data;
       if (resGetToken.containsKey('token')) {
-        // Guardamos el token el el storage del dispositivo
-        await storage.write(key: 'token', value: response.data['token']);
+        // Si no se pasa nombreBase, guardar en clave temporal
+        // Si se pasa nombreBase, guardar en clave específica de la empresa
+        String tokenKey =
+            nombreBase != null ? _getTokenKey(nombreBase) : 'token';
+
+        await storage.write(key: tokenKey, value: response.data['token']);
+        dio.options.headers = {"x-access-token": response.data['token']};
         options.headers = {"x-access-token": response.data['token']};
-        print('[LOGIN] Token guardado exitosamente');
+
+        // Verificar que el token se guardó correctamente
+        final savedToken = await storage.read(key: tokenKey);
+        print('[LOGIN] ✅ Token guardado exitosamente en secure storage');
+        print('[LOGIN] ✅ Clave del token: $tokenKey');
+        print('[LOGIN] ✅ Token configurado en headers (dio.options y options)');
+        print(
+            '[LOGIN] Token guardado: ${savedToken != null ? savedToken.substring(0, savedToken.length > 30 ? 30 : savedToken.length) + "..." : "NULL"}');
+      } else {
+        print('[LOGIN] ⚠️ No se recibió token en la respuesta');
       }
 
       return resGetToken;
@@ -150,8 +195,25 @@ class LoginService extends ChangeNotifier {
     final tempUserData = UserData.fromJson(response.toString());
 
     await storage.write(key: 'usuario', value: '${empresa.numeroDocumento}');
-
     await storage.write(key: 'nombreBase', value: '${empresa.nombreBase}');
+
+    // Verificar que los datos se guardaron correctamente
+    final savedUsuario = await storage.read(key: 'usuario');
+    final savedNombreBase = await storage.read(key: 'nombreBase');
+    print('[GET USER DATA] ✅ Datos guardados:');
+    print('   - Usuario: $savedUsuario');
+    print('   - Nombre Base: $savedNombreBase');
+
+    // Si hay un token temporal ('token'), moverlo a la clave específica de la empresa
+    final tempToken = await storage.read(key: 'token');
+    if (tempToken != null && tempToken.isNotEmpty) {
+      String tokenKey = _getTokenKey(empresa.nombreBase!);
+      await storage.write(key: tokenKey, value: tempToken);
+      print(
+          '[GET USER DATA] ✅ Token movido de clave temporal a clave específica: $tokenKey');
+      // Eliminar el token temporal
+      await storage.delete(key: 'token');
+    }
 
     userDataLogged = tempUserData;
 
@@ -175,35 +237,120 @@ class LoginService extends ChangeNotifier {
     // await storage.deleteAll();
     String idUsuario = await storage.read(key: 'usuario') ?? '';
     String nombreBase = await storage.read(key: 'nombreBase') ?? '';
-    String token = await storage.read(key: 'token') ?? '';
-    if (idUsuario.isNotEmpty && nombreBase.isNotEmpty && token.isNotEmpty) {
-      options.headers = {"x-access-token": token};
 
-      print('🔃base: $nombreBase');
-      final tempDataEmp =
-          await DBProvider.db.getEmpresaById(nombreBase) as Empresa;
-      selectedEmpresa = tempDataEmp;
+    // Leer el token usando la clave específica de la empresa
+    String tokenKey =
+        nombreBase.isNotEmpty ? _getTokenKey(nombreBase) : 'token';
+    String token = await storage.read(key: tokenKey) ?? '';
 
-      final tempDataUser = await DBProvider.db
-          .getUser(idUsuario, tempDataEmp.password!, tempDataEmp.nombreBase!);
-      userDataLogged = tempDataUser!;
-      print('📁token if: $idUsuario');
+    print('🔍 [READ TOKEN] Verificando datos en storage:');
+    print(
+        '   - Usuario: ${idUsuario.isEmpty ? "VACÍO" : idUsuario.substring(0, idUsuario.length > 10 ? 10 : idUsuario.length) + "..."}');
+    print('   - Base: ${nombreBase.isEmpty ? "VACÍO" : nombreBase}');
+    print('   - Token Key: $tokenKey');
+    print(
+        '   - Token: ${token.isEmpty ? "VACÍO" : token.substring(0, token.length > 20 ? 20 : token.length) + "..."}');
+
+    // Cargar datos desde SQLite si hay usuario y base (funciona con o sin token)
+    if (idUsuario.isNotEmpty && nombreBase.isNotEmpty) {
+      try {
+        // Configurar headers solo si hay token
+        if (token.isNotEmpty) {
+          dio.options.headers = {"x-access-token": token};
+          options.headers = {"x-access-token": token};
+          print(
+              '✅ [READ TOKEN] Token configurado en headers (dio.options y options)');
+        } else {
+          print('⚠️ [READ TOKEN] Modo offline (sin token)');
+        }
+
+        print('🔃 [READ TOKEN] Cargando datos de SQLite...');
+        print('   - Base: $nombreBase');
+        final tempDataEmp = await DBProvider.db.getEmpresaById(nombreBase);
+
+        if (tempDataEmp == null || tempDataEmp.nombreBase == null) {
+          print('❌ [READ TOKEN] Error: No se encontró empresa en SQLite');
+          print(
+              '⚠️ [READ TOKEN] Datos incompletos en storage, redirigiendo a login');
+          return '';
+        }
+
+        selectedEmpresa = tempDataEmp;
+
+        print('📊 [READ TOKEN] Empresa cargada y asignada:');
+        print('   - nombreBase: ${selectedEmpresa.nombreBase}');
+        print('   - numeroDocumento: ${selectedEmpresa.numeroDocumento}');
+        print('   - nombreQi: ${selectedEmpresa.nombreQi}');
+        print('   - idEmpresa: ${selectedEmpresa.idEmpresa}');
+
+        final tempDataUser = await DBProvider.db
+            .getUser(idUsuario, tempDataEmp.password!, tempDataEmp.nombreBase!);
+
+        if (tempDataUser == null) {
+          print('❌ [READ TOKEN] Error: No se encontró usuario en SQLite');
+          print(
+              '⚠️ [READ TOKEN] Datos incompletos en storage, redirigiendo a login');
+          return '';
+        }
+
+        userDataLogged = tempDataUser;
+        print('✅ [READ TOKEN] Datos cargados correctamente');
+        print('   - Usuario ID: $idUsuario');
+
+        // Verificar nuevamente selectedEmpresa después de asignar
+        print('🔍 [READ TOKEN] Verificación final de selectedEmpresa:');
+        print('   - nombreBase: ${selectedEmpresa.nombreBase}');
+        print('   - numeroDocumento: ${selectedEmpresa.numeroDocumento}');
+      } catch (e) {
+        print('❌ [READ TOKEN] Error al cargar datos: $e');
+        print(
+            '⚠️ [READ TOKEN] Datos incompletos en storage, redirigiendo a login');
+        return '';
+      }
+    } else {
+      print(
+          '⚠️ [READ TOKEN] Datos incompletos en storage, redirigiendo a login');
     }
-    print('💻token: $idUsuario');
+    print(
+        '💻 [READ TOKEN] Retornando: ${idUsuario.isEmpty ? "vacío" : idUsuario}');
     return idUsuario;
   }
 
   Future<Map<String, dynamic>> assingDataUserLogged() async {
     String idUsuario = await storage.read(key: 'usuario') ?? '';
     String nombreBase = await storage.read(key: 'nombreBase') ?? '';
+
+    print('[ASSING DATA] Verificando datos:');
+    print('   - Usuario: $idUsuario');
+    print('   - Base: $nombreBase');
+
     if (idUsuario.isNotEmpty && nombreBase.isNotEmpty) {
-      final tempDataEmp =
-          await DBProvider.db.getEmpresaById(nombreBase) as Empresa;
+      final tempDataEmp = await DBProvider.db.getEmpresaById(nombreBase);
+
+      if (tempDataEmp == null) {
+        print('❌ [ASSING DATA] No se encontró empresa en SQLite');
+        return {"usuario": idUsuario, "nombreBase": nombreBase};
+      }
+
+      if (tempDataEmp.nombreBase == null || tempDataEmp.nombreBase!.isEmpty) {
+        print('❌ [ASSING DATA] La empresa cargada no tiene nombreBase válido');
+        return {"usuario": idUsuario, "nombreBase": nombreBase};
+      }
+
       selectedEmpresa = tempDataEmp;
+      print('✅ [ASSING DATA] Empresa asignada:');
+      print('   - nombreBase: ${selectedEmpresa.nombreBase}');
+      print('   - numeroDocumento: ${selectedEmpresa.numeroDocumento}');
 
       final tempDataUser = await DBProvider.db
           .getUser(idUsuario, tempDataEmp.password!, tempDataEmp.nombreBase!);
-      userDataLogged = tempDataUser!;
+
+      if (tempDataUser == null) {
+        print('❌ [ASSING DATA] No se encontró usuario en SQLite');
+      } else {
+        userDataLogged = tempDataUser;
+        print('✅ [ASSING DATA] Usuario asignado correctamente');
+      }
     }
 
     return {"usuario": idUsuario, "nombreBase": nombreBase};

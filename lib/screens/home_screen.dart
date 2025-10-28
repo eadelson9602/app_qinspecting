@@ -34,18 +34,48 @@ class _HomeScreenState extends State<HomeScreen> {
         Provider.of<InspeccionProvider>(context, listen: false);
     final loginService = Provider.of<LoginService>(context, listen: false);
 
+    // Validar datos de empresa
+    print('[HOME SCREEN] Verificando datos de empresa:');
+    print('  - nombreBase: ${loginService.selectedEmpresa.nombreBase}');
+    print(
+        '  - numeroDocumento: ${loginService.selectedEmpresa.numeroDocumento}');
+
     List<Widget> _widgetOptions = [
       DesktopScreen(),
-      FutureBuilder(
-          future: inspeccionProvider
-              .listarDataInit('${loginService.selectedEmpresa.nombreBase}'),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return LoadingScreen();
-            } else {
-              return InspeccionForm();
-            }
-          })
+      loginService.selectedEmpresa.nombreBase == null ||
+              loginService.selectedEmpresa.nombreBase!.isEmpty
+          ? Container(
+              alignment: Alignment.center,
+              padding: EdgeInsets.all(20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    size: 64,
+                    color: Colors.orange,
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'No se pudo cargar la información de la empresa',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context).textTheme.bodyMedium?.color),
+                  ),
+                ],
+              ),
+            )
+          : FutureBuilder(
+              future: inspeccionProvider
+                  .listarDataInit('${loginService.selectedEmpresa.nombreBase}'),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return LoadingScreen();
+                } else {
+                  return InspeccionForm();
+                }
+              })
     ];
 
     return PopScope(
@@ -70,7 +100,9 @@ class _HomeScreenState extends State<HomeScreen> {
             child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.fromLTRB(
-                20, 20, 20, 
+                20,
+                20,
+                20,
                 // Padding inferior para evitar que el contenido se corte con el bottom navigation
                 100), // Aumentado para dar espacio al bottom navigation
             child: _widgetOptions.elementAt(_selectedIndex),
@@ -238,8 +270,8 @@ class DesktopScreen extends StatelessWidget {
                             itemWidth: 500, // Ancho fijo del card
                             itemBuilder: (BuildContext context, int i) {
                               return CardInspeccionDesktop(
-                                  resumenPreoperacional: inspeccionService
-                                      .listInspections[i]);
+                                  resumenPreoperacional:
+                                      inspeccionService.listInspections[i]);
                             },
                             itemCount: inspeccionService.listInspections.length,
                           ),
@@ -260,8 +292,23 @@ class DesktopScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildOfflineInspections(BuildContext context, LoginService loginService,
-      InspeccionProvider inspeccionProvider) {
+  Widget _buildOfflineInspections(BuildContext context,
+      LoginService loginService, InspeccionProvider inspeccionProvider) {
+    // Validar que los datos del usuario estén disponibles
+    if (loginService.userDataLogged.numeroDocumento == null ||
+        loginService.userDataLogged.base == null) {
+      return Container(
+        height: 300,
+        alignment: Alignment.center,
+        child: Text(
+          'No hay inspecciones para mostrar',
+          style: TextStyle(
+              fontSize: 16,
+              color: Theme.of(context).textTheme.bodyMedium?.color),
+        ),
+      );
+    }
+
     return FutureBuilder<List<ResumenPreoperacional>?>(
         future: inspeccionProvider.cargarTodosInspecciones(
             loginService.userDataLogged.numeroDocumento!,
@@ -269,8 +316,7 @@ class DesktopScreen extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Container(
-                height: 300,
-                child: Center(child: CircularProgressIndicator()));
+                height: 300, child: Center(child: CircularProgressIndicator()));
           }
 
           final allInspecciones = snapshot.data ?? [];
@@ -319,7 +365,8 @@ class DesktopScreen extends StatelessWidget {
               detalle: null, // Se carga desde respuestas
               placaVehiculo: inspeccion.placaVehiculo,
               kilometraje: inspeccion.kilometraje,
-              tanqueo: inspeccion.cantTanqueoGalones != null && inspeccion.cantTanqueoGalones! > 0
+              tanqueo: inspeccion.cantTanqueoGalones != null &&
+                      inspeccion.cantTanqueoGalones! > 0
                   ? 'SI'
                   : 'NO',
               numeroGuia: inspeccion.numeroGuia,
@@ -339,7 +386,9 @@ class DesktopScreen extends StatelessWidget {
               itemWidth: 500,
               itemBuilder: (BuildContext context, int i) {
                 return CardInspeccionDesktop(
-                    resumenPreoperacional: convertedInspecciones[i]);
+                  resumenPreoperacional: convertedInspecciones[i],
+                  inspeccionOffline: allInspecciones[i],
+                );
               },
               itemCount: convertedInspecciones.length,
             ),
