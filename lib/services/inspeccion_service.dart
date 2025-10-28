@@ -106,50 +106,75 @@ class InspeccionService extends ChangeNotifier {
 
   // Verificación de conexión estable (WiFi o móvil >= 4G aprox.)
   Future<bool> isConnectionStable({
-    Duration timeout = const Duration(seconds: 4),
+    Duration timeout = const Duration(seconds: 8),
   }) async {
     try {
-      final connectivity = await Connectivity().checkConnectivity();
-      if (connectivity == ConnectivityResult.none) return false;
-      if (!(connectivity == ConnectivityResult.wifi ||
-          connectivity == ConnectivityResult.mobile)) return false;
+      print('[IS CONNECTION STABLE] 🔍 Verificando estabilidad de conexión...');
 
-      // Si es Wi‑Fi, considerar estable inmediatamente (evita falsos negativos por endpoints no disponibles)
+      final connectivityList = await Connectivity().checkConnectivity();
+      print('[IS CONNECTION STABLE] 📡 Tipo de conexión: $connectivityList');
+
+      // Obtener el primer resultado o 'none' si está vacío
+      final connectivity = connectivityList.isNotEmpty
+          ? connectivityList.first
+          : ConnectivityResult.none;
+
+      print('[IS CONNECTION STABLE] 📡 Conexión detectada: $connectivity');
+
+      if (connectivity == ConnectivityResult.none) {
+        print('[IS CONNECTION STABLE] ❌ Sin conexión');
+        return false;
+      }
+
+      // Si es Wi‑Fi, considerar estable inmediatamente
       if (connectivity == ConnectivityResult.wifi) {
+        print('[IS CONNECTION STABLE] ✅ Conexión WiFi - estable');
         return true;
       }
 
-      // Probar múltiples endpoints del backend (algunos proyectos no exponen /health)
-      final candidates = <String>[
-        '${loginService.baseUrl}/get_user_data',
-        '${loginService.baseUrl}/get_latest_inspections',
-        '${loginService.baseUrl}/list_departments',
-        '${loginService.baseUrl}/list_city',
-        '${loginService.baseUrl}/get_placas_cabezote',
-        '${loginService.baseUrl}/get_placas_trailer',
-        '${loginService.baseUrl}/list_items_x_placa',
-        '${loginService.baseUrl}/list_type_documents',
-      ];
-
-      int ok = 0;
-      for (final url in candidates) {
-        try {
-          final uri = Uri.parse(url);
-          // Usar GET ligero: algunos backends no aceptan HEAD
-          final res = await dio
-              .getUri(uri, options: Options(method: 'GET'))
-              .timeout(timeout);
-          if (res.statusCode != null && res.statusCode! < 500) ok++;
-        } catch (e) {
-          // Ignorar y seguir probando otros endpoints
-        }
-        if (ok >= 2) break; // suficientemente estable
+      if (connectivity != ConnectivityResult.mobile) {
+        print(
+            '[IS CONNECTION STABLE] ❌ Tipo de conexión no soportado: $connectivity');
+        return false;
       }
-      // Consideramos estable si al menos 2 endpoints respondieron o si 1 respondió y es WiFi
-      if (ok >= 2) return true;
-      if (ok >= 1 && connectivity == ConnectivityResult.wifi) return true;
-      return false;
-    } catch (_) {
+
+      // Para móvil (4G/5G), hacer una verificación simple a un solo endpoint
+      print(
+          '[IS CONNECTION STABLE] 📱 Conexión móvil detectada, probando estabilidad...');
+
+      try {
+        // Usar un endpoint simple para verificar
+        final testUrl = '${loginService.baseUrl}/get_user_data';
+        print('[IS CONNECTION STABLE] 🌐 Probando: $testUrl');
+
+        final uri = Uri.parse(testUrl);
+        final res = await dio
+            .getUri(uri, options: Options(method: 'GET'))
+            .timeout(timeout);
+
+        // Si la respuesta es exitosa o es un error de autenticación, la conexión está estable
+        if (res.statusCode != null && res.statusCode! < 500) {
+          print(
+              '[IS CONNECTION STABLE] ✅ Conexión estable (status: ${res.statusCode})');
+          return true;
+        }
+
+        print(
+            '[IS CONNECTION STABLE] ⚠️ Respuesta del servidor: ${res.statusCode}');
+        return false;
+      } catch (e) {
+        print('[IS CONNECTION STABLE] ⚠️ Error al verificar: $e');
+        // Si es un error de timeout, la conexión puede no ser estable
+        if (e.toString().contains('timeout')) {
+          print('[IS CONNECTION STABLE] ❌ Timeout en verificación');
+          return false;
+        }
+        // Para otros errores (auth, etc), considerar estable
+        print('[IS CONNECTION STABLE] ✅ Conexión estable (error no crítico)');
+        return true;
+      }
+    } catch (e) {
+      print('[IS CONNECTION STABLE] ❌ Error general: $e');
       return false;
     }
   }
@@ -311,14 +336,21 @@ class InspeccionService extends ChangeNotifier {
           '📤 DEBUG: Archivo: $fileName, Tamaño: ${await File(path).length()} bytes');
       print(
           '📤 DEBUG: URL: ${loginService.baseUrl}/upload_file/${company.toLowerCase()}/${folder}');
-      print('📤 DEBUG: Headers: ${loginService.options.headers}');
+
+      // Asegurarse de que el token esté actualizado
+      await loginService.setTokenFromStorage();
+
+      // Obtener headers del dio de loginService que tiene el token configurado
+      final headers =
+          Map<String, dynamic>.from(loginService.dio.options.headers);
+      print('📤 DEBUG: Headers: $headers');
 
       final startTime = DateTime.now();
       Response response = await dio.post(
           '${loginService.baseUrl}/upload_file/${company.toLowerCase()}/${folder}',
           data: formData,
           options: Options(
-            headers: loginService.options.headers,
+            headers: headers,
             sendTimeout: Duration(seconds: 60), // Aumentado a 60 segundos
             receiveTimeout: Duration(seconds: 60), // Aumentado a 60 segundos
             validateStatus: (status) {
@@ -666,10 +698,21 @@ class InspeccionService extends ChangeNotifier {
           notifyListeners();
         }
 
-        final responseResumen = await dio.post(
-            '${loginService.baseUrl}/insert_preoperacional',
-            options: loginService.options,
-            data: inspeccion.toJson());
+        // Configurar el token antes de enviar
+        await loginService.setTokenFromStorage();
+
+        // Obtener headers del dio de loginService que tiene el token configurado
+        final headers =
+            Map<String, dynamic>.from(loginService.dio.options.headers);
+
+        final responseResumen =
+            await dio.post('${loginService.baseUrl}/insert_preoperacional',
+                options: Options(
+                  headers: headers,
+                  sendTimeout: Duration(seconds: 60),
+                  receiveTimeout: Duration(seconds: 60),
+                ),
+                data: inspeccion.toJson());
         final resumen = Respuesta.fromMap(responseResumen.data);
 
         if (inspeccion.respuestas != null &&
@@ -772,10 +815,19 @@ class InspeccionService extends ChangeNotifier {
           );
         }
 
-        await dio.post(
-            '${loginService.baseUrl}/insert_respuestas_preoperacional',
-            options: loginService.options,
-            data: {
+        // Asegurar que el token esté actualizado
+        await loginService.setTokenFromStorage();
+        final respuestasHeaders =
+            Map<String, dynamic>.from(loginService.dio.options.headers);
+
+        await dio
+            .post('${loginService.baseUrl}/insert_respuestas_preoperacional',
+                options: Options(
+                  headers: respuestasHeaders,
+                  sendTimeout: Duration(seconds: 60),
+                  receiveTimeout: Duration(seconds: 60),
+                ),
+                data: {
               'respuestas': respuestasArray,
               'base': selectedEmpresa.nombreBase,
             });

@@ -17,7 +17,8 @@ class ConnectivityListenerService {
   void initialize() {
     print(
         '[CONNECTIVITY LISTENER] 🔄 Inicializando listener de conectividad...');
-    print('[CONNECTIVITY LISTENER] 📍 Este listener monitoreará la conexión y subirá automáticamente las inspecciones pendientes');
+    print(
+        '[CONNECTIVITY LISTENER] 📍 Este listener monitoreará la conexión y subirá automáticamente las inspecciones pendientes');
     _connectivitySubscription = Connectivity().onConnectivityChanged.listen(
       (List<ConnectivityResult> results) {
         final result =
