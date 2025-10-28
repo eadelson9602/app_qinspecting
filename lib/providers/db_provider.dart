@@ -345,6 +345,18 @@ class DBProvider {
     return res!.isNotEmpty ? UserData.fromMap(res.first) : null;
   }
 
+  Future<UserData?> getUserByDocumentoAndBase(
+      String numeroDocumento, String base) async {
+    final db = await database;
+    final res = await db?.query('personal',
+        where: 'numeroDocumento = ? AND base = ?',
+        whereArgs: [numeroDocumento, base],
+        limit: 1);
+    print('[GET USER] Consultando por numeroDocumento: $numeroDocumento, base: $base');
+    print('[GET USER] Resultado: ${res != null && res.isNotEmpty ? "Usuario encontrado" : "Usuario NO encontrado"}');
+    return res != null && res.isNotEmpty ? UserData.fromMap(res.first) : null;
+  }
+
   Future<int?> updateUser(UserData nuevoDatosUsuario) async {
     final db = await database;
 
@@ -1173,6 +1185,26 @@ class DBProvider {
     return res!.isNotEmpty
         ? res.map((s) => ResumenPreoperacional.fromMap(s)).toList()
         : [];
+  }
+
+  /// Marca una inspección como enviada
+  Future<void> marcarInspeccionComoEnviada(int? idInspeccion) async {
+    if (idInspeccion == null) return;
+    
+    final db = await database;
+    final fechaEnvio = DateTime.now().toIso8601String();
+    
+    await db?.update(
+      'ResumenPreoperacional',
+      {
+        'enviado': 1,
+        'fechaEnvio': fechaEnvio,
+      },
+      where: 'id = ?',
+      whereArgs: [idInspeccion],
+    );
+    
+    print('✅ [DB] Inspección $idInspeccion marcada como enviada');
   }
 
   /// Obtiene las inspecciones del día

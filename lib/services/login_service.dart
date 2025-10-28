@@ -284,7 +284,7 @@ class LoginService extends ChangeNotifier {
         print('   - idEmpresa: ${selectedEmpresa.idEmpresa}');
 
         final tempDataUser = await DBProvider.db
-            .getUser(idUsuario, tempDataEmp.password!, tempDataEmp.nombreBase!);
+            .getUserByDocumentoAndBase(idUsuario, tempDataEmp.nombreBase!);
 
         if (tempDataUser == null) {
           print('❌ [READ TOKEN] Error: No se encontró usuario en SQLite');
@@ -295,7 +295,7 @@ class LoginService extends ChangeNotifier {
 
         userDataLogged = tempDataUser;
         print('✅ [READ TOKEN] Datos cargados correctamente');
-        print('   - Usuario ID: $idUsuario');
+        print('   - Usuario numeroDocumento: ${userDataLogged.numeroDocumento}');
 
         // Verificar nuevamente selectedEmpresa después de asignar
         print('🔍 [READ TOKEN] Verificación final de selectedEmpresa:');

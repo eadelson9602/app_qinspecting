@@ -41,16 +41,13 @@ class _MiniDashboardState extends State<MiniDashboard> {
       final dbProvider = Provider.of<DBProvider>(context, listen: false);
 
       print('🔍 Debug MiniDashboard:');
-      print('  - Usuario ID: ${loginService.userDataLogged.id}');
-      print(
-          '  - Usuario numeroDocumento: ${loginService.userDataLogged.numeroDocumento}');
+      print('  - Usuario numeroDocumento: ${loginService.userDataLogged.numeroDocumento}');
       print('  - Empresa base: ${loginService.selectedEmpresa.nombreBase}');
 
-      if (loginService.userDataLogged.id != null &&
+      if (loginService.userDataLogged.numeroDocumento != null &&
           loginService.selectedEmpresa.nombreBase != null) {
         final stats = await dbProvider.getDashboardStats(
-            loginService.userDataLogged
-                .numeroDocumento!, // Usar numeroDocumento en lugar de id
+            loginService.userDataLogged.numeroDocumento!,
             loginService.selectedEmpresa.nombreBase!);
 
         print('📊 MiniDashboard stats recibidas: $stats');

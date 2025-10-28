@@ -57,6 +57,10 @@ void main() async {
     await BackgroundUploadService.initialize();
     await RealBackgroundUploadService.initialize();
 
+    // Inicializar el listener de conectividad para subida automática
+    ConnectivityListenerService().initialize();
+    print('[App] ✅ Listener de conectividad inicializado');
+
     // Inicializar el manejador de errores
     ErrorHandler.initialize();
 

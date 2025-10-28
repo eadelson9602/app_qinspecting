@@ -292,9 +292,7 @@ class PendingInspectionsCard extends StatelessWidget {
       LoginService loginService) async {
     try {
       print('🔍 Debug PendingInspectionsCard:');
-      print('  - Usuario ID: ${loginService.userDataLogged.id}');
-      print(
-          '  - Usuario numeroDocumento: ${loginService.userDataLogged.numeroDocumento}');
+      print('  - Usuario numeroDocumento: ${loginService.userDataLogged.numeroDocumento}');
       print('  - Empresa base: ${loginService.selectedEmpresa.nombreBase}');
 
       final result = await DBProvider.db.getAllInspections(

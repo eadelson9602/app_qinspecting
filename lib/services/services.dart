@@ -6,3 +6,4 @@ export 'package:app_qinspecting/services/crashlytics_service.dart';
 export 'package:app_qinspecting/services/crashlytics_test_service.dart';
 export 'package:app_qinspecting/services/crashlytics_debug_service.dart';
 export 'package:app_qinspecting/services/location_service.dart';
+export 'package:app_qinspecting/services/connectivity_listener_service.dart';
