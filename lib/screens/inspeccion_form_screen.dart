@@ -138,6 +138,19 @@ class _InspeccionFormState extends State<InspeccionForm> {
     });
   }
 
+  /// Flujo: solicitar permisos primero y luego abrir el bottom sheet
+  Future<void> _onCapturePhoto(
+    String tipo,
+    Function(String path) onImageSelected,
+  ) async {
+    // Mostrar directamente el bottom sheet; los permisos se solicitan según la fuente elegida
+    _showImageSourceBottomSheet(
+      context,
+      tipo: tipo,
+      onImageSelected: onImageSelected,
+    );
+  }
+
   /// Selecciona una imagen desde la fuente especificada
   Future<void> _selectImageFromSource(
     ImageSource source,
@@ -145,40 +158,55 @@ class _InspeccionFormState extends State<InspeccionForm> {
     Function(String path) onImageSelected,
   ) async {
     try {
-      final inspeccionProvider =
-          Provider.of<InspeccionProvider>(context, listen: false);
-
-      // Verificar permisos existentes
-      bool hasPermission = false;
+      // Request ONLY the permission required for the selected source to avoid fallbacks
       if (source == ImageSource.camera) {
-        PermissionStatus cameraStatus = await Permission.camera.status;
-        hasPermission = cameraStatus == PermissionStatus.granted;
-      } else {
-        // Para galería, verificar permisos de fotos/almacenamiento
-        try {
-          PermissionStatus photosStatus = await Permission.photos.status;
-          hasPermission = photosStatus == PermissionStatus.granted;
-        } catch (e) {
-          // Fallback para versiones anteriores de Android
-          PermissionStatus storageStatus = await Permission.storage.status;
-          hasPermission = storageStatus == PermissionStatus.granted;
-        }
-      }
-
-      // Solo solicitar permisos si no están otorgados
-      if (!hasPermission) {
-        hasPermission = await inspeccionProvider.requestCameraPermission();
-        if (!hasPermission) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Se requieren permisos para acceder a la imagen'),
-                duration: Duration(seconds: 2),
+        var cameraStatus = await Permission.camera.status;
+        if (cameraStatus != PermissionStatus.granted) {
+          cameraStatus = await Permission.camera.request();
+          if (cameraStatus != PermissionStatus.granted) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text('Permiso de cámara denegado'),
                 backgroundColor: Colors.orange,
-              ),
-            );
+                duration: Duration(seconds: 2),
+              ));
+            }
+            return;
           }
-          return;
+        }
+      } else {
+        // Gallery/photos
+        try {
+          var photosStatus = await Permission.photos.status;
+          if (photosStatus != PermissionStatus.granted) {
+            photosStatus = await Permission.photos.request();
+            if (photosStatus != PermissionStatus.granted) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text('Permiso de fotos/galería denegado'),
+                  backgroundColor: Colors.orange,
+                  duration: Duration(seconds: 2),
+                ));
+              }
+              return;
+            }
+          }
+        } catch (_) {
+          // Fallback para Android < 13
+          var storageStatus = await Permission.storage.status;
+          if (storageStatus != PermissionStatus.granted) {
+            storageStatus = await Permission.storage.request();
+            if (storageStatus != PermissionStatus.granted) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text('Permiso de almacenamiento denegado'),
+                  backgroundColor: Colors.orange,
+                  duration: Duration(seconds: 2),
+                ));
+              }
+              return;
+            }
+          }
         }
       }
 
@@ -476,14 +504,10 @@ class _InspeccionFormState extends State<InspeccionForm> {
                 title: 'Foto kilometraje',
                 imageUrl: inspeccionProvider.pathFileKilometraje,
                 onCapturePhoto: () {
-                  _showImageSourceBottomSheet(
-                    context,
-                    tipo: 'foto kilometraje',
-                    onImageSelected: (path) {
-                      inspeccionService.resumePreoperacional.urlFotoKm = path;
-                      inspeccionProvider.updateSelectedImage(path);
-                    },
-                  );
+                  _onCapturePhoto('foto kilometraje', (path) {
+                    inspeccionService.resumePreoperacional.urlFotoKm = path;
+                    inspeccionProvider.updateSelectedImage(path);
+                  });
                 },
               ),
               const SizedBox(height: 16),
@@ -491,15 +515,11 @@ class _InspeccionFormState extends State<InspeccionForm> {
                 title: 'Foto Cabezote',
                 imageUrl: inspeccionProvider.pathFileCabezote,
                 onCapturePhoto: () {
-                  _showImageSourceBottomSheet(
-                    context,
-                    tipo: 'foto cabezote',
-                    onImageSelected: (path) {
-                      inspeccionService.resumePreoperacional.urlFotoCabezote =
-                          path;
-                      inspeccionProvider.updateCabezoteImage(path);
-                    },
-                  );
+                  _onCapturePhoto('foto cabezote', (path) {
+                    inspeccionService.resumePreoperacional.urlFotoCabezote =
+                        path;
+                    inspeccionProvider.updateCabezoteImage(path);
+                  });
                 },
               ),
               const SizedBox(
