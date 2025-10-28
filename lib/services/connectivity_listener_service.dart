@@ -66,9 +66,9 @@ class ConnectivityListenerService {
     if (_lastUploadAttempt != null) {
       final timeSinceLastAttempt =
           DateTime.now().difference(_lastUploadAttempt!);
-      if (timeSinceLastAttempt.inSeconds < 10) {
+      if (timeSinceLastAttempt.inSeconds < 30) {
         print(
-            '[CONNECTIVITY LISTENER] ⏳ Cooldown activo, esperando... (${10 - timeSinceLastAttempt.inSeconds}s restantes)');
+            '[CONNECTIVITY LISTENER] ⏳ Cooldown activo, esperando... (${30 - timeSinceLastAttempt.inSeconds}s restantes)');
         return;
       }
     }
@@ -159,22 +159,39 @@ class ConnectivityListenerService {
       for (final inspeccion in allInspecciones) {
         try {
           if (inspeccion.id == null) continue;
-          
+
           // Verificar si esta inspección ya está siendo procesada
           if (_processingIds.contains(inspeccion.id)) {
-            print('[CONNECTIVITY LISTENER] ⏭️ Inspección ${inspeccion.id} ya está siendo procesada, omitiendo...');
+            print(
+                '[CONNECTIVITY LISTENER] ⏭️ Inspección ${inspeccion.id} ya está siendo procesada, omitiendo...');
+            continue;
+          }
+
+          // Marcar como en proceso
+          _processingIds.add(inspeccion.id!);
+          
+          // Verificar nuevamente que la inspección sigue siendo pendiente
+          final recheckPending = await DBProvider.db.getPendingInspections(
+            loginService.selectedEmpresa.numeroDocumento ?? '',
+            loginService.selectedEmpresa.nombreBase ?? '',
+          );
+          
+          final isStillPending = recheckPending?.any((i) => i.id == inspeccion.id) ?? false;
+          
+          if (!isStillPending) {
+            print('[CONNECTIVITY LISTENER] ⏭️ Inspección ${inspeccion.id} ya fue enviada por otro proceso, omitiendo...');
+            _processingIds.remove(inspeccion.id!);
             continue;
           }
           
-          // Marcar como en proceso
-          _processingIds.add(inspeccion.id!);
           print('[CONNECTIVITY LISTENER] ⬆️ Subiendo inspección ID: ${inspeccion.id}');
 
           // Usar el método sendInspeccion
           final resultado = await inspeccionService.sendInspeccion(
             inspeccion,
             loginService.selectedEmpresa,
-            showProgressNotifications: false, // No mostrar notificaciones automáticas
+            showProgressNotifications:
+                false, // No mostrar notificaciones automáticas
           );
 
           if (resultado['ok'] == true) {
@@ -185,13 +202,15 @@ class ConnectivityListenerService {
 
             print('[CONNECTIVITY LISTENER] ✅ Inspección ${inspeccion.id} marcada como enviada en SQLite');
           } else {
-            print('[CONNECTIVITY LISTENER] ⚠️ Error al subir inspección ${inspeccion.id}: ${resultado['message']}');
+            print(
+                '[CONNECTIVITY LISTENER] ⚠️ Error al subir inspección ${inspeccion.id}: ${resultado['message']}');
           }
-          
+
           // Remover del set de procesamiento
           _processingIds.remove(inspeccion.id!);
         } catch (e) {
-          print('[CONNECTIVITY LISTENER] ❌ Error al subir inspección ${inspeccion.id}: $e');
+          print(
+              '[CONNECTIVITY LISTENER] ❌ Error al subir inspección ${inspeccion.id}: $e');
           // Remover del set de procesamiento en caso de error
           if (inspeccion.id != null) {
             _processingIds.remove(inspeccion.id!);
