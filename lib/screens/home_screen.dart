@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -323,31 +324,58 @@ class DesktopScreen extends StatelessWidget {
 
           if (allInspecciones.isEmpty) {
             return Container(
-              height: 300,
+              height: 410,
+              width: 500,
               alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.light
+                    ? Colors.white
+                    : Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).brightness == Brightness.light
+                        ? Colors.black.withValues(alpha: 0.08)
+                        : Theme.of(context).shadowColor.withValues(alpha: 0.2),
+                    blurRadius: 20,
+                    offset: Offset(0, 4),
+                    spreadRadius: 0,
+                  ),
+                  BoxShadow(
+                    color: Theme.of(context).brightness == Brightness.light
+                        ? Colors.black.withValues(alpha: 0.04)
+                        : Theme.of(context).shadowColor.withValues(alpha: 0.2),
+                    blurRadius: 6,
+                    offset: Offset(0, 2),
+                    spreadRadius: 0,
+                  ),
+                ],
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.wifi_off,
-                    size: 64,
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Sin conexión a internet',
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).textTheme.titleMedium?.color),
+                  Container(
+                    height: 150,
+                    width: 150,
+                    child: const Image(
+                      image: AssetImage('assets/images/boot_signature_2.gif'),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                   SizedBox(height: 8),
-                  Text(
-                    'No hay inspecciones guardadas localmente',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 14,
-                        color: Theme.of(context).textTheme.bodyMedium?.color),
+                  AnimatedTextKit(
+                    isRepeatingAnimation: true,
+                    animatedTexts: [
+                      TypewriterAnimatedText('No hay inspecciones para mostrar',
+                          speed: Duration(milliseconds: 100),
+                          textAlign: TextAlign.center,
+                          textStyle: TextStyle(
+                            fontSize: 16,
+                            color:
+                                Theme.of(context).textTheme.bodyMedium?.color,
+                            fontWeight: FontWeight.w600,
+                          )),
+                    ],
                   ),
                 ],
               ),
