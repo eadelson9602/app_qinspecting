@@ -441,6 +441,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
       }
 
+      // Verificar que el widget sigue montado antes de abrir la cámara
+      if (!mounted) {
+        return;
+      }
+
       final ImagePicker picker = ImagePicker();
       final XFile? image = await picker.pickImage(
         source: source,
@@ -448,6 +453,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         maxHeight: 800,
         imageQuality: 85,
       );
+
+      // Verificar nuevamente que el widget sigue montado después de la cámara
+      if (!mounted) {
+        return;
+      }
 
       if (image != null) {
         // Subir imagen directamente sin depender del contexto

@@ -105,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 20,
                 20,
                 // Padding inferior para evitar que el contenido se corte con el bottom navigation
-                100), // Aumentado para dar espacio al bottom navigation
+                40), // Aumentado para dar espacio al bottom navigation
             child: _widgetOptions.elementAt(_selectedIndex),
           ),
         )),

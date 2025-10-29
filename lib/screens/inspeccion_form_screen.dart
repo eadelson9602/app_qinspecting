@@ -210,16 +210,29 @@ class _InspeccionFormState extends State<InspeccionForm> {
         }
       }
 
+      // Verificar que el widget sigue montado antes de abrir la cámara
+      if (!mounted) {
+        print('[pick] Widget no montado, cancelando selección de $tipo');
+        return;
+      }
+
       final _picker = ImagePicker();
       print(
           '[pick] solicitando $tipo desde ${source == ImageSource.camera ? "cámara" : "galería"}...');
 
+      // Capturar la foto - puede tomar tiempo y la app puede ir a segundo plano
       final XFile? photo = await _picker.pickImage(
         source: source,
         imageQuality: 70,
         maxWidth: 1080,
         maxHeight: 1080,
       );
+
+      // Verificar nuevamente que el widget sigue montado después de la cámara
+      if (!mounted) {
+        print('[pick] Widget no montado después de seleccionar $tipo');
+        return;
+      }
 
       if (photo == null) {
         print('[pick] cancelado $tipo');
@@ -321,19 +334,11 @@ class _InspeccionFormState extends State<InspeccionForm> {
         Provider.of<InspeccionService>(context, listen: false);
     final loginService = Provider.of<LoginService>(context, listen: false);
 
-    // Validar que los datos estén disponibles
-    print('[INSPECCION FORM] Verificando datos de empresa:');
-    print('  - nombreBase: ${loginService.selectedEmpresa.nombreBase}');
-    print(
-        '  - numeroDocumento: ${loginService.selectedEmpresa.numeroDocumento}');
-    print('  - nombreQi: ${loginService.selectedEmpresa.nombreQi}');
-
     if (loginService.selectedEmpresa.nombreBase == null ||
         loginService.selectedEmpresa.nombreBase!.isEmpty) {
-      print('[INSPECCION FORM] ⚠️ nombreBase es null');
       return Container(
         alignment: Alignment.center,
-        padding: EdgeInsets.all(20),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -570,7 +575,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
               if (inspeccionProvider.tieneRemolque) InfoRemolqueWidget(),
               if (inspeccionProvider.tieneGuia) GuiaTransporteWidget(),
               const SizedBox(
-                height: 10,
+                height: 20,
               ),
               // MaterialStateProperty.all<Color>(Colors.green)
               ElevatedButton(
@@ -625,9 +630,6 @@ class _InspeccionFormState extends State<InspeccionForm> {
 
                   Navigator.pushNamed(context, 'inspeccion_vehiculo');
                 },
-              ),
-              const SizedBox(
-                height: 30,
               ),
             ],
           ),

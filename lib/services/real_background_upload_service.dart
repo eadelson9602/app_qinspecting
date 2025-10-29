@@ -4,6 +4,7 @@ import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/services/upload_foreground_service.dart';
 import 'package:app_qinspecting/providers/providers.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -12,14 +13,24 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 class RealBackgroundUploadService with WidgetsBindingObserver {
   static bool _isServiceRunning = false;
   static AppLifecycleState? _currentAppState;
+  static RealBackgroundUploadService? _instance;
+  static bool _isObserverRegistered = false;
 
   /// Inicializa el servicio
   static Future<void> initialize() async {
+    if (_isObserverRegistered) {
+      // Ya está inicializado, no hacer nada
+      return;
+    }
+
     print(
         '📱 DEBUG: Servicio de fondo real inicializado (versión simplificada)');
 
-    // Registrar observer para detectar cambios de estado de la app
-    WidgetsBinding.instance.addObserver(RealBackgroundUploadService());
+    // Crear y guardar una única instancia del observer
+    _instance = RealBackgroundUploadService();
+    WidgetsBinding.instance.addObserver(_instance!);
+    _isObserverRegistered = true;
+
     _currentAppState = WidgetsBinding.instance.lifecycleState;
     print('📱 DEBUG: Estado inicial de la app: $_currentAppState');
   }
@@ -27,24 +38,27 @@ class RealBackgroundUploadService with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _currentAppState = state;
-    print('📱 DEBUG: Estado de la app cambió a: $state');
+    // Solo log en modo debug para reducir ruido en producción
+    if (kDebugMode) {
+      print('📱 DEBUG: Estado de la app cambió a: $state');
 
-    switch (state) {
-      case AppLifecycleState.resumed:
-        print('🟢 DEBUG: APP EN PRIMER PLANO - Conexiones normales');
-        break;
-      case AppLifecycleState.paused:
-        print('🟡 DEBUG: APP EN SEGUNDO PLANO - Conexiones limitadas');
-        break;
-      case AppLifecycleState.inactive:
-        print('🟠 DEBUG: APP INACTIVA - Transición de estado');
-        break;
-      case AppLifecycleState.detached:
-        print('🔴 DEBUG: APP DESCONECTADA - Proceso terminado');
-        break;
-      case AppLifecycleState.hidden:
-        print('⚫ DEBUG: APP OCULTA - Estado oculto');
-        break;
+      switch (state) {
+        case AppLifecycleState.resumed:
+          print('🟢 DEBUG: APP EN PRIMER PLANO - Conexiones normales');
+          break;
+        case AppLifecycleState.paused:
+          print('🟡 DEBUG: APP EN SEGUNDO PLANO - Conexiones limitadas');
+          break;
+        case AppLifecycleState.inactive:
+          print('🟠 DEBUG: APP INACTIVA - Transición de estado');
+          break;
+        case AppLifecycleState.detached:
+          print('🔴 DEBUG: APP DESCONECTADA - Proceso terminado');
+          break;
+        case AppLifecycleState.hidden:
+          print('⚫ DEBUG: APP OCULTA - Estado oculto');
+          break;
+      }
     }
   }
 

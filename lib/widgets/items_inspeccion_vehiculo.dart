@@ -154,6 +154,11 @@ class _ItemsInspeccionarStateVehiculo extends State<ItemsInspeccionarVehiculo> {
         }
       }
 
+      // Verificar que el widget sigue montado antes de abrir la cámara
+      if (!mounted) {
+        return;
+      }
+
       final picker = ImagePicker();
       final XFile? photo = await picker.pickImage(
         source: source,
@@ -161,6 +166,11 @@ class _ItemsInspeccionarStateVehiculo extends State<ItemsInspeccionarVehiculo> {
         maxWidth: 1080,
         maxHeight: 1080,
       );
+
+      // Verificar nuevamente que el widget sigue montado después de la cámara
+      if (!mounted) {
+        return;
+      }
 
       if (photo != null) {
         setState(() {
