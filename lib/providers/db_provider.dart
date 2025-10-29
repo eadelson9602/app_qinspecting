@@ -352,8 +352,10 @@ class DBProvider {
         where: 'numeroDocumento = ? AND base = ?',
         whereArgs: [numeroDocumento, base],
         limit: 1);
-    print('[GET USER] Consultando por numeroDocumento: $numeroDocumento, base: $base');
-    print('[GET USER] Resultado: ${res != null && res.isNotEmpty ? "Usuario encontrado" : "Usuario NO encontrado"}');
+    print(
+        '[GET USER] Consultando por numeroDocumento: $numeroDocumento, base: $base');
+    print(
+        '[GET USER] Resultado: ${res != null && res.isNotEmpty ? "Usuario encontrado" : "Usuario NO encontrado"}');
     return res != null && res.isNotEmpty ? UserData.fromMap(res.first) : null;
   }
 
@@ -826,7 +828,8 @@ class DBProvider {
     try {
       // Intentar con la nueva estructura (con eliminado)
       final res = await db?.query('ResumenPreoperacional',
-          where: 'usuarioPreoperacional = ? AND base = ? AND eliminado = 0',
+          where:
+              'usuarioPreoperacional = ? AND base = ? AND eliminado = 0 AND enviado = 0',
           whereArgs: [idUsuario, base]);
 
       return res!.isNotEmpty
@@ -1038,133 +1041,90 @@ class DBProvider {
             '    * usuarioPreoperacional: ${record['usuarioPreoperacional']}, base: ${record['base']}, fecha: ${record['fechaPreoperacional']}, placa: ${record['placa']}');
       }
 
-      // Verificar estructura de la tabla
-      final tableInfo =
-          await db.rawQuery('PRAGMA table_info(ResumenPreoperacional)');
-      print(
-          '  - Columnas de la tabla: ${tableInfo.map((col) => col['name']).toList()}');
+      // Estructura nueva (con eliminado y enviado)
+      print('  - Usando estructura nueva (con eliminado y enviado)');
 
-      // Intentar con la nueva estructura (con eliminado y enviado)
-      try {
-        print('  - Intentando con estructura nueva (con eliminado y enviado)');
-
-        // Verificar si las columnas existen antes de usarlas
-        final hasEliminado = tableInfo.any((col) => col['name'] == 'eliminado');
-        final hasEnviado = tableInfo.any((col) => col['name'] == 'enviado');
-
-        if (!hasEliminado || !hasEnviado) {
-          throw Exception('Columnas eliminado o enviado no existen');
-        }
-
-        print(
-            '  - Columnas eliminado y enviado encontradas, usando estructura nueva');
-
-        // Transacciones pendientes de envío
-        final pendientesResult = await db.rawQuery('''
+      // Transacciones pendientes de envío
+      final pendientesResult = await db.rawQuery('''
           SELECT COUNT(*) as count 
           FROM ResumenPreoperacional 
           WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0 AND enviado = 0
         ''', [idUsuario, base]);
-        stats['pendientes'] = pendientesResult.first['count'] as int;
-        print('  - Pendientes (nueva estructura): ${stats['pendientes']}');
+      stats['pendientes'] = pendientesResult.first['count'] as int;
+      print('  - Pendientes (nueva estructura): ${stats['pendientes']}');
 
-        // Transacciones del día
-        final hoy = DateTime.now();
-        final inicioDia =
-            DateTime(hoy.year, hoy.month, hoy.day).toIso8601String();
-        final finDia = DateTime(hoy.year, hoy.month, hoy.day, 23, 59, 59)
-            .toIso8601String();
+      // Transacciones del día
+      final hoy = DateTime.now();
+      // La fecha en BD está en formato YYYY-MM-DD HH:MM
+      final inicioDia =
+          '${hoy.year.toString().padLeft(4, '0')}-${hoy.month.toString().padLeft(2, '0')}-${hoy.day.toString().padLeft(2, '0')} 00:00';
+      final finDia =
+          '${hoy.year.toString().padLeft(4, '0')}-${hoy.month.toString().padLeft(2, '0')}-${hoy.day.toString().padLeft(2, '0')} 23:59';
 
-        final diaResult = await db.rawQuery('''
-          SELECT COUNT(*) as count 
-          FROM ResumenPreoperacional 
-          WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0 
-          AND fechaPreoperacional >= ? AND fechaPreoperacional <= ?
-        ''', [idUsuario, base, inicioDia, finDia]);
-        stats['dia'] = diaResult.first['count'] as int;
-        print('  - Hoy (nueva estructura): ${stats['dia']}');
+      print('  - Rango del día: $inicioDia a $finDia');
 
-        // Transacciones de la semana
-        final inicioSemana = hoy.subtract(Duration(days: hoy.weekday - 1));
-        final inicioSemanaStr =
-            DateTime(inicioSemana.year, inicioSemana.month, inicioSemana.day)
-                .toIso8601String();
-
-        final semanaResult = await db.rawQuery('''
-          SELECT COUNT(*) as count 
-          FROM ResumenPreoperacional 
-          WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0 
-          AND fechaPreoperacional >= ?
-        ''', [idUsuario, base, inicioSemanaStr]);
-        stats['semana'] = semanaResult.first['count'] as int;
-        print('  - Semana (nueva estructura): ${stats['semana']}');
-
-        // Total de transacciones (no eliminadas)
-        final totalResult = await db.rawQuery('''
-          SELECT COUNT(*) as count 
-          FROM ResumenPreoperacional 
-          WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0
-        ''', [idUsuario, base]);
-        stats['total'] = totalResult.first['count'] as int;
-        print('  - Total (nueva estructura): ${stats['total']}');
-      } catch (e) {
-        // Si falla, usar la estructura antigua (sin eliminado ni enviado)
-        print(
-            '⚠️ Usando estructura antigua de base de datos para dashboard: $e');
-        print(
-            '  - En estructura antigua, todas las inspecciones se consideran pendientes');
-
-        // Todas las inspecciones son "pendientes" en la estructura antigua
-        final pendientesResult = await db.rawQuery('''
-          SELECT COUNT(*) as count 
+      // Debug: mostrar todos los registros SIN filtros
+      final debugAllRecords = await db.rawQuery('''
+          SELECT fechaPreoperacional, enviado, eliminado, placa
           FROM ResumenPreoperacional 
           WHERE usuarioPreoperacional = ? AND base = ?
         ''', [idUsuario, base]);
-        stats['pendientes'] = pendientesResult.first['count'] as int;
-        print('  - Pendientes (estructura antigua): ${stats['pendientes']}');
-
-        // Transacciones del día
-        final hoy = DateTime.now();
-        final inicioDia =
-            DateTime(hoy.year, hoy.month, hoy.day).toIso8601String();
-        final finDia = DateTime(hoy.year, hoy.month, hoy.day, 23, 59, 59)
-            .toIso8601String();
-
-        final diaResult = await db.rawQuery('''
-          SELECT COUNT(*) as count 
-          FROM ResumenPreoperacional 
-          WHERE usuarioPreoperacional = ? AND base = ? 
-          AND fechaPreoperacional >= ? AND fechaPreoperacional <= ?
-        ''', [idUsuario, base, inicioDia, finDia]);
-        stats['dia'] = diaResult.first['count'] as int;
-        print('  - Hoy (estructura antigua): ${stats['dia']}');
-
-        // Transacciones de la semana
-        final inicioSemana = hoy.subtract(Duration(days: hoy.weekday - 1));
-        final inicioSemanaStr =
-            DateTime(inicioSemana.year, inicioSemana.month, inicioSemana.day)
-                .toIso8601String();
-
-        final semanaResult = await db.rawQuery('''
-          SELECT COUNT(*) as count 
-          FROM ResumenPreoperacional 
-          WHERE usuarioPreoperacional = ? AND base = ? 
-          AND fechaPreoperacional >= ?
-        ''', [idUsuario, base, inicioSemanaStr]);
-        stats['semana'] = semanaResult.first['count'] as int;
-        print('  - Semana (estructura antigua): ${stats['semana']}');
-
-        // Total de transacciones
-        final totalResult = await db.rawQuery('''
-          SELECT COUNT(*) as count 
-          FROM ResumenPreoperacional 
-          WHERE usuarioPreoperacional = ? AND base = ?
-        ''', [idUsuario, base]);
-        stats['total'] = totalResult.first['count'] as int;
-        print('  - Total (estructura antigua): ${stats['total']}');
+      print('  - TODOS los registros (SIN filtros): ${debugAllRecords.length}');
+      for (var record in debugAllRecords) {
+        print(
+            '    * Fecha: ${record['fechaPreoperacional']}, Enviado: ${record['enviado']}, Eliminado: ${record['eliminado']}, Placa: ${record['placa']}');
       }
 
+      // Debug: mostrar registros con filtro
+      final debugRecords = await db.rawQuery('''
+          SELECT fechaPreoperacional, enviado, eliminado, placa
+          FROM ResumenPreoperacional 
+          WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0 AND enviado IN (0, 1)
+        ''', [idUsuario, base]);
+      print(
+          '  - Registros con filtro (enviado IN 0,1 y eliminado=0): ${debugRecords.length}');
+      for (var record in debugRecords) {
+        print(
+            '    * Fecha: ${record['fechaPreoperacional']}, Enviado: ${record['enviado']}, Placa: ${record['placa']}');
+      }
+
+      final diaResult = await db.rawQuery('''
+          SELECT COUNT(*) as count 
+          FROM ResumenPreoperacional 
+          WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0 AND enviado IN (0, 1)
+          AND fechaPreoperacional >= ? AND fechaPreoperacional <= ?
+        ''', [idUsuario, base, inicioDia, finDia]);
+      stats['dia'] = diaResult.first['count'] as int;
+      print('  - Hoy (nueva estructura): ${stats['dia']}');
+
+      // Transacciones de la semana
+      final inicioSemana = hoy.subtract(Duration(days: hoy.weekday - 1));
+      final inicioSemanaStr =
+          '${inicioSemana.year.toString().padLeft(4, '0')}-${inicioSemana.month.toString().padLeft(2, '0')}-${inicioSemana.day.toString().padLeft(2, '0')} 00:00';
+
+      print('  - Rango de la semana: desde $inicioSemanaStr');
+
+      final semanaResult = await db.rawQuery('''
+          SELECT COUNT(*) as count 
+          FROM ResumenPreoperacional 
+          WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0 AND enviado IN (0, 1)
+          AND fechaPreoperacional >= ?
+        ''', [idUsuario, base, inicioSemanaStr]);
+      stats['semana'] = semanaResult.first['count'] as int;
+      print('  - Semana (nueva estructura): ${stats['semana']}');
+
+      // Total de transacciones (no eliminadas, incluyendo enviadas)
+      final totalResult = await db.rawQuery('''
+          SELECT COUNT(*) as count 
+          FROM ResumenPreoperacional 
+          WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0 AND enviado IN (0, 1)
+        ''', [idUsuario, base]);
+      stats['total'] = totalResult.first['count'] as int;
+      print('  - Total (nueva estructura): ${stats['total']}');
+
+      // Debug final
       print('📊 Dashboard stats finales: $stats');
+
       return stats;
     } catch (e) {
       print('❌ Error getting dashboard stats: $e');
@@ -1188,12 +1148,12 @@ class DBProvider {
   }
 
   /// Marca una inspección como enviada
-  Future<void> marcarInspeccionComoEnviada(int? idInspeccion) async {
-    if (idInspeccion == null) return;
-    
+  Future<bool> marcarInspeccionComoEnviada(int? idInspeccion) async {
+    if (idInspeccion == null) return false;
+
     final db = await database;
     final fechaEnvio = DateTime.now().toIso8601String();
-    
+
     await db?.update(
       'ResumenPreoperacional',
       {
@@ -1203,8 +1163,9 @@ class DBProvider {
       where: 'id = ?',
       whereArgs: [idInspeccion],
     );
-    
+
     print('✅ [DB] Inspección $idInspeccion marcada como enviada');
+    return true;
   }
 
   /// Obtiene las inspecciones del día
@@ -1260,75 +1221,5 @@ class DBProvider {
         where: 'id = ?',
         whereArgs: [idResumen]);
     return res;
-  }
-
-  /// Obtiene estadísticas detalladas por período
-  Future<Map<String, dynamic>> getDetailedStats(
-      String idUsuario, String base) async {
-    final db = await database;
-    if (db == null) return {};
-
-    try {
-      final stats = <String, dynamic>{};
-
-      // Estadísticas por estado de envío
-      final estadoResult = await db.rawQuery('''
-        SELECT 
-          enviado,
-          COUNT(*) as count
-        FROM ResumenPreoperacional 
-        WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0
-        GROUP BY enviado
-      ''', [idUsuario, base]);
-
-      stats['enviadas'] = 0;
-      stats['pendientes'] = 0;
-
-      for (final row in estadoResult) {
-        if (row['enviado'] == 1) {
-          stats['enviadas'] = row['count'];
-        } else {
-          stats['pendientes'] = row['count'];
-        }
-      }
-
-      // Estadísticas por día de la semana
-      final diasResult = await db.rawQuery('''
-        SELECT 
-          strftime('%w', fechaPreoperacional) as dia_semana,
-          COUNT(*) as count
-        FROM ResumenPreoperacional 
-        WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0
-        AND fechaPreoperacional >= date('now', '-7 days')
-        GROUP BY dia_semana
-        ORDER BY dia_semana
-      ''', [idUsuario, base]);
-
-      stats['por_dias'] = diasResult
-          .map((row) => {'dia': row['dia_semana'], 'count': row['count']})
-          .toList();
-
-      // Promedio de inspecciones por día
-      final promedioResult = await db.rawQuery('''
-        SELECT 
-          COUNT(*) as total,
-          COUNT(DISTINCT date(fechaPreoperacional)) as dias_distintos
-        FROM ResumenPreoperacional 
-        WHERE usuarioPreoperacional = ? AND base = ? AND eliminado = 0
-        AND fechaPreoperacional >= date('now', '-30 days')
-      ''', [idUsuario, base]);
-
-      final total = promedioResult.first['total'] as int;
-      final diasDistintos = promedioResult.first['dias_distintos'] as int;
-      stats['promedio_diario'] = diasDistintos > 0
-          ? (total / diasDistintos).toStringAsFixed(1)
-          : '0.0';
-
-      print('📊 Detailed stats: $stats');
-      return stats;
-    } catch (e) {
-      print('❌ Error getting detailed stats: $e');
-      return {};
-    }
   }
 }

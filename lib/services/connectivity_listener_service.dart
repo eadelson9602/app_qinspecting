@@ -166,9 +166,9 @@ class ConnectivityListenerService {
       // Configurar token
       await loginService.setTokenFromStorage();
 
-      // Verificar que el token existe
-      final nombreBase = loginService.selectedEmpresa.nombreBase;
-      final tokenKey = nombreBase != null ? 'token_$nombreBase' : 'token';
+      // Verificar que el token existe usando la clave del usuario
+      final idUsuario = await loginService.storage.read(key: 'usuario') ?? '';
+      final tokenKey = 'token_$idUsuario';
       final token = await loginService.storage.read(key: tokenKey);
 
       if (token == null || token.isEmpty) {

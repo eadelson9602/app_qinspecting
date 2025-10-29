@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/services/background_upload_service.dart';
-import 'package:app_qinspecting/services/notification_service.dart';
 import 'package:app_qinspecting/models/inspeccion.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 import 'package:app_qinspecting/widgets/upload_progress_widgets.dart';
@@ -114,9 +113,7 @@ class _ContentCardInspectionPendingState
       await inspeccionService.sendInspeccion(
           allInspecciones[0], loginService.selectedEmpresa);
       await inspeccionProvider
-          .eliminarResumenPreoperacional(allInspecciones[0].id!);
-      await inspeccionProvider
-          .eliminarRespuestaPreoperacional(allInspecciones[0].id!);
+          .marcarResumenPreoperacionalComoEnviado(allInspecciones[0].id!);
       if (mounted) setState(() {});
     } finally {
       inspeccionService.updateSaving(false);
@@ -129,6 +126,19 @@ class _ContentCardInspectionPendingState
     final inspeccionService =
         Provider.of<InspeccionService>(context, listen: false);
     final loginService = Provider.of<LoginService>(context, listen: false);
+
+    // Verificar si ya hay un envío en progreso
+    if (inspeccionService.isSaving) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text(
+              'Ya hay una inspección enviándose. Por favor espera a que termine.'),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
 
     try {
       // Verificar permisos de notificación
@@ -244,8 +254,19 @@ class _ContentCardInspectionPendingState
                     Card(
                       elevation: 10,
                       shadowColor: Theme.of(context).shadowColor,
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? Colors.white
+                          : Theme.of(context).cardColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(
+                          color:
+                              Theme.of(context).brightness == Brightness.light
+                                  ? Colors.grey.withValues(alpha: 0.2)
+                                  : Theme.of(context)
+                                      .shadowColor
+                                      .withValues(alpha: 0.2),
+                        ),
                       ),
                       child: (inspeccionService.isSaving &&
                                   inspeccionService.indexSelected == i) ||
@@ -383,7 +404,10 @@ class _ContentCardInspectionPendingState
                                         width: 40,
                                         height: 40,
                                         decoration: BoxDecoration(
-                                          color: Color(0xFFF44336), // Rojo
+                                          color: inspeccionService.isSaving
+                                              ? Colors
+                                                  .grey // Gris cuando está deshabilitado
+                                              : Color(0xFFF44336), // Rojo
                                           shape: BoxShape.circle,
                                         ),
                                         child: IconButton(
@@ -423,7 +447,10 @@ class _ContentCardInspectionPendingState
                                         width: 40,
                                         height: 40,
                                         decoration: BoxDecoration(
-                                          color: Color(0xFFE91E63), // Rosa/Rojo
+                                          color: inspeccionService.isSaving
+                                              ? Colors
+                                                  .grey // Gris cuando está deshabilitado
+                                              : Color(0xFFE91E63), // Rosa/Rojo
                                           shape: BoxShape.circle,
                                         ),
                                         child: IconButton(
@@ -451,12 +478,17 @@ class _ContentCardInspectionPendingState
                                         width: 40,
                                         height: 40,
                                         decoration: BoxDecoration(
-                                          color: Color(0xFF4CAF50), // Verde
+                                          color: inspeccionService.isSaving
+                                              ? Colors
+                                                  .grey // Gris cuando está deshabilitado
+                                              : Color(0xFF4CAF50), // Verde
                                           shape: BoxShape.circle,
                                         ),
                                         child: IconButton(
                                           icon: Icon(
-                                            Icons.send_outlined,
+                                            inspeccionService.isSaving
+                                                ? Icons.hourglass_empty
+                                                : Icons.send_outlined,
                                             color: Colors.white,
                                             size: 20,
                                           ),

@@ -246,6 +246,12 @@ class InspeccionProvider extends ChangeNotifier {
     return respuestas;
   }
 
+  Future<int?> marcarResumenPreoperacionalComoEnviado(int idResumen) async {
+    await DBProvider.db.marcarInspeccionComoEnviada(idResumen);
+    notifyListeners();
+    return 1;
+  }
+
   Future<int?> eliminarRespuestaPreoperacional(int idResumen) async {
     final respuestas =
         await DBProvider.db.deleteRespuestaPreoperacional(idResumen);

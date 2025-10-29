@@ -32,24 +32,11 @@ class LoginService extends ChangeNotifier {
   /// Obtiene el token desde FlutterSecureStorage y lo configura en headers
   Future<void> setTokenFromStorage() async {
     try {
-      // Usar la clave específica de la empresa si está disponible
-      String nombreBase = await storage.read(key: 'nombreBase') ?? '';
-      String tokenKey =
-          nombreBase.isNotEmpty ? _getTokenKey(nombreBase) : 'token';
+      // Leer el usuario para construir la clave del token
+      String idUsuario = await storage.read(key: 'usuario') ?? '';
+      String tokenKey = 'token_$idUsuario';
 
       String token = await storage.read(key: tokenKey) ?? '';
-
-      // Si no hay token para la base, pero existe uno temporal, moverlo
-      if (token.isEmpty && nombreBase.isNotEmpty) {
-        final tempToken = await storage.read(key: 'token');
-        if (tempToken != null && tempToken.isNotEmpty) {
-          await storage.write(key: tokenKey, value: tempToken);
-          await storage.delete(key: 'token');
-          token = tempToken;
-          print(
-              '[SET TOKEN] 🔁 Token temporal movido a clave específica: $tokenKey');
-        }
-      }
 
       print('[SET TOKEN] ✅ Tokens: ${await storage.readAll()}');
 
@@ -70,11 +57,6 @@ class LoginService extends ChangeNotifier {
 
   Options options = Options();
 
-  /// Obtiene la clave del token para una empresa específica
-  String _getTokenKey(String nombreBase) {
-    return 'token_$nombreBase';
-  }
-
   Future<Map<dynamic, dynamic>> getToken(int user, String password,
       {String? nombreBase}) async {
     try {
@@ -85,54 +67,33 @@ class LoginService extends ChangeNotifier {
           options: options,
           data: json.encode({'usuario': '$user', 'password': password}));
 
-      print('[LOGIN] Response status: ${response.statusCode}');
-      print('[LOGIN] Response data: ${response.data}');
-
       Map<dynamic, dynamic> resGetToken = response.data;
-      if (resGetToken.containsKey('token')) {
-        // Si no se pasa nombreBase, guardar en clave temporal
-        // Si se pasa nombreBase, guardar en clave específica de la empresa
-        String tokenKey =
-            nombreBase != null ? _getTokenKey(nombreBase) : 'token';
 
-        await storage.write(key: tokenKey, value: response.data['token']);
-        dio.options.headers = {"x-access-token": response.data['token']};
-        options.headers = {"x-access-token": response.data['token']};
+      // Siempre usar clave específica del usuario
+      String tokenKey = 'token_$user';
 
-        // Si no se pasó nombreBase pero ya hay una empresa seleccionada, mover a su clave
-        if (nombreBase == null &&
-            selectedEmpresa.nombreBase != null &&
-            selectedEmpresa.nombreBase!.isNotEmpty) {
-          final baseKey = _getTokenKey(selectedEmpresa.nombreBase!);
-          await storage.write(key: baseKey, value: response.data['token']);
-          await storage.delete(key: 'token');
-          print(
-              '[LOGIN] 🔁 Token temporal movido a clave específica: $baseKey');
-        }
+      // 1. Guardar token en FlutterSecureStorage
+      await storage.write(key: tokenKey, value: response.data['token']);
 
-        // Verificar que el token se guardó correctamente
-        final savedToken = await storage.read(key: tokenKey);
-        print('[LOGIN] ✅ Token guardado exitosamente en secure storage');
-        print('[LOGIN] ✅ Clave del token: $tokenKey');
-        print('[LOGIN] ✅ Token configurado en headers (dio.options y options)');
-        print(
-            '[LOGIN] Token guardado: ${savedToken != null ? savedToken.substring(0, savedToken.length > 30 ? 30 : savedToken.length) + "..." : "NULL"}');
-      } else {
-        print('[LOGIN] ⚠️ No se recibió token en la respuesta');
+      // 2. Verificar inmediatamente que se guardó
+      final savedToken = await storage.read(key: tokenKey);
+      if (savedToken == null || savedToken.isEmpty) {
+        print('[LOGIN] ❌ ERROR: El token NO se guardó en FlutterSecureStorage');
+        throw Exception('El token no se pudo guardar en FlutterSecureStorage');
       }
+      print('[LOGIN] ✅ Token verificado en FlutterSecureStorage');
+
+      // 3. Configurar headers
+      dio.options.headers = {"x-access-token": response.data['token']};
+      options.headers = {"x-access-token": response.data['token']};
 
       return resGetToken;
     } on DioException catch (error) {
-      print('[LOGIN] DioException: ${error.type}');
-      print('[LOGIN] Error message: ${error.message}');
-      print('[LOGIN] Error response: ${error.response?.data}');
-      print('[LOGIN] Error status: ${error.response?.statusCode}');
       return {
         "message": "No hemos podido obtener el token",
         "error": error.message
       };
     } catch (e) {
-      print('[LOGIN] Error inesperado: $e');
       return {"message": "Error inesperado", "error": e.toString()};
     } finally {
       isLoading = false;
@@ -144,19 +105,11 @@ class LoginService extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    print('[LOGIN] Iniciando login...');
-    print('[LOGIN] URL: ${baseUrl}/login');
-    print('[LOGIN] Usuario: $user');
-    print('[LOGIN] Headers: ${options.headers}');
-
     final List<Empresa> empresas = [];
     try {
       Response response = await dio.post('${baseUrl}/login',
           options: options,
           data: json.encode({'usuario': '$user', 'password': password}));
-
-      print('[LOGIN] Login response status: ${response.statusCode}');
-      print('[LOGIN] Login response data: ${response.data}');
 
       var tempRes = response.data;
       if (tempRes.runtimeType == List<dynamic>) {
@@ -230,17 +183,6 @@ class LoginService extends ChangeNotifier {
     print('   - Usuario: $savedUsuario');
     print('   - Nombre Base: $savedNombreBase');
 
-    // Si hay un token temporal ('token'), moverlo a la clave específica de la empresa
-    final tempToken = await storage.read(key: 'token');
-    if (tempToken != null && tempToken.isNotEmpty) {
-      String tokenKey = _getTokenKey(empresa.nombreBase!);
-      await storage.write(key: tokenKey, value: tempToken);
-      print(
-          '[GET USER DATA] ✅ Token movido de clave temporal a clave específica: $tokenKey');
-      // Eliminar el token temporal
-      await storage.delete(key: 'token');
-    }
-
     // Asegurar headers actualizados desde storage
     await setTokenFromStorage();
 
@@ -267,22 +209,9 @@ class LoginService extends ChangeNotifier {
     String idUsuario = await storage.read(key: 'usuario') ?? '';
     String nombreBase = await storage.read(key: 'nombreBase') ?? '';
 
-    // Leer el token usando la clave específica de la empresa
-    String tokenKey =
-        nombreBase.isNotEmpty ? _getTokenKey(nombreBase) : 'token';
+    // Leer el token usando la clave específica del usuario
+    String tokenKey = 'token_$idUsuario';
     String token = await storage.read(key: tokenKey) ?? '';
-
-    // Si no hay token para la base pero existe uno temporal, moverlo
-    if (token.isEmpty && nombreBase.isNotEmpty) {
-      final tempToken = await storage.read(key: 'token');
-      if (tempToken != null && tempToken.isNotEmpty) {
-        await storage.write(key: tokenKey, value: tempToken);
-        await storage.delete(key: 'token');
-        token = tempToken;
-        print(
-            '[READ TOKEN] 🔁 Token temporal movido a clave específica: $tokenKey');
-      }
-    }
 
     print('🔍 [READ TOKEN] Verificando datos en storage:');
     print(

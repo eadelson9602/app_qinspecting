@@ -31,13 +31,10 @@ class FirmaService extends ChangeNotifier {
 
       // Configurar el token antes de la petición
       await loginService.setTokenFromStorage();
-      final headers =
-          Map<String, dynamic>.from(loginService.dio.options.headers);
 
       Response response =
           await dio.post('${loginService.baseUrl}/insert_signature',
-              options: Options(
-                headers: headers,
+              options: loginService.options.copyWith(
                 sendTimeout: Duration(seconds: 60),
                 receiveTimeout: Duration(seconds: 60),
               ),
@@ -63,13 +60,10 @@ class FirmaService extends ChangeNotifier {
     try {
       // Configurar el token antes de la petición
       await loginService.setTokenFromStorage();
-      final headers =
-          Map<String, dynamic>.from(loginService.dio.options.headers);
 
       Response response = await dio.get(
           '${loginService.baseUrl}/get_info_firma/${empresaSelected.nombreBase}/${empresaSelected.numeroDocumento}',
-          options: Options(
-            headers: headers,
+          options: loginService.options.copyWith(
             sendTimeout: Duration(seconds: 60),
             receiveTimeout: Duration(seconds: 60),
           ));

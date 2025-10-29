@@ -287,11 +287,6 @@ class _ButtonLogin extends StatelessWidget {
                           value: '${empresas[i].nombreBase}');
                       await storage.write(
                           key: 'idEmpresa', value: '${empresas[i].idEmpresa}');
-
-                      print('[LOGIN OFFLINE] Datos guardados en storage:');
-                      print('   - Usuario: ${empresas[i].numeroDocumento}');
-                      print('   - Nombre Base: ${empresas[i].nombreBase}');
-
                       // Guardar la empresa en SQLite si no existe
                       await DBProvider.db.nuevaEmpresa(empresas[i]);
                       print('[LOGIN OFFLINE] ✅ Empresa guardada en SQLite');
@@ -301,17 +296,17 @@ class _ButtonLogin extends StatelessWidget {
                       print(
                           '[LOGIN OFFLINE] ✅ Empresa asignada al LoginService');
 
-                      // Verificar si hay token guardado de sesión anterior para esta empresa
-                      String tokenKey = 'token_${empresas[i].nombreBase}';
+                      // Verificar si hay token guardado de sesión anterior para este usuario
+                      String tokenKey = 'token_${empresas[i].numeroDocumento}';
                       final existingToken = await storage.read(key: tokenKey);
                       if (existingToken == null || existingToken.isEmpty) {
                         print(
-                            '⚠️ [LOGIN OFFLINE] No hay token guardado para esta empresa');
+                            '⚠️ [LOGIN OFFLINE] No hay token guardado para este usuario');
                         print(
                             '   El usuario necesita conectarse para usar funciones que requieren token');
                       } else {
                         print(
-                            '✅ [LOGIN OFFLINE] Token encontrado de sesión anterior para esta empresa');
+                            '✅ [LOGIN OFFLINE] Token encontrado de sesión anterior para este usuario');
                         print('   - Token key: $tokenKey');
                         // Configurar headers con el token existente
                         loginService.dio.options.headers = {

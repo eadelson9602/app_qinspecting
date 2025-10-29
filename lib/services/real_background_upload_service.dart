@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/services/services.dart';
-import 'package:app_qinspecting/services/notification_service.dart';
 import 'package:app_qinspecting/services/upload_foreground_service.dart';
 import 'package:app_qinspecting/providers/providers.dart';
 import 'package:flutter/services.dart';
@@ -141,9 +140,7 @@ class RealBackgroundUploadService with WidgetsBindingObserver {
         try {
           final inspeccionProvider = InspeccionProvider();
           await inspeccionProvider
-              .eliminarResumenPreoperacional(inspeccion.id!);
-          await inspeccionProvider
-              .eliminarRespuestaPreoperacional(inspeccion.id!);
+              .marcarResumenPreoperacionalComoEnviado(inspeccion.id!);
           print(
               '✅ DEBUG: Datos de la inspección eliminados del SQLite exitosamente');
         } catch (e) {

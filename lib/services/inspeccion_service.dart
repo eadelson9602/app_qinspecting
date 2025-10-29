@@ -340,28 +340,13 @@ class InspeccionService extends ChangeNotifier {
       // Asegurarse de que el token esté actualizado
       await loginService.setTokenFromStorage();
 
-      // Obtener headers del dio de loginService que tiene el token configurado
-      final headers =
-          Map<String, dynamic>.from(loginService.dio.options.headers);
-      print('📤 DEBUG: Headers: $headers');
-
-      // Verificar que el token esté presente en los headers
-      if (!headers.containsKey('x-access-token') ||
-          headers['x-access-token'] == null ||
-          headers['x-access-token'].toString().isEmpty) {
-        print('❌ ERROR: Token de autenticación no disponible');
-        throw Exception(
-            'Token de autenticación no disponible. Por favor, inicia sesión nuevamente.');
-      }
-
       final startTime = DateTime.now();
       Response response = await dio.post(
           '${loginService.baseUrl}/upload_file/${company.toLowerCase()}/${folder}',
           data: formData,
-          options: Options(
-            headers: headers,
-            sendTimeout: Duration(seconds: 60), // Aumentado a 60 segundos
-            receiveTimeout: Duration(seconds: 60), // Aumentado a 60 segundos
+          options: loginService.options.copyWith(
+            sendTimeout: Duration(seconds: 60),
+            receiveTimeout: Duration(seconds: 60),
             validateStatus: (status) {
               return status! < 500; // Aceptar códigos de estado menores a 500
             },
@@ -711,17 +696,9 @@ class InspeccionService extends ChangeNotifier {
           notifyListeners();
         }
 
-        // Configurar el token antes de enviar
-        await loginService.setTokenFromStorage();
-
-        // Obtener headers del dio de loginService que tiene el token configurado
-        final headers =
-            Map<String, dynamic>.from(loginService.dio.options.headers);
-
         final responseResumen =
             await dio.post('${loginService.baseUrl}/insert_preoperacional',
-                options: Options(
-                  headers: headers,
+                options: loginService.options.copyWith(
                   sendTimeout: Duration(seconds: 60),
                   receiveTimeout: Duration(seconds: 60),
                 ),
@@ -854,8 +831,6 @@ class InspeccionService extends ChangeNotifier {
 
           // Agregar respuesta al array
           final itemToAdd = jsonDecode(element.toJson());
-          print(
-              '📋 [RESPUESTA $i] Agregando al array: idItem=${itemToAdd['idItem']}, adjunto=${itemToAdd['adjunto']}');
           respuestasArray.add(itemToAdd);
         }
 
@@ -869,24 +844,9 @@ class InspeccionService extends ChangeNotifier {
           );
         }
 
-        // Asegurar que el token esté actualizado
-        await loginService.setTokenFromStorage();
-        final respuestasHeaders =
-            Map<String, dynamic>.from(loginService.dio.options.headers);
-
-        // Log final antes de enviar
-        print(
-            '📤 [ENVÍO] Enviando ${respuestasArray.length} respuestas al servidor');
-        for (int i = 0; i < respuestasArray.length; i++) {
-          final resp = respuestasArray[i];
-          print(
-              '  - Respuesta $i: idItem=${resp['idItem']}, adjunto=${resp['adjunto']}');
-        }
-
         await dio
             .post('${loginService.baseUrl}/insert_respuestas_preoperacional',
-                options: Options(
-                  headers: respuestasHeaders,
+                options: loginService.options.copyWith(
                   sendTimeout: Duration(seconds: 60),
                   receiveTimeout: Duration(seconds: 60),
                 ),
@@ -979,19 +939,21 @@ class InspeccionService extends ChangeNotifier {
           "idInspeccion": 0
         };
       }
-      // Configurar el token antes de cualquier operación
-      await loginService.setTokenFromStorage();
-      print('[SEND INSPECCION BACKGROUND] Token configurado');
 
-      // Obtener token de autenticación usando la clave correcta
-      String nombreBase = await storage.read(key: 'nombreBase') ?? '';
-      String tokenKey = nombreBase.isNotEmpty ? 'token_$nombreBase' : 'token';
+      // Obtener token del secure storage usando la clave específica del usuario
+      String idUsuario = await storage.read(key: 'usuario') ?? '';
+      String tokenKey = 'token_$idUsuario';
+
       String token = await storage.read(key: tokenKey) ?? '';
-      print('[SEND INSPECCION BACKGROUND] Token key usada: $tokenKey');
+
+      print('[SEND INSPECCION BACKGROUND] 🔑 Usuario: $idUsuario');
+      print('[SEND INSPECCION BACKGROUND] 🔑 Token key: $tokenKey');
+      print(
+          '[SEND INSPECCION BACKGROUND] Token presente: ${token.isNotEmpty ? "Sí" : "No"}');
 
       if (token.isEmpty) {
         print(
-            '[SEND INSPECCION BACKGROUND] ⚠️ Token no encontrado con clave: $tokenKey');
+            '[SEND INSPECCION BACKGROUND] ⚠️ Token no encontrado para clave: $tokenKey');
         return {
           "message": 'Token de autenticación no encontrado',
           "ok": false,
@@ -1015,17 +977,6 @@ class InspeccionService extends ChangeNotifier {
         progress: 0,
         total: 100,
       );
-
-      // Mostrar notificación en la app - COMENTADA para evitar duplicación
-      // print('📱 DEBUG: Mostrando notificación en la app...');
-      // showSimpleNotification(
-      //   Text('Subida iniciada en segundo plano. Puedes salir de la app.'),
-      //   leading: Icon(Icons.cloud_upload),
-      //   autoDismiss: true,
-      //   background: Colors.blue,
-      //   position: NotificationPosition.bottom,
-      // );
-      // print('✅ DEBUG: Notificación en la app mostrada');
 
       // Cancelar notificación de progreso al completar
       await NotificationService.cancelProgressNotification();
