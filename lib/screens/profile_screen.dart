@@ -13,6 +13,7 @@ import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/ui/app_theme.dart';
 import 'package:app_qinspecting/widgets/profile/profile_widgets.dart';
 import 'package:app_qinspecting/models/models.dart';
+import 'package:app_qinspecting/widgets/photo_source_sheet.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -310,91 +311,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _showPhotoOptions(BuildContext context, String base) {
     showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (modalContext) => Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          top: 20,
-          bottom: MediaQuery.of(modalContext).viewInsets.bottom + 20,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Theme.of(context).dividerColor,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Seleccionar foto de perfil',
-              style: Theme.of(modalContext).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.primaryGreen,
-                  ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: PhotoOptionButton(
-                    icon: Icons.camera_alt,
-                    label: 'Cámara',
-                    onTap: () async {
-                      Navigator.pop(modalContext);
-                      await _pickImage(context, ImageSource.camera);
-                    },
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: PhotoOptionButton(
-                    icon: Icons.photo_library,
-                    label: 'Galería',
-                    onTap: () async {
-                      Navigator.pop(modalContext);
-                      await _pickImage(context, ImageSource.gallery);
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: TextButton(
-                onPressed: () => Navigator.pop(modalContext),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: Theme.of(context).dividerColor),
-                  ),
-                ),
-                child: Text(
-                  'Cancelar',
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-          ],
-        ),
-      ),
-    );
+        context: context,
+        backgroundColor: Colors.transparent,
+        isScrollControlled: true,
+        builder: (modalContext) => PhotoSourceSheet(
+              title: 'Seleccionar foto de perfil',
+              onCamera: () async {
+                Navigator.pop(modalContext);
+                await _pickImage(context, ImageSource.camera);
+              },
+              onGallery: () async {
+                Navigator.pop(modalContext);
+                await _pickImage(context, ImageSource.gallery);
+              },
+            ));
   }
 
   Future<void> _pickImage(BuildContext context, ImageSource source) async {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:provider/provider.dart';
 import 'package:app_qinspecting/services/login_service.dart';
 import 'package:app_qinspecting/providers/db_provider.dart';
@@ -16,11 +17,28 @@ class _MiniDashboardState extends State<MiniDashboard> {
   bool _isLoading = true;
   DateTime? _lastUpdate;
   static const Duration _updateCooldown = Duration(seconds: 2);
+  StreamSubscription<void>? _dbSub;
+  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
     _loadDashboardStats();
+    // Suscribirse a cambios del DBProvider para refrescar el dashboard
+    // con un pequeño debounce para agrupar múltiples operaciones.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      try {
+        final dbProvider = Provider.of<DBProvider>(context, listen: false);
+        _dbSub = dbProvider.dashboardChanges.listen((_) {
+          _debounce?.cancel();
+          _debounce = Timer(_updateCooldown, () {
+            if (mounted) _loadDashboardStats();
+          });
+        });
+      } catch (e) {
+        // Si aún no está disponible en este frame, se ignorará.
+      }
+    });
   }
 
   @override
@@ -41,7 +59,8 @@ class _MiniDashboardState extends State<MiniDashboard> {
       final dbProvider = Provider.of<DBProvider>(context, listen: false);
 
       print('🔍 Debug MiniDashboard:');
-      print('  - Usuario numeroDocumento: ${loginService.userDataLogged.numeroDocumento}');
+      print(
+          '  - Usuario numeroDocumento: ${loginService.userDataLogged.numeroDocumento}');
       print('  - Empresa base: ${loginService.selectedEmpresa.nombreBase}');
 
       if (loginService.userDataLogged.numeroDocumento != null &&
@@ -77,6 +96,13 @@ class _MiniDashboardState extends State<MiniDashboard> {
   Future<void> refreshStats() async {
     print('🔄 MiniDashboard: Refrescando manualmente');
     await _loadDashboardStats();
+  }
+
+  @override
+  void dispose() {
+    _dbSub?.cancel();
+    _debounce?.cancel();
+    super.dispose();
   }
 
   @override

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -11,6 +12,11 @@ class DBProvider {
   static final DBProvider db = DBProvider._();
 
   DBProvider._();
+
+  // Stream para notificar cambios relevantes al dashboard
+  final StreamController<void> _dashboardChangeController =
+      StreamController<void>.broadcast();
+  Stream<void> get dashboardChanges => _dashboardChangeController.stream;
 
   Future<Database?> get database async {
     if (_database != null) return _database;
@@ -723,6 +729,8 @@ class DBProvider {
       "base": nuevoInspeccion.base,
     };
     final res = await db?.insert('ResumenPreoperacional', resumenSave);
+    // Notificar cambio para que el dashboard se actualice
+    _dashboardChangeController.add(null);
     return res;
   }
 
@@ -730,6 +738,8 @@ class DBProvider {
     final db = await database;
     final res =
         await db?.insert('RespuestasPreoperacional', nuevaRespuesta.toMap());
+    // No siempre afecta el dashboard, pero puede impactar métricas; emitimos por consistencia
+    _dashboardChangeController.add(null);
     return res;
   }
 
@@ -774,6 +784,7 @@ class DBProvider {
           print(
               '⚠️ Soft delete no afectó registros para inspección $idResumen');
         }
+        _dashboardChangeController.add(null);
         return res;
       } else {
         // Usar eliminación física si las columnas no existen (compatibilidad retroactiva)
@@ -789,6 +800,7 @@ class DBProvider {
           print(
               '⚠️ Eliminación física no afectó registros para inspección $idResumen');
         }
+        _dashboardChangeController.add(null);
         return res;
       }
     } catch (e) {
@@ -806,6 +818,7 @@ class DBProvider {
         } else {
           print('⚠️ Fallback no afectó registros para inspección $idResumen');
         }
+        _dashboardChangeController.add(null);
         return res;
       } catch (fallbackError) {
         print('❌ Error en fallback de eliminación física: $fallbackError');
@@ -1165,6 +1178,7 @@ class DBProvider {
     );
 
     print('✅ [DB] Inspección $idInspeccion marcada como enviada');
+    _dashboardChangeController.add(null);
     return true;
   }
 
@@ -1220,6 +1234,7 @@ class DBProvider {
         },
         where: 'id = ?',
         whereArgs: [idResumen]);
+    _dashboardChangeController.add(null);
     return res;
   }
 }

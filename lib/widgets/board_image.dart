@@ -4,6 +4,8 @@ import 'package:camera/camera.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:app_qinspecting/widgets/photo_source_sheet.dart';
 
 class BoardImage extends StatefulWidget {
   const BoardImage({Key? key, this.url, this.onImageCaptured})
@@ -51,7 +53,7 @@ class _BoardImageState extends State<BoardImage> {
           child: FloatingActionButton(
             heroTag: null,
             mini: true,
-            onPressed: _openInlineCamera,
+            onPressed: _openOptionsSheet,
             child: const Icon(Icons.camera_alt),
           ),
         ),
@@ -107,6 +109,24 @@ class _BoardImageState extends State<BoardImage> {
                 offset: Offset(0, 5))
           ]);
 
+  Future<void> _openOptionsSheet() async {
+    await showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        isScrollControlled: true,
+        builder: (ctx) => PhotoSourceSheet(
+              title: 'Seleccionar foto',
+              onCamera: () async {
+                Navigator.pop(ctx);
+                await _openInlineCamera();
+              },
+              onGallery: () async {
+                Navigator.pop(ctx);
+                await _openGallery();
+              },
+            ));
+  }
+
   Future<void> _openInlineCamera() async {
     try {
       // Permisos
@@ -129,6 +149,48 @@ class _BoardImageState extends State<BoardImage> {
       }
     } catch (e) {
       // Silenciar, UX sigue en formulario
+    }
+  }
+
+  Future<void> _openGallery() async {
+    try {
+      // Permiso de fotos/almacenamiento (manejo simple; el plugin gestiona en la mayoría de casos)
+      final picker = ImagePicker();
+      final XFile? photo = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 70,
+        maxWidth: 1080,
+        maxHeight: 1080,
+      );
+      if (photo == null) return;
+
+      final persisted = await _persistToDocuments(photo.path);
+      final finalPath = persisted ?? photo.path;
+      if (!mounted) return;
+      setState(() => _currentUrl = finalPath);
+      widget.onImageCaptured?.call(finalPath);
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  Future<String?> _persistToDocuments(String srcPath) async {
+    try {
+      final src = File(srcPath);
+      if (!await src.exists()) return null;
+      final docs = await getApplicationDocumentsDirectory();
+      final imagesDir = Directory('${docs.path}/images');
+      if (!await imagesDir.exists()) {
+        await imagesDir.create(recursive: true);
+      }
+      final String ext =
+          srcPath.contains('.') ? srcPath.split('.').last : 'jpg';
+      final String fileName = const Uuid().v4();
+      final String dstPath = '${imagesDir.path}/$fileName.$ext';
+      final saved = await src.copy(dstPath);
+      return saved.path;
+    } catch (_) {
+      return null;
     }
   }
 }
