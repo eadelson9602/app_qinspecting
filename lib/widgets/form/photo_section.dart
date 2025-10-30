@@ -4,13 +4,13 @@ import 'package:app_qinspecting/widgets/board_image.dart';
 class PhotoSection extends StatelessWidget {
   final String title;
   final String? imageUrl;
-  final VoidCallback onCapturePhoto;
+  final ValueChanged<String> onImageCaptured;
 
   const PhotoSection({
     Key? key,
     required this.title,
     required this.imageUrl,
-    required this.onCapturePhoto,
+    required this.onImageCaptured,
   }) : super(key: key);
 
   @override
@@ -27,22 +27,9 @@ class PhotoSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Stack(
-          children: [
-            BoardImage(url: imageUrl),
-            Positioned(
-              right: 15,
-              bottom: 10,
-              child: IconButton(
-                onPressed: onCapturePhoto,
-                icon: const Icon(
-                  Icons.camera_alt,
-                  color: Colors.white,
-                  size: 45,
-                ),
-              ),
-            ),
-          ],
+        BoardImage(
+          url: imageUrl,
+          onImageCaptured: onImageCaptured,
         ),
       ],
     );

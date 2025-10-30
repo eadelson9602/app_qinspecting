@@ -1,14 +1,16 @@
-import 'dart:io';
+// unused imports removidos
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:image_picker/image_picker.dart';
+// removed: image_picker (flujo embebido)
 import 'package:intl/intl.dart';
-import 'package:permission_handler/permission_handler.dart';
+// removed: permission_handler (flujo embebido)
+// unused imports removidos
+// removed: embedded_camera_screen (no se usa ya para capturar)
 
 import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/ui/input_decorations.dart';
-import 'package:app_qinspecting/ui/app_theme.dart';
+// removed unused import app_theme
 import 'package:app_qinspecting/widgets/widgets.dart';
 
 class InspeccionForm extends StatefulWidget {
@@ -33,6 +35,10 @@ class _InspeccionFormState extends State<InspeccionForm> {
   // Variable para controlar la placa seleccionada
   String? _selectedPlacaVehiculo;
 
+  // Estado manual de selección de departamento/ciudad (para persistir al volver)
+  int? _selectedDepartmentId;
+  int? _selectedCityManualId;
+
   // Instancia del servicio de ubicación
   final LocationService _locationService = LocationService();
 
@@ -40,234 +46,13 @@ class _InspeccionFormState extends State<InspeccionForm> {
     return formKey.currentState?.validate() ?? false;
   }
 
-  /// Muestra bottom sheet para seleccionar fuente de imagen
-  void _showImageSourceBottomSheet(
-    BuildContext context, {
-    required String tipo,
-    required Function(String path) onImageSelected,
-  }) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (modalContext) => Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          padding: EdgeInsets.only(
-            left: 20,
-            right: 20,
-            top: 20,
-            bottom: MediaQuery.of(modalContext).viewInsets.bottom + 20,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).dividerColor,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'Seleccionar $tipo',
-                style: Theme.of(modalContext).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.primaryGreen,
-                    ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: PhotoOptionButton(
-                      icon: Icons.camera_alt,
-                      label: 'Cámara',
-                      onTap: () {
-                        Navigator.pop(modalContext);
-                        _selectImageFromSource(
-                          ImageSource.camera,
-                          tipo,
-                          onImageSelected,
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: PhotoOptionButton(
-                      icon: Icons.photo_library,
-                      label: 'Galería',
-                      onTap: () {
-                        Navigator.pop(modalContext);
-                        _selectImageFromSource(
-                          ImageSource.gallery,
-                          tipo,
-                          onImageSelected,
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: () => Navigator.pop(modalContext),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(
-                          color: Theme.of(modalContext).dividerColor),
-                    ),
-                  ),
-                  child: const Text('Cancelar'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    });
-  }
+  // Eliminado: bottom sheet anterior para seleccionar fuente
 
-  /// Flujo: solicitar permisos primero y luego abrir el bottom sheet
-  Future<void> _onCapturePhoto(
-    String tipo,
-    Function(String path) onImageSelected,
-  ) async {
-    // Mostrar directamente el bottom sheet; los permisos se solicitan según la fuente elegida
-    _showImageSourceBottomSheet(
-      context,
-      tipo: tipo,
-      onImageSelected: onImageSelected,
-    );
-  }
+  // Eliminado: flujo anterior de captura que navegaba a otra pantalla
 
-  /// Selecciona una imagen desde la fuente especificada
-  Future<void> _selectImageFromSource(
-    ImageSource source,
-    String tipo,
-    Function(String path) onImageSelected,
-  ) async {
-    try {
-      // Request ONLY the permission required for the selected source to avoid fallbacks
-      if (source == ImageSource.camera) {
-        var cameraStatus = await Permission.camera.status;
-        if (cameraStatus != PermissionStatus.granted) {
-          cameraStatus = await Permission.camera.request();
-          if (cameraStatus != PermissionStatus.granted) {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text('Permiso de cámara denegado'),
-                backgroundColor: Colors.orange,
-                duration: Duration(seconds: 2),
-              ));
-            }
-            return;
-          }
-        }
-      } else {
-        // Gallery/photos
-        try {
-          var photosStatus = await Permission.photos.status;
-          if (photosStatus != PermissionStatus.granted) {
-            photosStatus = await Permission.photos.request();
-            if (photosStatus != PermissionStatus.granted) {
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text('Permiso de fotos/galería denegado'),
-                  backgroundColor: Colors.orange,
-                  duration: Duration(seconds: 2),
-                ));
-              }
-              return;
-            }
-          }
-        } catch (_) {
-          // Fallback para Android < 13
-          var storageStatus = await Permission.storage.status;
-          if (storageStatus != PermissionStatus.granted) {
-            storageStatus = await Permission.storage.request();
-            if (storageStatus != PermissionStatus.granted) {
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text('Permiso de almacenamiento denegado'),
-                  backgroundColor: Colors.orange,
-                  duration: Duration(seconds: 2),
-                ));
-              }
-              return;
-            }
-          }
-        }
-      }
+  // Eliminado: selector de imagen anterior
 
-      // Verificar que el widget sigue montado antes de abrir la cámara
-      if (!mounted) {
-        print('[pick] Widget no montado, cancelando selección de $tipo');
-        return;
-      }
-
-      final _picker = ImagePicker();
-      print(
-          '[pick] solicitando $tipo desde ${source == ImageSource.camera ? "cámara" : "galería"}...');
-
-      // Capturar la foto - puede tomar tiempo y la app puede ir a segundo plano
-      final XFile? photo = await _picker.pickImage(
-        source: source,
-        imageQuality: 70,
-        maxWidth: 1080,
-        maxHeight: 1080,
-      );
-
-      // Verificar nuevamente que el widget sigue montado después de la cámara
-      if (!mounted) {
-        print('[pick] Widget no montado después de seleccionar $tipo');
-        return;
-      }
-
-      if (photo == null) {
-        print('[pick] cancelado $tipo');
-        return;
-      }
-
-      try {
-        print(
-            '[pick] $tipo path=${photo.path} size=${await File(photo.path).length()} bytes');
-      } catch (_) {}
-
-      onImageSelected(photo.path);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Imagen seleccionada correctamente'),
-            duration: Duration(seconds: 2),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    } catch (e) {
-      print('Error al seleccionar $tipo: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al seleccionar imagen: $e'),
-            duration: const Duration(seconds: 2),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
+  // eliminado: persist helper ya no usado
 
   /// Obtiene la ubicación GPS actual y busca la ciudad correspondiente
   Future<void> _getCurrentLocation() async {
@@ -334,6 +119,36 @@ class _InspeccionFormState extends State<InspeccionForm> {
         Provider.of<InspeccionService>(context, listen: false);
     final loginService = Provider.of<LoginService>(context, listen: false);
 
+    // Sincronizar valores iniciales desde el servicio para evitar perder estado
+    // si el widget se reconstruye al volver de la cámara embebida
+    _selectedPlacaVehiculo ??=
+        inspeccionService.resumePreoperacional.placaVehiculo;
+    // Si tenemos una ciudad en el servicio y aún no hay selección manual, refléjala
+    if (_selectedCityManualId == null &&
+        inspeccionService.resumePreoperacional.idCiudad != null) {
+      _selectedCityManualId = inspeccionService.resumePreoperacional.idCiudad;
+    }
+    // Si hay departamento detectado por GPS y no hemos establecido uno manual, conservarlo
+    if (_selectedDepartmentId == null && _gpsDepartmentId != null) {
+      _selectedDepartmentId = _gpsDepartmentId;
+    }
+
+    // Normalizar/evitar duplicados en listas para Dropdowns
+    final Set<int> seenDept = {};
+    final departamentosUnique = inspeccionProvider.departamentos
+        .where((d) => seenDept.add(d.value))
+        .toList();
+
+    final Set<int> seenCity = {};
+    final ciudadesUnique = inspeccionProvider.ciudades
+        .where((c) => seenCity.add(c.value))
+        .toList();
+
+    final Set<String> seenPlacas = {};
+    final vehiculosUnique = inspeccionProvider.vehiculos
+        .where((v) => seenPlacas.add(v.placa))
+        .toList();
+
     if (loginService.selectedEmpresa.nombreBase == null ||
         loginService.selectedEmpresa.nombreBase!.isEmpty) {
       return Container(
@@ -374,7 +189,12 @@ class _InspeccionFormState extends State<InspeccionForm> {
                 height: 16,
               ),
               DropdownButtonFormField<String>(
-                  value: _selectedPlacaVehiculo,
+                  value: () {
+                    final v = _selectedPlacaVehiculo;
+                    if (v == null) return null;
+                    final exists = vehiculosUnique.any((e) => e.placa == v);
+                    return exists ? v : null;
+                  }(),
                   decoration: InputDecorations.authInputDecorations(
                       prefixIcon: Icons.local_shipping,
                       hintText: '',
@@ -384,7 +204,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                     if (value == null) return 'Seleccione una placa';
                     return null;
                   },
-                  items: inspeccionProvider.vehiculos.map((e) {
+                  items: vehiculosUnique.map((e) {
                     return DropdownMenuItem(
                       child: Text(e.placa),
                       value: e.placa,
@@ -424,16 +244,22 @@ class _InspeccionFormState extends State<InspeccionForm> {
                       hintText: '',
                       labelText: 'Departamento de inspección',
                       context: context),
-                  value: _cityFoundByGPS && _gpsDepartmentId != null
-                      ? _gpsDepartmentId
-                      : null,
+                  value: () {
+                    final v = _cityFoundByGPS && _gpsDepartmentId != null
+                        ? _gpsDepartmentId
+                        : _selectedDepartmentId;
+                    // Asegurar que el valor exista en la lista unica
+                    if (v == null) return null;
+                    final exists = departamentosUnique.any((e) => e.value == v);
+                    return exists ? v : null;
+                  }(),
                   validator: (value) {
                     // Si la ciudad fue encontrada por GPS, no validar el departamento
                     if (_cityFoundByGPS) return null;
                     if (value == null) return 'Seleccione un departamento';
                     return null;
                   },
-                  items: inspeccionProvider.departamentos.map((e) {
+                  items: departamentosUnique.map((e) {
                     return DropdownMenuItem(
                       child: Text(e.label),
                       value: e.value,
@@ -441,8 +267,15 @@ class _InspeccionFormState extends State<InspeccionForm> {
                   }).toList(),
                   onChanged: !_hasGpsError
                       ? null // Deshabilitar si NO hay error de GPS (GPS funcionó correctamente)
-                      : (value) {
-                          inspeccionProvider.listarCiudades(value!);
+                      : (value) async {
+                          setState(() {
+                            _selectedDepartmentId = value;
+                            _selectedCityManualId =
+                                null; // reset city until pick
+                          });
+                          if (value != null) {
+                            await inspeccionProvider.listarCiudades(value);
+                          }
                         }),
               const SizedBox(height: 16),
               GpsLocationField(
@@ -466,7 +299,14 @@ class _InspeccionFormState extends State<InspeccionForm> {
                     if (value == null) return 'Seleccione una ciudad';
                     return null;
                   },
-                  items: inspeccionProvider.ciudades.map((e) {
+                  value: () {
+                    final v = _selectedCityManualId ??
+                        inspeccionService.resumePreoperacional.idCiudad;
+                    if (v == null) return null;
+                    final exists = ciudadesUnique.any((e) => e.value == v);
+                    return exists ? v : null;
+                  }(),
+                  items: ciudadesUnique.map((e) {
                     return DropdownMenuItem(
                       child: Text(e.label),
                       value: e.value,
@@ -476,6 +316,9 @@ class _InspeccionFormState extends State<InspeccionForm> {
                     if (value != null) {
                       final ciudad = inspeccionProvider.ciudades
                           .firstWhere((c) => c.value == value);
+                      setState(() {
+                        _selectedCityManualId = value;
+                      });
                       inspeccionService.resumePreoperacional.idCiudad = value;
                       inspeccionService.resumePreoperacional.ciudad =
                           ciudad.label;
@@ -489,6 +332,13 @@ class _InspeccionFormState extends State<InspeccionForm> {
               TextFormField(
                 autocorrect: false,
                 keyboardType: TextInputType.number,
+                initialValue: (inspeccionService
+                                .resumePreoperacional.kilometraje !=
+                            null &&
+                        inspeccionService.resumePreoperacional.kilometraje! > 0)
+                    ? inspeccionService.resumePreoperacional.kilometraje!
+                        .toString()
+                    : '',
                 validator: (value) {
                   if (value!.isEmpty) return 'Ingrese kilometraje';
                   return null;
@@ -509,23 +359,18 @@ class _InspeccionFormState extends State<InspeccionForm> {
               PhotoSection(
                 title: 'Foto kilometraje',
                 imageUrl: inspeccionProvider.pathFileKilometraje,
-                onCapturePhoto: () {
-                  _onCapturePhoto('foto kilometraje', (path) {
-                    inspeccionService.resumePreoperacional.urlFotoKm = path;
-                    inspeccionProvider.updateSelectedImage(path);
-                  });
+                onImageCaptured: (path) {
+                  inspeccionService.resumePreoperacional.urlFotoKm = path;
+                  inspeccionProvider.updateSelectedImage(path);
                 },
               ),
               const SizedBox(height: 16),
               PhotoSection(
                 title: 'Foto Cabezote',
                 imageUrl: inspeccionProvider.pathFileCabezote,
-                onCapturePhoto: () {
-                  _onCapturePhoto('foto cabezote', (path) {
-                    inspeccionService.resumePreoperacional.urlFotoCabezote =
-                        path;
-                    inspeccionProvider.updateCabezoteImage(path);
-                  });
+                onImageCaptured: (path) {
+                  inspeccionService.resumePreoperacional.urlFotoCabezote = path;
+                  inspeccionProvider.updateCabezoteImage(path);
                 },
               ),
               const SizedBox(

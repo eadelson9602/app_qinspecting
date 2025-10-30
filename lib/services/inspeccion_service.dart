@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' show get;
 import 'dart:convert';
+import 'package:path_provider/path_provider.dart';
 
 import 'package:app_qinspecting/models/inspeccion.dart';
 import 'package:app_qinspecting/models/empresa.dart';
@@ -325,15 +326,31 @@ class InspeccionService extends ChangeNotifier {
     try {
       _logAppState('UPLOAD_IMAGE');
 
-      var fileName = (path.split('/').last);
+      // 1) Validar existencia del archivo y aplicar fallback desde Documents/images
+      File file = File(path);
+      if (!await file.exists()) {
+        final String baseName = path.split('/').last;
+        try {
+          final docs = await getApplicationDocumentsDirectory();
+          final alt = File('${docs.path}/images/$baseName');
+          if (await alt.exists()) {
+            file = alt;
+          } else {
+            throw FileSystemException('Archivo no encontrado', path);
+          }
+        } catch (e) {
+          throw FileSystemException('Archivo no encontrado', path);
+        }
+      }
+
+      final String fileName = file.path.split('/').last;
       var formData = FormData.fromMap({
-        'files':
-            await MultipartFile.fromFile('${path}', filename: '${fileName}')
+        'files': await MultipartFile.fromFile(file.path, filename: fileName)
       });
 
       print('📤 DEBUG: Enviando petición al servidor...');
       print(
-          '📤 DEBUG: Archivo: $fileName, Tamaño: ${await File(path).length()} bytes');
+          '📤 DEBUG: Archivo: $fileName, Tamaño: ${await file.length()} bytes');
       print(
           '📤 DEBUG: URL: ${loginService.baseUrl}/upload_file/${company.toLowerCase()}/${folder}');
 
@@ -414,8 +431,11 @@ class InspeccionService extends ChangeNotifier {
 
       return Future.error(error.response?.data ?? error.message);
     } catch (e) {
-      print('❌ ERROR: Error inesperado en uploadImage: $e');
-      return Future.error(e);
+      // Si el archivo no existe, devolver error controlado para permitir continuar sin adjunto
+      final isFs = e is FileSystemException;
+      print(
+          '❌ ERROR: ${isFs ? 'Archivo no encontrado' : 'Error inesperado'} en uploadImage: $e');
+      return Future.error(isFs ? 'ARCHIVO_NO_ENCONTRADO' : e);
     }
   }
 
@@ -587,11 +607,21 @@ class InspeccionService extends ChangeNotifier {
 
         // Se envia la foto del kilometraje al servidor
         _logAppState('SUBIDA_IMAGEN_KM');
-        Map<String, dynamic>? responseUploadKilometraje = await uploadImage(
-            path: inspeccion.urlFotoKm!,
-            company: '${selectedEmpresa.nombreQi}',
-            folder: 'inspecciones');
-        inspeccion.urlFotoKm = responseUploadKilometraje?['path'];
+        try {
+          Map<String, dynamic>? responseUploadKilometraje = await uploadImage(
+              path: inspeccion.urlFotoKm!,
+              company: '${selectedEmpresa.nombreQi}',
+              folder: 'inspecciones');
+          inspeccion.urlFotoKm = responseUploadKilometraje?['path'];
+        } catch (e) {
+          if (e.toString().contains('ARCHIVO_NO_ENCONTRADO')) {
+            print(
+                '⚠️ Imagen de kilometraje no encontrada, se continúa sin ella');
+            inspeccion.urlFotoKm = null;
+          } else {
+            rethrow;
+          }
+        }
 
         // Actualizar progreso
         if (showProgressNotifications) {
@@ -610,12 +640,20 @@ class InspeccionService extends ChangeNotifier {
 
         // Se envia la foto de la guia si tiene (basado en existencia de la foto)
         if (inspeccion.urlFotoGuia != null) {
-          Map<String, dynamic>? responseUploadGuia = await uploadImage(
-              path: inspeccion.urlFotoGuia!,
-              company: selectedEmpresa.nombreQi!,
-              folder: 'inspecciones');
-
-          inspeccion.urlFotoGuia = responseUploadGuia?['path'];
+          try {
+            Map<String, dynamic>? responseUploadGuia = await uploadImage(
+                path: inspeccion.urlFotoGuia!,
+                company: selectedEmpresa.nombreQi!,
+                folder: 'inspecciones');
+            inspeccion.urlFotoGuia = responseUploadGuia?['path'];
+          } catch (e) {
+            if (e.toString().contains('ARCHIVO_NO_ENCONTRADO')) {
+              print('⚠️ Imagen de guía no encontrada, se continúa sin ella');
+              inspeccion.urlFotoGuia = null;
+            } else {
+              rethrow;
+            }
+          }
 
           // Actualizar progreso
           if (showProgressNotifications) {
@@ -635,11 +673,21 @@ class InspeccionService extends ChangeNotifier {
 
         // Se envia la foto del cabezote si tiene
         if (inspeccion.urlFotoCabezote != null) {
-          Map<String, dynamic>? responseUploaCabezote = await uploadImage(
-              path: inspeccion.urlFotoCabezote!,
-              company: selectedEmpresa.nombreQi!,
-              folder: 'inspecciones');
-          inspeccion.urlFotoCabezote = responseUploaCabezote?['path'];
+          try {
+            Map<String, dynamic>? responseUploaCabezote = await uploadImage(
+                path: inspeccion.urlFotoCabezote!,
+                company: selectedEmpresa.nombreQi!,
+                folder: 'inspecciones');
+            inspeccion.urlFotoCabezote = responseUploaCabezote?['path'];
+          } catch (e) {
+            if (e.toString().contains('ARCHIVO_NO_ENCONTRADO')) {
+              print(
+                  '⚠️ Imagen de cabezote no encontrada, se continúa sin ella');
+              inspeccion.urlFotoCabezote = null;
+            } else {
+              rethrow;
+            }
+          }
 
           // Actualizar progreso
           if (showProgressNotifications) {
@@ -659,11 +707,21 @@ class InspeccionService extends ChangeNotifier {
 
         // Se envia la foto del remolque si tiene
         if (inspeccion.urlFotoRemolque != null) {
-          Map<String, dynamic>? responseUploaRemolque = await uploadImage(
-              path: inspeccion.urlFotoRemolque!,
-              company: selectedEmpresa.nombreQi!,
-              folder: 'inspecciones');
-          inspeccion.urlFotoRemolque = responseUploaRemolque?['path'];
+          try {
+            Map<String, dynamic>? responseUploaRemolque = await uploadImage(
+                path: inspeccion.urlFotoRemolque!,
+                company: selectedEmpresa.nombreQi!,
+                folder: 'inspecciones');
+            inspeccion.urlFotoRemolque = responseUploaRemolque?['path'];
+          } catch (e) {
+            if (e.toString().contains('ARCHIVO_NO_ENCONTRADO')) {
+              print(
+                  '⚠️ Imagen de remolque no encontrada, se continúa sin ella');
+              inspeccion.urlFotoRemolque = null;
+            } else {
+              rethrow;
+            }
+          }
 
           // Actualizar progreso
           if (showProgressNotifications) {

@@ -13,7 +13,6 @@ import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/providers/loading_progress_provider.dart';
 
 import 'services/services.dart';
-import 'services/notification_service.dart';
 import 'services/background_upload_service.dart';
 import 'services/real_background_upload_service.dart';
 import 'services/theme_service.dart';
