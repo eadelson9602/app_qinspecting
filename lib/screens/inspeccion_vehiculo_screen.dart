@@ -68,6 +68,11 @@ class InspeccionVehiculoScreen extends StatelessWidget {
 
           await Future.wait(futureRespuestas);
           inspeccionProvider.updateSaving(false);
+          
+          // Limpiar todos los datos de la inspección completada
+          inspeccionService.clearData();
+          inspeccionProvider.clearData();
+          
           uiProvider.selectedMenuOpt = 0;
           // show a notification at top of screen.
           showSimpleNotification(Text('Inspección realizada'),

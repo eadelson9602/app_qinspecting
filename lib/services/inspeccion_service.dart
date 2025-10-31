@@ -78,9 +78,28 @@ class InspeccionService extends ChangeNotifier {
   final storage = new FlutterSecureStorage();
 
   void clearData() {
-    resumePreoperacional.idCiudad = 0;
+    // Limpiar todos los campos del resumen preoperacional
+    resumePreoperacional.id = null;
+    resumePreoperacional.placa = null;
+    resumePreoperacional.resuPreId = null;
+    resumePreoperacional.fechaPreoperacional = null;
+    resumePreoperacional.ciudadGps = null;
     resumePreoperacional.kilometraje = 0;
+    resumePreoperacional.cantTanqueoGalones = null;
+    resumePreoperacional.urlFotoKm = null;
+    resumePreoperacional.urlFotoRemolque = null;
+    resumePreoperacional.urlFotoCabezote = null;
+    resumePreoperacional.positionGps = null;
+    resumePreoperacional.usuarioPreoperacional = null;
+    resumePreoperacional.numeroGuia = null;
+    resumePreoperacional.urlFotoGuia = null;
     resumePreoperacional.placaVehiculo = '';
+    resumePreoperacional.placaRemolque = null;
+    resumePreoperacional.idCiudad = null;
+    resumePreoperacional.ciudad = null;
+    resumePreoperacional.base = null;
+    resumePreoperacional.respuestas = null;
+    notifyListeners();
   }
 
   Future<bool> checkConnection() async {

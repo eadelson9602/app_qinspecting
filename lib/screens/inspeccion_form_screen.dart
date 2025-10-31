@@ -42,6 +42,55 @@ class _InspeccionFormState extends State<InspeccionForm> {
   // Instancia del servicio de ubicación
   final LocationService _locationService = LocationService();
 
+  @override
+  void initState() {
+    super.initState();
+    // Limpiar el formulario cuando se inicializa el widget usando post-frame callback
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _resetFormState();
+      }
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Verificar si se debe resetear el formulario (cuando no hay datos guardados)
+    // Usar post-frame callback para evitar setState durante build
+    final inspeccionService =
+        Provider.of<InspeccionService>(context, listen: false);
+
+    // Si el servicio está limpio pero el formulario tiene valores, resetear
+    if (inspeccionService.resumePreoperacional.placaVehiculo == null ||
+        inspeccionService.resumePreoperacional.placaVehiculo!.isEmpty) {
+      if (_selectedPlacaVehiculo != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _resetFormState();
+          }
+        });
+      }
+    }
+  }
+
+  void _resetFormState() {
+    setState(() {
+      _gpsCity = null;
+      _gpsCityId = null;
+      _gpsDepartmentId = null;
+      _locationError = '';
+      _cityFoundByGPS = false;
+      _hasGpsError = false;
+      _selectedPlacaVehiculo = null;
+      _selectedDepartmentId = null;
+      _selectedCityManualId = null;
+    });
+
+    // Resetear el formulario si está inicializado
+    formKey.currentState?.reset();
+  }
+
   bool isValidForm() {
     return formKey.currentState?.validate() ?? false;
   }
@@ -119,13 +168,17 @@ class _InspeccionFormState extends State<InspeccionForm> {
         Provider.of<InspeccionService>(context, listen: false);
     final loginService = Provider.of<LoginService>(context, listen: false);
 
-    // Sincronizar valores iniciales desde el servicio para evitar perder estado
-    // si el widget se reconstruye al volver de la cámara embebida
-    _selectedPlacaVehiculo ??=
-        inspeccionService.resumePreoperacional.placaVehiculo;
+    // Sincronizar valores iniciales desde el servicio SOLO si hay valores válidos
+    // Esto evita restaurar valores de inspecciones anteriores cuando el servicio está limpio
+    if (inspeccionService.resumePreoperacional.placaVehiculo != null &&
+        inspeccionService.resumePreoperacional.placaVehiculo!.isNotEmpty) {
+      _selectedPlacaVehiculo ??=
+          inspeccionService.resumePreoperacional.placaVehiculo;
+    }
     // Si tenemos una ciudad en el servicio y aún no hay selección manual, refléjala
     if (_selectedCityManualId == null &&
-        inspeccionService.resumePreoperacional.idCiudad != null) {
+        inspeccionService.resumePreoperacional.idCiudad != null &&
+        !_cityFoundByGPS) {
       _selectedCityManualId = inspeccionService.resumePreoperacional.idCiudad;
     }
     // Si hay departamento detectado por GPS y no hemos establecido uno manual, conservarlo
