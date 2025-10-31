@@ -1,4 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _notifications =
@@ -256,6 +257,35 @@ class NotificationService {
             AndroidFlutterLocalNotificationsPlugin>()
         ?.areNotificationsEnabled();
     return result ?? true;
+  }
+
+  /// Verifica si el permiso de notificaciones está denegado o bloqueado
+  /// Retorna true si el permiso está denegado, bloqueado permanentemente o no está habilitado
+  static Future<bool> isNotificationPermissionDeniedOrBlocked() async {
+    try {
+      // Verificar el estado del permiso usando permission_handler
+      final permissionStatus = await Permission.notification.status;
+
+      // Si el permiso está denegado o bloqueado permanentemente
+      if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
+        return true;
+      }
+
+      // Si el permiso está concedido, verificar también si las notificaciones están habilitadas
+      if (permissionStatus.isGranted) {
+        final areEnabled = await areNotificationsEnabled();
+        return !areEnabled;
+      }
+
+      // Para otros estados (limitado en iOS), verificar si están habilitadas
+      final areEnabled = await areNotificationsEnabled();
+      return !areEnabled;
+    } catch (e) {
+      print('❌ DEBUG: Error en isNotificationPermissionDeniedOrBlocked: $e');
+      // En caso de error, verificar si están habilitadas como fallback
+      final areEnabled = await areNotificationsEnabled();
+      return !areEnabled;
+    }
   }
 
   /// Solicita permisos de notificación

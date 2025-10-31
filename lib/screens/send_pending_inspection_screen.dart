@@ -1,7 +1,6 @@
 import 'package:app_qinspecting/screens/loading_screen.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/providers/providers.dart';
@@ -11,6 +10,7 @@ import 'package:app_qinspecting/models/inspeccion.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 import 'package:app_qinspecting/widgets/upload_progress_widgets.dart';
 import 'package:app_qinspecting/widgets/notification_permission_dialog.dart';
+import 'package:app_qinspecting/widgets/notification_permission_banner.dart';
 
 class SendPendingInspectionScreen extends StatelessWidget {
   const SendPendingInspectionScreen({Key? key}) : super(key: key);
@@ -28,21 +28,6 @@ class SendPendingInspectionScreen extends StatelessWidget {
       ),
       body: Container(
           height: double.infinity, child: ContentCardInspectionPending()),
-      // floatingActionButton: FloatingActionButton(
-      //   mini: true,
-      //   onPressed: inspeccionService.isSaving
-      //       ? null
-      //       : () async {
-      //           List<Future> promesas = [];
-      //           allInspecciones.forEach((element) {
-      //             promesas.add(inspeccionService.sendInspeccion(element));
-      //           });
-      //           await Future.wait(promesas).then((value) {
-      //             print(value);
-      //           });
-      //         },
-      //   child: Icon(Icons.upload_rounded),
-      // ),
     );
   }
 }
@@ -188,14 +173,29 @@ class _ContentCardInspectionPendingState
           inspeccion, loginService.selectedEmpresa);
 
       if (result['ok']) {
-        scaffoldMessenger.showSnackBar(
-          SnackBar(
-            content: Text(
-                'Subida iniciada en segundo plano. Puedes salir de la app.'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 5),
-          ),
-        );
+        // Verificar permisos de notificación antes de mostrar el mensaje
+        final hasNotificationsEnabled =
+            await NotificationService.areNotificationsEnabled();
+
+        if (hasNotificationsEnabled) {
+          scaffoldMessenger.showSnackBar(
+            SnackBar(
+              content: Text(
+                  'Subida iniciada en segundo plano. Puedes salir de la app.'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 5),
+            ),
+          );
+        } else {
+          scaffoldMessenger.showSnackBar(
+            SnackBar(
+              content: Text(
+                  'Subida iniciada en segundo plano. Se requiere activar notificaciones para recibir actualizaciones.'),
+              backgroundColor: Colors.orange,
+              duration: Duration(seconds: 5),
+            ),
+          );
+        }
       } else {
         scaffoldMessenger.showSnackBar(
           SnackBar(
@@ -233,283 +233,47 @@ class _ContentCardInspectionPendingState
         }
         final allInspecciones = snapshot.data;
         if (allInspecciones.isEmpty) {
-          return Center(child: Text('Sin inspecciones por enviar'));
+          return Column(
+            children: [
+              const NotificationPermissionBanner(),
+              const SizedBox(height: 16),
+              const EmptyInspectionsCard(),
+              const SizedBox(height: 16),
+            ],
+          );
         }
         return Column(
           children: [
+            // Banner de permisos de notificación (solo si no tiene permisos)
+            const NotificationPermissionBanner(),
             // Widget de estado de subida en segundo plano
             BackgroundUploadStatusCard(),
             // Lista de inspecciones
             Expanded(
               child: ListView.builder(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 itemCount: allInspecciones.length,
                 itemBuilder: (_, int i) {
-                  return Column(children: [
-                    // Indicador de progreso si está subiendo
-                    UploadProgressIndicator(
-                      index: i,
-                      isUploading: inspeccionService.isSaving,
-                    ),
-                    // Card de la inspección
-                    Card(
-                      elevation: 10,
-                      shadowColor: Theme.of(context).shadowColor,
-                      color: Theme.of(context).brightness == Brightness.light
-                          ? Colors.white
-                          : Theme.of(context).cardColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        side: BorderSide(
-                          color:
-                              Theme.of(context).brightness == Brightness.light
-                                  ? Colors.grey.withValues(alpha: 0.2)
-                                  : Theme.of(context)
-                                      .shadowColor
-                                      .withValues(alpha: 0.2),
+                  return Column(
+                    children: [
+                      UploadProgressIndicator(
+                        index: i,
+                        isUploading: inspeccionService.isSaving,
+                      ),
+                      const SizedBox(height: 8),
+                      PendingInspectionCard(
+                        inspeccion: allInspecciones[i],
+                        index: i,
+                        isBackgroundUploadActive: _isBackgroundUploadActive,
+                        onSendPressed: () => _startBackgroundUploadDirectly(
+                          context,
+                          allInspecciones[i],
+                          i,
                         ),
                       ),
-                      child: (inspeccionService.isSaving &&
-                                  inspeccionService.indexSelected == i) ||
-                              (_isBackgroundUploadActive &&
-                                  inspeccionService.indexSelected == i)
-                          ? Container(
-                              padding: EdgeInsets.all(20),
-                              child: Column(children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(100),
-                                  child: Image(
-                                    image:
-                                        AssetImage('assets/images/truck.gif'),
-                                    // fit: BoxFit.cover,
-                                    height: 50,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Center(
-                                    child: Text(
-                                  _isBackgroundUploadActive
-                                      ? 'Puedes usar otras apps, pero NO cierres Qinspecting'
-                                      : 'Por favor NO cierre y no se salga de la app, mientras se este enviando la inspección',
-                                  textAlign: TextAlign.center,
-                                )),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                // Progreso por lote: lote actual / total y barra determinada
-                                if (!_isBackgroundUploadActive) ...[
-                                  Text(
-                                      'Lote ${inspeccionService.currentBatchIndex} de ${inspeccionService.totalBatches}'),
-                                  SizedBox(height: 6),
-                                  LinearProgressIndicator(
-                                      value: inspeccionService.batchProgress ==
-                                              0
-                                          ? null
-                                          : inspeccionService.batchProgress),
-                                ],
-                                SizedBox(height: 8),
-                                // Mostrar progreso del proceso en segundo plano si está activo
-                                if (_isBackgroundUploadActive)
-                                  Column(
-                                    children: [
-                                      Text(
-                                        'Enviando inspección',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.green,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      SizedBox(height: 4),
-                                      Text(
-                                        'Progreso: ${(inspeccionService.batchProgress * 100).toStringAsFixed(1)}%',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.color,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                // if (_isBackgroundUploadActive)
-                              ]),
-                            )
-                          : Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.all(16),
-                                  child: Row(
-                                    children: [
-                                      // Icono circular con color
-                                      Container(
-                                        width: 50,
-                                        height: 50,
-                                        decoration: BoxDecoration(
-                                          color: Color(0xFF2196F3), // Azul
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Icon(
-                                          Icons.description_outlined,
-                                          color: Colors.white,
-                                          size: 24,
-                                        ),
-                                      ),
-                                      SizedBox(width: 16),
-                                      // Información de la inspección
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Inspección No. ${i + 1}',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: Theme.of(context)
-                                                    .textTheme
-                                                    .titleMedium
-                                                    ?.color,
-                                              ),
-                                            ),
-                                            SizedBox(height: 4),
-                                            Text(
-                                              'Realizado el ${allInspecciones[i].fechaPreoperacional}',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                color: Theme.of(context)
-                                                    .textTheme
-                                                    .bodySmall
-                                                    ?.color,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 8),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      // Botón eliminar
-                                      Container(
-                                        width: 40,
-                                        height: 40,
-                                        decoration: BoxDecoration(
-                                          color: inspeccionService.isSaving
-                                              ? Colors
-                                                  .grey // Gris cuando está deshabilitado
-                                              : Color(0xFFF44336), // Rojo
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: IconButton(
-                                          icon: Icon(
-                                            Icons.delete_outline,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                          onPressed: inspeccionService.isSaving
-                                              ? null
-                                              : () async {
-                                                  final responseDelete =
-                                                      await inspeccionProvider
-                                                          .eliminarResumenPreoperacional(
-                                                              allInspecciones[i]
-                                                                  .id!);
-                                                  await inspeccionProvider
-                                                      .eliminarRespuestaPreoperacional(
-                                                          allInspecciones[i]
-                                                              .id!);
-                                                  showSimpleNotification(
-                                                      Text(
-                                                          'Inspección ${responseDelete} eliminada'),
-                                                      leading:
-                                                          Icon(Icons.check),
-                                                      autoDismiss: true,
-                                                      background: Colors.green,
-                                                      position:
-                                                          NotificationPosition
-                                                              .bottom);
-                                                },
-                                        ),
-                                      ),
-                                      SizedBox(width: 12),
-                                      // Botón PDF
-                                      Container(
-                                        width: 40,
-                                        height: 40,
-                                        decoration: BoxDecoration(
-                                          color: inspeccionService.isSaving
-                                              ? Colors
-                                                  .grey // Gris cuando está deshabilitado
-                                              : Color(0xFFE91E63), // Rosa/Rojo
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: IconButton(
-                                          icon: Icon(
-                                            Icons.picture_as_pdf_outlined,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                          onPressed: inspeccionService.isSaving
-                                              ? null
-                                              : () async {
-                                                  inspeccionService
-                                                      .indexSelected = i;
-                                                  Navigator.pushNamed(
-                                                      context, 'pdf_offline',
-                                                      arguments: [
-                                                        allInspecciones[i]
-                                                      ]);
-                                                },
-                                        ),
-                                      ),
-                                      SizedBox(width: 12),
-                                      // Botón enviar
-                                      Container(
-                                        width: 40,
-                                        height: 40,
-                                        decoration: BoxDecoration(
-                                          color: inspeccionService.isSaving
-                                              ? Colors
-                                                  .grey // Gris cuando está deshabilitado
-                                              : Color(0xFF4CAF50), // Verde
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: IconButton(
-                                          icon: Icon(
-                                            inspeccionService.isSaving
-                                                ? Icons.hourglass_empty
-                                                : Icons.send_outlined,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                          onPressed: inspeccionService.isSaving
-                                              ? null
-                                              : () async {
-                                                  // Iniciar envío en segundo plano directamente
-                                                  await _startBackgroundUploadDirectly(
-                                                      context,
-                                                      allInspecciones[i],
-                                                      i);
-                                                },
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                    )
-                  ]);
+                    ],
+                  );
                 },
               ),
             ),
