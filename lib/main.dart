@@ -136,9 +136,11 @@ class MyApp extends StatelessWidget {
               return MaterialPageRoute(
                   builder: (context) => const HomeScreen());
             },
-            // Configurar builder para manejar errores
+            // Configurar builder para manejar errores y respetar áreas del sistema
             builder: (context, child) {
-              return ErrorHandler.wrapWithErrorHandler(child!);
+              return SafeArea(
+                child: ErrorHandler.wrapWithErrorHandler(child!),
+              );
             },
           ),
         );
