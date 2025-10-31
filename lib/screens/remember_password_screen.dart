@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 
-import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/screens/screens.dart';
 import 'package:app_qinspecting/services/services.dart';
@@ -131,72 +130,118 @@ class _ButtonRememberAccount extends StatelessWidget {
     try {
       loginForm.isLoading = true;
       FocusScope.of(context).unfocus();
-      List<Empresa> empresas = [];
       bool isConnected = await inspeccionService.checkConnection();
 
       if (isConnected) {
-        final tempEmpresas = await loginService.rememberData(loginForm.usuario);
-        if (tempEmpresas.isNotEmpty) {
-          tempEmpresas.forEach((element) => empresas.add(element));
-        } else {
-          showSimpleNotification(
-            Text('Sin resultados'),
-            leading: Icon(Icons.info),
-            autoDismiss: true,
-            background: Colors.orange,
-            position: NotificationPosition.bottom,
-          );
-          return;
-        }
-
-        showModalBottomSheet(
-            isScrollControlled: false,
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        final result = await loginService.rememberData(loginForm.usuario);
+        await showDialog(
             context: context,
-            builder: (context) => Container(
-                  height: empresas.length > 2 ? 250 : 150,
-                  padding: const EdgeInsets.all(20),
-                  child: ListView.builder(
-                    itemCount: empresas.length,
-                    itemBuilder: (_, int i) => ListTile(
-                      leading: Container(
-                          width: 50,
-                          height: 50,
-                          child: loginForm
-                              .getImage(empresas[i].rutaLogo.toString())),
-                      title: Text(empresas[i].nombreQi.toString()),
-                      trailing: const Icon(Icons.arrow_right),
-                      onTap: () async {
-                        final resSendEmail = await loginService
-                            .sendEmailRememberData(empresas[i]);
-                        await showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                                  title: Icon(
-                                    Icons.warning,
-                                    color: Colors.orange,
-                                  ),
-                                  content: Text(
-                                      '${resSendEmail['message']} con los datos de tu cuenta',
-                                      textAlign: TextAlign.center),
-                                  actions: [
-                                    TextButton(
-                                        onPressed: () =>
-                                            Navigator.pop(context, true),
-                                        child: Text('Comprendo',
-                                            style: TextStyle(
-                                                color: Colors.green))),
-                                  ],
-                                ));
-                        Navigator.pop(context);
-                        loginService.pageController.previousPage(
-                            duration: Duration(microseconds: 1000),
-                            curve: Curves.bounceOut);
-                      },
-                    ),
+            barrierDismissible: false,
+            builder: (context) => AlertDialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
                   ),
+                  contentPadding:
+                      EdgeInsets.only(top: 24, left: 24, right: 24, bottom: 12),
+                  title: Row(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.green.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.check_circle_rounded,
+                          color: Colors.green,
+                          size: 28,
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Correo enviado',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 8),
+                      Text(
+                        '${result['message'] ?? 'Operación realizada'}',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.black87,
+                          height: 1.4,
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      Container(
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              color: Colors.blue,
+                              size: 20,
+                            ),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Si no ves el mensaje, revisa tu bandeja de correo no deseado (spam) o carpeta de promociones.',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.blue.shade800,
+                                  height: 1.3,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        loginForm.formKey.currentState?.reset();
+                        loginForm.usuario = 0;
+                        Navigator.pop(context, true);
+                      },
+                      style: TextButton.styleFrom(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        'Aceptar',
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ));
+        loginService.pageController.previousPage(
+            duration: Duration(microseconds: 1000), curve: Curves.bounceOut);
       } else {
         showSimpleNotification(
           Text('Debe tener conexión a internet'),

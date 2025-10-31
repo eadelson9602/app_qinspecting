@@ -131,34 +131,35 @@ class LoginService extends ChangeNotifier {
     return empresas;
   }
 
-  Future<List<Empresa>> rememberData(int user) async {
-    isLoading = true;
-    notifyListeners();
+  Future<Map<String, dynamic>> rememberData(int user) async {
+    try {
+      isLoading = true;
+      notifyListeners();
 
-    final List<Empresa> empresas = [];
-    Response response = await dio.post('${baseUrl}/remember_data',
-        data: json.encode({'usuario': '$user'}));
-    var tempRes = response.data;
-    if (tempRes.runtimeType == List<dynamic>) {
-      for (var item in response.data) {
-        empresas.add(Empresa.fromMap(item));
-      }
+      Response response = await dio.post('${baseUrl}/remember_data',
+          options: options, data: json.encode({'usuario': '$user'}));
+
+      // El backend ahora realiza el envío del correo y retorna estado
+      return Map<String, dynamic>.from(response.data is Map
+          ? response.data
+          : {"message": "Operación realizada"});
+    } on DioException catch (error) {
+      return {
+        "message": "No hemos podido procesar la solicitud",
+        "error": error.message
+      };
+    } catch (e) {
+      return {"message": "Error inesperado", "error": e.toString()};
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
-    isLoading = false;
-    notifyListeners();
-    return empresas;
   }
 
   Future<Map<String, dynamic>> sendEmailRememberData(Empresa empresa) async {
-    isLoading = true;
-    notifyListeners();
-
-    Response response = await dio.post('${baseUrl}/send_email_remember_data',
-        data: empresa.toJson());
-
-    isLoading = false;
-    notifyListeners();
-    return response.data;
+    // Wrapper de compatibilidad: delega a rememberData
+    final numeroDoc = int.tryParse('${empresa.numeroDocumento}') ?? 0;
+    return await rememberData(numeroDoc);
   }
 
   Future<UserData> getUserData(Empresa empresa) async {
