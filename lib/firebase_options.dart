@@ -29,19 +29,19 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBbtOKgmtWCpTj7rEkoKlzuqKYcPb97l3A',
-    appId: '1:501102619445:android:bdea53f446dc42ac0c7a7c',
+    appId: '1:501102619445:android:3302f9c6b9d71cad0c7a7c',
     messagingSenderId: '501102619445',
     projectId: 'qinspecting-f9826',
     storageBucket: 'qinspecting-f9826.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'YOUR_IOS_API_KEY',
-    appId: 'YOUR_IOS_APP_ID',
-    messagingSenderId: 'YOUR_SENDER_ID',
+    apiKey: 'AIzaSyDiRqACaZFNeRr4YYH8vDfH_rt3bXxx4Vc',
+    appId: '1:501102619445:ios:cd9194af6ed2ad9b0c7a7c',
+    messagingSenderId: '501102619445',
     projectId: 'qinspecting-f9826',
-    storageBucket: 'qinspecting-f9826.appspot.com',
-    iosBundleId: 'com.example.appQinspecting',
+    storageBucket: 'qinspecting-f9826.firebasestorage.app',
+    iosBundleId: 'com.qinspecting.mobile',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(

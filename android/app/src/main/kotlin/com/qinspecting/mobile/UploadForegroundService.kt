@@ -1,4 +1,4 @@
-package com.example.app_qinspecting
+package com.qinspecting.mobile
 
 import android.app.*
 import android.content.Context
@@ -71,3 +71,4 @@ class UploadForegroundService : Service() {
         stopSelf()
     }
 }
+
