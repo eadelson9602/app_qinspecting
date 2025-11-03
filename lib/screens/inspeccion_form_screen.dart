@@ -46,9 +46,17 @@ class _InspeccionFormState extends State<InspeccionForm> {
   void initState() {
     super.initState();
     // Limpiar el formulario cuando se inicializa el widget usando post-frame callback
+    // SOLO si no hay una inspección en progreso (no hay datos guardados en el servicio)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        _resetFormState();
+        final inspeccionService =
+            Provider.of<InspeccionService>(context, listen: false);
+        // Solo resetear si NO hay una inspección en progreso
+        // Esto evita resetear el formulario cuando el usuario está en otra pantalla
+        if (inspeccionService.resumePreoperacional.placaVehiculo == null ||
+            inspeccionService.resumePreoperacional.placaVehiculo!.isEmpty) {
+          _resetFormState();
+        }
       }
     });
   }
@@ -58,20 +66,27 @@ class _InspeccionFormState extends State<InspeccionForm> {
     super.didChangeDependencies();
     // Verificar si se debe resetear el formulario (cuando no hay datos guardados)
     // Usar post-frame callback para evitar setState durante build
-    final inspeccionService =
-        Provider.of<InspeccionService>(context, listen: false);
+    // SOLO si no hay una inspección en progreso
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final inspeccionService =
+            Provider.of<InspeccionService>(context, listen: false);
 
-    // Si el servicio está limpio pero el formulario tiene valores, resetear
-    if (inspeccionService.resumePreoperacional.placaVehiculo == null ||
-        inspeccionService.resumePreoperacional.placaVehiculo!.isEmpty) {
-      if (_selectedPlacaVehiculo != null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
+        // Si el servicio está limpio pero el formulario tiene valores, resetear
+        // PERO solo si NO hay una inspección en progreso (no hay remolque activo)
+        final inspeccionProvider =
+            Provider.of<InspeccionProvider>(context, listen: false);
+
+        if ((inspeccionService.resumePreoperacional.placaVehiculo == null ||
+                inspeccionService
+                    .resumePreoperacional.placaVehiculo!.isEmpty) &&
+            !inspeccionProvider.tieneRemolque) {
+          if (_selectedPlacaVehiculo != null) {
             _resetFormState();
           }
-        });
+        }
       }
-    }
+    });
   }
 
   void _resetFormState() {
@@ -94,14 +109,6 @@ class _InspeccionFormState extends State<InspeccionForm> {
   bool isValidForm() {
     return formKey.currentState?.validate() ?? false;
   }
-
-  // Eliminado: bottom sheet anterior para seleccionar fuente
-
-  // Eliminado: flujo anterior de captura que navegaba a otra pantalla
-
-  // Eliminado: selector de imagen anterior
-
-  // eliminado: persist helper ya no usado
 
   /// Obtiene la ubicación GPS actual y busca la ciudad correspondiente
   Future<void> _getCurrentLocation() async {
@@ -283,8 +290,17 @@ class _InspeccionFormState extends State<InspeccionForm> {
                       inspeccionProvider
                           .updateVehiculoSelected(resultVehiculo!);
 
-                      await inspeccionProvider
+                      final items = await inspeccionProvider
                           .listarCategoriaItemsVehiculo(resultVehiculo.placa);
+
+                      // Verificar si hay items de inspección
+                      if (items.isEmpty) {
+                        NoInspectionItemsDialog.show(
+                          context,
+                          placa: value,
+                          tipo: 'vehículo',
+                        );
+                      }
                     }
                   }),
               InfoVehiculoWidget(),
@@ -433,23 +449,45 @@ class _InspeccionFormState extends State<InspeccionForm> {
                   value: inspeccionProvider.realizoTanqueo,
                   title: const Text('¿Realizó tanqueo?'),
                   activeColor: Colors.green,
-                  onChanged: (value) =>
-                      inspeccionProvider.updateRealizoTanqueo(value)),
+                  onChanged: (value) {
+                    inspeccionProvider.updateRealizoTanqueo(value);
+                    // Si se desactiva el tanqueo, limpiar los galones
+                    if (!value) {
+                      inspeccionService
+                          .resumePreoperacional.cantTanqueoGalones = null;
+                    }
+                  }),
               SwitchListTile.adaptive(
                   value: inspeccionProvider.tieneRemolque,
                   title: const Text('¿Tiene remolque?'),
                   activeColor: Colors.green,
                   onChanged: (value) {
                     inspeccionProvider.updateTieneRemolque(value);
-                    inspeccionProvider.listarRemolques(
-                        loginService.selectedEmpresa.nombreBase!);
+                    if (value) {
+                      // Si se activa, listar remolques
+                      inspeccionProvider.listarRemolques(
+                          loginService.selectedEmpresa.nombreBase!);
+                    } else {
+                      // Si se desactiva, limpiar todos los datos del remolque en el servicio
+                      // El provider ya limpia sus propios datos en updateTieneRemolque
+                      inspeccionService.resumePreoperacional.placaRemolque =
+                          null;
+                      inspeccionService.resumePreoperacional.urlFotoRemolque =
+                          null;
+                    }
                   }),
               SwitchListTile.adaptive(
                   value: inspeccionProvider.tieneGuia,
                   title: const Text('Tiene guía transporte?'),
                   activeColor: Colors.green,
-                  onChanged: (value) =>
-                      inspeccionProvider.updateTieneGuia(value)),
+                  onChanged: (value) {
+                    inspeccionProvider.updateTieneGuia(value);
+                    // Si se desactiva la guía, limpiar la foto en el servicio
+                    // El provider ya limpia sus propios datos en updateTieneGuia
+                    if (!value) {
+                      inspeccionService.resumePreoperacional.urlFotoGuia = null;
+                    }
+                  }),
               const SizedBox(
                 height: 10,
               ),
@@ -525,6 +563,10 @@ class _InspeccionFormState extends State<InspeccionForm> {
                       formattedDate;
                   inspeccionService.resumePreoperacional.usuarioPreoperacional =
                       loginService.userDataLogged.numeroDocumento!;
+
+                  // Debug: Verificar el valor de tieneRemolque antes de navegar
+                  print(
+                      '🔍 DEBUG Antes de navegar - tieneRemolque: ${inspeccionProvider.tieneRemolque}');
 
                   Navigator.pushNamed(context, 'inspeccion_vehiculo');
                 },

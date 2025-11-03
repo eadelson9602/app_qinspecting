@@ -22,6 +22,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  Future<bool>? _dataInitFuture;
+  String? _lastBaseName;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -40,6 +42,15 @@ class _HomeScreenState extends State<HomeScreen> {
     print('  - nombreBase: ${loginService.selectedEmpresa.nombreBase}');
     print(
         '  - numeroDocumento: ${loginService.selectedEmpresa.numeroDocumento}');
+
+    // Crear el Future solo una vez por base de datos para evitar ejecuciones múltiples
+    final currentBaseName = loginService.selectedEmpresa.nombreBase;
+    if (_dataInitFuture == null || _lastBaseName != currentBaseName) {
+      if (currentBaseName != null && currentBaseName.isNotEmpty) {
+        _dataInitFuture = inspeccionProvider.listarDataInit(currentBaseName);
+        _lastBaseName = currentBaseName;
+      }
+    }
 
     List<Widget> _widgetOptions = [
       DesktopScreen(),
@@ -67,9 +78,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             )
-          : FutureBuilder(
-              future: inspeccionProvider
-                  .listarDataInit('${loginService.selectedEmpresa.nombreBase}'),
+          : FutureBuilder<bool>(
+              future: _dataInitFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return LoadingScreen();
@@ -216,9 +226,11 @@ class DesktopScreen extends StatelessWidget {
     final inspeccionProvider =
         Provider.of<InspeccionProvider>(context, listen: false);
 
-    if (inspeccionProvider.vehiculoSelected?.modelo != null) {
-      inspeccionProvider.clearData();
-    }
+    // NO limpiar datos aquí, porque:
+    // 1. clearData() ya se llama después de completar una inspección en inspeccion_vehiculo_screen.dart
+    // 2. clearData() ya se llama después de completar una inspección en inspeccion_remolque_screen.dart
+    // 3. clearData() ya se llama cuando el usuario hace clic en "Escritorio" en custom_bottom_navigation.dart
+    // Limpiar datos aquí causaría que se resetee tieneRemolque cuando el usuario está navegando
 
     return Column(
       children: [

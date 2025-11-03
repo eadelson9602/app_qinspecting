@@ -15,147 +15,162 @@ class ItemsInspeccionarVehiculo extends StatefulWidget {
 }
 
 class _ItemsInspeccionarStateVehiculo extends State<ItemsInspeccionarVehiculo> {
+  List<Step> _renderSteps(
+      List<dynamic> itemsInspeccionar, InspeccionProvider inspeccionProvider) {
+    List<Step> stepsInspeccion = [];
+    for (int i = 0; i < itemsInspeccionar.length; i++) {
+      bool allOk = true;
+      for (var item in itemsInspeccionar[i].items) {
+        if (item.respuesta != 'B' && item.respuesta != 'N/A') {
+          allOk = false;
+          break;
+        }
+      }
+      stepsInspeccion.add(Step(
+          isActive: inspeccionProvider.stepStepper >= i ? true : false,
+          state: allOk ? StepState.complete : StepState.indexed,
+          title: Text(itemsInspeccionar[i].categoria),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              MaterialButton(
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(100)),
+                  child: TextButtonPersonalized(
+                    textButton: 'Todo ok',
+                    iconButton: Icons.check,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      for (var item in itemsInspeccionar[i].items) {
+                        item.respuesta = 'B';
+                      }
+                      if (inspeccionProvider.stepStepper <
+                              itemsInspeccionar.length &&
+                          itemsInspeccionar.length -
+                                  inspeccionProvider.stepStepper !=
+                              1) {
+                        inspeccionProvider
+                            .updateStep(inspeccionProvider.stepStepper += 1);
+                      }
+                    });
+                  }),
+              SizedBox(height: 20),
+              for (var item in itemsInspeccionar[i].items)
+                Column(
+                  children: [
+                    Container(
+                        width: double.infinity,
+                        child: Text(
+                          item.item,
+                          textAlign: TextAlign.start,
+                          maxLines: 2,
+                        )),
+                    Row(
+                      children: [
+                        Radio(
+                          activeColor: Colors.green,
+                          groupValue: item.respuesta,
+                          value: 'B',
+                          onChanged: (value) {
+                            setState(() {
+                              item.respuesta = value.toString();
+                            });
+                          },
+                        ),
+                        Text(
+                          'Cumple',
+                          style: TextStyle(color: Colors.green),
+                        ),
+                        Radio(
+                          activeColor: Colors.red,
+                          groupValue: item.respuesta,
+                          value: 'M',
+                          onChanged: (value) {
+                            setState(() {
+                              item.respuesta = value.toString();
+                            });
+                          },
+                        ),
+                        Text(
+                          'No cumple',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                        Radio(
+                          activeColor: Colors.orange,
+                          groupValue: item.respuesta,
+                          value: 'N/A',
+                          onChanged: (value) {
+                            setState(() {
+                              item.respuesta = value.toString();
+                            });
+                          },
+                        ),
+                        Text(
+                          'N/A',
+                          style: TextStyle(color: Colors.orange),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 11),
+                    if (item.respuesta == 'M')
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.only(right: 20, left: 15),
+                        child: TextField(
+                          maxLines: 8,
+                          decoration: InputDecoration(
+                              hintText: "Observaciones",
+                              filled: true,
+                              contentPadding: EdgeInsets.all(10.0),
+                              floatingLabelBehavior:
+                                  FloatingLabelBehavior.always),
+                          onChanged: (value) {
+                            item.observaciones = value;
+                          },
+                        ),
+                      ),
+                    SizedBox(height: 11),
+                    if (item.respuesta == 'M')
+                      Container(
+                        width: 270,
+                        child: Stack(
+                          children: [
+                            BoardImage(
+                              url: item.adjunto,
+                              onImageCaptured: (path) {
+                                setState(() {
+                                  item.adjunto = path;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    SizedBox(height: 11),
+                  ],
+                ),
+            ],
+          )));
+    }
+    return stepsInspeccion;
+  }
+
   @override
   Widget build(BuildContext context) {
     final inspeccionProvider = Provider.of<InspeccionProvider>(context);
     final itemsInspeccionar = inspeccionProvider.itemsInspeccion;
-    List<Step> _renderSteps() {
-      List<Step> stepsInspeccion = [];
-      for (int i = 0; i < itemsInspeccionar.length; i++) {
-        stepsInspeccion.add(Step(
-            isActive: inspeccionProvider.stepStepper >= i ? true : false,
-            title: Text(itemsInspeccionar[i].categoria),
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                MaterialButton(
-                    elevation: 3,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(100)),
-                    child: TextButtonPersonalized(
-                      textButton: 'Todo ok',
-                      iconButton: Icons.check,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        for (var item in itemsInspeccionar[i].items) {
-                          item.respuesta = 'B';
-                        }
-                        if (inspeccionProvider.stepStepper <
-                                itemsInspeccionar.length &&
-                            itemsInspeccionar.length -
-                                    inspeccionProvider.stepStepper !=
-                                1) {
-                          inspeccionProvider
-                              .updateStep(inspeccionProvider.stepStepper += 1);
-                        }
-                      });
-                    }),
-                SizedBox(height: 20),
-                for (var item in itemsInspeccionar[i].items)
-                  Column(
-                    children: [
-                      Container(
-                          width: double.infinity,
-                          child: Text(
-                            item.item,
-                            textAlign: TextAlign.start,
-                            maxLines: 2,
-                          )),
-                      Row(
-                        children: [
-                          Radio(
-                            activeColor: Colors.green,
-                            groupValue: item.respuesta,
-                            value: 'B',
-                            onChanged: (value) {
-                              setState(() {
-                                item.respuesta = value.toString();
-                              });
-                            },
-                          ),
-                          Text(
-                            'Cumple',
-                            style: TextStyle(color: Colors.green),
-                          ),
-                          Radio(
-                            activeColor: Colors.red,
-                            groupValue: item.respuesta,
-                            value: 'M',
-                            onChanged: (value) {
-                              setState(() {
-                                item.respuesta = value.toString();
-                              });
-                            },
-                          ),
-                          Text(
-                            'No cumple',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                          Radio(
-                            activeColor: Colors.orange,
-                            groupValue: item.respuesta,
-                            value: 'N/A',
-                            onChanged: (value) {
-                              setState(() {
-                                item.respuesta = value.toString();
-                              });
-                            },
-                          ),
-                          Text(
-                            'N/A',
-                            style: TextStyle(color: Colors.orange),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 11),
-                      if (item.respuesta == 'M')
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.only(right: 20, left: 15),
-                          child: TextField(
-                            maxLines: 8,
-                            decoration: InputDecoration(
-                                hintText: "Observaciones",
-                                filled: true,
-                                contentPadding: EdgeInsets.all(10.0),
-                                floatingLabelBehavior:
-                                    FloatingLabelBehavior.always),
-                            onChanged: (value) {
-                              item.observaciones = value;
-                            },
-                          ),
-                        ),
-                      SizedBox(height: 11),
-                      if (item.respuesta == 'M')
-                        Container(
-                          width: 270,
-                          child: Stack(
-                            children: [
-                              BoardImage(
-                                url: item.adjunto,
-                                onImageCaptured: (path) {
-                                  setState(() {
-                                    item.adjunto = path;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      SizedBox(height: 11),
-                    ],
-                  ),
-              ],
-            )));
-      }
-      return stepsInspeccion;
-    }
 
     if (itemsInspeccionar.isEmpty) return const LoadingScreen();
+
+    // Usar una key única basada en la longitud de itemsInspeccion para evitar problemas de layout
     return Stepper(
+      key: ValueKey(itemsInspeccionar.length),
       margin: EdgeInsets.only(left: 55, bottom: 40),
-      currentStep: inspeccionProvider.stepStepper,
+      currentStep: inspeccionProvider.stepStepper >= itemsInspeccionar.length
+          ? itemsInspeccionar.length - 1
+          : inspeccionProvider.stepStepper,
       controlsBuilder: (context, details) {
         return Row(
           children: [
@@ -200,9 +215,11 @@ class _ItemsInspeccionarStateVehiculo extends State<ItemsInspeccionarVehiculo> {
         }
       },
       onStepTapped: (int index) {
-        inspeccionProvider.updateStep(index);
+        if (index >= 0 && index < itemsInspeccionar.length) {
+          inspeccionProvider.updateStep(index);
+        }
       },
-      steps: _renderSteps(),
+      steps: _renderSteps(itemsInspeccionar, inspeccionProvider),
     );
   }
 }

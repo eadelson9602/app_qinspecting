@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/ui/input_decorations.dart';
-import 'package:app_qinspecting/widgets/board_image.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 
 class InfoRemolqueWidget extends StatefulWidget {
@@ -52,7 +51,21 @@ class _InfoRemolqueWidgetState extends State<InfoRemolqueWidget> {
               inspeccionService.resumePreoperacional.placaRemolque = value;
               inspeccionProvider.updateRemolqueSelected(resultRemolque!);
 
-              await inspeccionProvider.listarCategoriaItemsRemolque(value);
+              print('resultRemolque: ${resultRemolque.placa}');
+
+              final items =
+                  await inspeccionProvider.listarCategoriaItemsRemolque(value);
+
+              print('items REMOLQUE: ${items.length}');
+
+              // Verificar si hay items de inspección
+              if (items.isEmpty) {
+                NoInspectionItemsDialog.show(
+                  context,
+                  placa: value,
+                  tipo: 'remolque',
+                );
+              }
             }
           }),
       const SizedBox(

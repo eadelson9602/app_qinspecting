@@ -34,6 +34,10 @@ class InspeccionProvider extends ChangeNotifier {
   int stepStepperRemolque = 0;
 
   void clearData() {
+    print(
+        '🔍 DEBUG clearData() llamado - tieneRemolque actual: $tieneRemolque');
+    print('🔍 DEBUG Stack trace:');
+    print(StackTrace.current);
     vehiculoSelected = null;
     remolqueSelected = null;
     pathFileKilometraje = null;
@@ -47,6 +51,8 @@ class InspeccionProvider extends ChangeNotifier {
     tieneGuia = false;
     itemsInspeccion.clear();
     itemsInspeccionRemolque.clear();
+    print(
+        '🔍 DEBUG clearData() completado - tieneRemolque ahora: $tieneRemolque');
   }
 
   void updateSaving(bool value) {
@@ -94,12 +100,26 @@ class InspeccionProvider extends ChangeNotifier {
   }
 
   updateTieneRemolque(bool value) {
+    print('🔍 DEBUG updateTieneRemolque - Nuevo valor: $value');
     tieneRemolque = value;
+    // Si se desactiva el remolque, limpiar todos los datos relacionados
+    if (!value) {
+      remolqueSelected = null;
+      pathFileRemolque = null;
+      pictureRemolque = null;
+      stepStepperRemolque = 0;
+      itemsInspeccionRemolque.clear();
+    }
     notifyListeners();
   }
 
   updateTieneGuia(bool value) {
     tieneGuia = value;
+    // Si se desactiva la guía, limpiar todos los datos relacionados
+    if (!value) {
+      pathFileGuia = null;
+      pictureGuia = null;
+    }
     notifyListeners();
   }
 
@@ -124,10 +144,18 @@ class InspeccionProvider extends ChangeNotifier {
   }
 
   updateRemolqueSelected(Remolque? remolque) {
+    print(
+        '🔍 DEBUG updateRemolqueSelected llamado con: ${remolque?.placa ?? "null"}');
+    print('🔍 DEBUG tieneRemolque actual: $tieneRemolque');
+    print('🔍 DEBUG Stack trace:');
+    print(StackTrace.current);
+
     remolqueSelected = remolque;
 
     // Si se deselecciona el remolque, limpiar la información asociada
     if (remolque == null) {
+      print(
+          '🔍 DEBUG Reseteando tieneRemolque a false porque remolque es null');
       tieneRemolque = false;
       pathFileRemolque = null;
       pictureRemolque = null;
@@ -136,17 +164,21 @@ class InspeccionProvider extends ChangeNotifier {
     }
 
     notifyListeners();
+    print(
+        '🔍 DEBUG updateRemolqueSelected completado - tieneRemolque ahora: $tieneRemolque');
   }
 
   Future<bool> listarDataInit(String base) async {
     try {
-      print('Starting listarDataInit for base: $base');
+      print('🔍 DEBUG Starting listarDataInit for base: $base');
+      print('🔍 DEBUG tieneRemolque ANTES de listarDataInit: $tieneRemolque');
 
       // Load local data with timeout
       await _loadVehiculos(base);
       await _loadDepartamentos();
 
-      print('Local data loaded successfully');
+      print('🔍 DEBUG Local data loaded successfully');
+      print('🔍 DEBUG tieneRemolque DESPUÉS de listarDataInit: $tieneRemolque');
       return true;
     } catch (e) {
       print('Error in listarDataInit: $e');

@@ -16,6 +16,7 @@ export 'package:app_qinspecting/widgets/empty_inspections_card.dart';
 export 'package:app_qinspecting/widgets/pending_inspection_card.dart';
 export 'package:app_qinspecting/widgets/inspection_upload_state.dart';
 export 'package:app_qinspecting/widgets/inspection_action_buttons.dart';
+export 'package:app_qinspecting/widgets/no_inspection_items_dialog.dart';
 export 'package:app_qinspecting/widgets/terminos_condiciones.dart';
 export 'package:app_qinspecting/widgets/text_button_personalized.dart';
 export 'package:app_qinspecting/widgets/profile/photo_option_button.dart';
