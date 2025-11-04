@@ -13,8 +13,7 @@ class CacheManagementSection extends StatefulWidget {
   const CacheManagementSection({Key? key}) : super(key: key);
 
   @override
-  State<CacheManagementSection> createState() =>
-      _CacheManagementSectionState();
+  State<CacheManagementSection> createState() => _CacheManagementSectionState();
 }
 
 class _CacheManagementSectionState extends State<CacheManagementSection> {
@@ -189,8 +188,8 @@ class _CacheManagementSectionState extends State<CacheManagementSection> {
               borderRadius: BorderRadius.circular(10),
               child: const Text(
                 'Limpiar Cache',
-                style: TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.w600),
+                style:
+                    TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -249,7 +248,7 @@ class _ClearCacheDialog extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  '• Se borrará TODA la información almacenada en el dispositivo\n'
+                  '• Se borrará TODA la información de inspecciones que tengas almacenada en caché en el dispositivo\n'
                   '• Los datos NO se podrán recuperar\n'
                   '• Se cerrará la sesión automáticamente\n'
                   '• Deberás volver a iniciar sesión',
@@ -286,4 +285,3 @@ class _ClearCacheDialog extends StatelessWidget {
     );
   }
 }
-
