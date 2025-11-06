@@ -52,6 +52,8 @@ class InspeccionVehiculoScreen extends StatelessWidget {
                 fontSize: 14,
                 padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                 onPressed: () async {
+                  // Capturar Navigator antes de operaciones async para evitar usar un context desactivado
+                  final navigator = Navigator.of(context);
                   // Obtener el valor actual de tieneRemolque del provider
                   final tieneRemolqueActual =
                       Provider.of<InspeccionProvider>(context, listen: false)
@@ -59,7 +61,8 @@ class InspeccionVehiculoScreen extends StatelessWidget {
 
                   // Si tiene remolque
                   if (tieneRemolqueActual) {
-                    Navigator.pushNamed(context, 'inspeccion_remolque');
+                    if (!navigator.mounted) return;
+                    navigator.pushNamed('inspeccion_remolque');
                     return;
                   }
                   inspeccionProvider.updateSaving(true);
@@ -107,7 +110,8 @@ class InspeccionVehiculoScreen extends StatelessWidget {
                       autoDismiss: true,
                       background: Colors.green,
                       position: NotificationPosition.bottom);
-                  Navigator.pushReplacementNamed(context, 'home');
+                  if (!navigator.mounted) return;
+                  navigator.pushReplacementNamed('home');
                 },
               ),
             );
