@@ -74,6 +74,16 @@ class RealBackgroundUploadService with WidgetsBindingObserver {
     print('🏢 DEBUG: Empresa: ${empresa.nombreQi}');
     print('🔑 DEBUG: Token: ${token.substring(0, 10)}...');
 
+    // Sanidad: Validar datos mínimos antes de iniciar
+    final bool inspeccionValida = (inspeccion.id != null &&
+            inspeccion.id != 0) ||
+        (inspeccion.respuestas != null && inspeccion.respuestas!.isNotEmpty);
+    if (!inspeccionValida) {
+      print(
+          '⚠️ WARNING: Inspección no válida. No se inicia el servicio de subida.');
+      return;
+    }
+
     if (_isServiceRunning) {
       print('⚠️ WARNING: Servicio ya está ejecutándose');
       return;

@@ -25,6 +25,15 @@ class BackgroundUploadService {
     print('🏢 DEBUG: Empresa: ${empresa.nombreQi}');
     print('🔑 DEBUG: Token: ${token.substring(0, 10)}...');
 
+    // Validación: no iniciar si no hay inspección lista
+    final bool inspeccionValida = (inspeccion.id != null && inspeccion.id != 0) ||
+        (inspeccion.respuestas != null && inspeccion.respuestas!.isNotEmpty);
+    if (!inspeccionValida) {
+      print('⚠️ WARNING: No hay inspección válida para subir. Se cancela programación.');
+      _isUploading = false;
+      return;
+    }
+
     if (_isUploading) {
       print(
           '⚠️ WARNING: Ya hay una subida en progreso, cancelando la anterior...');

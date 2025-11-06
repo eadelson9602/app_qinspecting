@@ -382,6 +382,21 @@ class NotificationPermissionDialog extends StatelessWidget {
         Provider.of<InspeccionService>(context, listen: false);
 
     try {
+      // Validar que exista una inspección lista para enviar
+      if (inspeccion.id == null && (inspeccion.respuestas == null || inspeccion.respuestas!.isEmpty)) {
+        print('⚠️ DEBUG: No hay inspección válida para enviar tras otorgar permisos. Se omite el envío.');
+        // Notificar al usuario de forma discreta
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Permisos activados. No hay inspecciones listas para enviar.'),
+              backgroundColor: Colors.orange,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
+        return;
+      }
       // Configurar el índice seleccionado y estado de guardado
       print('⚙️ DEBUG: Configurando índice seleccionado: $indexSelected');
       inspeccionService.indexSelected = indexSelected;
