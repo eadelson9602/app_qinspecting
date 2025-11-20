@@ -4,8 +4,9 @@ import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/services/services.dart';
-import 'package:app_qinspecting/ui/input_decorations.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
+import 'package:app_qinspecting/models/models.dart';
+import 'package:app_qinspecting/widgets/form/searchable_dropdown_field.dart';
 
 class InfoRemolqueWidget extends StatefulWidget {
   const InfoRemolqueWidget({Key? key}) : super(key: key);
@@ -25,36 +26,43 @@ class _InfoRemolqueWidgetState extends State<InfoRemolqueWidget> {
       const SizedBox(
         height: 16,
       ),
-      DropdownButtonFormField<String>(
-          decoration: InputDecorations.authInputDecorations(
-              prefixIcon: Icons.local_shipping,
-              hintText: '',
-              labelText: 'Placa del remolque'),
+      SearchableDropdownField<Remolque>(
+          labelText: 'Placa del remolque',
+          prefixIcon: Icons.local_shipping,
+          items: inspeccionProvider.remolques,
+          getDisplayText: (remolque) => remolque.placa,
+          getValueFromText: (text) {
+            try {
+              return inspeccionProvider.remolques.firstWhere(
+                (r) => r.placa == text,
+              );
+            } catch (e) {
+              return null;
+            }
+          },
+          initialValue: inspeccionService.resumePreoperacional.placaRemolque,
           validator: (value) {
-            if (value == null) return 'Seleccione una placa';
+            if (value == null || value.isEmpty) {
+              return 'Seleccione una placa';
+            }
             return null;
           },
-          items: inspeccionProvider.remolques.map((e) {
-            return DropdownMenuItem(
-              child: Text(e.placa),
-              value: e.placa,
-            );
-          }).toList(),
-          onChanged: (value) async {
-            if (value == null) {
+          onChanged: (remolque) async {
+            if (remolque == null) {
               // Si se deselecciona, limpiar toda la información del remolque
               inspeccionService.resumePreoperacional.placaRemolque = null;
               inspeccionProvider.updateRemolqueSelected(null);
             } else {
               final resultRemolque =
-                  await DBProvider.db.getRemolqueByPlate(value);
-              inspeccionService.resumePreoperacional.placaRemolque = value;
+                  await DBProvider.db.getRemolqueByPlate(remolque.placa);
+              inspeccionService.resumePreoperacional.placaRemolque =
+                  remolque.placa;
               inspeccionProvider.updateRemolqueSelected(resultRemolque!);
 
               print('resultRemolque: ${resultRemolque.placa}');
 
-              final items =
-                  await inspeccionProvider.listarCategoriaItemsRemolque(value);
+              final items = await inspeccionProvider
+                  .listarCategoriaItemsRemolque(remolque.placa);
 
               print('items REMOLQUE: ${items.length}');
 
@@ -62,12 +70,13 @@ class _InfoRemolqueWidgetState extends State<InfoRemolqueWidget> {
               if (items.isEmpty) {
                 NoInspectionItemsDialog.show(
                   context,
-                  placa: value,
+                  placa: remolque.placa,
                   tipo: 'remolque',
                 );
               }
             }
-          }),
+          },
+          context: context),
       const SizedBox(
         height: 16,
       ),

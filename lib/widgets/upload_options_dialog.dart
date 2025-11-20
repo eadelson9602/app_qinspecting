@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app_qinspecting/services/services.dart';
-import 'package:app_qinspecting/services/notification_service.dart';
 import 'package:app_qinspecting/models/models.dart';
 import 'package:app_qinspecting/widgets/notification_permission_dialog.dart';
 

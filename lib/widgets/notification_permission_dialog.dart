@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:app_qinspecting/services/services.dart';
-import 'package:app_qinspecting/services/notification_service.dart';
 import 'package:app_qinspecting/models/models.dart';
 
 class NotificationPermissionDialog extends StatelessWidget {
@@ -383,13 +382,16 @@ class NotificationPermissionDialog extends StatelessWidget {
 
     try {
       // Validar que exista una inspección lista para enviar
-      if (inspeccion.id == null && (inspeccion.respuestas == null || inspeccion.respuestas!.isEmpty)) {
-        print('⚠️ DEBUG: No hay inspección válida para enviar tras otorgar permisos. Se omite el envío.');
+      if (inspeccion.id == null &&
+          (inspeccion.respuestas == null || inspeccion.respuestas!.isEmpty)) {
+        print(
+            '⚠️ DEBUG: No hay inspección válida para enviar tras otorgar permisos. Se omite el envío.');
         // Notificar al usuario de forma discreta
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Permisos activados. No hay inspecciones listas para enviar.'),
+              content: Text(
+                  'Permisos activados. No hay inspecciones listas para enviar.'),
               backgroundColor: Colors.orange,
               duration: Duration(seconds: 3),
             ),

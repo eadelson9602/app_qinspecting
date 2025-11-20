@@ -67,51 +67,41 @@ class _ItemsInspeccionarStateVehiculo extends State<ItemsInspeccionarVehiculo> {
                           textAlign: TextAlign.start,
                           maxLines: 2,
                         )),
-                    Row(
-                      children: [
-                        Radio(
-                          activeColor: Colors.green,
-                          groupValue: item.respuesta,
-                          value: 'B',
-                          onChanged: (value) {
-                            setState(() {
-                              item.respuesta = value.toString();
-                            });
-                          },
-                        ),
-                        Text(
-                          'Cumple',
-                          style: TextStyle(color: Colors.green),
-                        ),
-                        Radio(
-                          activeColor: Colors.red,
-                          groupValue: item.respuesta,
-                          value: 'M',
-                          onChanged: (value) {
-                            setState(() {
-                              item.respuesta = value.toString();
-                            });
-                          },
-                        ),
-                        Text(
-                          'No cumple',
-                          style: TextStyle(color: Colors.red),
-                        ),
-                        Radio(
-                          activeColor: Colors.orange,
-                          groupValue: item.respuesta,
-                          value: 'N/A',
-                          onChanged: (value) {
-                            setState(() {
-                              item.respuesta = value.toString();
-                            });
-                          },
-                        ),
-                        Text(
-                          'N/A',
-                          style: TextStyle(color: Colors.orange),
-                        ),
-                      ],
+                    RadioGroup<String>(
+                      groupValue: item.respuesta,
+                      onChanged: (String? value) {
+                        setState(() {
+                          item.respuesta = value ?? '';
+                        });
+                      },
+                      child: Row(
+                        children: [
+                          Radio<String>(
+                            activeColor: Colors.green,
+                            value: 'B',
+                          ),
+                          Text(
+                            'Cumple',
+                            style: TextStyle(color: Colors.green),
+                          ),
+                          Radio<String>(
+                            activeColor: Colors.red,
+                            value: 'M',
+                          ),
+                          Text(
+                            'No cumple',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                          Radio<String>(
+                            activeColor: Colors.orange,
+                            value: 'N/A',
+                          ),
+                          Text(
+                            'N/A',
+                            style: TextStyle(color: Colors.orange),
+                          ),
+                        ],
+                      ),
                     ),
                     SizedBox(height: 11),
                     if (item.respuesta == 'M')

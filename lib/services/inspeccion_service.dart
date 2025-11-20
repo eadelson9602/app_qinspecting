@@ -18,7 +18,6 @@ import 'package:app_qinspecting/models/user_data.dart';
 import 'package:app_qinspecting/models/pdf.dart';
 import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/services/services.dart';
-import 'package:app_qinspecting/services/notification_service.dart';
 import 'package:app_qinspecting/services/background_upload_service.dart';
 import 'package:overlay_support/overlay_support.dart';
 

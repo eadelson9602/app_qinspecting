@@ -330,7 +330,7 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
 
               // Departamento
               DropdownButtonFormField<int>(
-                value: _selectedDepartamentoId,
+                initialValue: _selectedDepartamentoId,
                 decoration: InputDecorations.authInputDecorations(
                   hintText: 'Seleccionar departamento',
                   labelText: 'Departamento expedición',
@@ -376,7 +376,7 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
 
               // Ciudad
               DropdownButtonFormField<int>(
-                value: _selectedCiudadId,
+                initialValue: _selectedCiudadId,
                 decoration: InputDecorations.authInputDecorations(
                   hintText: 'Seleccionar ciudad',
                   labelText: 'Ciudad expedición',
@@ -415,7 +415,8 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
 
               // Tipo de documento
               DropdownButtonFormField<String>(
-                value: _getTipoDocumentoCode(userData?.nombreTipoDocumento),
+                initialValue:
+                    _getTipoDocumentoCode(userData?.nombreTipoDocumento),
                 decoration: InputDecorations.authInputDecorations(
                   hintText: 'Seleccionar tipo de documento',
                   labelText: 'Tipo de documento',
@@ -539,44 +540,48 @@ class _ModernFormProfileState extends State<ModernFormProfile> {
                     ),
               ),
               const SizedBox(height: 12),
-              Row(
-                children: [
-                  Row(
-                    children: [
-                      Radio(
-                        activeColor: AppTheme.primaryGreen,
-                        groupValue: userData?.genero,
-                        value: 'MASCULINO',
-                        onChanged: (value) =>
-                            perfilForm.updateGenero(value.toString()),
-                      ),
-                      Text(
-                        'Masculino',
-                        style: TextStyle(
-                          color: Theme.of(context).textTheme.bodyMedium?.color,
+              RadioGroup<String>(
+                groupValue: userData?.genero,
+                onChanged: (String? value) {
+                  if (value != null) {
+                    perfilForm.updateGenero(value);
+                  }
+                },
+                child: Row(
+                  children: [
+                    Row(
+                      children: [
+                        Radio<String>(
+                          activeColor: AppTheme.primaryGreen,
+                          value: 'MASCULINO',
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 20),
-                  Row(
-                    children: [
-                      Radio(
-                        activeColor: AppTheme.errorColor,
-                        groupValue: userData?.genero,
-                        value: 'FEMENINO',
-                        onChanged: (value) =>
-                            perfilForm.updateGenero(value.toString()),
-                      ),
-                      Text(
-                        'Femenino',
-                        style: TextStyle(
-                          color: Theme.of(context).textTheme.bodyMedium?.color,
+                        Text(
+                          'Masculino',
+                          style: TextStyle(
+                            color:
+                                Theme.of(context).textTheme.bodyMedium?.color,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                    const SizedBox(width: 20),
+                    Row(
+                      children: [
+                        Radio<String>(
+                          activeColor: AppTheme.errorColor,
+                          value: 'FEMENINO',
+                        ),
+                        Text(
+                          'Femenino',
+                          style: TextStyle(
+                            color:
+                                Theme.of(context).textTheme.bodyMedium?.color,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 20),
 

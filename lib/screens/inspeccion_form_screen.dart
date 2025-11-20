@@ -12,6 +12,8 @@ import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/ui/input_decorations.dart';
 // removed unused import app_theme
 import 'package:app_qinspecting/widgets/widgets.dart';
+import 'package:app_qinspecting/models/models.dart';
+import 'package:app_qinspecting/widgets/form/searchable_dropdown_field.dart';
 
 class InspeccionForm extends StatefulWidget {
   InspeccionForm({Key? key}) : super(key: key);
@@ -248,45 +250,52 @@ class _InspeccionFormState extends State<InspeccionForm> {
               const SizedBox(
                 height: 16,
               ),
-              DropdownButtonFormField<String>(
-                  value: () {
+              SearchableDropdownField<Vehiculo>(
+                  labelText: 'Placa del vehículo',
+                  prefixIcon: Icons.local_shipping,
+                  items: vehiculosUnique,
+                  getDisplayText: (vehiculo) => vehiculo.placa,
+                  getValueFromText: (text) {
+                    try {
+                      return vehiculosUnique.firstWhere(
+                        (v) => v.placa == text,
+                      );
+                    } catch (e) {
+                      return null;
+                    }
+                  },
+                  initialValue: () {
                     final v = _selectedPlacaVehiculo;
                     if (v == null) return null;
                     final exists = vehiculosUnique.any((e) => e.placa == v);
                     return exists ? v : null;
                   }(),
-                  decoration: InputDecorations.authInputDecorations(
-                      prefixIcon: Icons.local_shipping,
-                      hintText: '',
-                      labelText: 'Placa del vehículo',
-                      context: context),
                   validator: (value) {
-                    if (value == null) return 'Seleccione una placa';
+                    if (value == null || value.isEmpty) {
+                      return 'Seleccione una placa';
+                    }
                     return null;
                   },
-                  items: vehiculosUnique.map((e) {
-                    return DropdownMenuItem(
-                      child: Text(e.placa),
-                      value: e.placa,
-                    );
-                  }).toList(),
-                  onChanged: (value) async {
-                    setState(() {
-                      _selectedPlacaVehiculo = value;
-                    });
-
-                    if (value == null) {
+                  onChanged: (vehiculo) async {
+                    if (vehiculo == null) {
+                      setState(() {
+                        _selectedPlacaVehiculo = null;
+                      });
                       // Si se deselecciona, limpiar toda la información del vehículo
                       inspeccionService.resumePreoperacional.placa = null;
                       inspeccionService.resumePreoperacional.placaVehiculo =
                           null;
                       inspeccionProvider.updateVehiculoSelected(null);
                     } else {
-                      final resultVehiculo =
-                          await DBProvider.db.getVehiculoByPlate(value);
-                      inspeccionService.resumePreoperacional.placa = value;
+                      setState(() {
+                        _selectedPlacaVehiculo = vehiculo.placa;
+                      });
+                      final resultVehiculo = await DBProvider.db
+                          .getVehiculoByPlate(vehiculo.placa);
+                      inspeccionService.resumePreoperacional.placa =
+                          vehiculo.placa;
                       inspeccionService.resumePreoperacional.placaVehiculo =
-                          value;
+                          vehiculo.placa;
                       inspeccionProvider
                           .updateVehiculoSelected(resultVehiculo!);
 
@@ -297,12 +306,13 @@ class _InspeccionFormState extends State<InspeccionForm> {
                       if (items.isEmpty) {
                         NoInspectionItemsDialog.show(
                           context,
-                          placa: value,
+                          placa: vehiculo.placa,
                           tipo: 'vehículo',
                         );
                       }
                     }
-                  }),
+                  },
+                  context: context),
               InfoVehiculoWidget(),
               const SizedBox(
                 height: 16,
@@ -313,7 +323,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                       hintText: '',
                       labelText: 'Departamento de inspección',
                       context: context),
-                  value: () {
+                  initialValue: () {
                     final v = _cityFoundByGPS && _gpsDepartmentId != null
                         ? _gpsDepartmentId
                         : _selectedDepartmentId;
@@ -368,7 +378,7 @@ class _InspeccionFormState extends State<InspeccionForm> {
                     if (value == null) return 'Seleccione una ciudad';
                     return null;
                   },
-                  value: () {
+                  initialValue: () {
                     final v = _selectedCityManualId ??
                         inspeccionService.resumePreoperacional.idCiudad;
                     if (v == null) return null;
@@ -448,7 +458,8 @@ class _InspeccionFormState extends State<InspeccionForm> {
               SwitchListTile.adaptive(
                   value: inspeccionProvider.realizoTanqueo,
                   title: const Text('¿Realizó tanqueo?'),
-                  activeColor: Colors.green,
+                  activeThumbColor: Colors.green,
+                  activeTrackColor: Colors.green.withValues(alpha: 0.5),
                   onChanged: (value) {
                     inspeccionProvider.updateRealizoTanqueo(value);
                     // Si se desactiva el tanqueo, limpiar los galones
@@ -460,7 +471,8 @@ class _InspeccionFormState extends State<InspeccionForm> {
               SwitchListTile.adaptive(
                   value: inspeccionProvider.tieneRemolque,
                   title: const Text('¿Tiene remolque?'),
-                  activeColor: Colors.green,
+                  activeThumbColor: Colors.green,
+                  activeTrackColor: Colors.green.withValues(alpha: 0.5),
                   onChanged: (value) {
                     inspeccionProvider.updateTieneRemolque(value);
                     if (value) {
@@ -479,7 +491,8 @@ class _InspeccionFormState extends State<InspeccionForm> {
               SwitchListTile.adaptive(
                   value: inspeccionProvider.tieneGuia,
                   title: const Text('Tiene guía transporte?'),
-                  activeColor: Colors.green,
+                  activeThumbColor: Colors.green,
+                  activeTrackColor: Colors.green.withValues(alpha: 0.5),
                   onChanged: (value) {
                     inspeccionProvider.updateTieneGuia(value);
                     // Si se desactiva la guía, limpiar la foto en el servicio

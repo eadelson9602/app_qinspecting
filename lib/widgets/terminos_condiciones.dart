@@ -47,32 +47,34 @@ class TerminosCondiciones extends StatelessWidget {
             ),
             subtitle: Padding(
               padding: const EdgeInsets.only(top: 0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: RadioListTile<String>(
-                      title: const Text('Si'),
-                      activeColor: Colors.green,
-                      value: 'SI',
-                      groupValue: firmaService.aceptaTerminos.toString(),
-                      onChanged: (value) async {
-                        firmaService.updateTerminos(value.toString());
-                        Navigator.pushNamed(context, 'create_signature');
-                      },
+              child: RadioGroup<String>(
+                groupValue: firmaService.aceptaTerminos.toString(),
+                onChanged: (String? value) async {
+                  if (value != null) {
+                    firmaService.updateTerminos(value);
+                    if (value == 'SI') {
+                      Navigator.pushNamed(context, 'create_signature');
+                    }
+                  }
+                },
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: RadioListTile<String>(
+                        title: const Text('Si'),
+                        activeColor: Colors.green,
+                        value: 'SI',
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: RadioListTile<String>(
-                      title: const Text('No'),
-                      activeColor: Colors.green,
-                      value: 'NO',
-                      groupValue: firmaService.aceptaTerminos.toString(),
-                      onChanged: (value) {
-                        firmaService.updateTerminos(value.toString());
-                      },
+                    Expanded(
+                      child: RadioListTile<String>(
+                        title: const Text('No'),
+                        activeColor: Colors.green,
+                        value: 'NO',
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

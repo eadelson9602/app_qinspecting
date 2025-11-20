@@ -22,6 +22,7 @@ export 'package:app_qinspecting/widgets/text_button_personalized.dart';
 export 'package:app_qinspecting/widgets/profile/photo_option_button.dart';
 export 'package:app_qinspecting/widgets/form/gps_location_field.dart';
 export 'package:app_qinspecting/widgets/form/photo_section.dart';
+export 'package:app_qinspecting/widgets/form/searchable_dropdown_field.dart';
 export 'package:app_qinspecting/widgets/settings/settings_widgets.dart';
 export 'package:app_qinspecting/widgets/crashlytics_test_widget.dart';
 export 'package:app_qinspecting/widgets/simple_crashlytics_test.dart';
