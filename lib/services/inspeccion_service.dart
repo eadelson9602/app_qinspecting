@@ -501,79 +501,63 @@ class InspeccionService extends ChangeNotifier {
       List<dynamic> responses = await Future.wait(apiCalls);
 
       _dataLoadProgressController.add(0.30);
-      // Process database operations in batches to reduce lock time
-      List<Future> dbOperationsVehiculos = [];
-      List<Future> dbOperationsRemolques = [];
-      List<Future> dbOperationsDepartamentos = [];
-      List<Future> dbOperationsCiudades = [];
-      List<Future> dbOperationsItems = [];
-      List<Future> dbOperationsTipoDocumentos = [];
-      // // Process vehicles
-      for (var item in responses[0].data) {
-        final tempVehiculo = Vehiculo.fromMap(item);
-        dbOperationsVehiculos.add(DBProvider.db.nuevoVehiculo(tempVehiculo));
-      }
 
-      print('dbOperationsVehiculos: ${dbOperationsVehiculos.length}');
-      await Future.wait(dbOperationsVehiculos);
+      // Process vehicles - Inserción por lotes
+      final vehiculos = (responses[0].data as List)
+          .map((item) => Vehiculo.fromMap(item))
+          .toList();
+      await DBProvider.db.insertVehiculosBatch(vehiculos);
+      print('✅ Vehículos cargados: ${vehiculos.length} registros');
       _dataLoadProgressController.add(0.40);
 
-      print('✅vehiculos cargados');
-
-      // // Process trailers
-      for (var item in responses[1].data) {
-        final tempRemolque = Remolque.fromMap(item);
-        dbOperationsRemolques.add(DBProvider.db.nuevoRemolque(tempRemolque));
-      }
-
-      print('dbOperationsRemolques: ${dbOperationsRemolques.length}');
-      await Future.wait(dbOperationsRemolques);
+      // Process trailers - Inserción por lotes
+      final remolques = (responses[1].data as List)
+          .map((item) => Remolque.fromMap(item))
+          .toList();
+      await DBProvider.db.insertRemolquesBatch(remolques);
+      print('✅ Remolques cargados: ${remolques.length} registros');
       _dataLoadProgressController.add(0.50);
-      print('✅remolques cargados');
 
-      // Process departments
-      for (var item in responses[2].data) {
-        final tempDepartamento = Departamentos.fromMap(item);
-        dbOperationsDepartamentos
-            .add(DBProvider.db.nuevoDepartamento(tempDepartamento));
-      }
-
-      print('dbOperationsDepartamentos: ${dbOperationsDepartamentos.length}');
-      await Future.wait(dbOperationsDepartamentos);
+      // Process departments - Inserción por lotes
+      final departamentos = (responses[2].data as List)
+          .map((item) => Departamentos.fromMap(item))
+          .toList();
+      await DBProvider.db.insertDepartamentosBatch(departamentos);
+      print('✅ Departamentos cargados: ${departamentos.length} registros');
       _dataLoadProgressController.add(0.60);
-      print('✅departamentos cargados');
 
-      // Process cities
-      for (var item in responses[3].data) {
-        final tempCiudad = Ciudades.fromMap(item);
-        dbOperationsCiudades.add(DBProvider.db.nuevaCiudad(tempCiudad));
-      }
+      // Process cities - Inserción por lotes
+      final ciudades = (responses[3].data as List)
+          .map((item) => Ciudades.fromMap(item))
+          .toList();
+      await DBProvider.db.insertCiudadesBatch(ciudades);
+      print('✅ Ciudades cargadas: ${ciudades.length} registros');
+      _dataLoadProgressController.add(0.65);
 
       // Process items - Limpiar tabla primero para evitar conflictos
       await DBProvider.db.clearItemsInspeccion();
-      _dataLoadProgressController.add(0.65);
       print('✅ Items de inspección limpiados');
+      _dataLoadProgressController.add(0.70);
 
-      for (var item in responses[4].data) {
-        final tempItem = ItemInspeccion.fromMap(item);
-        dbOperationsItems.add(DBProvider.db.nuevoItem(tempItem));
-      }
-
-      print('dbOperationsItems: ${dbOperationsItems.length}');
-      await Future.wait(dbOperationsItems);
+      // Inserción por lotes de items
+      final items = (responses[4].data as List)
+          .map((item) => ItemInspeccion.fromMap(item))
+          .toList();
+      await DBProvider.db.insertItemsBatch(items);
+      print('✅ Items cargados: ${items.length} registros');
       _dataLoadProgressController.add(0.80);
-      print('✅items cargados');
 
       // Verificar que los items se guardaron correctamente
       final itemsStats = await DBProvider.db.verifyItemsSaved(baseEmpresa!);
       print('📊 Estadísticas de items: $itemsStats');
 
-      // Process document types
-      for (var item in responses[5].data) {
-        final tempTipoDoc = TipoDocumentos.fromMap(item);
-        dbOperationsTipoDocumentos
-            .add(DBProvider.db.nuevoTipoDocumento(tempTipoDoc));
-      }
+      // Process document types - Inserción por lotes
+      final tipoDocumentos = (responses[5].data as List)
+          .map((item) => TipoDocumentos.fromMap(item))
+          .toList();
+      await DBProvider.db.insertTipoDocumentosBatch(tipoDocumentos);
+      print(
+          '✅ Tipo de documentos cargados: ${tipoDocumentos.length} registros');
 
       _dataLoadProgressController.add(1.0);
       print('✅ Carga de datos completada');

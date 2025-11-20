@@ -961,10 +961,12 @@ class DBProvider {
     if (db == null) return;
 
     await db.transaction((txn) async {
+      var batch = txn.batch();
       for (final vehiculo in vehiculos) {
-        await txn.insert('Vehiculos', vehiculo.toMap(),
+        batch.insert('Vehiculos', vehiculo.toMap(),
             conflictAlgorithm: ConflictAlgorithm.replace);
       }
+      await batch.commit(noResult: true);
     });
     print('✅ Inserted ${vehiculos.length} vehicles in batch');
   }
@@ -975,10 +977,12 @@ class DBProvider {
     if (db == null) return;
 
     await db.transaction((txn) async {
+      var batch = txn.batch();
       for (final remolque in remolques) {
-        await txn.insert('Remolques', remolque.toMap(),
+        batch.insert('Remolques', remolque.toMap(),
             conflictAlgorithm: ConflictAlgorithm.replace);
       }
+      await batch.commit(noResult: true);
     });
     print('✅ Inserted ${remolques.length} trailers in batch');
   }
@@ -989,12 +993,76 @@ class DBProvider {
     if (db == null) return;
 
     await db.transaction((txn) async {
+      var batch = txn.batch();
       for (final item in items) {
-        await txn.insert('ItemsInspeccion', item.toMap(),
-            conflictAlgorithm: ConflictAlgorithm.replace);
+        batch.rawInsert('''
+          INSERT OR REPLACE INTO ItemsInspeccion 
+          (id, placa, tipoVehiculo, idCategoria, categoria, idItem, item, base)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', [
+          item.id,
+          item.placa,
+          item.tipoVehiculo,
+          item.idCategoria,
+          item.categoria,
+          item.idItem,
+          item.item,
+          item.base
+        ]);
       }
+      await batch.commit(noResult: true);
     });
     print('✅ Inserted ${items.length} items in batch');
+  }
+
+  // Método optimizado para inserción masiva de departamentos
+  Future<void> insertDepartamentosBatch(
+      List<Departamentos> departamentos) async {
+    final db = await database;
+    if (db == null) return;
+
+    await db.transaction((txn) async {
+      var batch = txn.batch();
+      for (final departamento in departamentos) {
+        batch.insert('Departamentos', departamento.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace);
+      }
+      await batch.commit(noResult: true);
+    });
+    print('✅ Inserted ${departamentos.length} departamentos in batch');
+  }
+
+  // Método optimizado para inserción masiva de ciudades
+  Future<void> insertCiudadesBatch(List<Ciudades> ciudades) async {
+    final db = await database;
+    if (db == null) return;
+
+    await db.transaction((txn) async {
+      var batch = txn.batch();
+      for (final ciudad in ciudades) {
+        batch.insert('Ciudades', ciudad.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace);
+      }
+      await batch.commit(noResult: true);
+    });
+    print('✅ Inserted ${ciudades.length} ciudades in batch');
+  }
+
+  // Método optimizado para inserción masiva de tipo de documentos
+  Future<void> insertTipoDocumentosBatch(
+      List<TipoDocumentos> tipoDocumentos) async {
+    final db = await database;
+    if (db == null) return;
+
+    await db.transaction((txn) async {
+      var batch = txn.batch();
+      for (final tipoDoc in tipoDocumentos) {
+        batch.insert('TipoDocumentos', tipoDoc.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace);
+      }
+      await batch.commit(noResult: true);
+    });
+    print('✅ Inserted ${tipoDocumentos.length} tipo documentos in batch');
   }
 
   // Método optimizado para inserción masiva de respuestas

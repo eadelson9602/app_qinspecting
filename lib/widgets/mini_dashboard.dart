@@ -46,6 +46,8 @@ class _MiniDashboardState extends State<MiniDashboard> {
     super.didChangeDependencies();
     // Actualizar datos cada vez que cambien las dependencias (navegación)
     // pero solo si ha pasado suficiente tiempo desde la última actualización
+    if (!mounted) return;
+
     final now = DateTime.now();
     if (_lastUpdate == null || now.difference(_lastUpdate!) > _updateCooldown) {
       print('🔄 MiniDashboard: Actualizando datos por cambio de dependencias');
@@ -54,6 +56,8 @@ class _MiniDashboardState extends State<MiniDashboard> {
   }
 
   Future<void> _loadDashboardStats() async {
+    if (!mounted) return;
+
     try {
       final loginService = Provider.of<LoginService>(context, listen: false);
       final dbProvider = Provider.of<DBProvider>(context, listen: false);
@@ -71,29 +75,36 @@ class _MiniDashboardState extends State<MiniDashboard> {
 
         print('📊 MiniDashboard stats recibidas: $stats');
 
-        setState(() {
-          _stats = stats;
-          _isLoading = false;
-          _lastUpdate = DateTime.now();
-        });
+        if (mounted) {
+          setState(() {
+            _stats = stats;
+            _isLoading = false;
+            _lastUpdate = DateTime.now();
+          });
+        }
       } else {
         print('⚠️ MiniDashboard: Datos de usuario o empresa nulos');
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+            _lastUpdate = DateTime.now();
+          });
+        }
+      }
+    } catch (e) {
+      print('❌ Error loading dashboard stats: $e');
+      if (mounted) {
         setState(() {
           _isLoading = false;
           _lastUpdate = DateTime.now();
         });
       }
-    } catch (e) {
-      print('❌ Error loading dashboard stats: $e');
-      setState(() {
-        _isLoading = false;
-        _lastUpdate = DateTime.now();
-      });
     }
   }
 
   /// Método público para refrescar manualmente el dashboard
   Future<void> refreshStats() async {
+    if (!mounted) return;
     print('🔄 MiniDashboard: Refrescando manualmente');
     await _loadDashboardStats();
   }
