@@ -170,7 +170,7 @@ class CustomDrawer extends StatelessWidget {
                       icon: Icons.contact_mail_outlined,
                       title: 'Contacto',
                       onTap: () => _launchUrlWithContext(context,
-                          'https://api.whatsapp.com/send?phone=573137840166&text=Hola!%20Estoy%20en%20la%20p%C3%A1gina%20web%20de%20Qinspecting%20y%20quiero%20m%C3%A1s%20informaci%C3%B3n%20acerca%20de%20su%20Plataforma.%20Mi%20nombre%20es...'),
+                          'https:/.whatsapp.com/send?phone=573137840166&text=Hola!%20Estoy%20en%20la%20p%C3%A1gina%20web%20de%20Qinspecting%20y%20quiero%20m%C3%A1s%20informaci%C3%B3n%20acerca%20de%20su%20Plataforma.%20Mi%20nombre%20es...'),
                     ),
                     _buildMenuItem(
                       context: context,

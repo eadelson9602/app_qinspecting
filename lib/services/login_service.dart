@@ -25,8 +25,8 @@ class LoginService extends ChangeNotifier {
   Empresa selectedEmpresa = Empresa();
   UserData userDataLogged = UserData(urlFoto: '');
 
-  // String baseUrl = 'https://apis.qinspecting.com/pflutter';
-  String baseUrl = 'https://apis.qinspecting.com/apflutterNew';
+  // String baseUrl = 'https:/s.qinspecting.com/pflutter';
+  String baseUrl = 'https:/s.qinspecting.com/apflutterNew';
   // String baseUrl = 'http://192.168.1.10:3013';
 
   /// Obtiene el token desde FlutterSecureStorage y lo configura en headers
