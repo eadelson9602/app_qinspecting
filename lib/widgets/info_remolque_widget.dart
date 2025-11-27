@@ -6,7 +6,6 @@ import 'package:app_qinspecting/providers/providers.dart';
 import 'package:app_qinspecting/services/services.dart';
 import 'package:app_qinspecting/widgets/widgets.dart';
 import 'package:app_qinspecting/models/models.dart';
-import 'package:app_qinspecting/widgets/form/searchable_dropdown_field.dart';
 
 class InfoRemolqueWidget extends StatefulWidget {
   const InfoRemolqueWidget({Key? key}) : super(key: key);

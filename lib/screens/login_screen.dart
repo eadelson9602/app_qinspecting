@@ -93,7 +93,10 @@ class _FormLogin extends StatelessWidget {
                       autocorrect: false,
                       obscureText: loginForm.obscureText,
                       keyboardType: TextInputType.text,
-                      onChanged: (value) => loginForm.password = value,
+                      onChanged: (value) {
+                        loginForm.password = value;
+                        print('[LOGIN FORM] 🔐 Contraseña actualizada (length: ${value.length})');
+                      },
                       validator: (value) {
                         if (value!.isEmpty) return 'Ingrese su contraseña';
                         return null;
@@ -165,7 +168,15 @@ class _ButtonLogin extends StatelessWidget {
         onPressed: loginForm.isLoading
             ? null
             : () async {
-                if (!loginForm.isValidForm()) return;
+                print('[LOGIN BUTTON] 🔘 Botón presionado');
+                print('[LOGIN BUTTON] 📝 Usuario: ${loginForm.usuario}');
+                print('[LOGIN BUTTON] 📝 Password length: ${loginForm.password.length}');
+                
+                if (!loginForm.isValidForm()) {
+                  print('[LOGIN BUTTON] ❌ Formulario inválido');
+                  return;
+                }
+                print('[LOGIN BUTTON] ✅ Formulario válido, iniciando login...');
                 login(context, loginForm, loginService, storage,
                     inspeccionService);
               },
@@ -197,25 +208,50 @@ class _ButtonLogin extends StatelessWidget {
       FlutterSecureStorage storage,
       InspeccionService inspeccionService) async {
     try {
+      print('[LOGIN SCREEN] 🚀 Iniciando proceso de login...');
+      print('[LOGIN SCREEN] 📝 Usuario: ${loginForm.usuario}');
+      print('[LOGIN SCREEN] 📝 Password length: ${loginForm.password.length}');
+      
       loginForm.isLoading = true;
       FocusScope.of(context).unfocus();
       List<Empresa> empresas = [];
       bool isConnected = await inspeccionService.checkConnection();
+      
+      print('[LOGIN SCREEN] 🌐 Conexión: ${isConnected ? "ONLINE" : "OFFLINE"}');
 
       if (isConnected) {
+        print('[LOGIN SCREEN] 📡 Modo ONLINE - Obteniendo token...');
         final resGetToken =
             await loginService.getToken(loginForm.usuario, loginForm.password);
+        
+        print('[LOGIN SCREEN] 📥 Respuesta getToken:');
+        print('[LOGIN SCREEN]    - Keys: ${resGetToken.keys.toList()}');
+        print('[LOGIN SCREEN]    - Contiene token: ${resGetToken.containsKey('token')}');
+        print('[LOGIN SCREEN]    - Mensaje: ${resGetToken['message']}');
+        print('[LOGIN SCREEN]    - Error: ${resGetToken['error']}');
+        
         if (resGetToken.containsKey('token')) {
+          print('[LOGIN SCREEN] ✅ Token obtenido, procediendo con login...');
           final tempEmpresas =
               await loginService.login(loginForm.usuario, loginForm.password);
+          print('[LOGIN SCREEN] 📊 Empresas recibidas: ${tempEmpresas.length}');
+          
           if (tempEmpresas.isNotEmpty) {
             tempEmpresas.forEach((element) => empresas.add(element));
+            print('[LOGIN SCREEN] ✅ ${empresas.length} empresa(s) agregada(s)');
           } else {
+            print('[LOGIN SCREEN] ❌ No se recibieron empresas del servidor');
+            print('[LOGIN SCREEN]    - Esto puede indicar credenciales incorrectas');
             loginForm.existUser = false;
+            loginForm.isLoading = false;
             return;
           }
         } else {
+          print('[LOGIN SCREEN] ❌ No se pudo obtener el token');
+          print('[LOGIN SCREEN]    - Mensaje del servidor: ${resGetToken['message']}');
+          print('[LOGIN SCREEN]    - Error: ${resGetToken['error']}');
           loginForm.existUser = false;
+          loginForm.isLoading = false;
           return;
         }
       } else {
@@ -322,12 +358,36 @@ class _ButtonLogin extends StatelessWidget {
                   ),
                 ),
               ));
-    } on DioException catch (_) {
+    } on DioException catch (error) {
+      print('[LOGIN SCREEN] ❌ DioException en login:');
+      print('[LOGIN SCREEN]    - Type: ${error.type}');
+      print('[LOGIN SCREEN]    - Message: ${error.message}');
+      print('[LOGIN SCREEN]    - Response: ${error.response?.data}');
+      print('[LOGIN SCREEN]    - Status Code: ${error.response?.statusCode}');
+      
+      String errorMessage = 'Error al iniciar sesión';
+      if (error.response?.statusCode == 401 || error.response?.statusCode == 403) {
+        errorMessage = 'Usuario o contraseña incorrectos';
+      } else if (error.response?.data != null && error.response!.data is Map) {
+        errorMessage = error.response!.data['message'] ?? errorMessage;
+      }
+      
       showSimpleNotification(
-        Text('Error al iniciar sesión'),
-        leading: Icon(Icons.check),
+        Text(errorMessage),
+        leading: Icon(Icons.error),
         autoDismiss: true,
-        background: Colors.orange,
+        background: Colors.red,
+        position: NotificationPosition.bottom,
+      );
+    } catch (e, stackTrace) {
+      print('[LOGIN SCREEN] ❌ Error inesperado: $e');
+      print('[LOGIN SCREEN]    - Stack trace: $stackTrace');
+      
+      showSimpleNotification(
+        Text('Error inesperado al iniciar sesión'),
+        leading: Icon(Icons.error),
+        autoDismiss: true,
+        background: Colors.red,
         position: NotificationPosition.bottom,
       );
     } finally {

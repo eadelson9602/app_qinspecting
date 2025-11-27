@@ -13,7 +13,6 @@ import 'package:app_qinspecting/ui/input_decorations.dart';
 // removed unused import app_theme
 import 'package:app_qinspecting/widgets/widgets.dart';
 import 'package:app_qinspecting/models/models.dart';
-import 'package:app_qinspecting/widgets/form/searchable_dropdown_field.dart';
 
 class InspeccionForm extends StatefulWidget {
   InspeccionForm({Key? key}) : super(key: key);

@@ -355,22 +355,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
       }
 
-      // Verificar permisos para galería
-      if (source == ImageSource.gallery) {
-        // Verificar el estado actual del permiso
-        final photosStatus = await Permission.photos.request();
-
-        if (photosStatus != PermissionStatus.granted) {
-          if (photosStatus == PermissionStatus.permanentlyDenied) {
-            await _showPermissionDeniedDialog(context, 'galería');
-          } else {
-            _showErrorMessage(
-                context, 'Se necesita permiso para acceder a la galería');
-          }
-          return;
-        }
-      }
-
       // Verificar que el widget sigue montado antes de abrir la cámara
       if (!mounted) {
         return;

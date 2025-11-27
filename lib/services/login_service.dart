@@ -25,8 +25,8 @@ class LoginService extends ChangeNotifier {
   Empresa selectedEmpresa = Empresa();
   UserData userDataLogged = UserData(urlFoto: '');
 
-  // String baseUrl = 'https:/s.qinspecting.com/pflutter';
-  String baseUrl = 'https:/s.qinspecting.com/apflutterNew';
+  // String baseUrl = 'https:/apis.qinspecting.com/pflutter';
+  String baseUrl = 'https://apis.qinspecting.com/apflutterNew';
   // String baseUrl = 'http://192.168.1.10:3013';
 
   /// Obtiene el token desde FlutterSecureStorage y lo configura en headers
@@ -63,37 +63,93 @@ class LoginService extends ChangeNotifier {
       isLoading = true;
       notifyListeners();
 
+      print('[GET TOKEN] 🔍 Iniciando solicitud de token...');
+      print('[GET TOKEN] 📝 Usuario: $user');
+      print('[GET TOKEN] 📝 Password length: ${password.length}');
+      print('[GET TOKEN] 📝 URL: ${baseUrl}/get_token');
+
+      final requestData = {'usuario': '$user', 'password': password};
+      print(
+          '[GET TOKEN] 📤 Datos enviados: {usuario: "$user", password: "${password.length > 0 ? "***" : "VACÍA"}"}');
+
       Response response = await dio.post('${baseUrl}/get_token',
-          options: options,
-          data: json.encode({'usuario': '$user', 'password': password}));
+          options: options, data: json.encode(requestData));
+
+      print('[GET TOKEN] 📥 Respuesta recibida:');
+      print('[GET TOKEN]    - Status Code: ${response.statusCode}');
+      print('[GET TOKEN]    - Data: ${response.data}');
+      print('[GET TOKEN]    - Data type: ${response.data.runtimeType}');
 
       Map<dynamic, dynamic> resGetToken = response.data;
 
+      // Verificar si la respuesta contiene un token
+      if (!resGetToken.containsKey('token')) {
+        print('[GET TOKEN] ❌ ERROR: La respuesta NO contiene "token"');
+        print(
+            '[GET TOKEN]    - Keys disponibles: ${resGetToken.keys.toList()}');
+        print('[GET TOKEN]    - Respuesta completa: $resGetToken');
+        return {
+          "message": resGetToken['message'] ?? "No se pudo obtener el token",
+          "error": resGetToken['error'] ?? "Token no encontrado en la respuesta"
+        };
+      }
+
       // Siempre usar clave específica del usuario
       String tokenKey = 'token_$user';
+      String tokenValue = resGetToken['token']?.toString() ?? '';
+
+      if (tokenValue.isEmpty) {
+        print('[GET TOKEN] ❌ ERROR: El token está vacío');
+        return {
+          "message": "El token recibido está vacío",
+          "error": "Token vacío"
+        };
+      }
+
+      print('[GET TOKEN] ✅ Token recibido (longitud: ${tokenValue.length})');
 
       // 1. Guardar token en FlutterSecureStorage
-      await storage.write(key: tokenKey, value: response.data['token']);
+      await storage.write(key: tokenKey, value: tokenValue);
+      print('[GET TOKEN] 💾 Token guardado con clave: $tokenKey');
 
       // 2. Verificar inmediatamente que se guardó
       final savedToken = await storage.read(key: tokenKey);
       if (savedToken == null || savedToken.isEmpty) {
-        print('[LOGIN] ❌ ERROR: El token NO se guardó en FlutterSecureStorage');
+        print(
+            '[GET TOKEN] ❌ ERROR: El token NO se guardó en FlutterSecureStorage');
         throw Exception('El token no se pudo guardar en FlutterSecureStorage');
       }
-      print('[LOGIN] ✅ Token verificado en FlutterSecureStorage');
+      print('[GET TOKEN] ✅ Token verificado en FlutterSecureStorage');
 
       // 3. Configurar headers
-      dio.options.headers = {"x-access-token": response.data['token']};
-      options.headers = {"x-access-token": response.data['token']};
+      dio.options.headers = {"x-access-token": tokenValue};
+      options.headers = {"x-access-token": tokenValue};
+      print('[GET TOKEN] ✅ Headers configurados con el token');
 
       return resGetToken;
     } on DioException catch (error) {
+      print('[GET TOKEN] ❌ DioException capturada:');
+      print('[GET TOKEN]    - Type: ${error.type}');
+      print('[GET TOKEN]    - Message: ${error.message}');
+      print('[GET TOKEN]    - Response: ${error.response?.data}');
+      print('[GET TOKEN]    - Status Code: ${error.response?.statusCode}');
+
+      String errorMessage = "No hemos podido obtener el token";
+      if (error.response?.statusCode == 401 ||
+          error.response?.statusCode == 403) {
+        errorMessage = "Usuario o contraseña incorrectos";
+      } else if (error.response?.data != null && error.response!.data is Map) {
+        errorMessage = error.response!.data['message'] ?? errorMessage;
+      }
+
       return {
-        "message": "No hemos podido obtener el token",
-        "error": error.message
+        "message": errorMessage,
+        "error": error.message ?? "Error desconocido",
+        "statusCode": error.response?.statusCode
       };
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('[GET TOKEN] ❌ Error inesperado: $e');
+      print('[GET TOKEN]    - Stack trace: $stackTrace');
       return {"message": "Error inesperado", "error": e.toString()};
     } finally {
       isLoading = false;
@@ -107,23 +163,58 @@ class LoginService extends ChangeNotifier {
 
     final List<Empresa> empresas = [];
     try {
+      print('[LOGIN] 🔍 Iniciando solicitud de login...');
+      print('[LOGIN] 📝 Usuario: $user');
+      print('[LOGIN] 📝 Password length: ${password.length}');
+      print('[LOGIN] 📝 URL: ${baseUrl}/login');
+      print('[LOGIN] 📝 Headers actuales: ${dio.options.headers}');
+
+      final requestData = {'usuario': '$user', 'password': password};
+      print(
+          '[LOGIN] 📤 Datos enviados: {usuario: "$user", password: "${password.length > 0 ? "***" : "VACÍA"}"}');
+
       Response response = await dio.post('${baseUrl}/login',
-          options: options,
-          data: json.encode({'usuario': '$user', 'password': password}));
+          options: options, data: json.encode(requestData));
+
+      print('[LOGIN] 📥 Respuesta recibida:');
+      print('[LOGIN]    - Status Code: ${response.statusCode}');
+      print('[LOGIN]    - Data type: ${response.data.runtimeType}');
+      print('[LOGIN]    - Data: ${response.data}');
 
       var tempRes = response.data;
       if (tempRes.runtimeType == List<dynamic>) {
+        print(
+            '[LOGIN] ✅ Respuesta es una lista con ${(response.data as List).length} elementos');
         for (var item in response.data) {
-          empresas.add(Empresa.fromMap(item));
+          try {
+            empresas.add(Empresa.fromMap(item));
+            print(
+                '[LOGIN] ✅ Empresa agregada: ${item['nombreQi'] ?? 'Sin nombre'}');
+          } catch (e) {
+            print('[LOGIN] ⚠️ Error al parsear empresa: $e');
+            print('[LOGIN]    - Item: $item');
+          }
         }
+        print('[LOGIN] ✅ Total empresas procesadas: ${empresas.length}');
+      } else {
+        print('[LOGIN] ⚠️ La respuesta NO es una lista');
+        print('[LOGIN]    - Tipo recibido: ${tempRes.runtimeType}');
+        print('[LOGIN]    - Contenido: $tempRes');
       }
     } on DioException catch (error) {
-      print('[LOGIN] Login DioException: ${error.type}');
-      print('[LOGIN] Login Error message: ${error.message}');
-      print('[LOGIN] Login Error response: ${error.response?.data}');
-      print('[LOGIN] Login Error status: ${error.response?.statusCode}');
-    } catch (e) {
-      print('[LOGIN] Login Error inesperado: $e');
+      print('[LOGIN] ❌ DioException capturada:');
+      print('[LOGIN]    - Type: ${error.type}');
+      print('[LOGIN]    - Message: ${error.message}');
+      print('[LOGIN]    - Response: ${error.response?.data}');
+      print('[LOGIN]    - Status Code: ${error.response?.statusCode}');
+
+      if (error.response?.statusCode == 401 ||
+          error.response?.statusCode == 403) {
+        print('[LOGIN] ❌ Error de autenticación: Credenciales inválidas');
+      }
+    } catch (e, stackTrace) {
+      print('[LOGIN] ❌ Error inesperado: $e');
+      print('[LOGIN]    - Stack trace: $stackTrace');
     }
 
     isLoading = false;
