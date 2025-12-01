@@ -44,8 +44,8 @@ android {
         // For more information, see: https://flutter.dev/to/review/gradle-config.
         minSdkVersion = flutter.minSdkVersion
         targetSdk = 35
-        versionCode = 8
-        versionName = "1.1.5"
+        versionCode = 9
+        versionName = "1.1.6"
     }
 
     signingConfigs {
@@ -63,8 +63,8 @@ android {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
-            // signingConfig signingConfigs.release
+            // signingConfig = signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled true
             shrinkResources true
             // Ensure ProGuard/R8 uses our rules (Flutter enables minify for release)
