@@ -1,4 +1,4 @@
-package com.example.app_qinspecting
+package com.qinspecting.mobile
 
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine

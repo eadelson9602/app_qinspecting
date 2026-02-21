@@ -1,4 +1,4 @@
-package com.example.app_qinspecting
+package com.qinspecting.mobile
 
 import android.content.Context
 import android.content.Intent
