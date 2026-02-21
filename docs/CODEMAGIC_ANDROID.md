@@ -82,6 +82,49 @@ En `build.gradle` ya se usa `file(keystoreProperties['storeFile'])`, que resuelv
 
 ---
 
+## Publicar en Google Play: "Changes cannot be sent for review automatically"
+
+Si el build sube el AAB pero falla con:
+
+```text
+Setting release for Google Play track internal failed.
+Changes cannot be sent for review automatically. Please set the query parameter changesNotSentForReview to true.
+```
+
+significa que Google Play **no** permite enviar esta publicación a revisión de forma automática. Hay que indicar que los cambios **no** se envíen a revisión y luego enviarlos manualmente desde Play Console.
+
+### Opción A: Codemagic con **Workflow Editor** (interfaz web)
+
+1. Entra en **Codemagic** → tu app → **Publish** (o el paso de publicación a Google Play).
+2. En la sección **Google Play**, busca una opción tipo **"Submit as draft"** o **"Changes not sent for review"**.
+3. Activa **"Changes not sent for review"** (o el equivalente que ofrezca la UI).
+4. Guarda y vuelve a lanzar el build.
+
+Si no ves esa opción, usa **codemagic.yaml** (Opción B).
+
+### Opción B: Codemagic con **codemagic.yaml**
+
+En la sección de publicación a Google Play añade `changes_not_sent_for_review: true`:
+
+```yaml
+publishing:
+  google_play:
+    credentials: $GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS
+    track: internal
+    changes_not_sent_for_review: true   # Los cambios se envían a revisión desde Play Console
+```
+
+### Después del build
+
+1. El AAB se sube y el release queda **guardado** en la pestaña correspondiente (p. ej. Internal testing).
+2. Entra en **Google Play Console** → tu app → **Testing** → **Internal testing** (o el track que uses).
+3. Verás el release en estado "Ready to send for review" o similar.
+4. Haz clic en **"Send for review"** (o "Enviar para revisión") cuando quieras que Google lo revise.
+
+Referencia: [Codemagic - Google Play publishing](https://docs.codemagic.io/yaml-publishing/google-play/), [Common Google Play errors](https://docs.codemagic.io/troubleshooting/common-google-play-errors).
+
+---
+
 ## Resumen
 
 | Dónde           | Qué hace |
@@ -89,5 +132,6 @@ En `build.gradle` ya se usa `file(keystoreProperties['storeFile'])`, que resuelv
 | **pubspec.yaml**| `version: X.Y.Z+BUILD` → versión por defecto en el build. |
 | **local.properties** | Opcional: `flutter.versionCode` y `flutter.versionName` como fallback (útil si en CI no se leen del plugin). |
 | **Codemagic**   | Crear `key.properties` en el script con variables secretas y tener el `.jks` en Secure storage (o copiado a `android/`). |
+| **Codemagic (publicar)** | Si falla "Changes cannot be sent for review automatically", activar **Changes not sent for review** en el paso de Google Play o en codemagic.yaml: `changes_not_sent_for_review: true`. Luego enviar a revisión desde Google Play Console. |
 
 No subas `local.properties` ni `key.properties` al repositorio; en Codemagic se generan en cada build.

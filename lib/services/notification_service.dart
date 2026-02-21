@@ -31,7 +31,7 @@ class NotificationService {
     );
 
     await _notifications.initialize(
-      initializationSettings,
+      settings: initializationSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
     );
 
@@ -106,10 +106,10 @@ class NotificationService {
     );
 
     await _notifications.show(
-      _notificationId,
-      title,
-      '$body ($safeProgress/$safeTotal - $percentage%)',
-      notificationDetails,
+      id: _notificationId,
+      title: title,
+      body: '$body ($safeProgress/$safeTotal - $percentage%)',
+      notificationDetails: notificationDetails,
       payload: payload,
     );
 
@@ -155,10 +155,10 @@ class NotificationService {
     );
 
     await _notifications.show(
-      _notificationId,
-      'Qinspecting',
-      'Progreso: $safeProgress/$safeTotal ($percentage%)',
-      notificationDetails,
+      id: _notificationId,
+      title: 'Qinspecting',
+      body: 'Progreso: $safeProgress/$safeTotal ($percentage%)',
+      notificationDetails: notificationDetails,
     );
   }
 
@@ -193,10 +193,10 @@ class NotificationService {
     );
 
     await _notifications.show(
-      _notificationId + 1,
-      title,
-      body,
-      notificationDetails,
+      id: _notificationId + 1,
+      title: title,
+      body: body,
+      notificationDetails: notificationDetails,
       payload: payload,
     );
   }
@@ -232,10 +232,10 @@ class NotificationService {
     );
 
     await _notifications.show(
-      _notificationId + 2,
-      title,
-      body,
-      notificationDetails,
+      id: _notificationId + 2,
+      title: title,
+      body: body,
+      notificationDetails: notificationDetails,
       payload: payload,
     );
   }
@@ -247,7 +247,7 @@ class NotificationService {
 
   /// Cancela la notificación de progreso específica
   static Future<void> cancelProgressNotification() async {
-    await _notifications.cancel(_notificationId);
+    await _notifications.cancel(id: _notificationId);
   }
 
   /// Obtiene el estado de las notificaciones

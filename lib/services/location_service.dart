@@ -59,7 +59,9 @@ class LocationService {
 
       // Obtener ubicación actual
       Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
       );
 
       // Obtener dirección desde coordenadas
