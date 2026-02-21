@@ -174,10 +174,22 @@ class RealBackgroundUploadService with WidgetsBindingObserver {
 
         print('🎉 DEBUG: Subida completada exitosamente usando sendInspeccion');
       } else {
+        await AppLogService.logError(
+          'ENVIO_SEGUNDO_PLANO',
+          'Error en sendInspeccion (segundo plano): ${result['message']}',
+          error: result['message'],
+        );
         throw Exception('Error en sendInspeccion: ${result['message']}');
       }
-    } catch (e) {
+    } catch (e, st) {
       print('❌ ERROR: Error en _performUploadUsingExistingFunction: $e');
+
+      await AppLogService.logError(
+        'ENVIO_SEGUNDO_PLANO',
+        'Error en subida en segundo plano.',
+        error: e,
+        stackTrace: st,
+      );
 
       // Mostrar notificación de error
       await NotificationService.showErrorNotification(

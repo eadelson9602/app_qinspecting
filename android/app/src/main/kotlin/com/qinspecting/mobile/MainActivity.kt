@@ -10,7 +10,6 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.updatePadding
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.plugins.GeneratedPluginRegistrant
 
 class MainActivity : FlutterActivity() {
 
@@ -45,9 +44,7 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        GeneratedPluginRegistrant.registerWith(flutterEngine)
-
-        // Registrar plugin personalizado para el servicio de primer plano
+        // Los plugins se registran automáticamente en super. Solo añadimos el nuestro.
         flutterEngine.plugins.add(UploadServicePlugin())
     }
 }
