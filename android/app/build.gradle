@@ -15,6 +15,33 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+// Versión: 1) Flutter plugin (pubspec), 2) local.properties, 3) leer pubspec.yaml
+def localPropertiesFile = rootProject.file("local.properties")
+def localProperties = new Properties()
+if (localPropertiesFile.exists()) {
+    localProperties.load(new FileInputStream(localPropertiesFile))
+}
+def pubspecFile = rootProject.file("../pubspec.yaml")
+def versionCodeFallback = localProperties.getProperty("flutter.versionCode", "1").toInteger()
+def versionNameFallback = localProperties.getProperty("flutter.versionName", "1.0.0")
+if (pubspecFile.exists()) {
+    def pubspec = pubspecFile.text
+    def versionMatch = (pubspec =~ /^version:\s*([^\s]+)/).find()
+    if (versionMatch) {
+        def v = versionMatch[1].toString().split("\\+")
+        if (v.length >= 2) {
+            versionNameFallback = v[0]
+            versionCodeFallback = v[1].toInteger()
+        }
+    }
+}
+def versionCodeFinal = versionCodeFallback
+def versionNameFinal = versionNameFallback
+try {
+    if (flutter.versionCode != null) versionCodeFinal = flutter.versionCode
+    if (flutter.versionName != null) versionNameFinal = flutter.versionName
+} catch (ignored) {}
+
 android {
     namespace = "com.qinspecting.mobile"
     compileSdk = 36
@@ -43,9 +70,9 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review/gradle-config.
         minSdkVersion = flutter.minSdkVersion
-        targetSdk = 35
-        versionCode = flutterVersionCode.toInteger()
-        versionName = flutterVersionName
+        targetSdk = flutter.targetSdkVersion
+        versionCode = versionCodeFinal
+        versionName = versionNameFinal
     }
 
     signingConfigs {
