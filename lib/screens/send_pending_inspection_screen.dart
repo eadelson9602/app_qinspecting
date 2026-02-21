@@ -143,13 +143,28 @@ class _ContentCardInspectionPendingState
     try {
       inspeccionService.indexSelected = 0;
       inspeccionService.updateSaving(true);
-      await inspeccionService.sendInspeccion(
+      final result = await inspeccionService.sendInspeccion(
           allInspecciones[0], loginService.selectedEmpresa);
-      await inspeccionProvider
-          .eliminarResumenPreoperacional(allInspecciones[0].id!);
-      await inspeccionProvider
-          .eliminarRespuestaPreoperacional(allInspecciones[0].id!);
-      if (mounted) setState(() {});
+      if (result['ok'] == true) {
+        await inspeccionProvider
+            .eliminarResumenPreoperacional(allInspecciones[0].id!);
+        await inspeccionProvider
+            .eliminarRespuestaPreoperacional(allInspecciones[0].id!);
+        if (mounted) setState(() {});
+      } else {
+        await AppLogService.logError(
+          'ENVIO_AUTO',
+          'Envío automático falló: ${result['message']}',
+          error: result['message'],
+        );
+      }
+    } catch (e, st) {
+      await AppLogService.logError(
+        'ENVIO_AUTO',
+        'Error inesperado en envío automático de inspección.',
+        error: e,
+        stackTrace: st,
+      );
     } finally {
       inspeccionService.updateSaving(false);
     }
@@ -219,6 +234,11 @@ class _ContentCardInspectionPendingState
           ),
         );
       } else {
+        await AppLogService.logError(
+          'ENVIO_INSPECCION',
+          'Error al enviar inspección: ${result['message']}',
+          error: result['message'],
+        );
         scaffoldMessenger.showSnackBar(
           SnackBar(
             content: Text('Error: ${result['message']}'),
@@ -227,7 +247,13 @@ class _ContentCardInspectionPendingState
         );
         inspeccionService.updateSaving(false);
       }
-    } catch (e) {
+    } catch (e, st) {
+      await AppLogService.logError(
+        'ENVIO_INSPECCION',
+        'Error inesperado al iniciar envío de inspección.',
+        error: e,
+        stackTrace: st,
+      );
       scaffoldMessenger.showSnackBar(
         SnackBar(
           content: Text('Error inesperado: $e'),

@@ -374,9 +374,21 @@ class InspeccionService extends ChangeNotifier {
         print('❌ ERROR: No response data available');
       }
 
+      await AppLogService.logError(
+        'SUBIDA_IMAGEN',
+        'Error al subir imagen: ${error.type} - ${error.message}',
+        error: error.response?.data ?? error.message,
+        stackTrace: error.stackTrace,
+      );
       return Future.error(error.response?.data ?? error.message);
-    } catch (e) {
+    } catch (e, st) {
       print('❌ ERROR: Error inesperado en uploadImage: $e');
+      await AppLogService.logError(
+        'SUBIDA_IMAGEN',
+        'Error inesperado al subir imagen.',
+        error: e,
+        stackTrace: st,
+      );
       return Future.error(e);
     }
   }
@@ -781,6 +793,10 @@ class InspeccionService extends ChangeNotifier {
         notifyListeners();
         return resumen.toMap();
       } else {
+        await AppLogService.logError(
+          'ENVIO_INSPECCION',
+          'Sin conexión a internet. No se pudo enviar la inspección.',
+        );
         showSimpleNotification(
           Text('Debe conectarse a internet'),
           leading: Icon(Icons.wifi_off),
@@ -795,6 +811,18 @@ class InspeccionService extends ChangeNotifier {
         };
       }
     } on DioException catch (error) {
+      await AppLogService.logError(
+        'ENVIO_INSPECCION',
+        'No se ha podido guardar la inspección en el servidor.',
+        error: '${error.type}: ${error.message}',
+        stackTrace: error.stackTrace,
+      );
+      if (error.response != null) {
+        await AppLogService.logError(
+          'ENVIO_INSPECCION',
+          'Respuesta del servidor: ${error.response?.statusCode} - ${error.response?.data}',
+        );
+      }
       print(error.response?.data);
       showSimpleNotification(Text('No se ha podido guardar la inspección'),
           leading: Icon(Icons.check),
@@ -802,6 +830,14 @@ class InspeccionService extends ChangeNotifier {
           background: Colors.orange,
           position: NotificationPosition.bottom);
       return Future.error(error.response?.data);
+    } catch (e, st) {
+      await AppLogService.logError(
+        'ENVIO_INSPECCION',
+        'Error inesperado al enviar la inspección.',
+        error: e,
+        stackTrace: st,
+      );
+      rethrow;
     } finally {
       // Cancelar notificación de progreso en caso de error
       await NotificationService.cancelProgressNotification();
@@ -887,7 +923,13 @@ class InspeccionService extends ChangeNotifier {
         "idInspeccion": inspeccion.id ?? 0,
         "background": true,
       };
-    } catch (e) {
+    } catch (e, st) {
+      await AppLogService.logError(
+        'ENVIO_SEGUNDO_PLANO',
+        'Error iniciando subida en segundo plano.',
+        error: e,
+        stackTrace: st,
+      );
       showSimpleNotification(
         Text('Error iniciando subida en segundo plano'),
         leading: Icon(Icons.error),
