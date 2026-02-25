@@ -3,6 +3,7 @@ package com.qinspecting.mobile
 import android.os.Bundle
 import android.view.View
 import androidx.core.graphics.Insets
+import androidx.core.splashscreen.SplashScreen
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -14,6 +15,8 @@ import io.flutter.embedding.engine.FlutterEngine
 class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Android 12+: mantener splash del sistema hasta que Flutter dibuje el primer frame
+        SplashScreen.installSplashScreen(this)
         super.onCreate(savedInstanceState)
         
         /**

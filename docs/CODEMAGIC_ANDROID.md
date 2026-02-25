@@ -82,9 +82,39 @@ En `build.gradle` ya se usa `file(keystoreProperties['storeFile'])`, que resuelv
 
 ---
 
-## Publicar en Google Play: "Changes cannot be sent for review automatically"
+## Publicar en Google Play: errores con "changesNotSentForReview"
 
-Si el build sube el AAB pero falla con:
+Hay dos errores posibles según lo que exija Google para tu track.
+
+### Error 1: "The query parameter changesNotSentForReview must not be set"
+
+Si falla con:
+
+```text
+Changes are sent for review automatically. The query parameter changesNotSentForReview must not be set.
+```
+
+significa que para este track (p. ej. **internal**) Google **sí** envía los cambios a revisión automáticamente, y **no** debe enviarse el parámetro `changesNotSentForReview`.
+
+**Solución:**
+
+- **Workflow Editor (UI):** En Codemagic → tu app → **Publish** → Google Play, **desactiva** la opción **"Changes not sent for review"** / **"Submit as draft"** (o equivalente).
+- **codemagic.yaml:** En la sección `publishing.google_play` **no** pongas `changes_not_sent_for_review: true`, o bórralo si está. Debe quedar solo algo como:
+
+```yaml
+publishing:
+  google_play:
+    credentials: $GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS
+    track: internal
+```
+
+Vuelve a lanzar el build.
+
+---
+
+### Error 2: "Changes cannot be sent for review automatically"
+
+Si en cambio falla con:
 
 ```text
 Setting release for Google Play track internal failed.
@@ -93,33 +123,24 @@ Changes cannot be sent for review automatically. Please set the query parameter 
 
 significa que Google Play **no** permite enviar esta publicación a revisión de forma automática. Hay que indicar que los cambios **no** se envíen a revisión y luego enviarlos manualmente desde Play Console.
 
-### Opción A: Codemagic con **Workflow Editor** (interfaz web)
+**Opción A: Workflow Editor**
 
-1. Entra en **Codemagic** → tu app → **Publish** (o el paso de publicación a Google Play).
-2. En la sección **Google Play**, busca una opción tipo **"Submit as draft"** o **"Changes not sent for review"**.
-3. Activa **"Changes not sent for review"** (o el equivalente que ofrezca la UI).
-4. Guarda y vuelve a lanzar el build.
+1. En Codemagic → **Publish** → Google Play, activa **"Changes not sent for review"**.
+2. Guarda y vuelve a lanzar el build.
 
-Si no ves esa opción, usa **codemagic.yaml** (Opción B).
+**Opción B: codemagic.yaml**
 
-### Opción B: Codemagic con **codemagic.yaml**
-
-En la sección de publicación a Google Play añade `changes_not_sent_for_review: true`:
+Añade `changes_not_sent_for_review: true`:
 
 ```yaml
 publishing:
   google_play:
     credentials: $GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS
     track: internal
-    changes_not_sent_for_review: true   # Los cambios se envían a revisión desde Play Console
+    changes_not_sent_for_review: true
 ```
 
-### Después del build
-
-1. El AAB se sube y el release queda **guardado** en la pestaña correspondiente (p. ej. Internal testing).
-2. Entra en **Google Play Console** → tu app → **Testing** → **Internal testing** (o el track que uses).
-3. Verás el release en estado "Ready to send for review" o similar.
-4. Haz clic en **"Send for review"** (o "Enviar para revisión") cuando quieras que Google lo revise.
+**Después del build:** entra en Google Play Console → Internal testing y envía el release a revisión manualmente cuando quieras.
 
 Referencia: [Codemagic - Google Play publishing](https://docs.codemagic.io/yaml-publishing/google-play/), [Common Google Play errors](https://docs.codemagic.io/troubleshooting/common-google-play-errors).
 
@@ -132,6 +153,18 @@ Referencia: [Codemagic - Google Play publishing](https://docs.codemagic.io/yaml-
 | **pubspec.yaml**| `version: X.Y.Z+BUILD` → versión por defecto en el build. |
 | **local.properties** | Opcional: `flutter.versionCode` y `flutter.versionName` como fallback (útil si en CI no se leen del plugin). |
 | **Codemagic**   | Crear `key.properties` en el script con variables secretas y tener el `.jks` en Secure storage (o copiado a `android/`). |
-| **Codemagic (publicar)** | Si falla "Changes cannot be sent for review automatically", activar **Changes not sent for review** en el paso de Google Play o en codemagic.yaml: `changes_not_sent_for_review: true`. Luego enviar a revisión desde Google Play Console. |
+| **Codemagic (publicar)** | Si falla "**changesNotSentForReview must not be set**", **desactivar** "Changes not sent for review" en Google Play (o quitar `changes_not_sent_for_review` del yaml). Si falla "**Changes cannot be sent for review automatically**", activar "Changes not sent for review" o añadir `changes_not_sent_for_review: true` y enviar a revisión desde Play Console. |
 
 No subas `local.properties` ni `key.properties` al repositorio; en Codemagic se generan en cada build.
+
+---
+
+## ANR en arranque (nativeSurfaceCreated)
+
+Si aparecen ANR en `FlutterJNI.nativeSurfaceCreated` (sobre todo en dispositivos Google/Pixel):
+
+- **Causa:** demasiado trabajo en el hilo principal antes de que Flutter dibuje el primer frame (inicialización síncrona en `main()` o en `MainActivity`).
+- **Qué se hizo en la app:**
+  - **Inicialización diferida:** en `lib/main.dart` solo se ejecutan antes de `runApp()` Firebase, Crashlytics y los handlers de error. El resto (notificaciones, subida en segundo plano, listener de conectividad, `ErrorHandler`) se ejecuta en `addPostFrameCallback` tras el primer frame.
+  - **Splash Screen API (Android 12+):** en `MainActivity` se llama a `SplashScreen.installSplashScreen(this)` antes de `super.onCreate()` para que el sistema muestre el splash hasta que Flutter pinte.
+- **Recomendaciones:** no añadir más `await` pesados en `main()` antes de `runApp()`; mantener Flutter y plugins actualizados; perfilar el arranque en dispositivos afectados con Android Studio CPU Profiler.

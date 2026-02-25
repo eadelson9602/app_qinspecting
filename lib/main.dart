@@ -21,61 +21,63 @@ void main() async {
   // Configurar Flutter para evitar errores del mouse tracker
   WidgetsFlutterBinding.ensureInitialized();
 
+  // --- Inicialización mínima antes del primer frame (evita ANR en nativeSurfaceCreated) ---
   try {
-    // Inicializar Firebase
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    print('[Firebase] ✅ Inicializado correctamente');
+    if (kDebugMode) print('[Firebase] ✅ Inicializado correctamente');
 
-    // Inicializar Crashlytics
     await CrashlyticsService.initialize();
-
-    // Configurar Crashlytics para modo debug
     if (kDebugMode) {
       await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
       print('[Firebase] 🔍 Crashlytics habilitado para debug');
     }
 
-    // Configurar manejo de errores de Flutter
     FlutterError.onError = (FlutterErrorDetails details) {
       FirebaseCrashlytics.instance.recordFlutterFatalError(details);
       FlutterError.presentError(details);
-      print('Flutter Error: ${details.exception}');
+      if (kDebugMode) print('Flutter Error: ${details.exception}');
     };
 
-    // Configurar manejo de errores de plataforma
     PlatformDispatcher.instance.onError = (error, stack) {
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-      print('Platform Error: $error');
+      if (kDebugMode) print('Platform Error: $error');
       return true;
     };
-
-    // Inicializar servicios de notificaciones y trabajo en segundo plano
-    await NotificationService.initialize();
-    await BackgroundUploadService.initialize();
-    await RealBackgroundUploadService.initialize();
-
-    // Inicializar el listener de conectividad para subida automática
-    ConnectivityListenerService().initialize();
-    print('[App] ✅ Listener de conectividad inicializado');
-
-    // Inicializar el manejador de errores
-    ErrorHandler.initialize();
-
-    print('[App] ✅ Todos los servicios inicializados correctamente');
   } catch (e) {
-    print('[App] ❌ Error al inicializar servicios: $e');
-    // Registrar error en Crashlytics si está disponible
+    if (kDebugMode) print('[App] ❌ Error en init crítica: $e');
     try {
       await CrashlyticsService.recordError(e, StackTrace.current,
           reason: 'Error en inicialización de app');
-    } catch (_) {
-      // Si Crashlytics no está disponible, continuar sin él
-    }
+    } catch (_) {}
   }
 
+  // Arrancar la UI de inmediato para reducir riesgo de ANR en creación de superficie
   runApp(const AppState());
+
+  // Inicialización diferida tras el primer frame (no bloquea nativeSurfaceCreated)
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    _deferredInit();
+  });
+}
+
+/// Servicios que no son críticos para el primer frame; se ejecutan después de pintar.
+Future<void> _deferredInit() async {
+  try {
+    await NotificationService.initialize();
+    await BackgroundUploadService.initialize();
+    await RealBackgroundUploadService.initialize();
+    ConnectivityListenerService().initialize();
+    ErrorHandler.initialize();
+    if (kDebugMode) print('[App] ✅ Servicios diferidos inicializados');
+  } catch (e) {
+    if (kDebugMode) print('[App] ❌ Error en init diferida: $e');
+    try {
+      await CrashlyticsService.recordError(e, StackTrace.current,
+          reason: 'Error en inicialización diferida de app');
+    } catch (_) {}
+  }
 }
 
 class AppState extends StatelessWidget {
